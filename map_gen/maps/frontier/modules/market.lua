@@ -95,7 +95,7 @@ function Market.spawn_exchange_market(position)
           local cheap_value = Market.market_items[cheap]
           local expensive_value = Market.market_items[expensive]
           local price = expensive_value / cheap_value
-          local nerf = 1.4^5 * math_clamp(math_sqrt(this.max_distance / (position.x * 10)), 1.2, 10) * (1 + math_random()) -- 1.4 = productivity, + some distance scaling. Further ) better offers
+          local nerf = Public.PROD_PENALTY * math_clamp(math_sqrt(this.max_distance / (position.x * 10)), 1, 4) * (1 + math_random()) -- 1.4 = productivity, + some distance scaling. Further ) better offers
           price = math_min(math_ceil(price * nerf), 2^16-1)
           local stack_size = game.item_prototypes[cheap].stack_size
           if price / stack_size < 50 then

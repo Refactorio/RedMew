@@ -14,8 +14,6 @@ local math_floor = math.floor
 local math_max = math.max
 local math_min = math.min
 local math_random = math.random
-local SECOND = 60
-local MINUTE = SECOND * 60
 
 local RocketSilo = {}
 
@@ -114,6 +112,7 @@ function RocketSilo.move_silo(position)
   local old_position = old_silo and old_silo.position or { x = 0, y = 0 }
   local new_silo
   local new_position = position or { x = this.x, y = this.y }
+  local init = false
 
   if old_silo and math_abs(new_position.x - old_position.x) < this.min_step then
     this.move_buffer = this.move_buffer + new_position.x - old_position.x
@@ -172,6 +171,7 @@ function RocketSilo.move_silo(position)
     local enemy_evolution = game.map_settings.enemy_evolution
     enemy_evolution.time_factor = enemy_evolution.time_factor * 1.01
   else
+    init = true
     new_silo = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
   end
 
@@ -186,11 +186,13 @@ function RocketSilo.move_silo(position)
     this.move_buffer = 0
     Terrain.set_silo_tiles(new_silo)
 
-    local x_diff = math.round(new_position.x - old_position.x)
-    if x_diff > 0 then
-      game.print({'frontier.silo_forward', x_diff})
-    else
-      game.print({'frontier.silo_backward', x_diff})
+    if not init then
+      local x_diff = math.round(new_position.x - old_position.x)
+      if x_diff > 0 then
+        game.print({'frontier.silo_forward', x_diff})
+      else
+        game.print({'frontier.silo_backward', x_diff})
+      end
     end
   end
 end
@@ -236,11 +238,7 @@ function RocketSilo.compute_silo_coordinates(step)
   this.y = math_random(-max_height, max_height)
 end
 
-function RocketSilo.reveal_spawn_area()
-  local surface = Public.surface()
-  surface.request_to_generate_chunks({ x = 0, y = 0 }, 1)
-  surface.force_generate_chunk_requests()
-
+function RocketSilo.init_silo()
   RocketSilo.compute_silo_coordinates(Public.get().silo_starting_x + math_random(100))
   RocketSilo.move_silo()
 end
@@ -263,55 +261,6 @@ function RocketSilo.set_game_state(player_won)
   Task.set_timeout(100, RocketSilo.restart_game_token)
 end
 RocketSilo.set_game_state_token = Token.register(RocketSilo.set_game_state)
-
-function RocketSilo.on_game_started()
-  local ms = game.map_settings
-  ms.enemy_expansion.friendly_base_influence_radius = 0
-  ms.enemy_expansion.min_expansion_cooldown = SECOND * 30
-  ms.enemy_expansion.max_expansion_cooldown = MINUTE * 4
-  ms.enemy_expansion.max_expansion_distance = 5
-  ms.enemy_evolution.destroy_factor = 0.0001
-  ms.enemy_evolution.time_factor = 0.000015
-  ms.pollution.ageing  = 0.5 --1
-  ms.pollution.diffusion_ratio = 0.04 -- 0.02
-  ms.pollution.enemy_attack_pollution_consumption_modifier = 0.5 --1
-
-  local this = Public.get()
-  this.rounds = this.rounds + 1
-  this.kraken_contributors = {}
-  this.death_contributions = {}
-  this.rockets_to_win = 12 + math_random(12) + this.rounds
-  this.rockets_launched = 0
-  this.scenario_finished = false
-  this.x = 0
-  this.y = 0
-  this.rocket_silo = nil
-  this.move_buffer = 0
-  this.invincible = {}
-  this.target_entities = {}
-  this.unit_groups = {}
-  this.spawn_shop_funds = 1
-  this.spawn_shop_upgrades = {}
-
-  if _DEBUG then
-    this.silo_starting_x = 30
-    this.rockets_to_win = 2
-    this.spawn_shop_funds = 3
-  end
-
-  for _, force in pairs(game.forces) do
-    force.reset()
-    force.reset_evolution()
-  end
-
-  game.speed = 1
-  game.reset_game_state()
-  game.reset_time_played()
-
-  ScoreTracker.reset()
-  ScoreTracker.set_for_global(Public.scores.rocket_launches.name, this.rockets_to_win)
-  ScoreTracker.set_for_global(Public.scores.shop_funds.name, this.spawn_shop_funds)
-end
 
 RocketSilo.restart_game_token = Token.register(function()
   script.raise_event(Public.events.on_game_started, {})
@@ -365,6 +314,42 @@ function RocketSilo.on_rocket_launched(event)
   Task.set_timeout_in_ticks(ticks + 30, RocketSilo.move_silo_token)
   local silo = event.rocket_silo
   if silo then silo.active = false end
+end
+
+function RocketSilo.on_player_died(event)
+  local player = game.get_player(event.player_index)
+  if not (player and player.valid) then
+    return
+  end
+
+  local cause = event.cause
+  if not cause or not cause.valid then
+    return
+  end
+  if cause.force == player.force then
+    return
+  end
+
+  local this = Public.get()
+  if this.rockets_per_death <= 0 then
+    return
+  end
+
+  local player_name = 'a player'
+  if player then
+    player_name = player.name
+    this.death_contributions[player_name] = (this.death_contributions[player_name] or 0) + 1
+  end
+
+  this.rockets_to_win = this.rockets_to_win + this.rockets_per_death
+  ScoreTracker.set_for_global(RocketSilo.scores.rocket_launches.name, this.rockets_to_win - this.rockets_launched)
+
+  game.print({'frontier.add_rocket', this.rockets_per_death, player_name, (this.rockets_to_win - this.rockets_launched)})
+end
+
+function RocketSilo.kraken_eat_entity(entity)
+  game.print({'frontier.kraken_eat', entity.localised_name}, { sound_path = 'utility/axe_fighting' })
+  entity.die('enemy')
 end
 
 return RocketSilo

@@ -37,6 +37,14 @@ local noise_weights = {
 }
 local mixed_ores = { 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'iron-ore', 'copper-ore', 'iron-ore', 'coal', 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'coal'}
 
+if script.active_mods['Krastorio2'] then
+  autoplace_controls['imersite']      = { frequency = 2, richness = 0.6, size = 0.75 }
+  autoplace_controls['mineral-water'] = { frequency = 2, richness = 0.6, size = 0.75 }
+  autoplace_controls['rare-metals']   = { frequency = 2, richness = 0.6, size = 0.85 }
+  blacklisted_resources['imersite'] = true
+  blacklisted_resources['mineral-water'] = true
+  blacklisted_resources['rare-metals'] = true
+end
 if script.active_mods['zombiesextended-core'] then
   autoplace_controls['gold-ore']      = { frequency = 0.5, richness = 0.5, size = 0.5  }
   autoplace_controls['vibranium-ore'] = { frequency = 0.5, richness = 0.5, size = 0.5  }
@@ -177,7 +185,6 @@ function Terrain.scale_resource_richness(surface, area)
       if resource.prototype.resource_category == 'basic-fluid' then
         resource.amount = 3000 * 3 * chunks
       elseif resource.prototype.resource_category == 'basic-solid' then
-        --resource.amount = this.ore_base_quantity * chunks
         resource.amount = math_min(0.7 * resource.amount, 100 + math_random(100))
       end
     else
@@ -270,6 +277,12 @@ function Terrain.pop_chunk_request(max_requests)
 		players.chart(surface, q_pop(chart_queue))
 		max_requests = max_requests - 1
 	end
+end
+
+function Terrain.reveal_spawn_area()
+  local surface = Public.surface()
+  surface.request_to_generate_chunks({ x = 0, y = 0 }, 1)
+  surface.force_generate_chunk_requests()
 end
 
 return Terrain

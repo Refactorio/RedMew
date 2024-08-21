@@ -69,6 +69,7 @@ Config.redmew_surface.enabled = true
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_shortcuts.enabled = true
+Config.dump_offline_inventories.enabled = true
 Config.player_create.starting_items = {
   { name = 'burner-mining-drill', count = 1 },
   { name = 'stone-furnace', count = 1 },
@@ -76,6 +77,25 @@ Config.player_create.starting_items = {
   { name = 'firearm-magazine', count = 10 },
   { name = 'wood', count = 1 },
 }
+
+if script.active_mods['Krastorio2'] then
+  Config.paint.enabled = false
+  global.config.redmew_qol.loaders = false
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-generator', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-lab-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-assembling-machine-1-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-assembling-machine-2-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-medium-container', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-sentinel', count = 2 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-wind-turbine', count = 5 })
+  table.insert(Config.player_create.starting_items, { name = 'copper-cable', count = 200 })
+  table.insert(Config.player_create.starting_items, { name = 'electronic-circuit', count = 25 })
+  table.insert(Config.player_create.starting_items, { name = 'iron-gear-wheel', count = 35 })
+  table.insert(Config.player_create.starting_items, { name = 'iron-plate', count = 400 })
+  table.insert(Config.player_create.starting_items, { name = 'medium-electric-pole', count = 5 })
+  table.insert(Config.player_create.starting_items, { name = 'steel-chest', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'wood', count = 49 })
+end
 
 do
   local global_to_show = Config.score.global_to_show
@@ -87,18 +107,6 @@ end
 
 -- == EVENTS ==================================================================
 
-local function on_init()
-  Lobby.on_init()
-  RocketSilo.on_game_started()
-  RocketSilo.reveal_spawn_area()
-  Terrain.queue_reveal_map()
-  SpawnShop.on_game_started()
-
-  Public.get().lobby_enabled = false
-  Lobby.teleport_all_from()
-end
-Event.on_init(on_init)
-
 local function on_tick()
   local tick = game.tick
 
@@ -109,9 +117,10 @@ end
 Event.add(defines.events.on_tick, on_tick)
 
 local function on_game_started()
-  RocketSilo.on_game_started()
-  RocketSilo.reveal_spawn_area()
+  Public.reset()
+  Terrain.reveal_spawn_area()
   Terrain.queue_reveal_map()
+  RocketSilo.init_silo()
   SpawnShop.on_game_started()
 
   Public.get().lobby_enabled = false
@@ -206,30 +215,7 @@ local function on_player_died(event)
   end
 
   SpawnShop.destroy_gui(player)
-
-  local cause = event.cause
-  if not cause or not cause.valid then
-    return
-  end
-  if cause.force == player.force then
-    return
-  end
-
-  local this = Public.get()
-  if this.rockets_per_death <= 0 then
-    return
-  end
-
-  local player_name = 'a player'
-  if player then
-    player_name = player.name
-    this.death_contributions[player_name] = (this.death_contributions[player_name] or 0) + 1
-  end
-
-  this.rockets_to_win = this.rockets_to_win + this.rockets_per_death
-  ScoreTracker.set_for_global(RocketSilo.scores.rocket_launches.name, this.rockets_to_win - this.rockets_launched)
-
-  game.print({'frontier.add_rocket', this.rockets_per_death, player_name, (this.rockets_to_win - this.rockets_launched)})
+  RocketSilo.on_player_died(event)
 end
 Event.add(defines.events.on_player_died, on_player_died)
 
@@ -282,10 +268,20 @@ local function on_built_entity(event)
     return
   end
 
+  local this = Public.get()
+  if entity.position.x < -(this.kraken_distance + this.left_boundary * 32) then
+    RocketSilo.kraken_eat_entity(entity)
+    return
+  end
   Enemy.start_tracking(entity)
 end
 Event.add(defines.events.on_built_entity, on_built_entity)
 Event.add(defines.events.on_robot_built_entity, on_built_entity)
+
+local function on_entity_damaged(event)
+  SpawnShop.on_entity_damaged(event)
+end
+Event.add(defines.events.on_entity_damaged, on_entity_damaged)
 
 local function on_entity_destroyed(event)
   local unit_number = event.unit_number
@@ -364,6 +360,12 @@ local function on_gui_click(event)
   end
 end
 Event.add(defines.events.on_gui_click, on_gui_click)
+
+local function on_init()
+  Lobby.on_init()
+  on_game_started()
+end
+Event.on_init(on_init)
 
 -- == COMMANDS ================================================================
 

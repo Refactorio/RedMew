@@ -2,6 +2,11 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Queue = require 'utils.queue'
 local RS = require 'map_gen.shared.redmew_surface'
+local ScoreTracker = require 'utils.score_tracker'
+
+local SECOND = 60
+local MINUTE = SECOND * 60
+local math_random = math.random
 
 local Public = {}
 
@@ -82,19 +87,80 @@ local this = {
   -- Spawn shop
   spawn_shop = nil,
   spawn_shop_funds = 0,
-  spawn_shop_players_in_gui_view = {},
-  spawn_shop_gui_refresh_scheduled = {},
   spawn_shop_upgrades = {},
+  spawn_shop_cooldown = {},
 }
 
 Global.register(this, function(tbl) this = tbl end)
 
-function Public.get()
+function Public.get(key)
+  if key then
+    return this[key]
+  end
   return this
+end
+
+function Public.set(key, value)
+  this[key] = value
 end
 
 function Public.surface()
   return RS.get_surface()
+end
+
+function Public.reset()
+  local ms = game.map_settings
+  ms.enemy_expansion.friendly_base_influence_radius = 0
+  ms.enemy_expansion.min_expansion_cooldown = SECOND * 30
+  ms.enemy_expansion.max_expansion_cooldown = MINUTE * 4
+  ms.enemy_expansion.max_expansion_distance = 5
+  ms.enemy_evolution.destroy_factor = 0.0001
+  ms.enemy_evolution.time_factor = 0.000004 -- default: 0.000004, dw: 0.000015
+  ms.pollution.ageing = 1 -- default: 1, dw: 0.5
+  ms.pollution.diffusion_ratio = 0.02 -- default: 0.02, dw: 0.04
+  ms.pollution.enemy_attack_pollution_consumption_modifier = 1 -- default: 1, dw: 0.5
+
+  this.rounds = this.rounds + 1
+  this.kraken_contributors = {}
+  this.death_contributions = {}
+  this.rockets_to_win = 12 + math_random(12) + this.rounds
+  this.rockets_launched = 0
+  this.scenario_finished = false
+  this.x = 0
+  this.y = 0
+  this.rocket_silo = nil
+  this.move_buffer = 0
+  this.invincible = {}
+  this.target_entities = {}
+  this.unit_groups = {}
+  this.spawn_shop_funds = 1
+  this.spawn_shop_upgrades = {}
+  this.spawn_shop_cooldown = {}
+
+  if _DEBUG then
+    this.silo_starting_x = 30
+    this.rockets_to_win = 2
+    this.spawn_shop_funds = 3
+  end
+
+  for _, force in pairs(game.forces) do
+    force.reset()
+    force.reset_evolution()
+  end
+
+  game.speed = 1
+  game.reset_game_state()
+  game.reset_time_played()
+
+  ScoreTracker.reset()
+  ScoreTracker.set_for_global(Public.scores.rocket_launches.name, this.rockets_to_win)
+  ScoreTracker.set_for_global(Public.scores.shop_funds.name, this.spawn_shop_funds)
+
+  if script.active_mods['Krastorio2'] then
+    if remote.interfaces['redmew-data'] and remote.interfaces['redmew-data']['set_spawn_x'] then
+      remote.call( 'redmew-data', 'set_spawn_x', this.right_boundary * 32 + 96 )
+    end
+  end
 end
 
 return Public
