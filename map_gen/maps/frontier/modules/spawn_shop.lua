@@ -505,7 +505,7 @@ function SpawnShop.on_entity_damaged(event)
     return
   end
   local this = Public.get()
-  if this.spawn_shop and this.spawn_shop.valid and entity.unit_number ~= this.spawn_shop.unit_number then
+  if this.spawn_shop and this.spawn_shop.valid and entity.unit_number == this.spawn_shop.unit_number then
     local cause = event.cause
     local players = game.forces.player
     if cause and cause.valid and cause.force == players or event.force == players then

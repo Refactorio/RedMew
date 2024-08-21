@@ -81,6 +81,20 @@ Config.player_create.starting_items = {
 if script.active_mods['Krastorio2'] then
   Config.paint.enabled = false
   global.config.redmew_qol.loaders = false
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-generator', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-lab-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-assembling-machine-1-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-assembling-machine-2-repaired', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-medium-container', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-sentinel', count = 2 })
+  table.insert(Config.player_create.starting_items, { name = 'kr-wind-turbine', count = 5 })
+  table.insert(Config.player_create.starting_items, { name = 'copper-cable', count = 200 })
+  table.insert(Config.player_create.starting_items, { name = 'electronic-circuit', count = 25 })
+  table.insert(Config.player_create.starting_items, { name = 'iron-gear-wheel', count = 35 })
+  table.insert(Config.player_create.starting_items, { name = 'iron-plate', count = 400 })
+  table.insert(Config.player_create.starting_items, { name = 'medium-electric-pole', count = 5 })
+  table.insert(Config.player_create.starting_items, { name = 'steel-chest', count = 1 })
+  table.insert(Config.player_create.starting_items, { name = 'wood', count = 49 })
 end
 
 do
