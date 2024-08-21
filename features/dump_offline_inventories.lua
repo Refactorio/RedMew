@@ -36,7 +36,7 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
         defines.inventory.character_trash,
     }
 
-    if game.tick < config.startup_gear_drop_hours * HOUR_TO_TICKS or Rank.less_than(player.name, Ranks.regular) then
+    if banned or game.tick < config.startup_gear_drop_hours * HOUR_TO_TICKS or Rank.less_than(player.name, Ranks.regular) then
         table.insert(inventory_types, defines.inventory.character_armor)
     end
 
