@@ -74,6 +74,7 @@ local this = {
   -- Debug
   _DEBUG_AI = false,
   _DEBUG_SHOP = false,
+  _DEBUG_NOISE = false,
 
   -- Markets
   banned_items = {

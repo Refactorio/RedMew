@@ -84,8 +84,10 @@ Enemy.commands = {
     data.target = target
     data.stage = Enemy.stages.attack
     unit_group.set_command {
-      type = defines.command.attack,
-      target = target,
+      type = defines.command.attack_area,--defines.command.attack,
+      destination = target.position,
+      radius = 15,
+      --target = target,
       distraction = defines.distraction.by_damage
     }
     if Public.get()._DEBUG_AI then
@@ -100,6 +102,30 @@ Enemy.stages = {
   scout = 3,
   attack = 4,
   fail = 5,
+}
+
+Enemy.turret_raffle = {
+  -- sets must have at least 1 valid turret and 1 valid refill for function(x_distance, evolution)
+  ['base'] = {
+    ['gun-turret']          = { weight =  16, min_distance =    0, refill = { 'firearm-magazine', 'piercing-rounds-magazine', 'uranium-rounds-magazine' } },
+    ['flamethrower-turret'] = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+    ['artillery-turret']    = { weight =  16, min_distance = 1e12, refill = { 'artillery-shell' } }
+  },
+  ['Krastorio2'] = {
+    ['gun-turret']          = { weight =  16, min_distance =    0, refill = { 'rifle-magazine', 'armor-piercing-rifle-magazine', 'uranium-rifle-magazine', 'imersite-rifle-magazine' } },
+    ['flamethrower-turret'] = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+    ['kr-railgun-turret']   = { weight = 128, min_distance = 1400, refill = { 'basic-railgun-shell', 'explosion-railgun-shell', 'antimatter-railgun-shell' } },
+    ['kr-rocket-turret']    = { weight =  16, min_distance = 2000, refill = { 'explosive-turret-rocket', 'nuclear-turret-rocket', 'antimatter-turret-rocket' } },
+    ['artillery-turret']    = { weight =  16, min_distance = 1e12, refill = { 'artillery-shell', 'nuclear-artillery-shell', 'antimatter-artillery-shell' } },
+  },
+  ['zombiesextended-core'] = {
+    ['gun-turret']              = { weight =  16, min_distance =    0, refill = { 'firearm-magazine', 'assault-ammo-mk1', 'uranium-rounds-magazine', 'assault-ammo-mk2' } },
+    ['gun-turret-mk1']          = { weight =  64, min_distance =  750, refill = { 'piercing-rounds-magazine', 'assault-ammo-mk1', 'assault-ammo-mk2', 'assault-ammo-mk3' } },
+    ['gun-turret-mk2']          = { weight = 256, min_distance = 1500, refill = { 'assault-ammo-mk1', 'uranium-rounds-magazine', 'assault-ammo-mk2', 'assault-ammo-mk3' } },
+    ['flamethrower-turret']     = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+    ['flamethrower-turret-mk1'] = { weight =   4, min_distance = 1200, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+    ['flamethrower-turret-mk2'] = { weight =  16, min_distance = 1500, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+  }
 }
 
 function Enemy.ai_take_control(unit_group)
@@ -302,6 +328,37 @@ function Enemy.on_spawner_died(event)
   end
 end
 
+function Enemy.roll_turret(x_distance, evolution)
+  local set = Enemy.turret_raffle['base']
+  if script.active_mods['Krastorio2'] then
+    set = Enemy.turret_raffle['Krastorio2']
+  end
+  if script.active_mods['zombiesextended-core'] then
+    set = Enemy.turret_raffle['zombiesextended-core']
+  end
+
+  local weighted_turrets_table = {}
+  for name, data in pairs(set) do
+    if data.min_distance < x_distance then
+      table.insert(weighted_turrets_table, { name, data.weight })
+    end
+  end
+
+  local turret = Table.get_random_weighted(weighted_turrets_table)
+  local refills = set[turret].refill
+  local refill
+  if evolution < 0.2 then
+    refill = refills[1]
+  elseif evolution < 0.5 then
+    refill = refills[2] or refills[#refills]
+  elseif evolution < 0.75 then
+    refill = refills[3] or refills[#refills]
+  else
+    refill = refills[4] or refills[#refills]
+  end
+  return turret, refill
+end
+
 function Enemy.spawn_turret_outpost(position)
   local this = Public.get()
   if position.x < this.right_boundary * 32 + this.wall_width then
@@ -325,31 +382,25 @@ function Enemy.spawn_turret_outpost(position)
   end
 
   local evolution = game.forces.enemy.evolution_factor
-  local ammo = 'firearm-magazine'
-  if math_random() < evolution then
-    ammo = 'piercing-rounds-magazine'
-  end
-  if math_random() < evolution then
-    ammo = 'uranium-rounds-magazine'
-  end
-
   for _, v in pairs({
-    { x = -5, y =  0 },
-    { x =  5, y =  0 },
-    { x =  0, y =  5 },
-    { x =  0, y = -5 },
+    { x = -5, y =  0, direction = defines.direction.west },
+    { x =  5, y =  0, direction = defines.direction.east },
+    { x =  0, y =  5, direction = defines.direction.south },
+    { x =  0, y = -5, direction = defines.direction.north },
   }) do
-      local pos = surface.find_non_colliding_position('gun-turret', { position.x + v.x, position.y + v.y }, 2, 0.5)
+      local turret_name, refill_name = Enemy.roll_turret(position.x, evolution)
+      local pos = surface.find_non_colliding_position(turret_name, { position.x + v.x, position.y + v.y }, 2, 0.5)
       if pos then
         local turret = surface.create_entity {
-          name = 'gun-turret',
+          name = turret_name,
           position = pos,
           force = 'enemy',
           move_stuck_players = true,
           create_build_effect_smoke = true,
+          direction = v.direction,
         }
         if turret and turret.valid then
-          EnemyTurret.register(turret, ammo)
+          EnemyTurret.register(turret, refill_name)
         end
       end
   end
@@ -404,5 +455,13 @@ function Enemy.artillery_explosion(data)
   }
 end
 Enemy.artillery_explosion_token = Token.register(Enemy.artillery_explosion)
+
+function Enemy.on_research_finished(technology)
+  if technology.force.name ~= 'player' then
+    return
+  end
+
+  game.forces.enemy.technologies[technology.name].researched = true
+end
 
 return Enemy

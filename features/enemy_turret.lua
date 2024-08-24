@@ -46,7 +46,10 @@ function Public.register(entity, refill_name)
   }
 
   if data.is_fluid then
-    data.capacity = data.entity.fluidbox.get_capacity(1)
+    data.fluid_stack = {
+      name = data.refill,
+      amount = data.entity.fluidbox.get_capacity(1) or 100
+    }
   else
     data.item_stack = {
       name = data.refill,
@@ -97,9 +100,7 @@ local function on_tick()
   end
 
   if data.is_fluid then
-    local fb = data.entity.fluidbox[1]
-    fb.name = data.refill
-    fb.amount = data.capacity
+    data.entity.insert_fluid(data.fluid_stack)
   else
     data.entity.insert(data.item_stack)
   end

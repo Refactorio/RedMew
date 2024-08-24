@@ -172,6 +172,7 @@ function RocketSilo.move_silo(position)
     enemy_evolution.time_factor = enemy_evolution.time_factor * 1.01
   else
     init = true
+    new_position = surface.find_non_colliding_position('rocket-silo', new_position, 0, 0.5, true)
     new_silo = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
   end
 
@@ -350,6 +351,23 @@ end
 function RocketSilo.kraken_eat_entity(entity)
   game.print({'frontier.kraken_eat', entity.localised_name}, { sound_path = 'utility/axe_fighting' })
   entity.die('enemy')
+end
+
+function RocketSilo.on_research_finished(technology)
+  if technology.force.name ~= 'player' then
+    return
+  end
+  local this = Public.get()
+  local recipes = technology.force.recipes
+  if recipes['rocket-silo'] then
+    recipes['rocket-silo'].enabled = false
+  end
+  if this.rockets_launched == 0 and recipes['landfill'].enabled then
+    recipes['landfill'].enabled = false
+  end
+  if this.rockets_launched > 0 and not recipes['landfill'].enabled then
+    recipes['landfill'].enabled = true
+  end
 end
 
 return RocketSilo
