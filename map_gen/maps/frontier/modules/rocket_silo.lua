@@ -9,7 +9,6 @@ local Enemy = require 'map_gen.maps.frontier.modules.enemy'
 local Terrain = require 'map_gen.maps.frontier.modules.terrain'
 local math_abs = math.abs
 local math_ceil = math.ceil
-local math_clamp = math.clamp
 local math_floor = math.floor
 local math_max = math.max
 local math_min = math.min
@@ -134,6 +133,7 @@ function RocketSilo.move_silo(position)
 
   if old_silo then
     local result_inventory = old_silo.get_output_inventory().get_contents()
+    Terrain.clear_area{ surface = surface, position = new_position, size = 12 }
     new_silo = old_silo.clone { position = new_position, force = old_silo.force, create_build_effect_smoke = true }
     old_silo.destroy()
     local chest = surface.create_entity { name = 'steel-chest', position = old_position, force = 'player', move_stuck_players = true }
@@ -160,10 +160,11 @@ function RocketSilo.move_silo(position)
         for _ = 1, 12 do
           Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
         end
-        for t = 1, math_clamp(math_floor((#game.connected_players) / 2 + 0.5), 1, 5) do
-          Task.set_timeout(15 * t, Enemy.spawn_enemy_wave_token, spawn_target.position)
+        if this.spawn_enemy_wave then
+          for t = 1, math.clamp(math_floor((#game.connected_players) / 2 + 0.5), 1, 5) do
+            Task.set_timeout(15 * t, Enemy.spawn_enemy_wave_token, spawn_target.position)
+          end
         end
-        break
       end
     end
 
@@ -172,7 +173,7 @@ function RocketSilo.move_silo(position)
     enemy_evolution.time_factor = enemy_evolution.time_factor * 1.01
   else
     init = true
-    new_position = surface.find_non_colliding_position('rocket-silo', new_position, 0, 0.5, true)
+    Terrain.clear_area{ surface = surface, position = new_position, size = 12 }
     new_silo = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
   end
 
@@ -195,6 +196,8 @@ function RocketSilo.move_silo(position)
         game.print({'frontier.silo_backward', x_diff})
       end
     end
+  else
+    log('Could not place silo '..serpent.line(new_position))
   end
 end
 RocketSilo.move_silo_token = Token.register(RocketSilo.move_silo)

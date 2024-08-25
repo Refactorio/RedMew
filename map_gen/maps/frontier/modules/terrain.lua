@@ -6,6 +6,7 @@ local Queue = require 'utils.queue'
 local RS = require 'map_gen.shared.redmew_surface'
 local Public = require 'map_gen.maps.frontier.shared.core'
 local math_abs = math.abs
+local math_ceil = math.ceil
 local math_clamp = math.clamp
 local math_floor = math.floor
 local math_max = math.max
@@ -348,17 +349,15 @@ function Terrain.reshape_land(surface, area)
     if math_abs(x) < 16 and math_abs(y) < 16 then
       return
     end
+    if math_abs(x - this.x) < 16 and math_abs(y - this.y) < 16 then
+      return
+    end
 
     local p = { x = x, y = y }
-    --local cave_miner = noise_pattern('cave_miner_01', p, seed)
     local cave_rivers = noise_pattern('cave_rivers', p, seed)
     local no_rocks = noise_pattern('no_rocks', p, seed)
-    --local no_rocks_2 = noise_pattern('no_rocks_2', p, 2 * seed)
     local cave_ponds = noise_pattern('cave_ponds', p, 2 * seed)
-    --local large_caves = noise_pattern('large_caves', p, 2 * seed)
     local small_caves = noise_pattern('dungeons', p, 2 * seed)
-    --local small_caves_2 = noise_pattern('small_caves_2', p, 2 * seed)
-    --local smol_areas = noise_pattern('smol_areas', p, 2 * seed)
 
     -- Chasms
     if cave_ponds < 0.110 and cave_ponds > 0.112 then
@@ -384,7 +383,6 @@ function Terrain.reshape_land(surface, area)
         return { name = x < right_boundary and 'acid-refined-concrete' or 'orange-refined-concrete', position = p }
       end
       if not is_ore(p) then
-        --return { name = 'deepwater', position = p }
         return { name = x < right_boundary and 'green-refined-concrete' or 'red-refined-concrete', position = p }
       else
         return { name = 'cyan-refined-concrete', position = p }
@@ -406,7 +404,7 @@ function Terrain.reshape_land(surface, area)
       end
     end
 
-    -- Chasms
+    -- Chasms2
     if small_caves < -0.54 and cave_ponds < -0.5 then
       if not is_ore(p) then
         return { name = 'out-of-map', position = p }
@@ -422,6 +420,77 @@ function Terrain.reshape_land(surface, area)
     end
   end
   surface.set_tiles(tiles, true)
+end
+
+function Terrain.clear_area(args)
+  if not (args.position and args.surface) then
+    return
+  end
+  local surface = args.surface
+  local position = args.position
+
+  surface.request_to_generate_chunks({ x = position.x, y = position.x }, math_ceil((args.radius or args.size or 32) / 32))
+  surface.force_generate_chunk_requests()
+
+  if args.name then
+    local cb = game.entity_prototypes[args.name].collision_box
+    local area = {
+      left_top = {
+        x = position.x - cb.left_top.x,
+        y = position.y - cb.left_top.y,
+      },
+      right_bottom = {
+        x = position.x + cb.right_bottom.x,
+        y = position.y + cb.right_bottom.y,
+      }
+    }
+    for _, e in pairs(surface.find_entities_filtered{ area = area, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ area = area }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  elseif args.radius then
+    for _, e in pairs(surface.find_entities_filtered{ position = position, radius = args.radius, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ position = position, radius = args.radius }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  elseif args.size then
+    local size = args.size
+    local area = {
+      left_top = {
+        x = position.x - size,
+        y = position.y - size,
+      },
+      right_bottom = {
+        x = position.x + size,
+        y = position.y + size,
+      }
+    }
+    for _, e in pairs(surface.find_entities_filtered{ area = area, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ area = area }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  end
 end
 
 return Terrain

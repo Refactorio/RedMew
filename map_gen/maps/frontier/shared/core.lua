@@ -64,6 +64,7 @@ local this = {
   max_distance = 100000,    -- maximum x distance of rocket silo
 
   -- Enemy data
+  spawn_enemy_wave = false,
   invincible = {},
   target_entities = {},
   unit_groups = {},
