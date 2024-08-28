@@ -397,13 +397,18 @@ Event.on_init(function()
 end)
 
 Event.add(defines.events.on_research_finished, function(event)
-  for _, effect in pairs(event.research.effects or {}) do
+  local technology = event.research
+  if technology.force.name ~= 'player' then
+    return
+  end
+
+  for _, effect in pairs(technology.effects or {}) do
     if effect.recipe then
       add_recipe_products(game.forces.player.recipes[effect.recipe])
     end
   end
 
-  if event.research.name == 'space-science-pack' then
+  if technology.name == 'space-science-pack' then
     item_unlocked['space-science-pack'] = item_worths['space-science-pack']
   end
 end)

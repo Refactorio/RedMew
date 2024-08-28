@@ -6,6 +6,7 @@ local Queue = require 'utils.queue'
 local RS = require 'map_gen.shared.redmew_surface'
 local Public = require 'map_gen.maps.frontier.shared.core'
 local math_abs = math.abs
+local math_ceil = math.ceil
 local math_clamp = math.clamp
 local math_floor = math.floor
 local math_max = math.max
@@ -17,23 +18,39 @@ local q_pop  = Queue.pop
 local simplex = Noise.d2
 
 local autoplace_controls = {
-  ['coal']        = { frequency = 1.1,   richness = 0.6, size = 0.75 },
-  ['copper-ore']  = { frequency = 1.2,   richness = 0.6, size = 0.75 },
-  ['crude-oil']   = { frequency = 1,     richness = 0.6, size = 0.75 },
+  ['coal']        = { frequency = 1.3,   richness = 0.7, size = 0.80 },
+  ['copper-ore']  = { frequency = 1.4,   richness = 0.7, size = 0.85 },
+  ['crude-oil']   = { frequency = 1,     richness = 0.9, size = 0.95 },
   ['enemy-base']  = { frequency = 6,     richness = 0.6, size = 4    },
-  ['iron-ore']    = { frequency = 1.135, richness = 0.6, size = 0.85 },
+  ['iron-ore']    = { frequency = 1.6,   richness = 0.8, size = 1.15 },
   ['stone']       = { frequency = 1,     richness = 0.6, size = 0.65 },
-  ['trees']       = { frequency = 1,     richness = 0.6, size = 1    },
-  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.5  },
+  ['trees']       = { frequency = 1,     richness = 0.6, size = 1.2  },
+  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.6  },
 }
 local blacklisted_resources = {
   ['uranium-ore'] = true,
   ['crude-oil'] = true,
 }
-local noise_weights = {
-  { modifier = 0.0042, weight = 1.000 },
-  { modifier = 0.0310, weight = 0.080 },
-  { modifier = 0.1000, weight = 0.025 },
+local noises = {
+  ['dungeon_sewer']   = {{ modifier = 0.00055, weight = 1.05  }, { modifier = 0.0062,  weight = 0.024  }, { modifier = 0.0275,  weight = 0.00135 }},
+  ['cave_miner_01']   = {{ modifier = 0.002,   weight = 1     }, { modifier = 0.003,   weight = 0.5    }, { modifier = 0.01,    weight = 0.01    }, { modifier = 0.1,     weight = 0.015  }},
+  ['oasis']           = {{ modifier = 0.00165, weight = 1.1   }, { modifier = 0.00275, weight = 0.55   }, { modifier = 0.011,   weight = 0.165   }, { modifier = 0.11,    weight = 0.0187 }},
+  ['dungeons']        = {{ modifier = 0.0028,  weight = 0.99  }, { modifier = 0.0059,  weight = 0.21   }},
+  ['cave_rivers_2']   = {{ modifier = 0.0035,  weight = 0.90  }, { modifier = 0.0088,  weight = 0.15   }, { modifier = 0.051,   weight = 0.011   }},
+  ['cave_miner_02']   = {{ modifier = 0.006,   weight = 1     }, { modifier = 0.02,    weight = 0.15   }, { modifier = 0.25,    weight = 0.025   }},
+  ['large_caves']     = {{ modifier = 0.055,   weight = 0.045 }, { modifier = 0.11,    weight = 0.042  }, { modifier = 0.00363, weight = 1.05    }, { modifier = 0.01,    weight = 0.23   }},
+  ['no_rocks']        = {{ modifier = 0.00495, weight = 0.945 }, { modifier = 0.01665, weight = 0.2475 }, { modifier = 0.0435,  weight = 0.0435  }, { modifier = 0.07968, weight = 0.0315 }},
+  ['scrapyard']       = {{ modifier = 0.0055,  weight = 1.1   }, { modifier = 0.011,   weight = 0.385  }, { modifier = 0.055,   weight = 0.253   }, { modifier = 0.11,    weight = 0.121  }},
+  ['scrapyard_2']     = {{ modifier = 0.0066,  weight = 1.1   }, { modifier = 0.044,   weight = 0.165  }, { modifier = 0.242,   weight = 0.055   }, { modifier = 0.055,   weight = 0.352  }},
+  ['smol_areas']      = {{ modifier = 0.0052,  weight = 0.83  }, { modifier = 0.139,   weight = 0.144  }, { modifier = 0.129,   weight = 0.072   }, { modifier = 0.111,   weight = 0.01   }},
+  ['cave_rivers']     = {{ modifier = 0.0053,  weight = 0.71  }, { modifier = 0.0086,  weight = 0.24   }, { modifier = 0.070,   weight = 0.025   }},
+  ['small_caves']     = {{ modifier = 0.0066,  weight = 1.1   }, { modifier = 0.044,   weight = 0.165  }, { modifier = 0.242,   weight = 0.055   }},
+  ['forest_location'] = {{ modifier = 0.0066,  weight = 1.1   }, { modifier = 0.011,   weight = 0.275  }, { modifier = 0.055,   weight = 0.165   }, { modifier = 0.11,    weight = 0.0825 }},
+  ['small_caves_2']   = {{ modifier = 0.0099,  weight = 1.1   }, { modifier = 0.055,   weight = 0.275  }, { modifier = 0.275,   weight = 0.055   }},
+  ['forest_density']  = {{ modifier = 0.01,    weight = 1     }, { modifier = 0.05,    weight = 0.5    }, { modifier = 0.1,     weight = 0.025   }},
+  ['cave_ponds']      = {{ modifier = 0.014,   weight = 0.77  }, { modifier = 0.18,    weight = 0.085  }},
+  ['no_rocks_2']      = {{ modifier = 0.0184,  weight = 1.265 }, { modifier = 0.143,   weight = 0.1045 }},
+  ['mixed_ore']       = {{ modifier = 0.0042,  weight = 1.000 }, { modifier = 0.0310,  weight = 0.080  }, { modifier = 0.1000,  weight = 0.025   }},
 }
 local mixed_ores = { 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'iron-ore', 'copper-ore', 'iron-ore', 'coal', 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'coal'}
 
@@ -119,8 +136,9 @@ function Terrain.get_map()
   return map
 end
 
-function Terrain.noise_pattern(position, seed)
+function Terrain.noise_pattern(feature, position, seed)
   local noise, d = 0, 0
+  local noise_weights = noises[feature]
   for i = 1, #noise_weights do
     local nw = noise_weights[i]
     noise = noise + simplex(position.x * nw.modifier, position.y * nw.modifier, seed) * nw.weight
@@ -163,7 +181,7 @@ function Terrain.mixed_resources(surface, area)
     for y = 0, 31 do
       local position = { x = left_top.x + x, y = left_top.y + y }
       if can_place_entity({ name = 'iron-ore', position = position }) then
-        local noise = Terrain.noise_pattern(position, seed)
+        local noise = Terrain.noise_pattern('mixed_ore', position, seed)
         if math_abs(noise) > 0.77 then
           local idx = math_floor(noise * 25 + math_abs(position.x) * 0.05) % #mixed_ores + 1
           local amount = this.ore_base_quantity * chunks * 35 + math_random(100)
@@ -283,6 +301,196 @@ function Terrain.reveal_spawn_area()
   local surface = Public.surface()
   surface.request_to_generate_chunks({ x = 0, y = 0 }, 1)
   surface.force_generate_chunk_requests()
+end
+
+function Terrain.block_tile_placement(event)
+  local this = Public.get()
+  local surface = game.get_surface(event.surface_index)
+  if surface.name ~= Public.surface().name then
+    return
+  end
+  local left = -(this.kraken_distance + this.left_boundary * 32)
+  local tiles = {}
+  for _, tile in pairs(event.tiles) do
+    if tile.position.x <= left then
+      tiles[#tiles + 1] = { name = tile.old_tile.name, position = tile.position }
+    end
+  end
+  if #tiles > 0 then
+    surface.set_tiles(tiles, true)
+  end
+end
+
+function Terrain.reshape_land(surface, area)
+  local this = Public.get()
+  local right_boundary = this.right_boundary * 32 + this.wall_width + 4
+  local left_top = { x = math_max(area.left_top.x, -this.left_boundary * 32), y = area.left_top.y }
+  local right_bottom = area.right_bottom
+  if left_top.x >= right_bottom.x then
+    return
+  end
+
+  local seed = surface.map_gen_settings.seed
+  local count_entities = surface.count_entities_filtered
+  local noise_pattern = Terrain.noise_pattern
+
+  local function is_ore(position)
+    return count_entities{
+      position = { x = position.x + 0.5, y = position.y + 0.5 },
+      type = 'resource',
+      limit = 1,
+    } > 0
+  end
+
+  local function do_tile(x, y)
+    if math_abs(y) > this.height * 16 then
+      return
+    end
+    if math_abs(x) < 16 and math_abs(y) < 16 then
+      return
+    end
+    if math_abs(x - this.x) < 16 and math_abs(y - this.y) < 16 then
+      return
+    end
+
+    local p = { x = x, y = y }
+    local cave_rivers = noise_pattern('cave_rivers', p, seed)
+    local no_rocks = noise_pattern('no_rocks', p, seed)
+    local cave_ponds = noise_pattern('cave_ponds', p, 2 * seed)
+    local small_caves = noise_pattern('dungeons', p, 2 * seed)
+
+    -- Chasms
+    if cave_ponds < 0.110 and cave_ponds > 0.112 then
+      if small_caves > 0.5 or small_caves < -0.5 then
+        return { name = 'out-of-map', position = p }
+      end
+    end
+
+    -- Rivers
+    if cave_rivers < 0.044 and cave_rivers > -0.072 then
+      if cave_ponds > 0.1 then
+        if not is_ore(p) then
+          return { name = 'water-shallow', position = p }
+        else
+          return { name = 'cyan-refined-concrete', position = p }
+        end
+      end
+    end
+
+    -- Water Ponds
+    if cave_ponds > 0.6 then
+      if cave_ponds > 0.74 then
+        return { name = x < right_boundary and 'acid-refined-concrete' or 'orange-refined-concrete', position = p }
+      end
+      if not is_ore(p) then
+        return { name = x < right_boundary and 'green-refined-concrete' or 'red-refined-concrete', position = p }
+      else
+        return { name = 'cyan-refined-concrete', position = p }
+      end
+    end
+
+    if cave_ponds > 0.622 then
+      if cave_ponds > 0.542 then
+        if cave_rivers > -0.302 then
+          return { name = 'refined-hazard-concrete-right', position = p }
+        end
+      end
+    end
+
+    -- Worm oil
+    if no_rocks < 0.029 and no_rocks > -0.245 then
+      if small_caves > 0.081 then
+        return { name = x < right_boundary and'brown-refined-concrete' or 'black-refined-concrete', position = p }
+      end
+    end
+
+    -- Chasms2
+    if small_caves < -0.54 and cave_ponds < -0.5 then
+      if not is_ore(p) then
+        return { name = 'out-of-map', position = p }
+      end
+    end
+  end
+
+  local tiles = {}
+  for x = 0, math_min(right_bottom.x - left_top.x, 31) do
+    for y = 0, 31 do
+      local tile = do_tile(left_top.x + x, left_top.y + y)
+      if tile then tiles[#tiles +1] = tile end
+    end
+  end
+  surface.set_tiles(tiles, true)
+end
+
+function Terrain.clear_area(args)
+  if not (args.position and args.surface) then
+    return
+  end
+  local surface = args.surface
+  local position = args.position
+
+  surface.request_to_generate_chunks({ x = position.x, y = position.x }, math_ceil((args.radius or args.size or 32) / 32))
+  surface.force_generate_chunk_requests()
+
+  if args.name then
+    local cb = game.entity_prototypes[args.name].collision_box
+    local area = {
+      left_top = {
+        x = position.x - cb.left_top.x,
+        y = position.y - cb.left_top.y,
+      },
+      right_bottom = {
+        x = position.x + cb.right_bottom.x,
+        y = position.y + cb.right_bottom.y,
+      }
+    }
+    for _, e in pairs(surface.find_entities_filtered{ area = area, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ area = area }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  elseif args.radius then
+    for _, e in pairs(surface.find_entities_filtered{ position = position, radius = args.radius, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ position = position, radius = args.radius }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  elseif args.size then
+    local size = args.size
+    local area = {
+      left_top = {
+        x = position.x - size,
+        y = position.y - size,
+      },
+      right_bottom = {
+        x = position.x + size,
+        y = position.y + size,
+      }
+    }
+    for _, e in pairs(surface.find_entities_filtered{ area = area, collision_mask = {'player-layer', 'object-layer'}}) do
+      e.destroy()
+    end
+    local tiles = {}
+    for _, t in pairs(surface.find_tiles_filtered{ area = area }) do
+      if t.collides_with('item-layer') then
+        tiles[#tiles +1] = { name = 'nuclear-ground', position = t.position }
+      end
+    end
+    surface.set_tiles(tiles, true)
+    return true
+  end
 end
 
 return Terrain

@@ -1,5 +1,6 @@
 local Command = require 'utils.command'
 local Event = require 'utils.event'
+local DebugTerrain = require 'map_gen.maps.frontier.shared.debug_terrain'
 local math = require 'utils.math'
 local Ranks = require 'resources.ranks'
 local ScenarioInfo = require 'features.gui.info'
@@ -161,6 +162,11 @@ local function on_chunk_generated(event)
     return
   end
 
+  if Public.get()._DEBUG_NOISE then
+    DebugTerrain.on_chunk_generated(event)
+    return
+  end
+
   -- scale freshly generated ore by a scale factor
   Terrain.scale_resource_richness(surface, area)
 
@@ -169,8 +175,17 @@ local function on_chunk_generated(event)
 
   -- add extra rocks
   Terrain.rich_rocks(surface, area)
+
+  -- special tiles
+  Terrain.reshape_land(surface, area)
 end
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
+
+local function on_tile_built(event)
+  Terrain.block_tile_placement(event)
+end
+Event.add(defines.events.on_player_built_tile, on_tile_built)
+Event.add(defines.events.on_robot_built_tile, on_tile_built)
 
 local function on_entity_died(event)
   local entity = event.entity
@@ -201,9 +216,13 @@ end
 Event.add(defines.events.on_entity_died, on_entity_died)
 
 local function on_research_finished(event)
-  local recipes = event.research.force.recipes
-  if recipes['rocket-silo'] then
-    recipes['rocket-silo'].enabled = false
+  local technology = event.research
+  if not (technology and technology.valid) then
+    return
+  end
+  if technology.force.name == 'player' then
+    RocketSilo.on_research_finished(technology)
+    Enemy.on_research_finished(technology)
   end
 end
 Event.add(defines.events.on_research_finished, on_research_finished)
