@@ -28,6 +28,10 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
     local player_index = player.index
     offline_player_queue[player_index] = nil
 
+    if not banned and player.connected then
+        return
+    end
+
     local inventory_types = {
         defines.inventory.character_main,
         defines.inventory.character_guns,
@@ -145,12 +149,7 @@ Event.add(defines.events.on_pre_player_left_game, function(event)
         return
     end
 
-    if _DEBUG then
-        local player = game.get_player(event.player_index)
-        spawn_player_corpse(player, false, 0)
-    else
-        start_timer(event, config.offline_timeout_mins)
-    end
+    start_timer(event, config.offline_timeout_mins)
 end)
 
 Event.add(defines.events.on_player_banned, function(event)
