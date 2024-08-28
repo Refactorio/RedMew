@@ -1052,6 +1052,7 @@ stds.factorio_defines = {
                         'on_gui_elem_changed',
                         'on_gui_opened',
                         'on_gui_selection_state_changed',
+                        'on_gui_switch_state_changed',
                         'on_gui_text_changed',
                         'on_gui_value_changed',
                         'on_land_mine_armed',

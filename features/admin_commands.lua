@@ -64,7 +64,7 @@ end
 local function add_regular(args)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular') then
         return
@@ -90,7 +90,7 @@ end
 local function remove_regular(args)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular-remove') then
         return
@@ -112,7 +112,7 @@ end
 local function probation_add(args)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation') then
         return
@@ -141,7 +141,7 @@ end
 local function probation_remove(args)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation-remove') then
         return
@@ -472,3 +472,19 @@ Command.add(
     },
     destroy_selected
 )
+
+return {
+    create_pool = pool,
+    destroy_selected = destroy_selected,
+    invoke_player = invoke,
+    jail_player = jail_player,
+    probation_add = probation_add,
+    probation_remove = probation_remove,
+    regular_add = add_regular,
+    regular_remove = remove_regular,
+    revive_ghosts = revive_ghosts,
+    show_reports = show_reports,
+    teleport_command = teleport_command,
+    toggle_cheat_mode = toggle_cheat_mode,
+    unjail_player = unjail_player,
+}
