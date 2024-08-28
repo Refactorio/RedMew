@@ -312,6 +312,11 @@ Gui.on_click(on_unjail_player, function(event)
   Actions.unjail_player({ player = target_name }, event.player)
 end)
 
+Gui.on_click(on_spank_player, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.spank(target_name, event.player)
+end)
+
 Gui.on_click(on_invoke_player, function(event)
   local target_name = get_selected_player(event.player)
   Actions.invoke_player({ player = target_name }, event.player)

@@ -99,10 +99,27 @@ function Actions.ban_player(target_name, reason, admin)
   Report.ban_player(player, reason)
 end
 
+---@param target_player string
+---@param source_player LuaPlayer
+function Actions.spank(target_name, source_player)
+  local target_player = game.get_player(target_name)
+  local character = target_player.character
+  if not (character and character.valid) then
+    return
+  end
+  if character.health > 5 then
+    character.damage(5, 'player')
+  end
+  target_player.surface.create_entity { name = 'water-splash', position = target_player.position }
+  game.print(source_player.name .. ' spanked ' .. target_player.name, {r = 0.98, g = 0.66, b = 0.22})
+end
+
 -- == SURFACE =================================================================
 
 local Surface = {}
 
+---@param player LuaPlayer
+---@param radius number
 function Surface.chart_map(player, radius)
   local position = player.position
   local area = {
@@ -113,6 +130,7 @@ function Surface.chart_map(player, radius)
   player.print('Revealing the area around you...')
 end
 
+---@param player LuaPlayer
 function Surface.hide_all(player)
   local surface = player.surface
   local force = player.force
@@ -122,11 +140,13 @@ function Surface.hide_all(player)
   player.print('Hidden all of ' ..surface.name .. ' surface' )
 end
 
+---@param player LuaPlayer
 function Surface.reveal_all(player)
   player.force.chart_all()
   player.print('Removing the from from ' .. player.surface.name .. ' surface')
 end
 
+---@param player LuaPlayer
 function Surface.rechart_all(player)
   player.force.rechart()
   player.print('Revealing all of ' .. player.surface.name .. ' surface')
