@@ -195,7 +195,7 @@ Gui.on_click(close_button_name, function(event)
   Public.toggle_main_button(event.player)
 end)
 
-Gui.on_player_show_top(function(event)
+Gui.on_player_show_top(main_button_name, function(event)
   Public.update_top_button(event.player)
 end)
 
