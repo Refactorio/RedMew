@@ -135,7 +135,7 @@ function Public.reset()
 end
 
 local artillery_projectile_token = Token.register(function(data)
-  local surface = game.get_surface(data.surface_index)
+  local surface = data.surface
   local target = data.target
   local source = data.source
   if not (surface and surface.valid) then return end
@@ -178,7 +178,7 @@ local function simulate_automatic_artillery(data)
     local target = targets[i]
     if distance(source_position, target.position) > Artillery.min_range then
       Task.set_timeout_in_ticks(Artillery.fire_interval, artillery_projectile_token, {
-        surface_index = surface.index,
+        surface = surface,
         name = target.name == 'character' and Artillery.character_projectile or Artillery.structure_projectile,
         position = target.position,
         target = target,
