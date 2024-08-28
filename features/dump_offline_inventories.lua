@@ -1,12 +1,20 @@
 -- This feature allows you to turn on anti-hoarding so that X minutes after a player leaves the game
 -- the resources in their inventory are returned to the teams. A corpse will spawn on the player's last
 -- position and remain until they log back in to claim it or someone else mines it.
+-- All players will drop their armors and weapons during the first 24h of the game,
+-- after this time, only regulars and above will keep their armor and just drop the inventory.
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local CorpseUtil = require 'features.corpse_util'
 local Config = require 'config'
+local Rank = require 'features.rank_system'
+local Ranks = require 'resources.ranks'
+local MINS_TO_TICKS = 60 * 60
+local HOUR_TO_TICKS = MINS_TO_TICKS * 60
+local DEFAULT_OFFLINE_TIMEOUT_MINS = 15
+local DEFAULT_STARTUP_GEAR_DROP_HOURS = 24
 
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local config = Config.dump_offline_inventories
@@ -26,55 +34,55 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
         return
     end
 
-    local inv_main = player.get_inventory(defines.inventory.character_main)
-    local inv_trash = player.get_inventory(defines.inventory.character_trash)
+    local inventory_types = {
+        defines.inventory.character_main,
+        defines.inventory.character_guns,
+        defines.inventory.character_ammo,
+        defines.inventory.character_vehicle,
+        defines.inventory.character_trash,
+    }
 
-    local inv_main_contents
-    if inv_main and inv_main.valid then
-        inv_main_contents = inv_main.get_contents()
+    local startup_gear_drop_hours = config.startup_gear_drop_hours or DEFAULT_STARTUP_GEAR_DROP_HOURS
+    if banned or game.tick < (startup_gear_drop_hours * HOUR_TO_TICKS) or Rank.less_than(player.name, Ranks.regular) then
+        table.insert(inventory_types, defines.inventory.character_armor)
     end
 
-    local inv_trash_contents
-    if inv_trash and inv_trash.valid then
-        inv_trash_contents = inv_trash.get_contents()
+    local inv_contents = {}
+    for _, id in pairs(inventory_types)  do
+        local inv = player.get_inventory(id)
+        if inv and inv.valid then
+            for i = 1, #inv do
+                local item_stack = inv[i]
+                if item_stack.valid_for_read then
+                    table.insert(inv_contents, item_stack)
+                end
+            end
+        end
     end
 
-    local inv_corpse_size = 0
-    if inv_main_contents then
-        inv_corpse_size = inv_corpse_size + (#inv_main - inv_main.count_empty_stacks())
-    end
-
-    if inv_trash_contents then
-        inv_corpse_size = inv_corpse_size + (#inv_trash - inv_trash.count_empty_stacks())
-    end
-
-    if inv_corpse_size <= 0 then
+    if #inv_contents == 0 then
         return
     end
 
     local position = player.position
     local corpse = player.surface.create_entity {
-        name = "character-corpse",
+        name = 'character-corpse',
         position = position,
-        inventory_size = inv_corpse_size,
+        inventory_size = #inv_contents,
         player_index = player_index
     }
     corpse.active = false
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
-
-    for item_name, count in pairs(inv_main_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
-    end
-    for item_name, count in pairs(inv_trash_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
+    for _, item_stack in pairs(inv_contents) do
+        inv_corpse.insert(item_stack)
     end
 
-    if inv_main_contents then
-        inv_main.clear()
-    end
-    if inv_trash_contents then
-        inv_trash.clear()
+    for _, id in pairs(inventory_types)  do
+        local inv = player.get_inventory(id)
+        if inv and inv.valid then
+            inv.clear()
+        end
     end
 
     local text = player.name .. "'s inventory (offline)"
@@ -131,7 +139,7 @@ local function start_timer(event, timeout_minutes)
 
     if player and player.valid and player.character then -- if player leaves before respawning they wont have a character and we don't need to add them to the list.
         local tick = game.tick
-        local timeout = timeout_minutes * 60 * 60
+        local timeout = timeout_minutes * MINS_TO_TICKS
 
         offline_player_queue[player_index] = tick -- tick is used to check that the callback happens after X minutes as multiple callbacks may be active if the player logs off and on multiple times
         set_timeout_in_ticks(timeout, spawn_player_corpse_token,
@@ -144,7 +152,7 @@ Event.add(defines.events.on_pre_player_left_game, function(event)
         return
     end
 
-    start_timer(event, config.offline_timout_mins)
+    start_timer(event, config.offline_timeout_mins or DEFAULT_OFFLINE_TIMEOUT_MINS)
 end)
 
 Event.add(defines.events.on_player_banned, function(event)
