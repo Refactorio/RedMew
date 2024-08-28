@@ -55,26 +55,6 @@ function Public.on_chunk_generated(event)
   local limit = right_boundary + STEP
   local noise_id = false
 
-  --if not noise_id and x_min < limit then noise_id = 'cave_ponds' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'smol_areas' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'cave_rivers' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'cave_rivers_2' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'dungeons' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'dungeon_sewer' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'large_caves' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'no_rocks' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'no_rocks_2' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'oasis' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'scrapyard' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'scrapyard_2' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'small_caves' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'small_caves_2' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'forest_location' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'forest_density' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'cave_miner_01' end limit = limit + STEP
-  --if not noise_id and x_min < limit then noise_id = 'cave_miner_02' end limit = limit + STEP
-  --if not noise_id then return end
-
   if not noise_id and x_min < limit then noise_id = 'dungeon_sewer' end limit = limit + STEP
   if not noise_id and x_min < limit then noise_id = 'cave_miner_01' end limit = limit + STEP
   if not noise_id and x_min < limit then noise_id = 'oasis' end limit = limit + STEP
@@ -122,16 +102,3 @@ function Public.on_chunk_generated(event)
 end
 
 return Public
-
-
---[[
-/c local s = game.surfaces.redmew for x = 0, 360, 4 do
-  s.request_to_generate_chunks({x = x * 32, y = - 32 *  8}, 4)
-  s.request_to_generate_chunks({x = x * 32, y = - 32 *  4}, 4)
-  s.request_to_generate_chunks({x = x * 32, y = - 32 *  0}, 4)
-  s.request_to_generate_chunks({x = x * 32, y = - 32 * -4}, 4)
-  s.request_to_generate_chunks({x = x * 32, y = - 32 * -8}, 4)
-end
-
-/c game.player.force.chart(game.player.surface, {{x = 0, y = -600}, {x = 11000, y = 600}})
-]]

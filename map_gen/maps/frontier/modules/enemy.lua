@@ -109,14 +109,14 @@ Enemy.turret_raffle = {
   ['base'] = {
     ['gun-turret']          = { weight =  16, min_distance =    0, refill = { 'firearm-magazine', 'piercing-rounds-magazine', 'uranium-rounds-magazine' } },
     ['flamethrower-turret'] = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
-    ['artillery-turret']    = { weight =  16, min_distance = 1e12, refill = { 'artillery-shell' } }
+    ['artillery-turret']    = { weight =  16, min_distance = 2800, refill = { 'artillery-shell' } }
   },
   ['Krastorio2'] = {
     ['gun-turret']          = { weight =  16, min_distance =    0, refill = { 'rifle-magazine', 'armor-piercing-rifle-magazine', 'uranium-rifle-magazine', 'imersite-rifle-magazine' } },
     ['flamethrower-turret'] = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
     ['kr-railgun-turret']   = { weight = 128, min_distance = 1400, refill = { 'basic-railgun-shell', 'explosion-railgun-shell', 'antimatter-railgun-shell' } },
     ['kr-rocket-turret']    = { weight =  16, min_distance = 2000, refill = { 'explosive-turret-rocket', 'nuclear-turret-rocket', 'antimatter-turret-rocket' } },
-    ['artillery-turret']    = { weight =  16, min_distance = 1e12, refill = { 'artillery-shell', 'nuclear-artillery-shell', 'antimatter-artillery-shell' } },
+    ['artillery-turret']    = { weight =  16, min_distance = 2800, refill = { 'artillery-shell', 'nuclear-artillery-shell', 'antimatter-artillery-shell' } },
   },
   ['zombiesextended-core'] = {
     ['gun-turret']              = { weight =  16, min_distance =    0, refill = { 'firearm-magazine', 'assault-ammo-mk1', 'uranium-rounds-magazine', 'assault-ammo-mk2' } },
@@ -125,6 +125,7 @@ Enemy.turret_raffle = {
     ['flamethrower-turret']     = { weight =   2, min_distance =  800, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
     ['flamethrower-turret-mk1'] = { weight =   4, min_distance = 1200, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
     ['flamethrower-turret-mk2'] = { weight =  16, min_distance = 1500, refill = { 'crude-oil', 'heavy-oil', 'light-oil' } },
+    ['artillery-turret']        = { weight = 128, min_distance = 2800, refill = { 'artillery-shell' } }
   }
 }
 

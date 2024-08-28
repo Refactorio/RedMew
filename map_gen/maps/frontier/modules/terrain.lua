@@ -18,14 +18,14 @@ local q_pop  = Queue.pop
 local simplex = Noise.d2
 
 local autoplace_controls = {
-  ['coal']        = { frequency = 1.1,   richness = 0.6, size = 0.75 },
-  ['copper-ore']  = { frequency = 1.2,   richness = 0.6, size = 0.75 },
-  ['crude-oil']   = { frequency = 1,     richness = 0.6, size = 0.75 },
+  ['coal']        = { frequency = 1.3,   richness = 0.7, size = 0.80 },
+  ['copper-ore']  = { frequency = 1.4,   richness = 0.7, size = 0.85 },
+  ['crude-oil']   = { frequency = 1,     richness = 0.9, size = 0.95 },
   ['enemy-base']  = { frequency = 6,     richness = 0.6, size = 4    },
-  ['iron-ore']    = { frequency = 1.135, richness = 0.6, size = 0.85 },
+  ['iron-ore']    = { frequency = 1.6,   richness = 0.8, size = 1.15 },
   ['stone']       = { frequency = 1,     richness = 0.6, size = 0.65 },
-  ['trees']       = { frequency = 1,     richness = 0.6, size = 1    },
-  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.5  },
+  ['trees']       = { frequency = 1,     richness = 0.6, size = 1.2  },
+  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.6  },
 }
 local blacklisted_resources = {
   ['uranium-ore'] = true,

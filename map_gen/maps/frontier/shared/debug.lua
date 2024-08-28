@@ -19,26 +19,6 @@ function Debug.log(data)
   log(serpent.block(data))
 end
 
---[[
-local function noise_to_tile_map_abs(noise)
-  if noise > 90 / 100 then
-    return 'red-refined-concrete'
-  elseif noise > 72.5 / 100 then
-    return 'orange-refined-concrete'
-  elseif noise > 55 / 100 then
-    return 'yellow-refined-concrete'
-  elseif noise > 45 / 100 then
-    return 'green-refined-concrete'
-  elseif noise > 27.5 / 100 then
-    return 'cyan-refined-concrete'
-  elseif noise > 10 / 100 then
-    return 'blue-refined-concrete'
-  else
-    return 'black-refined-concrete'
-  end
-end
-]]
-
 local function noise_to_tile_map(noise)
   if noise > 80 / 100 then
     return 'red-refined-concrete'
