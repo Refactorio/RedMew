@@ -52,6 +52,7 @@ RedmewConfig.biter_attacks.enabled = false
 RedmewConfig.dump_offline_inventories = {
     enabled = true,
     offline_timeout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
+    startup_gear_drop_hours = 24, -- time after which players will keep at least their armor when disconnecting
 }
 
 -- leave seeds nil to have them filled in based on the map seed.

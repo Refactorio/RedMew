@@ -83,7 +83,8 @@ Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timeout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
+    offline_timeout_mins = 30, -- time after which a player logs off that their inventory is provided to the team
+    startup_gear_drop_hours = 24, -- time after which players will keep at least their armor when disconnecting
 }
 Config.paint.enabled = false
 

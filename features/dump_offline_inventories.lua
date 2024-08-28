@@ -13,6 +13,8 @@ local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 local MINS_TO_TICKS = 60 * 60
 local HOUR_TO_TICKS = MINS_TO_TICKS * 60
+local DEFAULT_OFFLINE_TIMEOUT_MINS = 15
+local DEFAULT_STARTUP_GEAR_DROP_HOURS = 24
 
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local config = Config.dump_offline_inventories
@@ -40,7 +42,8 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
         defines.inventory.character_trash,
     }
 
-    if banned or game.tick < config.startup_gear_drop_hours * HOUR_TO_TICKS or Rank.less_than(player.name, Ranks.regular) then
+    local startup_gear_drop_hours = config.startup_gear_drop_hours or DEFAULT_STARTUP_GEAR_DROP_HOURS
+    if banned or game.tick < (startup_gear_drop_hours * HOUR_TO_TICKS) or Rank.less_than(player.name, Ranks.regular) then
         table.insert(inventory_types, defines.inventory.character_armor)
     end
 
@@ -149,7 +152,7 @@ Event.add(defines.events.on_pre_player_left_game, function(event)
         return
     end
 
-    start_timer(event, config.offline_timeout_mins)
+    start_timer(event, config.offline_timeout_mins or DEFAULT_OFFLINE_TIMEOUT_MINS)
 end)
 
 Event.add(defines.events.on_player_banned, function(event)
