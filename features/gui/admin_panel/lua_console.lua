@@ -43,14 +43,14 @@ local function draw_gui(player)
   .add { type = 'text-box', name = 'input' }
   input.word_wrap = true
   input.text = this.last_lua_input[player.index]
-  Gui.set_style(input, { minimal_height = 240, minimal_width = 460 })
+  Gui.set_style(input, { minimal_height = 240, minimal_width = 460, maximal_height = 800 })
 
   local output = canvas
   .add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Output' }
   .add { type = 'text-box', name = 'output' }
   output.word_wrap = true
   output.text = this.last_lua_output[player.index]
-  Gui.set_style(output, { minimal_height = 60, minimal_width = 460 })
+  Gui.set_style(output, { minimal_height = 60, minimal_width = 460, maximal_height = 120 })
 
   local button_flow = canvas.add { type = 'flow', direction = 'horizontal' }
   Gui.add_pusher(button_flow)
