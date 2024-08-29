@@ -1,6 +1,5 @@
 local AdminPanel = require 'features.gui.admin_panel.core'
 local Event = require 'utils.event'
-local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Surface = require 'features.gui.admin_panel.functions'.surface
 
@@ -19,10 +18,6 @@ local on_map_chart = Gui.uid_name()
 local on_map_hide = Gui.uid_name()
 local on_map_reveal = Gui.uid_name()
 local on_map_rechart = Gui.uid_name()
-
-local this = {}
-
-Global.register(this, function(tbl) this = tbl end)
 
 local pages = AdminPanel.get_pages()
 pages[#pages +1] = {

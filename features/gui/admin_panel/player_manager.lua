@@ -289,7 +289,7 @@ end)
 
 Gui.on_click(on_add_probation, function(event)
   local target_name = get_selected_player(event.player)
-  Actions.probation_add({ player = target_name, actor = event.player.actor })
+  Actions.probation_add({ player = target_name, actor = event.player.name })
 end)
 
 Gui.on_click(on_jail_player, function(event)
