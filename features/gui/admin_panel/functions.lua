@@ -127,7 +127,7 @@ function Surface.performance_scale_set(scale)
   p({'performance.stat_preamble'})
   p({'performance.generic_stat', {'performance.game_speed'}, string.format('%.2f', Performance.get_time_scale())})
   local stat_string = string.format('%.2f', stat_mod)
-  p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
+  p({'performance.output_formatter', {'performance.running_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
 end
 
 ---@param player LuaPlayer

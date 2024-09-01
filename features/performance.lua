@@ -84,7 +84,7 @@ Command.add(
         p({'performance.stat_preamble'})
         p({'performance.generic_stat', {'performance.game_speed'}, format('%.2f', Performance.get_time_scale())})
         local stat_string = format('%.2f', stat_mod)
-        p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
+        p({'performance.output_formatter', {'performance.running_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
     end
 )
 
@@ -98,7 +98,7 @@ Command.add(
         local stat_mod = Performance.get_player_stat_modifier()
         p({'performance.generic_stat', {'performance.game_speed'}, format('%.2f', Performance.get_time_scale())})
         local stat_string = format('%.2f', stat_mod)
-        p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
+        p({'performance.output_formatter', {'performance.running_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
     end
 )
 
