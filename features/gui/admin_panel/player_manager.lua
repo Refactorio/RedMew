@@ -156,7 +156,7 @@ local function draw_gui(player)
     { name = on_create_pool, caption = 'Create pool' },
     { name = on_revive_ghosts, caption = 'Revive ghosts' },
     { name = on_save_game, caption = 'Save game' },
-    { name = on_delete_blueprints, caption = 'Delete blueprints' },
+    { name = on_delete_blueprints, caption = 'Destroy ghost entities' },
     { name = on_destroy_speakers, caption = 'Destroy speakers' },
     { name = on_remove_biters, caption = 'Remove biters' },
     { name = on_remove_enemies, caption = 'Remove all enemies' },
