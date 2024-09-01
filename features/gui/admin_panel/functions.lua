@@ -18,7 +18,7 @@ function Actions.save_game(filename, player)
 end
 
 ---@param player? LuaPlayer
-function Actions.delete_all_blueprints(player)
+function Actions.remove_all_ghost_entities(player)
   local count = 0
   for _, surface in pairs(game.surfaces) do
     for _, ghost in pairs(surface.find_entities_filtered { type = { 'entity-ghost', 'tile-ghost' }}) do
@@ -54,7 +54,7 @@ function Actions.destroy_all_speakers(player)
 end
 
 ---@param player? LuaPlayer
-function Actions.kill_all_units(player)
+function Actions.kill_all_enemy_units(player)
   game.forces.enemy.kill_all_units()
   local msg = 'All units have been killed.'
   if player and player.valid then

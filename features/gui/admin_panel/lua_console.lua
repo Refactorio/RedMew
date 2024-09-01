@@ -25,7 +25,7 @@ pages[#pages +1] = {
 
 local function draw_gui(player)
   local canvas = AdminPanel.get_canvas(player)
-  canvas.clear()
+  Gui.clear(canvas)
 
   this.last_lua_input[player.index] = this.last_lua_input[player.index] or ''
   this.last_lua_output[player.index] = this.last_lua_output[player.index] or ''
@@ -70,7 +70,7 @@ local function process_command(event)
 
   local cmd = input.text
   this.last_lua_input[player.index] = cmd
-  cmd = cmd:gsub('game%.player%.', 'game.players[' .. player.index .. '].')
+  rawset(game, 'player', player)
 
   local f, err, _
   f, err = loadstring(cmd)
@@ -82,6 +82,7 @@ local function process_command(event)
   if event.element.name ~= dry_run_button_name then
     _, err = pcall(f)
   end
+  rawset(game, 'player', nil)
 
   if err then
     local text = ''
@@ -101,7 +102,7 @@ Gui.on_click(main_button_name, function(event)
     event.element.toggled = true
     draw_gui(player)
   else
-    AdminPanel.get_canvas(player).clear()
+    Gui.clear(AdminPanel.get_canvas(player))
   end
 end)
 

@@ -36,7 +36,7 @@ local this = {
   ---@type table<number, string>
   selection_switch = {},
   ---@type table<number, table<string>>
-  ban_items = {},
+  player_ban_items = {},
 }
 
 Global.register(this, function(tbl) this = tbl end)
@@ -88,7 +88,7 @@ local function get_player_list(player_index)
 end
 
 local function generate_ban_text(player)
-  local items = this.ban_items[player.index]
+  local items = this.player_ban_items[player.index]
   return table.concat(items, ', ') .. '. To appeal ban visit redmew.com/discord #helpdesk.'
 end
 
@@ -142,11 +142,11 @@ end
 
 local function draw_gui(player)
   local canvas = AdminPanel.get_canvas(player)
-  canvas.clear()
+  Gui.clear(canvas)
 
   this.player_selection[player.index] = this.player_selection[player.index] or { index = 1 }
   this.selection_switch[player.index] = this.selection_switch[player.index] or 'none'
-  this.ban_items[player.index] = this.ban_items[player.index] or {}
+  this.player_ban_items[player.index] = this.player_ban_items[player.index] or {}
 
   local row_1 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'General actions' }
   local table_1 = row_1.add { type = 'table', column_count = 3 }
@@ -185,7 +185,7 @@ local function draw_gui(player)
     make_checkbox(table_3, {
       caption = item.caption,
       name = item.name,
-      state = Table.contains(this.ban_items[player.index], item.caption),
+      state = Table.contains(this.player_ban_items[player.index], item.caption),
     })
   end
   make_player_dropdown(row_3)
@@ -209,7 +209,7 @@ Gui.on_click(main_button_name, function(event)
     event.element.toggled = true
     draw_gui(player)
   else
-    AdminPanel.get_canvas(player).clear()
+    Gui.clear(AdminPanel.get_canvas(player))
   end
 end)
 
@@ -232,9 +232,9 @@ for _, ban_item in pairs(ban_items) do
     local player = event.player
     local element = event.element
     if element.state then
-      table.insert(this.ban_items[player.index], element.caption)
+      table.insert(this.player_ban_items[player.index], element.caption)
     else
-      Table.remove_element(this.ban_items[player.index], element.caption)
+      Table.remove_element(this.player_ban_items[player.index], element.caption)
     end
     draw_gui(player)
   end)
@@ -267,7 +267,7 @@ Gui.on_click(on_save_game, function(event)
 end)
 
 Gui.on_click(on_delete_blueprints, function(event)
-  Actions.delete_all_blueprints(event.player)
+  Actions.remove_all_ghost_entities(event.player)
 end)
 
 Gui.on_click(on_destroy_speakers, function(event)
@@ -275,7 +275,7 @@ Gui.on_click(on_destroy_speakers, function(event)
 end)
 
 Gui.on_click(on_remove_biters, function(event)
-  Actions.kill_all_units(event.player)
+  Actions.kill_all_enemy_units(event.player)
 end)
 
 Gui.on_click(on_remove_enemies, function(event)

@@ -66,7 +66,7 @@ end
 
 local function draw_gui(player)
   local canvas = AdminPanel.get_canvas(player)
-  canvas.clear()
+  Gui.clear(canvas)
 
   local ms = game.map_settings
   local evolution = ms.enemy_evolution
@@ -237,7 +237,7 @@ Gui.on_click(main_button_name, function(event)
     event.element.toggled = true
     draw_gui(player)
   else
-    AdminPanel.get_canvas(player).clear()
+    Gui.clear(AdminPanel.get_canvas(player))
   end
 end)
 

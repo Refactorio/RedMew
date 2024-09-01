@@ -169,6 +169,18 @@ Event.add(defines.events.on_player_created, function(event)
   Public.update_top_button(player)
 end)
 
+Event.add(defines.events.on_player_joined_game, function(event)
+  local player = game.get_player(event.player_index)
+  if not (player and player.valid) then
+    return
+  end
+  Public.update_top_button(player)
+  local frame = player.gui.screen[main_frame_name]
+  if (frame and frame.valid and not player.admin) then
+    Gui.destroy(frame)
+  end
+end)
+
 Event.add(defines.events.on_gui_closed, function(event)
   local element = event.element
   if not (element and element.valid) then
