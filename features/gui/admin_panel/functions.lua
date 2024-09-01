@@ -1,3 +1,4 @@
+local Performance = require 'features.performance'
 local Report = require 'features.report'
 
 -- == ACTIONS =================================================================
@@ -117,6 +118,17 @@ end
 -- == SURFACE =================================================================
 
 local Surface = {}
+
+---@param scale number
+function Surface.performance_scale_set(scale)
+  Performance.set_time_scale(scale)
+  local p = game.print
+  local stat_mod = Performance.get_player_stat_modifier()
+  p({'performance.stat_preamble'})
+  p({'performance.generic_stat', {'performance.game_speed'}, string.format('%.2f', Performance.get_time_scale())})
+  local stat_string = string.format('%.2f', stat_mod)
+  p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
+end
 
 ---@param player LuaPlayer
 ---@param radius number

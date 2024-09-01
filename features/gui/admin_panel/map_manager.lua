@@ -1,11 +1,13 @@
 local AdminPanel = require 'features.gui.admin_panel.core'
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
+local math = require 'utils.math'
 local Surface = require 'features.gui.admin_panel.functions'.surface
 
 local main_button_name = Gui.uid_name()
 local slider_tag_name = Gui.uid_name()
 
+local on_performance_speed = Gui.uid_name()
 local on_slow_down = Gui.uid_name()
 local on_speed_up = Gui.uid_name()
 local on_pollution_ageing = Gui.uid_name()
@@ -46,6 +48,7 @@ local function make_slider(parent, params)
   Gui.set_style(flow, { vertical_align = 'center', maximal_width = 467 })
   local button = flow.add(params.button)
   Gui.set_style(button, { width = 150 })
+  params.slider.value = math.clamp(params.value, params.slider.minimum_value, params.slider.maximum_value)
   local slider = flow.add(params.slider)
   slider.tags = { name = slider_tag_name }
   slider.tooltip = string.format(params.format, slider.slider_value)
@@ -76,12 +79,28 @@ local function draw_gui(player)
   make_slider(row_1, {
     button = {
       type = 'button',
+      name = on_performance_speed,
+      caption = 'Performance speed',
+      tooltip = {'command_description.performance_scale_set'},
+    },
+    slider = {
+      type = 'slider',
+      minimum_value = 0.05,
+      maximum_value = 1,
+      value_step = 0.05,
+    },
+    format = '%.2f',
+    value = game.speed,
+  })
+  make_slider(row_1, {
+    button = {
+      type = 'button',
       name = on_slow_down,
       caption = 'Slow down'
     },
     slider = {
       type = 'slider',
-      minimum_value = 0.10,
+      minimum_value = 0.05,
       maximum_value = 1,
       value_step = 0.05,
     },
@@ -254,6 +273,12 @@ Event.add(defines.events.on_gui_value_changed, function(event)
 
   local data = Gui.get_data(element)
   data.slider.tooltip = string.format(data.format, data.slider.slider_value)
+end)
+
+Gui.on_click(on_performance_speed, function(event)
+  local element = event.element
+  local value = update_slider(element)
+  Surface.performance_scale_set(value)
 end)
 
 Gui.on_click(on_slow_down, function(event)
