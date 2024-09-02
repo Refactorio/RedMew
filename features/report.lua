@@ -433,7 +433,7 @@ end
 --- Bans the player and reports the ban to moderation log channel.
 -- @param player <LuaPlayer>
 -- @param reason <string?> defaults to empty string.
--- @param actor <LuaPlayer?> the player carrying the ban action, if any
+-- @param actor <LuaPlayer?> the player performing the ban action, if any
 function Module.ban_player(player, reason, actor)
     if not player or not player.valid then
         return
@@ -449,7 +449,7 @@ function Module.ban_player(player, reason, actor)
 
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
-    local actor_name = '<server>'
+    local actor_name = '<script>'
     if actor and actor.valid then
         actor_name = actor.name
     end
@@ -483,7 +483,7 @@ end
 --- kicks the player and reports the kick to moderation log channel.
 -- @param  player<LuaPlayer>
 -- @param  reason<string?> defaults to empty string.
--- @param actor <LuaPlayer?> the player carrying the ban action, if any
+-- @param actor <LuaPlayer?> the player performing the ban action, if any
 function Module.kick_player(player, reason, actor)
     if not player or not player.valid then
         return
@@ -499,7 +499,7 @@ function Module.kick_player(player, reason, actor)
 
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
-    local actor_name = '<server>'
+    local actor_name = '<script>'
     if actor and actor.valid then
         actor_name = actor.name
     end
