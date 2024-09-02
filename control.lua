@@ -135,6 +135,11 @@ if config.map_info.enabled then
     require 'features.gui.info'
     require 'features.gui.description_generator'
 end
+if config.admin_panel.enabled then
+    require 'features.gui.admin_panel.player_manager'
+    require 'features.gui.admin_panel.map_manager'
+    require 'features.gui.admin_panel.lua_console'
+end
 if config.player_list.enabled then
     require 'features.gui.player_list'
 end

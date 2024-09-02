@@ -24,8 +24,8 @@ Global.register(
 )
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
-local function print_no_target(target_name)
-    Game.player_print({'common.fail_no_target', target_name}, Color.fail)
+local function print_no_target(target_name, player)
+    Game.player_print({'common.fail_no_target', target_name}, Color.fail, player)
 end
 
 local function know_player_or_rerun(player_name, actor, command_name)
@@ -38,7 +38,7 @@ local function know_player_or_rerun(player_name, actor, command_name)
         return true;
     end
 
-    Game.player_print({'common.rerun_no_target', player_name}, Color.fail)
+    Game.player_print({'common.rerun_no_target', player_name}, Color.fail, actor)
     return false
 end
 
@@ -57,21 +57,21 @@ end
 --- Toggles cheat mode for a player
 local function toggle_cheat_mode(_, player)
     player.cheat_mode = not player.cheat_mode
-    Game.player_print({'admin_commands.toggle_cheat_mode', tostring(player.cheat_mode)})
+    Game.player_print({'admin_commands.toggle_cheat_mode', tostring(player.cheat_mode)}, nil, player)
 end
 
 --- Promote someone to regular
-local function add_regular(args)
+local function add_regular(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular') then
         return
     end
 
     if Rank.less_than(target_name, Ranks.guest) then
-        Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.fail)
+        Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.fail, player)
         return
     end
 
@@ -82,15 +82,15 @@ local function add_regular(args)
             maybe_target_player.print({'admin_commands.regular_add_notify_target'}, Color.warning)
         end
     else
-        Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail)
+        Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail, player)
     end
 end
 
 --- Demote someone from regular
-local function remove_regular(args)
+local function remove_regular(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular-remove') then
         return
@@ -104,22 +104,22 @@ local function remove_regular(args)
         end
     else
         local rank_name = Rank.get_player_rank_name(target_name)
-        Game.player_print({'admin_commands.regular_remove_fail', target_name, rank_name}, Color.fail)
+        Game.player_print({'admin_commands.regular_remove_fail', target_name, rank_name}, Color.fail, player)
     end
 end
 
 --- Put someone on probation
-local function probation_add(args)
+local function probation_add(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation') then
         return
     end
 
     if Rank.equal(target_name, Ranks.admin) then
-        Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail)
+        Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail, player)
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.probation_warn_admin', actor}, Color.warning)
         end
@@ -133,15 +133,15 @@ local function probation_add(args)
             maybe_target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
         end
     else
-        Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail)
+        Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail, player)
     end
 end
 
 --- Remove someone from probation
-local function probation_remove(args)
+local function probation_remove(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = Utils.get_actor()
+    local actor = args.actor or Utils.get_actor()
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation-remove') then
         return
@@ -154,7 +154,7 @@ local function probation_remove(args)
             maybe_target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
         end
     else
-        Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail)
+        Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail, player)
     end
 end
 
@@ -169,7 +169,7 @@ local function jail_player(args, player)
     local target = Utils.validate_player(target_ident)
 
     if not target then
-        print_no_target(target_ident)
+        print_no_target(target_ident, player)
         return
     end
 
@@ -182,7 +182,7 @@ local function unjail_player(args, player)
     local target = Utils.validate_player(target_ident)
 
     if not target then
-        print_no_target(target_ident)
+        print_no_target(target_ident, player)
         return
     end
     Report.unjail(target, player)
@@ -199,6 +199,7 @@ local function pool(_, player)
     end
     player.surface.set_tiles(t)
     player.surface.create_entity {name = 'fish', position = {p.x + 0.5, p.y + 5}}
+    Game.player_print({'admin_commands.create_pool'}, Color.success, player)
 end
 
 --- Takes a target and teleports them to player
@@ -207,13 +208,13 @@ local function invoke(args, player)
     local target = Utils.validate_player(target_ident)
 
     if not target then
-        print_no_target(target_ident)
+        print_no_target(target_ident, player)
         return
     end
 
     local pos = player.surface.find_non_colliding_position('character', player.position, 50, 1)
     if not pos then
-        Game.player_print({'admin_commands.invoke_fail_no_location'})
+        Game.player_print({'admin_commands.invoke_fail_no_location'}, player)
         return
     end
     target.teleport({pos.x, pos.y}, player.surface)
@@ -226,7 +227,7 @@ local function teleport_player(args, player)
     local target = Utils.validate_player(target_ident)
 
     if not target then
-        print_no_target(target_ident)
+        print_no_target(target_ident, player)
         return
     end
 
@@ -234,27 +235,27 @@ local function teleport_player(args, player)
     local surface = target.surface
     local pos = surface.find_non_colliding_position('character', target.position, 50, 1)
     if not pos then
-        Game.player_print({'admin_commands.tp_fail_no_location'})
+        Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
     end
     player.teleport(pos, surface)
     game.print({'admin_commands.tp_player_announce', target_name})
-    Game.player_print({'admin_commands.tp_player_success', target_name})
+    Game.player_print({'admin_commands.tp_player_success', target_name}, Color.success, player)
 end
 
 --- Takes a selected entity and teleports player to it
 local function teleport_location(_, player)
     if not player.selected then
-        Game.player_print({'admin_commands.tp_ent_fail_no_ent'})
+        Game.player_print({'admin_commands.tp_ent_fail_no_ent'}, Color.fail, player)
         return
     end
     local pos = player.surface.find_non_colliding_position('character', player.selected.position, 50, 1)
     if not pos then
-        Game.player_print({'admin_commands.tp_fail_no_location'})
+        Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
     end
     player.teleport(pos)
-    Game.player_print({'admin_commands.tp_end_success'})
+    Game.player_print({'admin_commands.tp_end_success'}, Color.success, player)
 end
 
 --- If a player is in the tp_players list, remove ghosts they place and teleport them to that position
@@ -280,10 +281,10 @@ local function toggle_tp_mode(_, player)
 
     if toggled then
         tp_players[index] = nil
-        Game.player_print({'admin_commands.tp_mode_off'})
+        Game.player_print({'admin_commands.tp_mode_off'}, nil, player)
     else
         tp_players[index] = true
-        Game.player_print({'admin_commands.tp_mode_on'})
+        Game.player_print({'admin_commands.tp_mode_on'}, nil, player)
     end
 end
 
@@ -303,19 +304,22 @@ end
 local function revive_ghosts(args, player)
     local radius = args.radius
     local pos = player.position
+    local count = 0
     for _, e in pairs(player.surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}, type = 'entity-ghost'}) do
         e.revive()
+        count = count + 1
     end
+    Game.player_print({'admin_commands.revive_ghosts', count}, Color.success, player)
 end
 
 --- Destroys the player's selected entity
 local function destroy_selected(_, player)
     local ent = player.selected
     if ent then
-        Game.player_print({'admin_commands.destroy_success', ent.localised_name})
+        Game.player_print({'admin_commands.destroy_success', ent.localised_name}, player)
         ent.destroy()
     else
-        Game.player_print({'admin_commands.destroy_fail'})
+        Game.player_print({'admin_commands.destroy_fail'}, player)
     end
 end
 
@@ -472,3 +476,19 @@ Command.add(
     },
     destroy_selected
 )
+
+return {
+    create_pool = pool,
+    destroy_selected = destroy_selected,
+    invoke_player = invoke,
+    jail_player = jail_player,
+    probation_add = probation_add,
+    probation_remove = probation_remove,
+    regular_add = add_regular,
+    regular_remove = remove_regular,
+    revive_ghosts = revive_ghosts,
+    show_reports = show_reports,
+    teleport_command = teleport_command,
+    toggle_cheat_mode = toggle_cheat_mode,
+    unjail_player = unjail_player,
+}

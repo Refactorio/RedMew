@@ -30,10 +30,11 @@ end
 --- Prints to player or console.
 -- @param msg <string|table> table if locale is used
 -- @param color <table> defaults to white
-function Game.player_print(msg, color)
+-- @param player <LuaPlayer?>
+function Game.player_print(msg, color, player)
     color = color or Color.white
-    local player = game.player
-    if player then
+    player = player or game.player
+    if player and player.valid then
         player.print(msg, color)
     else
         print(msg)

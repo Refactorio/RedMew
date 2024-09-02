@@ -470,6 +470,9 @@ global.config = {
             clear_corpses = true,
             battery_charge = true,
         }
+    },
+    admin_panel = {
+        enabled = true,
     }
 }
 

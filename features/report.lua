@@ -47,12 +47,12 @@ local function report_command(args, player)
     local reported_player = game.get_player(reported_player_name)
 
     if not reported_player then
-        Game.player_print(reported_player_name .. ' does not exist.')
+        Game.player_print(reported_player_name .. ' does not exist.', Color.fail, player)
         return nil
     end
 
     Module.report(player, reported_player, args.message)
-    Game.player_print('Your report has been sent.')
+    Game.player_print('Your report has been sent.', Color.success, player)
 end
 
 local function draw_report(parent, report_id)
@@ -380,7 +380,7 @@ function Module.unjail(target_player, player)
     local permissions = game.permissions
     local jail_permission_group = permissions.get_group(jail_name)
     if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group or not target_jail_data then
-        Game.player_print(format('%s is already not in Jail.', target_name))
+        Game.player_print(format('%s is already not in Jail.', target_name), Color.warning, player)
         return
     end
 
@@ -416,7 +416,7 @@ function Module.unjail(target_player, player)
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        Game.player_print(target_name .. ' has been returned to the default group. They have been advised of this.')
+        Game.player_print(target_name .. ' has been returned to the default group. They have been advised of this.', Color.success, player)
         target_player.print(prefix)
         target_player.print('Your ability to perform actions has been restored', Color.light_green)
         target_player.print(prefix_e)
@@ -426,14 +426,15 @@ function Module.unjail(target_player, player)
         -- Let admin know it didn't work.
         Game.player_print(format(
             'Something went wrong in the unjailing of %s. You can still change their group via /permissions and inform them.',
-            target_name))
+            target_name), Color.fail, player)
     end
 end
 
 --- Bans the player and reports the ban to moderation log channel.
--- @param  player<LuaPlayer>
--- @param  reason<string?> defaults to empty string.
-function Module.ban_player(player, reason)
+-- @param player <LuaPlayer>
+-- @param reason <string?> defaults to empty string.
+-- @param actor <LuaPlayer?> the player performing the ban action, if any
+function Module.ban_player(player, reason, actor)
     if not player or not player.valid then
         return
     end
@@ -448,10 +449,16 @@ function Module.ban_player(player, reason)
 
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
+    local actor_name = '<script>'
+    if actor and actor.valid then
+        actor_name = actor.name
+    end
+
+    Server.report_ban(player.name, actor_name, reason)
 
     local text = {'**'}
     text[#text + 1] = Utils.sanitise_string_for_discord(player.name)
-    text[#text + 1] = ' was banned by <script>**\\n'
+    text[#text + 1] = ' was banned by ' .. actor_name .. '**\\n'
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'
@@ -476,7 +483,8 @@ end
 --- kicks the player and reports the kick to moderation log channel.
 -- @param  player<LuaPlayer>
 -- @param  reason<string?> defaults to empty string.
-function Module.kick_player(player, reason)
+-- @param actor <LuaPlayer?> the player performing the kick action, if any
+function Module.kick_player(player, reason, actor)
     if not player or not player.valid then
         return
     end
@@ -491,10 +499,14 @@ function Module.kick_player(player, reason)
 
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
+    local actor_name = '<script>'
+    if actor and actor.valid then
+        actor_name = actor.name
+    end
 
     local text = {'**'}
     text[#text + 1] = Utils.sanitise_string_for_discord(player.name)
-    text[#text + 1] = ' was kicked by <script>**\\n'
+    text[#text + 1] = ' was kicked by ' .. actor_name .. '**\\n'
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'

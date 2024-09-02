@@ -7,8 +7,8 @@ Declare.module({'utils', 'Gui'}, function()
     Declare.module('can toggle top buttons', function()
         local function count_gui_elements(player)
             -- local gui = player.gui
-            -- return #gui.top.children + #gui.left.children + #gui.center.children
-            return #Gui.get_top_flow(player).children + #Gui.get_left_flow(player).children + #player.gui.center.children
+            -- return #gui.top.children + #gui.left.children + #gui.center.children + #gui.screen.children
+            return #Gui.get_top_flow(player).children + #Gui.get_left_flow(player).children + #player.gui.center.children + #player.gui.screen.children
         end
 
         local function is_ignored_element(element)
