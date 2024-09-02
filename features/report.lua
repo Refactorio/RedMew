@@ -483,7 +483,7 @@ end
 --- kicks the player and reports the kick to moderation log channel.
 -- @param  player<LuaPlayer>
 -- @param  reason<string?> defaults to empty string.
--- @param actor <LuaPlayer?> the player performing the ban action, if any
+-- @param actor <LuaPlayer?> the player performing the kick action, if any
 function Module.kick_player(player, reason, actor)
     if not player or not player.valid then
         return
