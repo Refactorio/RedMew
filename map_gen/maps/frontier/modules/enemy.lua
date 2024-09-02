@@ -3,6 +3,7 @@ local EnemyTurret = require 'features.enemy_turret'
 local math = require 'utils.math'
 local PriceRaffle = require 'features.price_raffle'
 local Table = require 'utils.table'
+local Task = require 'utils.task'
 local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Debug = require 'map_gen.maps.frontier.shared.debug'
@@ -329,6 +330,14 @@ function Enemy.on_spawner_died(event)
   end
 end
 
+Enemy.turret_activation_callback = Token.register(function(data)
+  local entity = data.entity
+  if not entity.valid then
+    return
+  end
+  entity.active = true
+end)
+
 function Enemy.roll_turret(x_distance, evolution)
   local set = Enemy.turret_raffle['base']
   if script.active_mods['Krastorio2'] then
@@ -383,7 +392,7 @@ function Enemy.spawn_turret_outpost(position)
   end
 
   local evolution = game.forces.enemy.evolution_factor
-  for _, v in pairs({
+  for i, v in pairs({
     { x = -5, y =  0, direction = defines.direction.west },
     { x =  5, y =  0, direction = defines.direction.east },
     { x =  0, y =  5, direction = defines.direction.south },
@@ -401,6 +410,8 @@ function Enemy.spawn_turret_outpost(position)
           direction = v.direction,
         }
         if turret and turret.valid then
+          turret.active = false
+          Task.set_timeout_in_ticks(20 + i * 20, Enemy.turret_activation_callback, { entity = turret })
           EnemyTurret.register(turret, refill_name)
         end
       end
