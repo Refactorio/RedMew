@@ -284,12 +284,12 @@ end)
 
 Gui.on_click(on_add_regular, function(event)
   local target_name = get_selected_player(event.player)
-  Actions.regular_add({ player = target_name, actor = event.player.name })
+  Actions.regular_add({ player = target_name, actor = event.player.name }, event.player)
 end)
 
 Gui.on_click(on_add_probation, function(event)
   local target_name = get_selected_player(event.player)
-  Actions.probation_add({ player = target_name, actor = event.player.name })
+  Actions.probation_add({ player = target_name, actor = event.player.name }, event.player)
 end)
 
 Gui.on_click(on_jail_player, function(event)
@@ -299,12 +299,12 @@ end)
 
 Gui.on_click(on_remove_regular, function(event)
   local target_name = get_selected_player(event.player)
-  Actions.regular_remove({ player = target_name, actor = event.player.name })
+  Actions.regular_remove({ player = target_name, actor = event.player.name }, event.player)
 end)
 
 Gui.on_click(on_remove_probation, function(event)
   local target_name = get_selected_player(event.player)
-  Actions.probation_remove({ player = target_name, actor = event.player.name })
+  Actions.probation_remove({ player = target_name, actor = event.player.name }, event.player)
 end)
 
 Gui.on_click(on_unjail_player, function(event)

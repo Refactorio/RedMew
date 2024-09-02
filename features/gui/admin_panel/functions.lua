@@ -1,3 +1,5 @@
+local Color = require 'resources.color_presets'
+local Game = require 'utils.game'
 local Performance = require 'features.performance'
 local Report = require 'features.report'
 
@@ -10,12 +12,7 @@ local Actions = require 'features.admin_commands'
 function Actions.save_game(filename, player)
   filename = filename or 'currently-running'
   game.auto_save(filename)
-  local msg = 'Saving map: _autosave-' .. filename ..'.zip'
-  if player and player.valid then
-    player.print(msg)
-  else
-    game.print(msg)
-  end
+  Game.player_print('Saving map: _autosave-' .. filename ..'.zip', Color.success, player)
 end
 
 ---@param player? LuaPlayer
@@ -27,12 +24,7 @@ function Actions.remove_all_ghost_entities(player)
       count = count + 1
     end
   end
-  local msg = count .. ' blueprints removed from all surfaces.'
-  if player and player.valid then
-    player.print(msg)
-  else
-    game.print(msg)
-  end
+  Game.player_print(count .. ' ghost entities removed from all surfaces.', Color.success, player)
 end
 
 ---@param player? LuaPlayer
@@ -46,23 +38,13 @@ function Actions.destroy_all_speakers(player)
       end
     end
   end
-  local msg = count .. ' speakers removed from all surfaces.'
-  if player and player.valid then
-    player.print(msg)
-  else
-    game.print(msg)
-  end
+  Game.player_print(count .. ' speakers removed from all surfaces.', Color.success, player)
 end
 
 ---@param player? LuaPlayer
 function Actions.kill_all_enemy_units(player)
   game.forces.enemy.kill_all_units()
-  local msg = 'All units have been killed.'
-  if player and player.valid then
-    player.print(msg)
-  else
-    game.print(msg)
-  end
+  Game.player_print('All enemy units have been killed.', Color.success, player)
 end
 
 ---@param player? LuaPlayer
@@ -75,12 +57,7 @@ function Actions.kill_all_enemies(player)
     end
   end
   game.forces.enemy.kill_all_units()
-  local msg = count .. ' enemies have been killed.'
-  if player and player.valid then
-    player.print(msg)
-  else
-    game.print(msg)
-  end
+  Game.player_print(count .. ' enemies have been killed.', Color.success, player)
 end
 
 ---@param target_name string
@@ -89,15 +66,10 @@ end
 function Actions.ban_player(target_name, reason, admin)
   local player = game.get_player(target_name)
   if not (player and player.valid) then
-    local msg = 'Could not ban player: ' .. target_name
-    if admin and admin.valid then
-      admin.print(msg)
-    else
-      game.print(msg)
-    end
+    Game.player_print('Could not ban player: ' .. target_name, Color.fail, admin)
     return
   end
-  Report.ban_player(player, reason)
+  Report.ban_player(player, reason, admin)
 end
 
 ---@param target_player string
@@ -112,7 +84,7 @@ function Actions.spank(target_name, source_player)
     character.damage(5, 'player')
   end
   target_player.surface.create_entity { name = 'water-splash', position = target_player.position }
-  game.print(source_player.name .. ' spanked ' .. target_player.name, {r = 0.98, g = 0.66, b = 0.22})
+  game.print(source_player.name .. ' spanked ' .. target_player.name, Color.warning)
 end
 
 -- == SURFACE =================================================================
@@ -122,12 +94,11 @@ local Surface = {}
 ---@param scale number
 function Surface.performance_scale_set(scale)
   Performance.set_time_scale(scale)
-  local p = game.print
   local stat_mod = Performance.get_player_stat_modifier()
-  p({'performance.stat_preamble'})
-  p({'performance.generic_stat', {'performance.game_speed'}, string.format('%.2f', Performance.get_time_scale())})
+  game.print({'performance.stat_preamble'})
+  game.print({'performance.generic_stat', {'performance.game_speed'}, string.format('%.2f', Performance.get_time_scale())})
   local stat_string = string.format('%.2f', stat_mod)
-  p({'performance.output_formatter', {'performance.running_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
+  game.print({'performance.output_formatter', {'performance.running_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
 end
 
 ---@param player LuaPlayer
@@ -139,7 +110,7 @@ function Surface.chart_map(player, radius)
     right_bottom = { x = position.x + radius, y = position.y + radius }
   }
   player.force.chart(player.surface, area)
-  player.print('Revealing the area around you...')
+  Game.player_print('Revealing the area around you...', Color.success, player)
 end
 
 ---@param player LuaPlayer
@@ -149,19 +120,19 @@ function Surface.hide_all(player)
   for chunk in surface.get_chunks() do
     force.unchart_chunk({ x = chunk.x, y = chunk.y }, surface)
   end
-  player.print('Hidden all of ' ..surface.name .. ' surface' )
+  Game.player_print('Hidden all of ' ..surface.name .. ' surface', Color.success, player)
 end
 
 ---@param player LuaPlayer
 function Surface.reveal_all(player)
   player.force.chart_all()
-  player.print('Removing the from from ' .. player.surface.name .. ' surface')
+  Game.player_print('Removing the from from ' .. player.surface.name .. ' surface', Color.success, player)
 end
 
 ---@param player LuaPlayer
 function Surface.rechart_all(player)
   player.force.rechart()
-  player.print('Revealing all of ' .. player.surface.name .. ' surface')
+  Game.player_print('Revealing all of ' .. player.surface.name .. ' surface', Color.success, player)
 end
 
 -- ============================================================================
