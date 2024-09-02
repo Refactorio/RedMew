@@ -126,7 +126,7 @@ end
 ---@param player LuaPlayer
 function Surface.reveal_all(player)
   player.force.chart_all()
-  Game.player_print('Removing the from from ' .. player.surface.name .. ' surface', Color.success, player)
+  Game.player_print('Removing the fog from ' .. player.surface.name .. ' surface', Color.success, player)
 end
 
 ---@param player LuaPlayer
