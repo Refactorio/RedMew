@@ -454,6 +454,8 @@ function Module.ban_player(player, reason, actor)
         actor_name = actor.name
     end
 
+    Server.report_ban(player.name, actor_name, reason)
+
     local text = {'**'}
     text[#text + 1] = Utils.sanitise_string_for_discord(player.name)
     text[#text + 1] = ' was banned by ' .. actor_name .. '**\\n'

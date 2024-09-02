@@ -55,6 +55,7 @@ local data_tracked_tag = '[DATA-TRACKED]'
 local query_players_tag = '[QUERY-PLAYERS]'
 local player_join_tag = '[PLAYER-JOIN]'
 local player_leave_tag = '[PLAYER-LEAVE]'
+local player_banned_tag = '[BAN]'
 
 Public.raw_print = raw_print
 
@@ -178,6 +179,17 @@ end
 function Public.to_discord_named_embed_raw(channel_name, message)
     assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
     raw_print(concat({discord_named_embed_raw_tag, channel_name, ' ', message}))
+end
+
+--- Tells the server that a ban has happend, this will overwrite any existing bans.
+-- The purpose is that game.ban doesn't report the admin so we use this function to fill that in.
+-- @param player_name<string> the player to ban.
+-- @param admin_name<string> the admin that did the ban.
+-- @param reason<string> the optional reason for the ban.
+function Public.report_ban(player_name, admin_name, reason)
+    assert_non_empty_string_and_no_spaces(player_name, 'player_name')
+    assert_non_empty_string_and_no_spaces(admin_name, 'admin_name')
+    raw_print(concat({player_banned_tag, ' ',  player_name, ' was banned by ', admin_name, '. Reason: ', reason}))
 end
 
 --- Stops and saves the factorio server and starts the named scenario.
