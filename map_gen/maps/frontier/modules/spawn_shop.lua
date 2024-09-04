@@ -319,7 +319,7 @@ end
 function SpawnShop.earn_coin()
   local this = Public.get()
   this.spawn_shop_funds = this.spawn_shop_funds + 1
-  ScoreTracker.change_for_global(Public.scores.shop_funds.name, 1)
+  ScoreTracker.set_for_global(Public.scores.shop_funds.name, this.spawn_shop_funds)
   Toast.toast_all_players(20, {'frontier.earn_coin'})
 end
 
@@ -395,7 +395,7 @@ function SpawnShop.on_player_refresh(player)
   local this = Public.get()
   this.spawn_shop_funds = this.spawn_shop_funds - 1
   this.spawn_shop_cooldown[player.index] = game.tick + 40 * SECOND
-  ScoreTracker.change_for_global(Public.scores.shop_funds.name, -1)
+  ScoreTracker.set_for_global(Public.scores.shop_funds.name, this.spawn_shop_funds)
   player.print('[color=orange][Bard][/color] ' .. bard_refresh_messages[math_random(#bard_refresh_messages)], { sound_path = 'utility/scenario_message', color = Color.dark_grey })
   if this.spawn_shop_funds <= 5 then
     game.print({'frontier.shop_funds_alert', player.name, this.spawn_shop_funds})

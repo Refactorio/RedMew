@@ -25,6 +25,7 @@ Public.VALUE_7_PACKS = 451
 Public.PROD_PENALTY = 1.2 * 1.4^5
 
 local this = {
+  abort = false,
   rounds = 0,
 
   -- Map gen
