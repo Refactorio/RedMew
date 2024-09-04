@@ -493,4 +493,15 @@ function Terrain.clear_area(args)
   end
 end
 
+function Terrain.prepare_next_surface()
+  Public.get().lobby_enabled = true
+  game.print({'frontier.map_setup'})
+
+  local surface = Public.surface()
+  surface.clear(true)
+  local mgs = table.deepcopy(surface.map_gen_settings)
+  mgs.seed = mgs.seed + 1e4
+  surface.map_gen_settings = mgs
+end
+
 return Terrain

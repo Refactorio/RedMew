@@ -1,11 +1,17 @@
 local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
+local Core = require 'utils.core'
+local Discord = require 'resources.discord'
 local Event = require 'utils.event'
-local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local Token = require 'utils.token'
+local Gui = require 'utils.gui'
+local PlayerStats = require 'features.player_stats'
+local ScoreTracker = require 'utils.score_tracker'
+local Server = require 'features.server'
 local Task = require 'utils.task'
+local Token = require 'utils.token'
 local Public = require 'map_gen.maps.frontier.shared.core'
+local format_number = require 'util'.format_number
 
 local Restart = {}
 local main_button_name = Gui.uid_name()
@@ -353,8 +359,73 @@ function Restart.set(key, value)
   restart_modifiers[key] = value
 end
 
-function Restart.on_game_finished()
+function Restart.queue_restart_event()
   Task.set_timeout(10, raise_event_token, { name = Public.events.on_game_started })
+end
+
+function Restart.print_endgame_statistics()
+  local map_promotion_channel = Discord.channel_names.map_promotion
+  local frontier_channel = Discord.channel_names.frontier
+  local frontier_role_mention = Discord.role_mentions.frontier
+  -- Use these settings for testing
+  --local map_promotion_channel = Discord.channel_names.bot_playground
+  --local frontier_channel = Discord.channel_names.bot_playground
+  --local frontier_role_mention = Discord.role_mentions.test
+
+  local statistics = {
+    time_string = Core.format_time(game.ticks_played),
+    biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
+    entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
+    resources_exhausted = ScoreTracker.get_for_global(PlayerStats.resources_exhausted_name),
+    total_players = #game.players,
+    rounds = Public.get('rounds'),
+    rockets_launched = Public.get('rockets_launched'),
+    tiles_traveled = math.ceil(Public.get('x')),
+  }
+  do
+    local resource_prototypes = game.get_filtered_entity_prototypes({{ filter = 'type', type = 'resource' }})
+    local ore_products = {}
+    for _, ore_prototype in pairs(resource_prototypes) do
+      local mineable_properties = ore_prototype.mineable_properties
+      if mineable_properties.minable and ore_prototype.resource_category == 'basic-solid' then
+        for _, product in pairs(mineable_properties.products) do
+          ore_products[product.name] = true
+        end
+      end
+    end
+
+    local total_ore = 0
+    local ore_totals_message = '('
+    for ore_name in pairs(ore_products) do
+      local count = game.forces.player.item_production_statistics.get_input_count(ore_name)
+      total_ore = total_ore + count
+      ore_totals_message = ore_totals_message..ore_name:gsub( '-ore', '')..': '..format_number(count, true)..', '
+    end
+    ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ', ' and add a bracket
+    statistics.ore_totals_value = format_number(total_ore, true)
+    statistics.ore_totals_breakdown = ore_totals_message
+  end
+
+  local statistics_message = {
+    'Frontier round '..statistics.rounds..' completed!',
+    '',
+    'S T A T I S T I C S:',
+    'Map time: '..statistics.time_string,
+    'Total entities built: '..statistics.entities_built,
+    'Total ore mined: '..statistics.ore_totals_value,
+    statistics.ore_totals_breakdown,
+    'Total ore resources exhausted: '..statistics.resources_exhausted,
+    'Players: '..statistics.total_players,
+    'Rockets launched: '..statistics.rockets_launched,
+    'Tiles traveled: '..statistics.tiles_traveled,
+    'Enemies killed: '..statistics.biters_killed,
+  }
+  Server.to_discord_named_embed(map_promotion_channel, table.concat(statistics_message, '\\n'))
+  Server.to_discord_named_embed(frontier_channel, table.concat(statistics_message, '\\n'))
+  game.print(table.concat(statistics_message, '\n'), { sound_path = 'utility/new_objective' })
+
+  local notification_message = frontier_role_mention .. ' **Frontier map has just restarted!**'
+  Server.to_discord_named_raw(map_promotion_channel, notification_message)
 end
 
 return Restart

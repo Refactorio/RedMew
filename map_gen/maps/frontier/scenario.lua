@@ -146,8 +146,9 @@ local function on_game_finished()
     SpawnShop.destroy_gui(player)
     Lobby.teleport_to(player)
   end
-  RocketSilo.on_game_finished()
-  Restart.on_game_finished()
+  Restart.print_endgame_statistics()
+  Restart.queue_restart_event()
+  Terrain.prepare_next_surface()
 end
 Event.add(Public.events.on_game_finished, on_game_finished)
 

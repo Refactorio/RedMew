@@ -244,17 +244,6 @@ function RocketSilo.init_silo()
   RocketSilo.move_silo()
 end
 
-function RocketSilo.on_game_finished()
-  Public.get().lobby_enabled = true
-  game.print({'frontier.map_setup'})
-
-  local surface = Public.surface()
-  surface.clear(true)
-  local mgs = table.deepcopy(surface.map_gen_settings)
-  mgs.seed = mgs.seed + 1e4
-  surface.map_gen_settings = mgs
-end
-
 function RocketSilo.on_rocket_launched(event)
   local rocket = event.rocket
   if not (rocket and rocket.valid) then

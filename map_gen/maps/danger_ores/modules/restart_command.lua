@@ -150,7 +150,7 @@ return function(config)
             ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
         end
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
-        ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
+        ore_totals_message = format_number(total_ore, true).. "\\n"..ore_totals_message
 
       local statistics_message = statistics.scenario..' completed!\\n\\n'..
         'Statistics:\\n'..
