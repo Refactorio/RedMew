@@ -20,13 +20,27 @@ Public.scores = {
   shop_funds      = { name = 'shop-funds-frontier',       tooltip = {'frontier.shop_funds'},        sprite = '[img=item.coin]' },
 }
 
+Public.restart_mode = {
+  none = 1,
+  reset = 2,
+  restart = 3,
+  switch = 4,
+}
+
 Public.ESCAPE_PLAYER = false
 Public.VALUE_7_PACKS = 451
 Public.PROD_PENALTY = 1.2 * 1.4^5
 
 local this = {
   rounds = 0,
-
+  server_commands = {
+    restarting = false,
+    mode = Public.restart_mode.reset,
+    switch_map = {
+      name = nil,
+      mod_pack = nil,
+    }
+  },
   -- Map gen
   chart_queue = Queue.new(),
   height = 36,              -- in chunks, height of the ribbon world
@@ -57,6 +71,7 @@ local this = {
   scenario_finished = false,
 
   -- Enemy data
+  spawn_enemy_outpost = false,
   spawn_enemy_wave = false,
   invincible = {},
   target_entities = {},

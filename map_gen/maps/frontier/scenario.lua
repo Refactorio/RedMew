@@ -11,6 +11,7 @@ local Public = require 'map_gen.maps.frontier.shared.core'
 local Enemy = require 'map_gen.maps.frontier.modules.enemy'
 local Lobby = require 'map_gen.maps.frontier.modules.lobby'
 local Market = require 'map_gen.maps.frontier.modules.market'
+local Restart = require 'map_gen.maps.frontier.modules.restart'
 local RocketSilo = require 'map_gen.maps.frontier.modules.rocket_silo'
 local SpawnShop = require 'map_gen.maps.frontier.modules.spawn_shop'
 local Terrain = require 'map_gen.maps.frontier.modules.terrain'
@@ -119,6 +120,8 @@ Event.add(defines.events.on_tick, on_tick)
 
 local function on_game_started()
   Public.reset()
+  Restart.announce_new_map()
+  Restart.apply_modifiers()
   Terrain.reveal_spawn_area()
   Terrain.queue_reveal_map()
   RocketSilo.init_silo()
@@ -130,11 +133,23 @@ end
 Event.add(Public.events.on_game_started, on_game_started)
 
 local function on_game_finished()
-  for _, player in pairs(game.players) do
-    SpawnShop.destroy_gui(player)
-    Lobby.teleport_to(player)
+  local this = Public.get()
+  local cmd = this.server_commands
+
+  if cmd.restarting then
+    Restart.print_endgame_statistics()
+    if this.rounds >= 5 then
+      cmd.mode = Public.restart_mode.restart
+    end
+    if cmd.mode ~= Public.restart_mode.none then
+      Terrain.prepare_next_surface()
+      for _, player in pairs(game.players) do
+        SpawnShop.destroy_gui(player)
+        Lobby.teleport_to(player)
+      end
+    end
   end
-  RocketSilo.on_game_finished()
+  Restart.execute_server_command()
 end
 Event.add(Public.events.on_game_finished, on_game_finished)
 

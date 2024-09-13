@@ -21,12 +21,7 @@ function Lobby.get_surface()
 end
 
 function Lobby.teleport_to(player)
-  for k = 1, player.get_max_inventory_index() do
-    local inv = player.get_inventory(k)
-    if inv and inv.valid then
-      inv.clear()
-    end
-  end
+  player.clear_items_inside()
 
   local surface = Lobby.get_surface()
   local position = surface.find_non_colliding_position('character', {0, 0}, 0, 0.2)

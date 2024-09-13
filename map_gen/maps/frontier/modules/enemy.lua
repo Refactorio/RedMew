@@ -371,6 +371,9 @@ end
 
 function Enemy.spawn_turret_outpost(position)
   local this = Public.get()
+  if not this.spawn_enemy_outpost then
+    return
+  end
   if position.x < this.right_boundary * 32 + this.wall_width then
     return
   end

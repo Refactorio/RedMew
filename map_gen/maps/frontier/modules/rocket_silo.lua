@@ -6,6 +6,7 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Public = require 'map_gen.maps.frontier.shared.core'
 local Enemy = require 'map_gen.maps.frontier.modules.enemy'
+local Restart = require 'map_gen.maps.frontier.modules.restart'
 local Terrain = require 'map_gen.maps.frontier.modules.terrain'
 local math_abs = math.abs
 local math_ceil = math.ceil
@@ -94,10 +95,6 @@ local bard_messages_2 = {
 }
 
 RocketSilo.play_sound_token = Token.register(Sounds.notify_all)
-
-RocketSilo.restart_message_token = Token.register(function(seconds)
-  game.print({'frontier.restart', seconds}, Color.success)
-end)
 
 function RocketSilo.bard_message(list)
   game.print('[color=orange][Bard][/color] ' .. list[math_random(#list)], { sound_path = 'utility/axe_fighting', color = Color.brown })
@@ -225,7 +222,7 @@ function RocketSilo.compute_silo_coordinates(step)
       this.rockets_to_win = this.rockets_to_win - remove_rockets
       if this.rockets_to_win < 1 then this.rockets_to_win = 1 end
       if this.rockets_launched >= this.rockets_to_win then
-        RocketSilo.set_game_state(true)
+        Restart.set_game_state(true)
         return
       else
         game.print({'frontier.warning_min_distance', this.rocket_step})
@@ -247,44 +244,6 @@ function RocketSilo.init_silo()
   RocketSilo.move_silo()
 end
 
-function RocketSilo.set_game_state(player_won)
-  Public.get().scenario_finished = true
-  game.set_game_state {
-    game_finished = true,
-    player_won = player_won or false,
-    can_continue = true,
-    victorious_force = player_won and 'player' or 'enemy'
-  }
-
-  Task.set_timeout( 1, RocketSilo.restart_message_token, 90)
-  Task.set_timeout(31, RocketSilo.restart_message_token, 60)
-  Task.set_timeout(61, RocketSilo.restart_message_token, 30)
-  Task.set_timeout(81, RocketSilo.restart_message_token, 10)
-  Task.set_timeout(86, RocketSilo.restart_message_token,  5)
-  Task.set_timeout(90, RocketSilo.end_game_token)
-  Task.set_timeout(100, RocketSilo.restart_game_token)
-end
-RocketSilo.set_game_state_token = Token.register(RocketSilo.set_game_state)
-
-RocketSilo.restart_game_token = Token.register(function()
-  script.raise_event(Public.events.on_game_started, {})
-end)
-
-function RocketSilo.on_game_finished()
-  Public.get().lobby_enabled = true
-  game.print({'frontier.map_setup'})
-
-  local surface = Public.surface()
-  surface.clear(true)
-  local mgs = table.deepcopy(surface.map_gen_settings)
-  mgs.seed = mgs.seed + 1e4
-  surface.map_gen_settings = mgs
-end
-
-RocketSilo.end_game_token = Token.register(function()
-  script.raise_event(Public.events.on_game_finished, {})
-end)
-
 function RocketSilo.on_rocket_launched(event)
   local rocket = event.rocket
   if not (rocket and rocket.valid) then
@@ -299,7 +258,7 @@ function RocketSilo.on_rocket_launched(event)
   this.rockets_launched = this.rockets_launched + 1
   ScoreTracker.set_for_global(Public.scores.rocket_launches.name, this.rockets_to_win - this.rockets_launched)
   if this.rockets_launched >= this.rockets_to_win then
-    RocketSilo.set_game_state(true)
+    Restart.set_game_state(true)
     return
   end
 

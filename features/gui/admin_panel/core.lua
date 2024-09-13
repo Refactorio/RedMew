@@ -102,7 +102,7 @@ function Public.get_main_frame(player)
       vertically_stretchable = true,
       horizontal_align = 'center',
       padding = 10,
-      vertical_spacing = 10,
+      vertical_spacing = 5,
     })
 
     for _, page in pairs(pages) do
@@ -157,7 +157,9 @@ function Public.close_all_pages(player)
   end
 
   for _, button in pairs(Gui.get_data(frame).left.children) do
-    button.toggled = false
+    if button.type == 'button' or button.type == 'sprite-button' then
+      button.toggled = false
+    end
   end
 end
 

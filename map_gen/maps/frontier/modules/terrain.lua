@@ -201,15 +201,15 @@ function Terrain.scale_resource_richness(surface, area)
       local chunks = math.clamp(math_abs((resource.position.x - this.right_boundary * 32) / this.ore_chunk_scale), 1, 100)
       chunks = math_random(chunks, chunks + 4)
       if resource.prototype.resource_category == 'basic-fluid' then
-        resource.amount = 3000 * 3 * chunks
+        resource.amount = this.ore_base_quantity * 800 * chunks
       elseif resource.prototype.resource_category == 'basic-solid' then
-        resource.amount = math_min(0.7 * resource.amount, 100 + math_random(100))
+        resource.amount = math_min(0.7 * resource.amount, this.ore_base_quantity * 10 + math_random(100))
       end
     else
       if resource.prototype.resource_category == 'basic-fluid' then
-        resource.amount = 800000 + math_random(400000)
+        resource.amount = this.ore_base_quantity * 80000 + math_random(400000)
       elseif resource.prototype.resource_category == 'basic-solid' then
-        resource.amount = 3700 + math_random(1300)
+        resource.amount = this.ore_base_quantity * 300 + math_random(400, 1700)
       end
     end
   end
@@ -491,6 +491,17 @@ function Terrain.clear_area(args)
     surface.set_tiles(tiles, true)
     return true
   end
+end
+
+function Terrain.prepare_next_surface()
+  Public.get().lobby_enabled = true
+  game.print({'frontier.map_setup'})
+
+  local surface = Public.surface()
+  surface.clear(true)
+  local mgs = table.deepcopy(surface.map_gen_settings)
+  mgs.seed = mgs.seed + 1e4
+  surface.map_gen_settings = mgs
 end
 
 return Terrain
