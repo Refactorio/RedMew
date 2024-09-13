@@ -20,7 +20,7 @@ Public.scores = {
   shop_funds      = { name = 'shop-funds-frontier',       tooltip = {'frontier.shop_funds'},        sprite = '[img=item.coin]' },
 }
 
-Public.server_commands = {
+Public.restart_mode = {
   none = 1,
   reset = 2,
   restart = 3,
@@ -35,7 +35,7 @@ local this = {
   rounds = 0,
   server_commands = {
     restarting = false,
-    mode = Public.server_commands.reset,
+    mode = Public.restart_mode.reset,
     switch_map = {
       name = nil,
       mod_pack = nil,

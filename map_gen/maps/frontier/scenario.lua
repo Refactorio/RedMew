@@ -139,9 +139,9 @@ local function on_game_finished()
   if cmd.restarting then
     Restart.print_endgame_statistics()
     if this.rounds >= 5 then
-      cmd.mode = Public.server_commands.restart
+      cmd.mode = Public.restart_mode.restart
     end
-    if cmd.mode ~= Public.server_commands.none then
+    if cmd.mode ~= Public.restart_mode.none then
       Terrain.prepare_next_surface()
       for _, player in pairs(game.players) do
         SpawnShop.destroy_gui(player)

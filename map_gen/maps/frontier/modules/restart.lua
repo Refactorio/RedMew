@@ -75,7 +75,7 @@ pages[#pages +1] = {
   auto_toggle = true,
 }
 
-local server_commands_text = { 'None', 'Reset map', 'Restart server', 'Load save/mods' }
+local restart_mode_text = { 'None', 'Reset map', 'Restart server', 'Load save/mods' }
 
 local function is_number(value)
   if type(value) == 'number' then return true end
@@ -242,7 +242,7 @@ local function draw_gui(player)
     row_1.add {
       type = 'drop-down',
       name = mode_dropdown_name,
-      items = server_commands_text,
+      items = restart_mode_text,
       selected_index = mode
     }
 
@@ -322,7 +322,7 @@ local function draw_gui(player)
 
     Gui.set_data(confirm, { name = t12, mod_pack = t22 })
 
-    load_settings.visible = (mode == Public.server_commands.switch)
+    load_settings.visible = (mode == Public.restart_mode.switch)
   end
 end
 
@@ -385,7 +385,7 @@ end)
 Gui.on_selection_state_changed(mode_dropdown_name, function(event)
   local mode = event.element.selected_index
   Public.get().server_commands.mode = mode
-  event.player.print('Restart mode changed to: '..server_commands_text[mode], Color.info)
+  event.player.print('Restart mode changed to: '..restart_mode_text[mode], Color.info)
   draw_gui(event.player)
 end)
 
@@ -488,19 +488,19 @@ function Restart.execute_server_command()
   end
   local is_hosted = Server.get_current_time() ~= nil
 
-  if is_hosted and cmd.mode == Public.server_commands.switch then
+  if is_hosted and cmd.mode == Public.restart_mode.switch then
     Server.start_game({
       type = (cmd.switch_map.name and 'save') or 'scenario',
       name = cmd.switch_map.name or 'frontier',
       mod_pack = cmd.switch_map.mod_pack,
     })
-  elseif is_hosted and cmd.mode == Public.server_commands.restart then
+  elseif is_hosted and cmd.mode == Public.restart_mode.restart then
     Server.start_game({
       type = 'scenario',
       name = 'frontier',
       mod_pack = nil,
     })
-  elseif cmd.mode ~= Public.server_commands.none then
+  elseif cmd.mode ~= Public.restart_mode.none then
     Restart.queue_restart_event()
   end
   cmd.restarting = false
