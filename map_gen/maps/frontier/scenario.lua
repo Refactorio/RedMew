@@ -119,13 +119,9 @@ end
 Event.add(defines.events.on_tick, on_tick)
 
 local function on_game_started()
-  if Public.get().abort then
-    Public.get().abort = false
-    return
-  end
-
   Public.reset()
-  Restart.apply()
+  Restart.announce_new_map()
+  Restart.apply_modifiers()
   Terrain.reveal_spawn_area()
   Terrain.queue_reveal_map()
   RocketSilo.init_silo()
@@ -137,18 +133,23 @@ end
 Event.add(Public.events.on_game_started, on_game_started)
 
 local function on_game_finished()
-  if Public.get().abort then
-    Public.get().abort = false
-    return
-  end
+  local this = Public.get()
+  local cmd = this.server_commands
 
-  for _, player in pairs(game.players) do
-    SpawnShop.destroy_gui(player)
-    Lobby.teleport_to(player)
+  if cmd.restarting then
+    Restart.print_endgame_statistics()
+    if this.rounds >= 5 then
+      cmd.mode = Public.server_commands.restart
+    end
+    if cmd.mode ~= Public.server_commands.none then
+      Terrain.prepare_next_surface()
+      for _, player in pairs(game.players) do
+        SpawnShop.destroy_gui(player)
+        Lobby.teleport_to(player)
+      end
+    end
   end
-  Restart.print_endgame_statistics()
-  Restart.queue_restart_event()
-  Terrain.prepare_next_surface()
+  Restart.execute_server_command()
 end
 Event.add(Public.events.on_game_finished, on_game_finished)
 
