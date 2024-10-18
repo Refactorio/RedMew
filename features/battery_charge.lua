@@ -1,4 +1,4 @@
--- Charge your armor equipment from nearby accumulators! 
+-- Charge your armor equipment from nearby accumulators!
 -- made by Hanakocz
 -- modified by RedRafe
 -- source: https://github.com/ComfyFactory/ComfyFactorio/blob/develop/modules/charging_station.lua
