@@ -9,6 +9,6 @@ end
 return function(name)
     local s, e = pcall(require, name)
     if not s and not file_is_missing(e) then
-        error(e, 2)
+        error(e, 10)
     end
 end
