@@ -1,3 +1,9 @@
+-- Charge your armor equipment from nearby accumulators! 
+-- made by Hanakocz
+-- modified by RedRafe
+-- source: https://github.com/ComfyFactory/ComfyFactorio/blob/develop/modules/charging_station.lua
+-- ======================================================= --
+
 local Color = require 'resources.color_presets'
 local Global = require 'utils.global'
 

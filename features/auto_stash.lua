@@ -1,3 +1,9 @@
+-- This adds a button that stashes/sorts your inventory into nearby chests in some kind of intelligent way
+-- made by mewmew
+-- modified by gerkiz & RedRafe
+-- source: https://github.com/ComfyFactory/ComfyFactorio/blob/develop/modules/autostash.lua
+-- ======================================================= --
+
 local Color = require 'resources.color_presets'
 local Event = require 'utils.event'
 local Game = require 'utils.game'

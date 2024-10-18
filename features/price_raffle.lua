@@ -1,4 +1,7 @@
+-- Get random item stacks based off a budget
+-- modified by RedRafe
 -- source: https://github.com/ComfyFactory/ComfyFactorio/blob/develop/maps/expanse/price_raffle.lua
+-- ======================================================= --
 
 -- @usage PriceRaffle
 --[[
