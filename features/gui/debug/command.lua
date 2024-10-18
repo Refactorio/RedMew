@@ -135,6 +135,6 @@ Command.add(
         end
 
         value = dump(value)
-        game.write_file('dump.lua', value, false, player_index)
+        helpers.write_file('dump.lua', value, false, player_index)
     end
 )

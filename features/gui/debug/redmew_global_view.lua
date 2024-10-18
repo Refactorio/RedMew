@@ -86,7 +86,7 @@ Gui.on_click(
         element.style.font_color = Color.orange
         data.selected_header = element
 
-        input_text_box.text = concat {'global.tokens[', token_id, ']'}
+        input_text_box.text = concat {'storage.tokens[', token_id, ']'}
         input_text_box.style.font_color = Color.black
 
         local content = dump(Token.get_global(token_id)) or 'nil'

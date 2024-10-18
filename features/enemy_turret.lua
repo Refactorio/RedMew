@@ -2,7 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
-local register_on_entity_destroyed = script.register_on_entity_destroyed
+local register_on_object_destroyed = script.register_on_object_destroyed
 
 local Public = {}
 local turrets_map = {}
@@ -79,15 +79,15 @@ function Public.register(entity, refill_name)
     return
   end
 
-  local is_item = game.item_prototypes[refill_name] and true or false
-  local is_fluid = game.fluid_prototypes[refill_name] and true or false
+  local is_item = prototypes.item[refill_name] and true or false
+  local is_fluid = prototypes.fluid[refill_name] and true or false
   local is_artillery = entity.prototype.type == Artillery.turret_name
 
   if not (is_item or is_fluid or is_artillery) then
     return
   end
 
-  local destroy_id = register_on_entity_destroyed(entity)
+  local destroy_id = register_on_object_destroyed(entity)
   local unit_id = entity.unit_number
 
   local data = {
@@ -109,7 +109,7 @@ function Public.register(entity, refill_name)
   else
     data.item_stack = {
       name = data.refill,
-      count = game.item_prototypes[data.refill].stack_size
+      count = prototypes.item[data.refill].stack_size
     }
   end
 
@@ -193,14 +193,14 @@ local function simulate_automatic_artillery(data)
   end
 end
 
-local function on_entity_destroyed(event)
+local function on_object_destroyed(event)
   local destroy_id = event.registration_number
   local unit_id = event.unit_number
 
   register_map[destroy_id] = nil
   turrets_map[unit_id] = nil
 end
-Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
+Event.add(defines.events.on_object_destroyed, on_object_destroyed)
 
 local function on_tick()
   if primitives.index ~= nil and turrets_map[primitives.index] == nil then

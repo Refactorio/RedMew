@@ -10,7 +10,7 @@ local loot = {
     {stack = {name = 'cluster-grenade', count = 250, distance_factor = 1}, weight = 1},
     {stack = {name = 'destroyer-capsule', count = 50, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'power-armor-mk2', count = 5, distance_factor = 1 / 256}, weight = 1},
-    {stack = {name = 'fusion-reactor-equipment', count = 5, distance_factor = 1 / 256}, weight = 1},
+    {stack = {name = 'fission-reactor-equipment', count = 5, distance_factor = 1 / 256}, weight = 1},
     {stack = {name = 'battery-mk2-equipment', count = 5, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'energy-shield-mk2-equipment', count = 5, distance_factor = 1 / 64}, weight = 1},
     {stack = {name = 'exoskeleton-equipment', count = 5, distance_factor = 1 / 64}, weight = 1},
@@ -144,7 +144,7 @@ local market = {
             min_price = 1
         },
         {
-            name = 'fusion-reactor-equipment',
+            name = 'fission-reactor-equipment',
             price = 250,
             distance_factor = 125 / 512,
             min_price = 75

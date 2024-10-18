@@ -42,7 +42,7 @@ local ignore = {
     serpent = true,
     log = true,
     table_size = true,
-    global = true,
+    storage = true,
     remote = true,
     commands = true,
     settings = true,
@@ -51,7 +51,9 @@ local ignore = {
     util = true,
     mod_gui = true,
     game = true,
-    rendering = true
+    rendering = true,
+    helpers = true,
+    prototypes = true,
 }
 
 local header_name = Gui.uid_name()

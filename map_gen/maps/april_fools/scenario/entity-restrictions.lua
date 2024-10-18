@@ -13,7 +13,7 @@ local banned_per_surface = {
 }
 
 local function on_built(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid) then
     return
   end
@@ -31,7 +31,7 @@ local function on_built(event)
 
   entity.destroy()
 
-  local stack = event.stack
+  local stack = event.stack or event.consumed_items.get_contents()[1]
   local player = game.get_player(event.player_index or 'none')
   local robot = event.robot
   if player and player.valid and not ghost and stack.valid then

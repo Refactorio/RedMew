@@ -17,7 +17,7 @@ function Public.show_gui(event, message)
     local show_timer = message == nil
     local caption = message or 'Waiting for map to generate\n\n... Please wait ...\n'
 
-    frame = player.gui.center.add {name = 'Space-Race-Wait', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    frame = player.gui.center.add {name = 'Space-Race-Wait', type = 'frame', direction = 'vertical' }
 
     frame.style.minimal_width = 300
 

@@ -89,7 +89,7 @@ Global.register(
 
 local point_table = {1, 3, 5, 9}
 local tetris_tick_duration = 61
-global.vote_delay = 10
+storage.vote_delay = 10
 
 -- Use redmew_surface to give us a waterworld and a spawn location
 RS.set_spawn_position({x = 8, y = 8})
@@ -329,7 +329,7 @@ Event.add(
     defines.events.on_tick,
     function()
         if StateMachine.in_state(machine, states.voting) then
-            local progress = (primitives.next_vote_finished - game.tick + 1) / global.vote_delay / tetris_tick_duration
+            local progress = (primitives.next_vote_finished - game.tick + 1) / storage.vote_delay / tetris_tick_duration
             if progress >= 0 and progress <= 1 then
                 View.set_progress(progress)
             end
@@ -370,7 +370,7 @@ StateMachine.register_transition_callback(
     states.pause,
     states.voting,
     function()
-        primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+        primitives.next_vote_finished = storage.vote_delay * tetris_tick_duration + game.tick
         game.print('Resuming...')
     end
 )
@@ -398,7 +398,7 @@ StateMachine.register_transition_callback(
     states.voting,
     states.down,
     function()
-        primitives.next_vote_finished = (3 + global.vote_delay) * tetris_tick_duration + game.tick
+        primitives.next_vote_finished = (3 + storage.vote_delay) * tetris_tick_duration + game.tick
         View.enable_vote_buttons(false)
     end
 )
@@ -409,7 +409,7 @@ StateMachine.register_transition_callback(
     states.moving,
     function()
         View.enable_vote_buttons(false)
-        primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+        primitives.next_vote_finished = storage.vote_delay * tetris_tick_duration + game.tick
         execute_winner_action()
     end
 )

@@ -1,1 +1,1 @@
-global.redmew_version = nil
+storage.redmew_version = nil

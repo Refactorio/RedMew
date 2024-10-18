@@ -22,7 +22,7 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
-global.config.market.create_standard_market = false
+storage.config.market.create_standard_market = false
 
 local generator
 
@@ -56,7 +56,7 @@ Event.add(
         local p_force = game.forces.player
         local r = event.research
 
-        for _, e in ipairs(r.effects) do
+        for _, e in ipairs(r.prototype.effects) do
             local t = e.type
 
             if t == 'ammo-damage' then
@@ -239,7 +239,7 @@ local item_pool = {
     {name = 'battery-mk2-equipment', count = 1, weight = 40},
     {name = 'tank-machine-gun', count = 1, weight = 3.3333},
     {name = 'power-armor', count = 1, weight = 33.3333},
-    {name = 'fusion-reactor-equipment', count = 1, weight = 33.3333},
+    {name = 'fission-reactor-equipment', count = 1, weight = 33.3333},
     {name = 'production-science-pack', count = 200, weight = 100},
     {name = 'utility-science-pack', count = 200, weight = 100},
     {name = 'artillery-turret', count = 1, weight = 2.5},

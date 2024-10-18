@@ -38,7 +38,7 @@ local memory = {
 Global.register_init({
     memory = memory,
 }, function(tbl)
-    for name, prototype in pairs(game.entity_prototypes) do
+    for name, prototype in pairs(prototypes.entity) do
         if prototype.type == 'unit-spawner' and prototype.subgroup.name == 'enemies' then
             tbl.memory.spawner_specifications[name] = prototype.result_units
             memory.spawner_specifications_count = memory.spawner_specifications_count + 1

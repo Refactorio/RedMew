@@ -23,9 +23,9 @@ local function console_chat(event)
         if (string.find(force.name, 'quadrant')) ~= nil or force.name == 'player' then
             if force.name ~= player_force.name then
                 if player.tag ~= '' then
-                    force.print(player.name .. ' ' .. player.tag .. ': ' .. event.message, player.chat_color)
+                    force.print(player.name .. ' ' .. player.tag .. ': ' .. event.message, {color = player.chat_color})
                 else
-                    force.print(player.name .. ': ' .. event.message, player.chat_color)
+                    force.print(player.name .. ': ' .. event.message, {color = player.chat_color})
                 end
             end
         end

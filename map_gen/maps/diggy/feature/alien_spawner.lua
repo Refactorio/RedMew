@@ -12,6 +12,7 @@ local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Template = require 'map_gen.maps.diggy.template'
 local CreateParticles = require 'features.create_particles'
+local RS = require 'map_gen.shared.redmew_surface'
 local format_number = require 'util'.format_number
 local random = math.random
 local floor = math.floor
@@ -42,7 +43,7 @@ local locations_to_scan = {
 Global.register_init({
     memory = memory,
 }, function(tbl)
-    for name, prototype in pairs(game.entity_prototypes) do
+    for name, prototype in pairs(prototypes.entity) do
         if prototype.type == 'unit' and prototype.subgroup.name == 'enemies' then
             tbl.memory.alien_collision_boxes[name] = prototype.collision_box
         end
@@ -167,14 +168,14 @@ function AlienSpawner.register(cfg)
     local evolution_per_void_removed = cfg.evolution_per_void_removed
 
     if size(hail_hydra) > 0 then
-        global.config.hail_hydra.enabled = true
-        global.config.hail_hydra.hydras = hail_hydra
+        storage.config.hail_hydra.enabled = true
+        storage.config.hail_hydra.hydras = hail_hydra
     end
 
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
-        local evolution_factor = force.evolution_factor
-        force.evolution_factor = evolution_factor + evolution_per_void_removed
+        local evolution_factor = force.get_evolution_factor(event.surface)
+        force.set_evolution_factor(evolution_factor + evolution_per_void_removed, event.surface)
 
         local position = event.position
         local x = position.x
@@ -184,7 +185,7 @@ function AlienSpawner.register(cfg)
             return
         end
 
-        spawn_aliens(get_aliens(create_spawner_request(2), force.evolution_factor), force, event.surface, x, y)
+        spawn_aliens(get_aliens(create_spawner_request(2), force.get_evolution_factor(event.surface)), force, event.surface, x, y)
     end)
 end
 
@@ -202,7 +203,7 @@ function AlienSpawner.on_init()
     if config.evolution_over_time_factor then
         game.map_settings.enemy_evolution.time_factor = config.evolution_over_time_factor
     end
-    game.forces.enemy.evolution_factor = config.initial_evolution * 0.01
+    game.forces.enemy.set_evolution_factor(config.initial_evolution * 0.01, RS.get_surface_name())
     game.map_settings.pollution.enabled = false
 end
 

@@ -30,11 +30,11 @@ local function is_targetting_deconstruction_planner(cursor_stack)
     end
 
       -- check if the player has given the decon planner an icon. This is how  we will determine  their intention
-    if not cursor_stack.blueprint_icons or not cursor_stack.blueprint_icons[1] or not cursor_stack.blueprint_icons[1].signal.name then
+    if not cursor_stack.preview_icons or not cursor_stack.preview_icons[1] or not cursor_stack.preview_icons[1].signal.name then
         return false
     end
 
-    local icon_name = cursor_stack.blueprint_icons[1].signal.name
+    local icon_name = cursor_stack.preview_icons[1].signal.name
     if icon_name ~= "spidertron" then
         return false
     end
@@ -63,11 +63,9 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
     if width <= 1 and height <= 1  then
         local spidertrons = spider_army[player.name]
         if not spidertrons then
-            player.surface.create_entity {
-                name = 'flying-text',
+            player.create_local_flying_text {
                 text = {'spidertron_group_control.none_selected'},
                 position = left_top,
-                render_player_index = player.index
             }
             return
         end
@@ -81,11 +79,9 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
             spider_army[player.name] = {} -- clear spidertrons from table once they've been assigned to follow another spidey lad
             cursor_stack.label = "No [img=item.spidertron] selected. Drag the planner over [img=item.spidertron] you own."
         else
-            player.surface.create_entity {
-                name = 'flying-text',
+            player.create_local_flying_text {
                 text = {'spidertron_group_control.none_found'},
                 position = left_top,
-                render_player_index = player.index
             }
         end
     else -- else the area is bigger than 1x1 and so we assume the player is selecting which spiders to assign
@@ -115,11 +111,9 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
             cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
         end
         -- Flying text to appear at top left of selection area showing player how many spidertrons they selected
-        player.surface.create_entity {
-            name = 'flying-text',
-            text = {'spidertron_group_control.spidertrons_selected',#spidertrons_valid},
+        player.create_local_flying_text {
+            text = {'spidertron_group_control.spidertrons_selected', #spidertrons_valid},
             position = left_top,
-            render_player_index = player.index
         }
     end
 end)

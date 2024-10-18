@@ -104,7 +104,7 @@ local item_worths = {
   ['flamethrower'] = 512,
   ['fluid-wagon'] = 256,
   ['flying-robot-frame'] = 128,
-  ['fusion-reactor-equipment'] = 8192,
+  ['fission-reactor-equipment'] = 8192,
   ['gate'] = 16,
   ['green-wire'] = 4,
   ['grenade'] = 16,
@@ -272,7 +272,7 @@ function Public.roll_item_stack(remaining_budget, blacklist, value_blacklist)
     end
   end
 
-  local stack_size = game.item_prototypes[item_name].stack_size * 32
+  local stack_size = prototypes.item[item_name].stack_size * 32
 
   local item_count = 1
 
@@ -354,7 +354,7 @@ local function add_recipe_products(recipe)
       name = name .. '-barrel'
     end
 
-    if game.item_prototypes[name] ~= nil then
+    if prototypes.item[name] ~= nil then
       item_unlocked[name] = item_worths[name]
       if item_unlocked[name] ~= nil then
         table_insert(item_names, name)
@@ -402,7 +402,7 @@ Event.add(defines.events.on_research_finished, function(event)
     return
   end
 
-  for _, effect in pairs(technology.effects or {}) do
+  for _, effect in pairs(technology.prototype.effects or {}) do
     if effect.recipe then
       add_recipe_products(game.forces.player.recipes[effect.recipe])
     end

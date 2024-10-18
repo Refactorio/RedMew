@@ -243,7 +243,7 @@ function Terrain.rich_rocks(surface, area)
   end
 
   for _ = 1, this.rock_richness do
-    local rock_name = math_random() < 0.4 and 'rock-huge' or 'rock-big'
+    local rock_name = math_random() < 0.4 and 'huge-rock' or 'rock-big'
     place_rock(rock_name)
   end
 end
@@ -433,7 +433,7 @@ function Terrain.clear_area(args)
   surface.force_generate_chunk_requests()
 
   if args.name then
-    local cb = game.entity_prototypes[args.name].collision_box
+    local cb = prototypes.entity[args.name].collision_box
     local area = {
       left_top = {
         x = position.x - cb.left_top.x,

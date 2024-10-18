@@ -896,7 +896,7 @@ local function init(config)
             {name = 'utility-science-pack', price = 125},
             {
                 price = 100,
-                name = 'player-port',
+                name = 'simple-entity-with-owner',
                 name_label = 'Train Immunity (1x use)',
                 description = 'Each player port in your inventory will save you from being killed by a train once.'
             }

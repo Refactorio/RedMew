@@ -24,19 +24,19 @@ local function register_tank(entity)
         return
     end
     tank_entities[entity.unit_number] = entity
-    script.register_on_entity_destroyed(entity)
+    script.register_on_object_destroyed(entity)
 end
 
-Event.add(defines.events.on_entity_destroyed, function(event)
+Event.add(defines.events.on_object_destroyed, function(event)
     tank_entities[event.unit_number] = nil
 end)
 
 Event.add(defines.events.on_robot_built_entity, function(event)
-    register_tank(event.created_entity)
+    register_tank(event.entity)
 end)
 
 Event.add(defines.events.on_built_entity, function(event)
-    register_tank(event.created_entity)
+    register_tank(event.entity)
 end)
 
 Event.add(defines.events.on_entity_cloned, function(event)

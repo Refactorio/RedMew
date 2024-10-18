@@ -7,7 +7,7 @@ local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 local table = require 'utils.table'
 local math = require 'utils.math'
-local config = global.config.landfill_remover
+local config = storage.config.landfill_remover
 
 local Public = {}
 

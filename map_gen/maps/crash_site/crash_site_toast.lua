@@ -18,7 +18,7 @@ function Public.do_outpost_toast(market, message)
                 style = 'slot_button'
             }
 
-            Gui.set_data(sprite, market.position)
+            Gui.set_data(sprite, { position = market.position, surface_index = market.surface.index })
 
             local label =
                 container.add {
@@ -38,9 +38,13 @@ Gui.on_click(
     function(event)
         local player = event.player
         local element = event.element
-        local position = Gui.get_data(element)
+        local data = Gui.get_data(element)
 
-        player.zoom_to_world(position, 0.5)
+        player.set_controller{
+            type = defines.controllers.remote,
+            position = data.position,
+            surface = data.surface_index
+        }
     end
 )
 

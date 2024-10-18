@@ -120,6 +120,19 @@ function table.keys(tbl)
     return keys
 end
 
+--@param tbl <table>
+--@param key string
+function table.array_to_dict(tbl, key)
+    if not key or key == '' then
+        error('Key expected, got '.. (key or 'nil'))
+    end
+    local dict = {}
+    for _, v in pairs(tbl) do
+        dict[v[key]] = v
+    end
+    return dict
+end
+
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
 -- @param t <table>

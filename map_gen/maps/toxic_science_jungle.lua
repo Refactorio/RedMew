@@ -8,12 +8,12 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Retailer = require 'features.retailer'
 local ScenarioInfo = require 'features.gui.info'
 
-local config = global.config
+local config = storage.config
 
 local enemy_seed = 420420
 
 config.market.create_standard_market = false -- stop standard market from spawning
-global.config.hail_hydra.enabled = true
+storage.config.hail_hydra.enabled = true
 
 for _, v in pairs(config.market.entity_drop_amount) do
     v.chance = 1
@@ -147,7 +147,7 @@ local function on_init()
     Retailer.set_item('items', {price = 350, name = 'modular-armor'})
     Retailer.set_item('items', {price = 875, name = 'power-armor'})
     Retailer.set_item('items', {price = 40, name = 'solar-panel-equipment'})
-    Retailer.set_item('items', {price = 875, name = 'fusion-reactor-equipment'})
+    Retailer.set_item('items', {price = 875, name = 'fission-reactor-equipment'})
     Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
     Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
     Retailer.set_item('items', {price = 250, name = 'belt-immunity-equipment'})

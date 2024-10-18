@@ -55,7 +55,7 @@ local function rocket_launched(event)
     return
   end
 
-  local inventory = entity.get_inventory(defines.inventory.rocket)
+  local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
   if not inventory or not inventory.valid then
     return
   end

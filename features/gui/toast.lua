@@ -86,7 +86,7 @@ local function toast_to(player, duration, sound)
     local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' }
 
     local frame =
-        flow_frame.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})
+        flow_frame.add({type = 'frame', name = toast_frame_name, direction = 'vertical' })
     frame.style.width = 300
 
     local container = frame.add({type = 'flow', name = toast_container_name, direction = 'horizontal'})

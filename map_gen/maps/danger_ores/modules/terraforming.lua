@@ -80,9 +80,9 @@ return function(config)
         if pollution > current_min_pollution then
             fast_remove(chunk_list, index)
 
-            local id = data.id
-            if id then
-                rendering.destroy(id)
+            local obj = data.obj
+            if obj.valid then
+                obj.destroy()
             end
 
             local area = {left_top = pos, right_bottom = {x + 32, y + 32}}
@@ -99,9 +99,9 @@ return function(config)
             local complete = pollution / current_min_pollution
             local color = {r = 1 - complete, g = complete, b = 0}
 
-            local id = data.id
-            if not id then
-                data.id = rendering.draw_text {
+            local obj = data.obj
+            if not obj then
+                data.obj = rendering.draw_text {
                     text = text,
                     surface = surface,
                     target = {x + 16, y + 16},
@@ -109,8 +109,8 @@ return function(config)
                     scale = 5
                 }
             else
-                rendering.set_text(id, text)
-                rendering.set_color(id, color)
+                obj.text = text
+                obj.color = color
             end
         end
 

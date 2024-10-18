@@ -28,7 +28,7 @@ ScenarioInfo.add_map_extra_info([[
   [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
   The map size is restricted by the Hungry Chests. Provide the requested materials to unlock new chunks.
-  Use the Elder Tree [entity=tree-01], the Infinity Rock [entity=rock-huge], and the Precious Oil patch [entity=crude-oil] located at spawn [gps=0,0.redmew]
+  Use the Elder Tree [entity=tree-01], the Infinity Rock [entity=huge-rock], and the Precious Oil patch [entity=crude-oil] located at spawn [gps=0,0.redmew]
   to draw more resources when in need, but always favor Danger Ores first if you can.
   If you find yourself stuck with the requests, insert a Coin [item=coin] into the Hungry Chest [item=logistic-chest-requester] to reroll the request.
   You can fulfill part of the request & then reroll to change the remaining part (it will always reroll based on its remaining content to be fulfilled).

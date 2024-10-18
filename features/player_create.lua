@@ -10,7 +10,7 @@ local get_random_weighted = table.get_random_weighted
 local Public = {}
 
 function Public.show_start_up(player)
-    local config = global.config.player_create
+    local config = storage.config.player_create
     local p = player.print
     for _, message in pairs(config.join_messages) do
         p(message)
@@ -28,16 +28,16 @@ function Public.show_start_up(player)
     end
 
     if _DEBUG and game.is_multiplayer() then
-        game.print('THIS MULTIPLAYER MAP IS IN DEBUG!!!', Color.warning)
+        game.print('THIS MULTIPLAYER MAP IS IN DEBUG!!!', {color = Color.warning})
     elseif _DEBUG then
-        game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!", Color.warning)
+        game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!", {color = Color.warning})
     elseif not _DEBUG and not game.is_multiplayer() then
-        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"', Color.info)
+        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"', {color = Color.info})
     end
 end
 
 local function player_created(event)
-    local config = global.config.player_create
+    local config = storage.config.player_create
     local player = game.get_player(event.player_index)
 
     if not player or not player.valid then
@@ -79,7 +79,7 @@ if _CHEATS then
     )
 
     local function player_created_cheat_mode(event)
-        local config = global.config.player_create
+        local config = storage.config.player_create
         local player = game.get_player(event.player_index)
 
         if not player or not player.valid then
@@ -110,10 +110,10 @@ if _CHEATS then
         if cheats.start_with_power_armor then
             player_insert({name = 'power-armor-mk2', count = 1})
             local armor_put = player.get_inventory(5)[1].grid.put
-            armor_put({name = 'fusion-reactor-equipment'})
-            armor_put({name = 'fusion-reactor-equipment'})
-            armor_put({name = 'fusion-reactor-equipment'})
-            armor_put({name = 'fusion-reactor-equipment'})
+            armor_put({name = 'fission-reactor-equipment'})
+            armor_put({name = 'fission-reactor-equipment'})
+            armor_put({name = 'fission-reactor-equipment'})
+            armor_put({name = 'fission-reactor-equipment'})
             armor_put({name = 'personal-roboport-mk2-equipment'})
             armor_put({name = 'personal-roboport-mk2-equipment'})
             armor_put({name = 'personal-laser-defense-equipment'})

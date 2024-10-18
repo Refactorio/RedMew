@@ -3,7 +3,7 @@
 local Event = require "utils.event"
 
 local function init()
-    global.resource_cluster_truck = 0
+    storage.resource_cluster_truck = 0
 end
 
 Event.on_init(init)
@@ -20,7 +20,7 @@ return function(_, _, world)
     if not world.chunk then
         world.chunk = true
 
-        global.resource_cluster_truck = global.resource_cluster_truck + 1
+        storage.resource_cluster_truck = storage.resource_cluster_truck + 1
 
         world.ore_spawn = math.random(1, 6)
 
@@ -33,7 +33,7 @@ return function(_, _, world)
         world.oil_amount = math.random(10000, 150000)
     end
 
-    if global.resource_cluster_truck % 2 == 0 then
+    if storage.resource_cluster_truck % 2 == 0 then
         return nil
     end
 

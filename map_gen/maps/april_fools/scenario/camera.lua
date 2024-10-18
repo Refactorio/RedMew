@@ -20,7 +20,7 @@ local sizelevellabels = { 'hide', '100x100', '200x200', '250x250', '300x300', '3
 
 ---@param surface SurfaceIdentification union LuaSurface|string
 local function get_opposite_surface(surface)
-  local src = game.get_surface(type(surface) == 'table' and surface.name or surface)
+  local src = game.get_surface(type(surface) == 'userdata' and surface.name or surface)
   local mines = game.get_surface('mines')
   local islands = game.get_surface('islands')
 
@@ -51,19 +51,19 @@ local function create_camera(args, player)
   end
 
   if not mainframe then
-    mainframe = mainframeflow.add { type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame' }
+    mainframe = mainframeflow.add { type = 'frame', name = mainframeid, direction = 'vertical'  }
     mainframe.visible = true
     player.set_shortcut_toggled(camera_prototype, true)
   end
 
   local headerframe = mainframe.headerframe
   if not headerframe then
-    mainframe.add { type = 'frame', name = 'headerframe', direction = 'horizontal', style = 'captionless_frame' }
+    mainframe.add { type = 'frame', name = 'headerframe', direction = 'horizontal'  }
   end
 
   local cameraframe = mainframe.cameraframe
   if not cameraframe then
-    mainframe.add { type = 'frame', name = 'cameraframe', style = 'captionless_frame' }
+    mainframe.add { type = 'frame', name = 'cameraframe'  }
   end
 
   mainframe.add { type = 'label', caption = 'Following: ' .. target.name .. '\'s steps on other surface' }
@@ -95,7 +95,7 @@ end
 local function camera_command(args, player)
   destroy_camera({ player = player })
   -- Once the old camera is destroyed, check to see if we need to make a new one
-  if global.config.camera_disabled then
+  if storage.config.camera_disabled then
     player.print('The watch/camera function has been disabled for performance reasons.')
     return
   end
@@ -160,7 +160,7 @@ local function update_camera_size(targetframe)
 end
 
 local function on_tick()
-  if global.config.camera_disabled then
+  if storage.config.camera_disabled then
     return
   end
   for table_key, camera_table in pairs(camera_users) do

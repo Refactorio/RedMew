@@ -136,15 +136,15 @@ function RocketSilo.move_silo(position)
     local chest = surface.create_entity { name = 'steel-chest', position = old_position, force = 'player', move_stuck_players = true }
     if table_size(result_inventory) > 0 then
       chest.destructible = false
-      for name, count in pairs(result_inventory) do
-        chest.insert({ name = name, count = count })
+      for _, item_stack in pairs(result_inventory) do
+        chest.insert(item_stack)
       end
     end
     local spill_item_stack = surface.spill_item_stack
     for x = -15, 15 do
       for y = -15, 15 do
         for _ = 1, 4 do
-          spill_item_stack({ x = old_position.x + x + math_random(), y = old_position.y + y + math_random()}, { name = 'raw-fish', count = 1 }, false, nil, true)
+          spill_item_stack({ position = { x = old_position.x + x + math_random(), y = old_position.y + y + math_random()}, stack = { name = 'raw-fish', count = 1 }, enable_looted = false, allow_belts = true })
         end
       end
     end

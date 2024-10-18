@@ -146,7 +146,7 @@ function SpawnShop.draw_gui(player)
     local flow = frame.add { type = 'flow', direction = 'horizontal' }
     Gui.set_style(flow, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
 
-    local label = flow.add { type = 'label', caption = 'Spawn shop', style = 'heading_1_label' }
+    local label = flow.add { type = 'label', caption = 'Spawn shop', style = 'frame_title' }
     label.drag_target = frame
 
     local dragger = flow.add { type = 'empty-widget', style = 'draggable_space_header' }
@@ -156,7 +156,7 @@ function SpawnShop.draw_gui(player)
     flow.add {
       type = 'sprite-button',
       name = SpawnShop.close_button_name,
-      sprite = 'utility/close_white',
+      sprite = 'utility/close',
       clicked_sprite = 'utility/close_black',
       style = 'close_button',
       tooltip = {'gui.close-instruction'}
@@ -174,7 +174,7 @@ function SpawnShop.draw_gui(player)
   sp.vertical_scroll_policy = 'always'
 
   local player_inventory = player.get_main_inventory()
-  local pockets = player_inventory.get_contents()
+  local pockets = Table.array_to_dict(player_inventory.get_contents(), 'name')
 
   local function add_upgrade(parent, p)
     local data = this.spawn_shop_upgrades[p.name]
@@ -206,7 +206,7 @@ function SpawnShop.draw_gui(player)
 
     if data.price then
       for _, item_stack in pairs(data.price) do
-        local satisfied = (item_stack.count <= (pockets[item_stack.name] or 0))
+        local satisfied = (item_stack.count <= (pockets[item_stack.name] and pockets[item_stack.name].count or 0))
         table.add {
           type = 'sprite-button',
           sprite = 'item/'..item_stack.name,
@@ -340,14 +340,14 @@ function SpawnShop.can_purchase(player, id)
 
   local function can_purchase(request, available)
     for item, required in pairs(request) do
-      if not available[item] or (available[item] < required) then
+      if not available[item] or (available[item].count < required) then
         return false
       end
     end
     return true
   end
 
-  local available = inv.get_contents()
+  local available = Table.array_to_dict(inv.get_contents(), 'name')
   local request = {}
   for _, item_stack in pairs(data.price) do
     request[item_stack.name] = item_stack.count
@@ -423,8 +423,8 @@ function SpawnShop.upgrade_perk(id, levels)
   end
 
   local function scan_entities(source, target, modifier)
-    for _, category in pairs({'entity_prototypes'}) do
-      for name, p in pairs(game[category]) do
+    for _, category in pairs({'entity'}) do
+      for name, p in pairs(prototypes[category]) do
         if p.attack_parameters then
           local params = p.attack_parameters
           if params.ammo_type and params.ammo_type == target then
@@ -474,13 +474,13 @@ function SpawnShop.upgrade_perk(id, levels)
     players.train_braking_force_bonus = players.train_braking_force_bonus + 0.02 * levels
   elseif id == 'inserter_capacity' then
     players.inserter_stack_size_bonus = players.inserter_stack_size_bonus + 1 * levels
-    players.stack_inserter_capacity_bonus = players.stack_inserter_capacity_bonus + 1 * levels
+    players.bulk_inserter_capacity_bonus = players.bulk_inserter_capacity_bonus + 1 * levels
   elseif id == 'lab_productivity' then
     players.laboratory_productivity_bonus = players.laboratory_productivity_bonus + 0.005 * levels
   elseif id == 'p_crafting_speed' then
     players.manual_crafting_speed_modifier = players.manual_crafting_speed_modifier + 0.02 * levels
   elseif id == 'p_health_bonus' then
-    local HP = game.entity_prototypes.character.max_health
+    local HP = prototypes.entity.character.max_health
     players.character_health_bonus = players.character_health_bonus + math_ceil(0.02 * HP)  * levels
   elseif id == 'p_inventory_size' then
     players.character_inventory_slots_bonus = players.character_inventory_slots_bonus + 5 * levels

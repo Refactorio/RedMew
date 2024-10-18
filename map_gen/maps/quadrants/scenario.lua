@@ -22,7 +22,7 @@ local Color = require 'resources.color_presets'
 
 local abs = math.abs
 local round = math.round
-local redmew_config = global.config
+local redmew_config = storage.config
 
 RS.set_map_settings({MapSettings.enemy_debuff})
 RS.set_map_gen_settings({MapgenSettings.ores, MapgenSettings.water, MapgenSettings.enemy})

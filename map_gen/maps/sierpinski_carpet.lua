@@ -24,7 +24,7 @@ RS.set_map_gen_settings(
 )
 
 -- Overwrite default hydra config
-local hail_hydra = global.config.hail_hydra
+local hail_hydra = storage.config.hail_hydra
 hail_hydra.enabled = true
 hail_hydra.hydras = {
     -- spitters

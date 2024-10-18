@@ -38,33 +38,33 @@ end
 
 function Public.recharge(player)
   if not player.character then
-    player.print({'battery_charge.err_no_character'}, Color.warning)
+    player.print({'battery_charge.err_no_character'}, {color = Color.warning})
     return
   end
   local armor_inventory = player.get_inventory(defines.inventory.character_armor)
   if not armor_inventory.valid then
-    player.print({'battery_charge.err_no_armor'}, Color.warning)
+    player.print({'battery_charge.err_no_armor'}, {color = Color.warning})
     return
   end
   local armor = armor_inventory[1]
   if not armor.valid_for_read then
-    player.print({'battery_charge.err_no_armor'}, Color.warning)
+    player.print({'battery_charge.err_no_armor'}, {color = Color.warning})
     return
   end
   local grid = armor.grid
   if not grid or not grid.valid then
-    player.print({'battery_charge.err_no_armor'}, Color.warning)
+    player.print({'battery_charge.err_no_armor'}, {color = Color.warning})
     return
   end
 
-  local entities = player.surface.find_entities_filtered {
+  local entities = player.physical_surface.find_entities_filtered {
     type = 'accumulator',
     force = player.force,
-    position = player.position,
+    position = player.physical_position,
     radius = this.radius,
   }
   if not entities or not next(entities) then
-    player.print({'battery_charge.err_no_accumulators'}, Color.warning)
+    player.print({'battery_charge.err_no_accumulators'}, {color = Color.warning})
     return
   end
 
@@ -73,7 +73,7 @@ function Public.recharge(player)
     if piece.valid and piece.generator_power == 0 then
       local energy_needs = piece.max_energy - piece.energy
       if energy_needs > 0 then
-        local energy = discharge_accumulators(player.surface, player.position, player.force, energy_needs)
+        local energy = discharge_accumulators(player.physical_surface, player.physical_position, player.force, energy_needs)
         if energy > 0 then
           if piece.energy + energy >= piece.max_energy then
             piece.energy = piece.max_energy

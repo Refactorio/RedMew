@@ -43,7 +43,7 @@ local item_pool = {
     {name = 'battery-mk2-equipment', count = 1, weight = 40},
     {name = 'tank-machine-gun', count = 1, weight = 3.3333},
     {name = 'power-armor', count = 1, weight = 33.3333},
-    {name = 'fusion-reactor-equipment', count = 1, weight = 33.3333},
+    {name = 'fission-reactor-equipment', count = 1, weight = 33.3333},
     {name = 'artillery-turret', count = 1, weight = 2.5},
     {name = 'artillery-wagon-cannon', count = 1, weight = 1},
     {name = 'atomic-bomb', count = 1, weight = 1}

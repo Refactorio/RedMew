@@ -17,7 +17,7 @@ local NightTime = {}
 --
 local function on_built_entity(event)
     local player = game.get_player(event.player_index)
-    local entity = event.created_entity
+    local entity = event.entity
     if (entity.name == 'solar-panel') then
         require 'features.gui.popup'.player(
             player, {'diggy.night_time_warning'}

@@ -109,7 +109,7 @@ Global.register(
 -- @param entity <LuaEntity> the entity from which the items should be spilled
 -- @param item <ItemStackSpecification> the item stack that should be spilled
 local function spill_item_stack(entity, item)
-    entity.surface.spill_item_stack(entity.position, item, true, entity.force, false)
+    entity.surface.spill_item_stack{ position = entity.position, stack = item, enable_looted = true, force = entity.force, allow_belts = false }
 end
 
 local Task = require 'utils.task'
@@ -129,8 +129,8 @@ local function entities_with_inventory(entity, player)
         Task.set_timeout_in_ticks(1, delay_clear_cursor, {player = player})
         local type = entity.type
         if type == 'container' then
-            for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
         elseif type == 'logistic-container' then
             entity.surface.create_entity {name = 'steel-chest', position = entity.position, direction = entity.direction, force = entity.force, fast_replace = true, spill = false}
@@ -140,28 +140,28 @@ local function entities_with_inventory(entity, player)
             end
             return true
         elseif type == 'furnace' then
-            for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
-            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
-            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
         elseif type == 'assembling-machine' then
-            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
-            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
-            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
+                spill_item_stack(entity, item_stack)
             end
         elseif type == 'ammo-turret' then
-            for item, count in pairs(entity.get_inventory(defines.inventory.turret_ammo).get_contents()) do
-                player.insert({name = item, count = count})
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.turret_ammo).get_contents()) do
+                player.insert(item_stack)
             end
             return -- Prevents triggering when autofill is enabled
         end
@@ -175,7 +175,7 @@ end
 local on_built_token =
     Token.register(
     function(event)
-        local entity = event.created_entity
+        local entity = event.entity
         if not entity or not entity.valid then
             return
         end
@@ -214,7 +214,7 @@ local on_built_token =
 
         local index = event.player_index
 
-        local stack = event.stack
+        local stack = event.consumed_items.get_contents()[1]
         raise_event(
             Public.events.on_pre_restricted_entity_destroyed,
             {

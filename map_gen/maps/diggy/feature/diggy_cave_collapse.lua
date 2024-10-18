@@ -8,6 +8,7 @@ local ScoreTracker = require 'utils.score_tracker'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
@@ -198,8 +199,8 @@ local function spawn_collapse_text(surface, position)
         b = 0
     }
 
-    surface.create_entity({
-        name = 'tutorial-flying-text',
+    Game.create_local_flying_text({
+        surface = surface,
         color = color,
         text = config.cracking_sounds[random(#config.cracking_sounds)],
         position = position,
@@ -300,7 +301,7 @@ local function script_raised_destroy(event)
 end
 
 local function on_built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     local strength = support_beam_entities[entity.name]
 
     if strength then
@@ -359,7 +360,7 @@ end
 function DiggyCaveCollapse.register(cfg)
     ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.small-remnants]')
 
-    local global_to_show = global.config.score.global_to_show
+    local global_to_show = storage.config.score.global_to_show
     global_to_show[#global_to_show + 1] = cave_collapses_name
 
     config = cfg
@@ -672,7 +673,7 @@ end
 
 Event.on_init(
     function()
-        if global.config.redmew_surface.enabled then
+        if storage.config.redmew_surface.enabled then
             on_surface_created({surface_index = RS.get_surface().index})
         end
     end

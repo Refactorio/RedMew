@@ -83,8 +83,8 @@ function Actions.spank(target_name, source_player)
   if character.health > 5 then
     character.damage(5, 'player')
   end
-  target_player.surface.create_entity { name = 'water-splash', position = target_player.position }
-  game.print(source_player.name .. ' spanked ' .. target_player.name, Color.warning)
+  target_player.physical_surface.create_entity { name = 'water-splash', position = target_player.physical_position }
+  game.print(source_player.name .. ' spanked ' .. target_player.name, {color = Color.warning})
 end
 
 -- == SURFACE =================================================================

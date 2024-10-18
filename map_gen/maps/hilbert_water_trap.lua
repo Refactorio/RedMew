@@ -4,7 +4,7 @@ local b = require 'map_gen.shared.builders'
 local degrees = require 'utils.math'.degrees
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-local redmew_config = global.config
+local redmew_config = storage.config
 --https://www.fractalus.com/kerry/tutorials/hilbert/hilbert-tutorial.html
 -- Setup the scenario map information because everyone gets upset if you don't
 local ScenarioInfo = require 'features.gui.info'

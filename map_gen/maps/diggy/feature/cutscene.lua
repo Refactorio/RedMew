@@ -8,7 +8,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Color = require 'resources.color_presets'
 local PC = require 'features.player_create'
 local Experience = require 'map_gen.maps.diggy.feature.experience'
-local register_rendering = Cutscene.register_rendering_id
+local register_rendering = Cutscene.register_rendering
 local play_sound = Cutscene.play_sound
 local draw_text = CS_Rendering.draw_text
 local draw_multi_line = CS_Rendering.draw_multi_line_text
@@ -67,9 +67,9 @@ local delayed_draw_arrow =
         local tick = params.tick
         params = params.params
         local rendering_parmas = params.params
-        local id = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas, params.fit_to_edge)
-        register_rendering(player.index, tick, id)
-        Rendering.blink(id, 20, rendering_parmas.time_to_live)
+        local obj = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas, params.fit_to_edge)
+        register_rendering(player.index, tick, obj)
+        Rendering.blink(obj, 20, rendering_parmas.time_to_live)
     end
 )
 
@@ -88,9 +88,9 @@ local delayed_fade_blackout =
             return
         end
         local render_params = params.params
-        local id = CS_Rendering.blackout(player, render_params.zoom, render_params.time_to_live, render_params.color)
-        register_rendering(player.index, params.tick, id)
-        Rendering.fade(id, render_params.time_to_live - 1, 10)
+        local obj = CS_Rendering.blackout(player, render_params.zoom, render_params.time_to_live, render_params.color)
+        register_rendering(player.index, params.tick, obj)
+        Rendering.fade(obj, render_params.time_to_live - 1, 10)
     end
 )
 
@@ -301,7 +301,7 @@ local waypoints = {
 local function terminate_function(player_index)
     local player = game.get_player(player_index)
     PC.show_start_up(player)
-    player.print({'diggy.replay_cutscene', '/replay'}, Color.yellow)
+    player.print({'diggy.replay_cutscene', '/replay'}, {color = Color.yellow})
 end
 
 Cutscene.register_cutscene_function('Diggy_Welcome', waypoints, Token.register(cutscene_function), Token.register(terminate_function))
@@ -318,7 +318,7 @@ local start_cutscene =
 )
 
 function DiggyCutscene.register()
-    global.config.player_create.cutscene = true
+    storage.config.player_create.cutscene = true
 
     Event.add(
         defines.events.on_player_created,

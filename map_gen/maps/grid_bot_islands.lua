@@ -12,7 +12,7 @@ local Event = require 'utils.event'
 local Retailer = require 'features.retailer'
 
 -- stop standard market from spawning
-local config = global.config
+local config = storage.config
 config.market.create_standard_market = false
 
 --change surface settings to remove oil, cliffs, etc
@@ -29,7 +29,7 @@ RS.set_map_gen_settings(
 )
 
 -- Overwrite default config for biter coin drop chances to give the players some extra coins to spend on logi bots
-local market = global.config.market
+local market = storage.config.market
 market.entity_drop_amount = {
     ['biter-spawner'] = {low = 5, high = 15, chance = 1},
     ['spitter-spawner'] = {low = 5, high = 15, chance = 1},
@@ -62,7 +62,7 @@ ScenarioInfo.set_new_info(
 )
 
 -- Modify the player starting items to kickstart island mining
-local player_create = global.config.player_create
+local player_create = storage.config.player_create
 player_create.starting_items = {
     {name = 'modular-armor', count = 1},
     {name = 'solar-panel-equipment', count = 7},
@@ -328,7 +328,7 @@ local function on_init()
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add logistics network things without editing a different file
-    global.config.market.create_standard_market = false
+    storage.config.market.create_standard_market = false
     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
     Retailer.set_item('items', {price = 1, name = 'rail'})
     Retailer.set_item('items', {price = 2, name = 'rail-signal'})
@@ -363,7 +363,7 @@ local function on_init()
     Retailer.set_item('items', {price = 350, name = 'modular-armor'})
     Retailer.set_item('items', {price = 875, name = 'power-armor'})
     Retailer.set_item('items', {price = 40, name = 'solar-panel-equipment'})
-    Retailer.set_item('items', {price = 875, name = 'fusion-reactor-equipment'})
+    Retailer.set_item('items', {price = 875, name = 'fission-reactor-equipment'})
     Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
     Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
     Retailer.set_item('items', {price = 250, name = 'belt-immunity-equipment'})

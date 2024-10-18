@@ -24,7 +24,7 @@ local quadrant_bounds = {
 }
 
 local function on_built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     local force = entity.force
 
     if not entity or not entity.valid then
@@ -79,7 +79,9 @@ local function on_built_entity(event)
 
     entity.destroy()
     if not ghost then
-        p.insert(event.stack)
+        for _, stack in pairs(event.consumed_items.get_contents()) do
+            p.insert(stack)
+        end
     end
 end
 

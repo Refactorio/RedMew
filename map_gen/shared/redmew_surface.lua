@@ -62,7 +62,7 @@
 require 'util'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local config = global.config.redmew_surface
+local config = storage.config.redmew_surface
 
 -- Localized functions
 local insert = table.insert

@@ -64,8 +64,8 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
         return
     end
 
-    local position = player.position
-    local corpse = player.surface.create_entity {
+    local position = player.physical_position
+    local corpse = player.physical_surface.create_entity {
         name = 'character-corpse',
         position = position,
         inventory_size = #inv_contents,

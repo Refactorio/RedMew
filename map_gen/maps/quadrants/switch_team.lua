@@ -56,12 +56,12 @@ local function teleport(event, quadrant)
     local player = event.player
     player.clear_cursor()
     local toggle_status = toggle_chest_status[player.index]
-    local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
+    local within_spawn = abs(player.physical_position.x) <= 4 and abs(player.physical_position.y) <= 4
     local empty_inventory =
         player.get_inventory(defines.inventory.character_main).is_empty() and
         player.get_inventory(defines.inventory.character_trash).is_empty() and
         player.crafting_queue_size == 0
-    local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
+    local can_empty_inventory = (abs(player.physical_position.x) >= 23 and (abs(player.physical_position.y) >= 23)) and toggle_status
     if within_spawn or empty_inventory or can_empty_inventory then
         if can_empty_inventory and not within_spawn and not empty_inventory then
             local chest =
@@ -78,7 +78,7 @@ local function teleport(event, quadrant)
             RS.get_surface().find_non_colliding_position('character', spawn_locations['quadrant_' .. quadrant], 5, 1)
 
         player.driving = false
-        player.teleport(pos)
+        player.teleport(pos, RS.get_surface())
         player.force = game.forces['quadrant' .. quadrant]
         Popup.player(
             player,
@@ -88,9 +88,9 @@ local function teleport(event, quadrant)
             'Quadrants.quadrant_description'
         )
     else
-        player.print({'quadrants.switch_notice1'}, Color.red)
+        player.print({'quadrants.switch_notice1'}, {color = Color.red})
         if not can_empty_inventory and toggle_status then
-            player.print({'quadrants.switch_notice2'}, Color.red)
+            player.print({'quadrants.switch_notice2'}, {color = Color.red})
         end
     end
 end
@@ -241,9 +241,9 @@ local function update_gui(force_update)
         local frame = Gui.get_left_element(p, 'Quadrants.Switch_Team')
         local data = {player = p}
 
-        if frame and frame.valid and (abs(p.position.x) >= 160 or abs(p.position.y) >= 160) then
+        if frame and frame.valid and (abs(p.physical_position.x) >= 160 or abs(p.physical_position.y) >= 160) then
             toggle(data)
-        elseif not frame and not (abs(p.position.x) > 160 or abs(p.position.y) > 160) then
+        elseif not frame and not (abs(p.physical_position.x) > 160 or abs(p.physical_position.y) > 160) then
             toggle(data)
         elseif frame and frame.valid and force_update then
             data['trigger'] = true

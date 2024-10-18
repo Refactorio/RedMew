@@ -65,7 +65,7 @@ entity_built_callback =
 )
 
 local function entity_built(event)
-    local entity = event.created_entity
+    local entity = event.entity
 
     if not entity.valid then
         return

@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
+local RS = require 'map_gen.shared.redmew_surface'
 local round = math.round
 local pairs = pairs
 local main_button_name = Gui.uid_name()
@@ -34,7 +35,7 @@ local function get_evolution_percentage()
         return 0
     end
 
-    local value = round(game.forces.enemy.evolution_factor * 1000) * 0.001
+    local value = round(game.forces.enemy.get_evolution_factor(RS.get_surface_name()) * 1000) * 0.001
     if value < 0.001 then
         -- 0.00 won't be shown on the button as value
         return 0.001

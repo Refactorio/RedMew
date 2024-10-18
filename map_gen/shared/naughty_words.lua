@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 
-global.naughty_words = require('resources.naughty_words')
+storage.naughty_words = require('resources.naughty_words')
 
 local function admonish_blasphemy(event)
 -- player_index is nil if the message came from the server,
@@ -14,7 +14,7 @@ local function admonish_blasphemy(event)
         return
     end
 
-    local naughty_words = global.naughty_words
+    local naughty_words = storage.naughty_words
     for word in message:gmatch('%S+') do
         if naughty_words[word] then
             game.print(player.name .. ' this is a Christian Factorio server, no swearing please!')

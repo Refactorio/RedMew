@@ -9,7 +9,7 @@ local Token = require 'utils.token'
 local Debug = require 'map_gen.maps.frontier.shared.debug'
 local Public = require 'map_gen.maps.frontier.shared.core'
 
-local register_on_entity_destroyed = script.register_on_entity_destroyed
+local register_on_object_destroyed = script.register_on_object_destroyed
 local math_ceil = math.ceil
 local math_clamp = math.clamp
 local math_floor = math.floor
@@ -54,7 +54,7 @@ Enemy.commands = {
     }
     unit_group.start_moving()
     if Public.get()._DEBUG_AI then
-      Debug.print_admins(string.format('AI [id=%d] | cmd: MOVE [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+      Debug.print_admins(string.format('AI [id=%d] | cmd: MOVE [gps=%.2f,%.2f,%s]', unit_group.id, position.x, position.y, unit_group.surface.name), Color.dark_gray)
     end
   end,
   scout = function(unit_group, position)
@@ -73,7 +73,7 @@ Enemy.commands = {
     }
     unit_group.start_moving()
     if Public.get()._DEBUG_AI then
-      Debug.print_admins(string.format('AI [id=%d] | cmd: SCOUT [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+      Debug.print_admins(string.format('AI [id=%d] | cmd: SCOUT [gps=%.2f,%.2f,%s]', unit_group.id, position.x, position.y, unit_group.surface.name), Color.dark_gray)
     end
   end,
   attack = function(unit_group, target)
@@ -92,7 +92,7 @@ Enemy.commands = {
       distraction = defines.distraction.by_damage
     }
     if Public.get()._DEBUG_AI then
-      Debug.print_admins(string.format('AI [id=%d] | cmd: ATTACK [gps=%.2f,%.2f,%s] (type = %s)', unit_group.group_number, target.position.x, target.position.y, unit_group.surface.name, target.type), Color.dark_gray)
+      Debug.print_admins(string.format('AI [id=%d] | cmd: ATTACK [gps=%.2f,%.2f,%s] (type = %s)', unit_group.id, target.position.x, target.position.y, unit_group.surface.name, target.type), Color.dark_gray)
     end
   end
 }
@@ -132,12 +132,12 @@ Enemy.turret_raffle = {
 
 function Enemy.ai_take_control(unit_group)
   local this = Public.get()
-  if not this.unit_groups[unit_group.group_number] then
-    this.unit_groups[unit_group.group_number] = {
+  if not this.unit_groups[unit_group.id] then
+    this.unit_groups[unit_group.id] = {
       unit_group = unit_group
     }
   end
-  return this.unit_groups[unit_group.group_number]
+  return this.unit_groups[unit_group.id]
 end
 
 function Enemy.ai_stage_by_distance(posA, posB)
@@ -159,13 +159,13 @@ function Enemy.ai_processor(unit_group, result)
   end
 
   local this = Public.get()
-  local data = this.unit_groups[unit_group.group_number]
+  local data = this.unit_groups[unit_group.id]
   if not data then
     return
   end
 
   if data.failed_attempts and data.failed_attempts >= 3 then
-    this.unit_groups[unit_group.group_number] = nil
+    this.unit_groups[unit_group.id] = nil
     return
   end
 
@@ -185,7 +185,7 @@ function Enemy.ai_processor(unit_group, result)
       force = 'enemy',
     }
     if not (data.target and data.target.valid) then
-      this.unit_groups[unit_group.group_number] = nil
+      this.unit_groups[unit_group.id] = nil
       return
     end
     data.position = data.target.position
@@ -195,7 +195,7 @@ function Enemy.ai_processor(unit_group, result)
   end
 
   if this._DEBUG_AI then
-    Debug.print_admins(string.format('AI [id=%d] | status: %d', unit_group.group_number, data.stage), Color.dark_gray)
+    Debug.print_admins(string.format('AI [id=%d] | status: %d', unit_group.id, data.stage), Color.dark_gray)
   end
 
   if data.stage == Enemy.stages.move then
@@ -207,7 +207,7 @@ function Enemy.ai_processor(unit_group, result)
   else
     data.failed_attempts = (data.failed_attempts or 0) + 1
     if this._DEBUG_AI then
-      Debug.print_admins(string.format('AI [id=%d] | FAIL | stage: %d | attempts: %d', unit_group.group_number, data.stage, data.failed_attempts), Color.dark_gray)
+      Debug.print_admins(string.format('AI [id=%d] | FAIL | stage: %d | attempts: %d', unit_group.id, data.stage, data.failed_attempts), Color.dark_gray)
     end
     data.stage, data.position, data.target = nil, nil, nil
     Enemy.ai_processor(unit_group, nil)
@@ -292,9 +292,9 @@ function Enemy.on_enemy_died(entity)
   this.invincible[uid] = nil
 
   if new_entity.type == 'unit' then
-    new_entity.set_command(entity.command)
     if entity.unit_group then
       entity.unit_group.add_member(new_entity)
+      entity.unit_group.set_command(entity.command)
     end
   end
 end
@@ -394,7 +394,7 @@ function Enemy.spawn_turret_outpost(position)
     end
   end
 
-  local evolution = game.forces.enemy.evolution_factor
+  local evolution = game.forces.enemy.get_evolution_factor(surface)
   for i, v in pairs({
     { x = -5, y =  0, direction = defines.direction.west },
     { x =  5, y =  0, direction = defines.direction.east },
@@ -430,7 +430,7 @@ function Enemy.start_tracking(entity)
     return
   end
 
-  register_on_entity_destroyed(entity)
+  register_on_object_destroyed(entity)
   Public.get().target_entities[entity.unit_number] = entity
 end
 

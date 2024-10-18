@@ -16,7 +16,7 @@ Global.register(_global, function(tbl) _global = tbl end)
 -- ============================================================================
 
 local function on_built_entity(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid) then
     -- Invalid entity
     return

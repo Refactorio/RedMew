@@ -17,7 +17,6 @@ local pairs = pairs
 local add_experience = ForceControl.add_experience
 local add_experience_percentage = ForceControl.add_experience_percentage
 local remove_experience_percentage = ForceControl.remove_experience_percentage
-local print_player_floating_text_position = Game.print_player_floating_text_position
 local get_force_data = ForceControl.get_force_data
 local set_item = Retailer.set_item
 local disable_item = Retailer.disable_item
@@ -211,7 +210,7 @@ local function on_player_mined_entity(event)
         exp = sand_rock_xp + floor(level / 5)
     elseif name == 'rock-big' then
         exp = rock_big_xp + floor(level / 5)
-    elseif name == 'rock-huge' then
+    elseif name == 'huge-rock' then
         exp = rock_huge_xp + floor(level / 5)
     end
 
@@ -220,7 +219,8 @@ local function on_player_mined_entity(event)
     end
 
     local text = {'', '[img=entity/' .. name .. '] ', {'diggy.float_xp_gained_mine', exp}}
-    print_player_floating_text_position(player_index, text, gain_xp_color, 0, -0.5)
+    local player = game.get_player(player_index)
+    player.create_local_flying_text { text = text, color = gain_xp_color, position = player.position }
     add_experience(force, exp)
 end
 
@@ -243,10 +243,7 @@ local function on_research_finished(event)
         exp = award_xp * research.research_unit_count
     end
     local text = {'', '[img=item/automation-science-pack] ', {'diggy.float_xp_gained_research', exp}}
-    for _, p in pairs(game.connected_players) do
-        local player_index = p.index
-        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
-    end
+    Game.create_local_flying_text{ text = text, color = gain_xp_color, create_at_cursor = true }
     add_experience(force, exp)
 
     local current_modifier = mining_efficiency.research_modifier
@@ -272,10 +269,7 @@ local function on_rocket_launched(event)
 
     local exp = add_experience_percentage(force, config.XP['rocket_launch'], nil, config.XP['rocket_launch_max'])
     local text = {'', '[img=item/satellite] ', {'diggy.float_xp_gained_rocket', exp}}
-    for _, p in pairs(game.connected_players) do
-        local player_index = p.index
-        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
-    end
+    Game.create_local_flying_text { text = text, color = gain_xp_color, create_at_cursor = true }
 end
 
 ---Awards experience when a player kills an enemy, based on type of enemy
@@ -302,7 +296,7 @@ local function on_entity_died(event)
                     exp = floor((sand_rock_xp + level * 0.2) * 0.5)
                 elseif entity_name == 'rock-big' then
                     exp = floor((rock_big_xp + level * 0.2) * 0.5)
-                elseif entity_name == 'rock-huge' then
+                elseif entity_name == 'huge-rock' then
                     exp = floor((rock_huge_xp + level * 0.2) * 0.5)
                 end
                 floating_text_position = entity.position
@@ -310,7 +304,7 @@ local function on_entity_died(event)
         end
 
         if exp > 0 then
-            Game.print_floating_text(entity.surface, floating_text_position, {'', '[img=entity/' .. entity_name .. '] ', {'diggy.float_xp_gained_kill', exp}}, gain_xp_color)
+            Game.create_local_flying_text({ surface = entity.surface, position = floating_text_position, text = {'', '[img=entity/' .. entity_name .. '] ', {'diggy.float_xp_gained_kill', exp}}, color = gain_xp_color})
             add_experience(force, exp)
         end
 
@@ -322,7 +316,7 @@ local function on_entity_died(event)
     end
 
     local exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity.name] or 1)
-    print_player_floating_text_position(cause.player.index, {'', '[img=entity/' .. entity_name .. '] ', {'diggy.float_xp_gained_kill', exp}}, gain_xp_color, -1, -0.5)
+    cause.player.create_local_flying_text { text = {'', '[img=entity/' .. entity_name .. '] ', {'diggy.float_xp_gained_kill', exp}}, color = gain_xp_color }
     add_experience(force, exp)
 end
 
@@ -332,10 +326,8 @@ local function on_player_respawned(event)
     local player = game.get_player(event.player_index)
     local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
     local text = {'', '[img=entity.character]', {'diggy.float_xp_drain', exp}}
-    game.print({'diggy.player_drained_xp', player.name, exp}, lose_xp_color)
-    for _, p in pairs(game.connected_players) do
-        print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
-    end
+    game.print({'diggy.player_drained_xp', player.name, exp}, {color = lose_xp_color})
+    Game.create_local_flying_text { text = text, color = lose_xp_color, create_at_cursor = true }
     ScoreTracker.change_for_global(experience_lost_name, exp)
 end
 
@@ -591,7 +583,7 @@ end
 function Experience.register(cfg)
     ScoreTracker.register(experience_lost_name, {'diggy.score_experience_lost'}, '[img=recipe.artillery-targeting-remote]')
 
-    local global_to_show = global.config.score.global_to_show
+    local global_to_show = storage.config.score.global_to_show
     global_to_show[#global_to_show + 1] = experience_lost_name
 
     config = cfg
@@ -622,7 +614,7 @@ function Experience.register(cfg)
     -- Prevents table lookup thousands of times
     sand_rock_xp = config.XP['sand-rock-big']
     rock_big_xp = config.XP['rock-big']
-    rock_huge_xp = config.XP['rock-huge']
+    rock_huge_xp = config.XP['huge-rock']
 end
 
 function Experience.on_init()

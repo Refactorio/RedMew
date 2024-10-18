@@ -223,7 +223,7 @@ function Public.start_game(start_game_data)
         error('start_game_data must be a string or table')
     end
 
-    local json = game.table_to_json(data)
+    local json = helpers.table_to_json(data)
     raw_print(start_game_tag .. json)
 end
 
@@ -705,9 +705,9 @@ end
 -- but an easy way to at least establish a baseline.
 local function set_scenario_version()
     -- A 1 hour buffer is in place to account for potential playtime pre-upload.
-    if game.tick < 216000 and not global.redmew_version then
+    if game.tick < 216000 and not storage.redmew_version then
         local time_string = Timestamp.to_string(Public.get_current_time())
-        global.redmew_version = string.format('Time of map launch: %s UTC', time_string)
+        storage.redmew_version = string.format('Time of map launch: %s UTC', time_string)
     end
 end
 
@@ -774,13 +774,13 @@ Event.add(defines.events.on_player_died, function(event)
         message[#message + 1] = ' has died.'
     end
 
-    local position = player.position
+    local position = player.physical_position
     message[#message + 1] = ' [gps='
     message[#message + 1] = string.format('%.1f', position.x)
     message[#message + 1] = ','
     message[#message + 1] = string.format('%.1f', position.y)
     message[#message + 1] = ','
-    message[#message + 1] = player.surface.name
+    message[#message + 1] = player.physical_surface.name
     message[#message + 1] = ']'
 
     message = concat(message)

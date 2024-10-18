@@ -26,22 +26,22 @@ function Token.get(token_id)
     return tokens[token_id]
 end
 
-global.tokens = {}
+storage.tokens = {}
 
 function Token.register_global(var)
-    local c = #global.tokens + 1
+    local c = #storage.tokens + 1
 
-    global.tokens[c] = var
+    storage.tokens[c] = var
 
     return c
 end
 
 function Token.get_global(token_id)
-    return global.tokens[token_id]
+    return storage.tokens[token_id]
 end
 
 function Token.set_global(token_id, var)
-    global.tokens[token_id] = var
+    storage.tokens[token_id] = var
 end
 
 local uid_counter = 0

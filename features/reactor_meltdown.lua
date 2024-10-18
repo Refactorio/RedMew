@@ -10,7 +10,7 @@ local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
 local Color = require 'resources.color_presets'
 
-local primitives = {reactors_enabled = global.config.reactor_meltdown.on_by_default}
+local primitives = {reactors_enabled = storage.config.reactor_meltdown.on_by_default}
 local wastelands = {}
 local reactors = {}
 
@@ -122,7 +122,7 @@ local function check_reactors()
                 table.remove(reactors, i)
             end
         end
-        --global.last_reactor_warning = last_reactor_warning
+        --storage.last_reactor_warning = last_reactor_warning
     end
 end
 
@@ -156,11 +156,11 @@ local function on_tick()
 end
 
 local function entity_build(event)
-    if not event.created_entity.valid then
+    if not event.entity.valid then
         return
     end
-    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= 'antigrief' then
-        table.insert(reactors, event.created_entity)
+    if event.entity.name == 'nuclear-reactor' and event.entity.surface.name ~= 'antigrief' then
+        table.insert(reactors, event.entity)
     end
 end
 
