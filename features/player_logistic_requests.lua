@@ -1,5 +1,8 @@
 -- This module saves players' logistic requests slots between maps
 -- Dependencies
+
+--TODO: Rewrite, feature deprecated for 2.0
+--[[
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -71,7 +74,7 @@ local function validate_entry(item, proto_table, player)
         return item
     end
 
-    player.print({'player_logistic_requests.incompatible_item', item.name}, Color.warning)
+    player.print({'player_logistic_requests.incompatible_item', item.name}, {color = Color.warning})
 end
 
 --- Sets the logistic request slots of a player.
@@ -90,7 +93,7 @@ local set_bars_callback =
             return
         end
 
-        local item_prototypes = game.item_prototypes
+        local item_prototypes = prototypes.item
         local item
         for i = 1, logistic_slots do
             item = validate_entry(bars[i], item_prototypes, player)
@@ -195,7 +198,6 @@ local function delete_bars(_, player)
 end
 
 -- Events
-
 Event.add(Server.events.on_server_started, register_server_start_events)
 
 -- Commands
@@ -226,3 +228,4 @@ Command.add(
     },
     delete_bars
 )
+]]

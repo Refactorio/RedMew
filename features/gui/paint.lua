@@ -2,7 +2,7 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 
-local config = global.config.paint
+local config = storage.config.paint
 local default_fallback_hidden_tile = 'dirt-6'
 
 local brush_tools = {
@@ -181,7 +181,7 @@ local function get_tile_localised_name(tile_name)
         return
     end
 
-    local proto = game.tile_prototypes[tile_name]
+    local proto = prototypes.tile[tile_name]
     if proto then
         return proto.localised_name or proto.name
     end

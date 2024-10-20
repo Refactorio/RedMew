@@ -19,7 +19,7 @@ local clean_energy_interface = Token.register(function (params)
     entity.destroy()
 end)
 
-if global.config.market.enabled then
+if storage.config.market.enabled then
     local new_items = {
         {
             name = 'welcome-package',
@@ -65,7 +65,7 @@ end
 
 -- players cannot build anything, just place ghosts
 Event.add(defines.events.on_built_entity, function(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if not entity or not entity.valid then
         return
     end
@@ -99,7 +99,9 @@ Event.add(defines.events.on_built_entity, function(event)
             return
         end
 
-        player.insert(event.stack)
+        for _, stack in pairs(event.consumed_items.get_contents()) do
+            player.insert(stack)
+        end
     end)
 end)
 
@@ -107,10 +109,10 @@ Command.add('lazy-bastard-bootstrap', {
     description = {'command_description.lazy_bastard_bootstrap'},
     required_rank = Ranks.admin,
 }, function(_, player)
-    local surface = player.surface
+    local surface = player.physical_surface
     local force = player.force
 
-    local pos = player.position
+    local pos = player.physical_position
     pos.y = round(pos.y - 4)
     pos.x = round(pos.x)
 

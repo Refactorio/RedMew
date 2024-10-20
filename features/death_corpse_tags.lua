@@ -11,8 +11,8 @@ local function player_died(event)
         return
     end
 
-    local pos = player.position
-    local entities = player.surface.find_entities_filtered {
+    local pos = player.physical_position
+    local entities = player.physical_surface.find_entities_filtered {
         area = {{pos.x - 0.5, pos.y - 0.5}, {pos.x + 0.5, pos.y + 0.5}},
         name = 'character-corpse'
     }

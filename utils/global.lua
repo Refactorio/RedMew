@@ -1,6 +1,8 @@
 local Event = require 'utils.event_core'
 local Token = require 'utils.token'
 
+local matching_path = '^.+__level__/(.+)$'
+
 local Global = {}
 
 function Global.register(tbl, callback)
@@ -47,7 +49,7 @@ if _DEBUG then
     Global.names = names
 
     function Global.register(tbl, callback)
-        local filepath = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local filepath = debug.getinfo(2, 'S').source:match(matching_path):sub(1, -5)
         local token = Token.register_global(tbl)
 
         names[token] = concat {token, ' - ', filepath}
@@ -62,7 +64,7 @@ if _DEBUG then
     end
 
     function Global.register_init(tbl, init_handler, callback)
-        local filepath = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local filepath = debug.getinfo(2, 'S').source:match(matching_path):sub(1, -5)
         local token = Token.register_global(tbl)
 
         names[token] = concat {token, ' - ', filepath}

@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 
-global.allowed_landfill_tiles = {}
+storage.allowed_landfill_tiles = {}
 
 Event.add(
     defines.events.on_player_built_tile,
@@ -15,7 +15,7 @@ Event.add(
             return
         end
 
-        local allowed = global.allowed_landfill_tiles
+        local allowed = storage.allowed_landfill_tiles
 
         local new_tiles = {}
         for _, tile in ipairs(event.tiles) do
@@ -40,5 +40,5 @@ Event.add(
 )
 
 return function(allowed_set)
-    global.allowed_landfill_tiles = allowed_set
+    storage.allowed_landfill_tiles = allowed_set
 end

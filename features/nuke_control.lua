@@ -3,6 +3,7 @@ local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Report = require 'features.report'
 local Popup = require 'features.gui.popup'
@@ -210,15 +211,15 @@ local function on_capsule_used(event)
     end
 
     if item.name == 'artillery-targeting-remote' then
-        player.surface.create_entity {
-            name = 'flying-text',
+        Game.create_local_flying_text {
+            surface = player.surface,
             text = player.name,
             color = player.color,
             position = event.position
         }
     end
 
-    local nuke_control = global.config.nuke_control
+    local nuke_control = storage.config.nuke_control
     if not nuke_control.enable_autokick and not nuke_control.enable_autoban then
         return
     end

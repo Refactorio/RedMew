@@ -1,6 +1,7 @@
 -- This module starts spawning worms every 5 to 10 minutes (approx) when a roboport is placed.
 -- Makes it necessary to defend roboports and limits the usefulness of large roboport networks
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
@@ -42,7 +43,7 @@ local sandworm_biters = {
 }
 
 local function spawn_sandworms(entity)
-    local evolution = game.forces["enemy"].evolution_factor
+    local evolution = game.forces.enemy.get_evolution_factor(entity.surface)
     for index, worm_type in pairs(sandworms) do
         -- Determine which worm type to spawn based on the evolution
         if (evolution > worm_type.evo_min) and (evolution <= worm_type.evo_max) then
@@ -69,12 +70,18 @@ local function spawn_sandworms(entity)
                                 amount = math.floor(amount)
                             end
                         end
+                        local group = s.create_unit_group {position = free_worm_position}
                         for _ = 1, amount do
                            local pos = s.find_non_colliding_position(biter, free_worm_position, 20, 1)
                            if pos then
                             local spawned_biter = s.create_entity {name = biter, position = pos, force = "enemy"}
-                            spawned_biter.set_command({type = defines.command.attack, target = entity})
+                            if spawned_biter and spawned_biter.valid then
+                                group.add_member(spawned_biter)
+                            end
                            end
+                        end
+                        if group and group.valid and #group.members > 0 then
+                            group.set_command({type = defines.command.attack, target = entity})
                         end
                     end
                 end
@@ -90,7 +97,7 @@ thump_text_callback = Token.register(function(entity)
     end
     local s = entity.surface
     local entity_position = entity.position
-    s.create_entity{name="flying-text", position={(entity_position.x + math.random(-3,3)),(entity_position.y + math.random(0,3))}, text="*thump*", color={r=0.6,g=0.4,b=0}}
+    Game.create_local_flying_text{surface = s, position={(entity_position.x + math.random(-3,3)),(entity_position.y + math.random(0,3))}, text="*thump*", color={r=0.6,g=0.4,b=0}}
 end)
 
 local worm_callback
@@ -117,14 +124,14 @@ local function start_worm_attacks(entity)
 end
 
 Event.add(defines.events.on_robot_built_entity, function(event)
-    if event.created_entity.valid and event.created_entity.name == 'roboport' then
-        start_worm_attacks(event.created_entity)
+    if event.entity.valid and event.entity.name == 'roboport' then
+        start_worm_attacks(event.entity)
     end
 end)
 
 Event.add(defines.events.on_built_entity, function(event)
-    if event.created_entity.valid and event.created_entity.name == 'roboport' then
-        start_worm_attacks(event.created_entity)
+    if event.entity.valid and event.entity.name == 'roboport' then
+        start_worm_attacks(event.entity)
         local player = game.get_player(event.player_index)
         player.print("A sandworm approaches.....")
     end

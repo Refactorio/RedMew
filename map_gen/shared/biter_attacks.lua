@@ -20,7 +20,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Ranks = require 'resources.ranks'
 local Color = require 'resources.color_presets'
 
-local config = global.config.biter_attacks -- The local copy of config should only be used during the control stage
+local config = storage.config.biter_attacks -- The local copy of config should only be used during the control stage
 
 -- Localized functions
 local random = math.random
@@ -79,8 +79,8 @@ end
 --- Calculates the number of biters to send for timed attacks according to the difficulty selected
 -- @return <number>
 local function calculate_biters()
-    local multiplier = global.config.biter_attacks.timed_attacks.attack_difficulty
-    return ceil((game.forces.enemy.evolution_factor * 100 * multiplier))
+    local multiplier = storage.config.biter_attacks.timed_attacks.attack_difficulty
+    return ceil((game.forces.enemy.get_evolution_factor(RS.get_surface_name()) * 100 * multiplier))
 end
 
 --- Take a large scan radius and break it into smaller pieces
@@ -173,7 +173,7 @@ local function rocket_launched(event)
         force = 'player'
     }
 
-    if not global.config.biter_attacks.launch_attacks.first_launch_only and count > 1 then
+    if not storage.config.biter_attacks.launch_attacks.first_launch_only and count > 1 then
         --send attack of 1k
         setup_scans(data)
         game.print({'biter_attacks.rocket_launch_attack'})
@@ -278,8 +278,8 @@ timed_attack_token =
         local connected_players = game.connected_players
         local player = connected_players[random(#connected_players)]
         if player and player.valid then
-            surface = player.surface
-            scan_center = player.position
+            surface = player.physical_surface
+            scan_center = player.physical_position
 
             local character = player.character
             if character and character.valid then
@@ -299,7 +299,7 @@ timed_attack_token =
             individual_scan_radius = defaults.individual_scan_radius
         }
         setup_scans(data)
-        Task.set_timeout(global.config.biter_attacks.timed_attacks.attack_frequency, timed_attack_token, {})
+        Task.set_timeout(storage.config.biter_attacks.timed_attacks.attack_frequency, timed_attack_token, {})
     end
 )
 
@@ -339,7 +339,7 @@ end
 if config.timed_attacks.enabled then
     Event.on_init(
         function()
-            Task.set_timeout(global.config.biter_attacks.timed_attacks.attack_frequency, timed_attack_token, {})
+            Task.set_timeout(storage.config.biter_attacks.timed_attacks.attack_frequency, timed_attack_token, {})
         end
     )
 end

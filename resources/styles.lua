@@ -7,10 +7,10 @@ function Public.default_close(style)
 end
 
 Public.default_top_element = {
-    name = 'side_menu_button',
+    name = 'frame_button',
     style = {
         font_color = { 165, 165, 165 },
-        font = 'heading-3',
+        font = 'heading-2',
         minimal_height = 40,
         maximal_height = 40,
         minimal_width = 40,
@@ -22,7 +22,7 @@ Public.default_left_element = {
     style = {
         padding = 2,
         font_color = { 165, 165, 165 },
-        font = 'heading-3',
+        font = 'heading-2',
         use_header_filler = false
     }
 }

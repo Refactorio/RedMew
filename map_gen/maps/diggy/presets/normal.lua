@@ -94,7 +94,7 @@ local config = {
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
                 ['rock-big'] = 2,
-                ['rock-huge'] = 2.5,
+                ['huge-rock'] = 2.5,
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
                 ['concrete'] = 0.04,
@@ -360,7 +360,7 @@ local config = {
             XP = {
                 ['sand-rock-big'] = 5,
                 ['rock-big'] = 5,
-                ['rock-huge'] = 10,
+                ['huge-rock'] = 10,
                 ['rocket_launch'] = 0.05, -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.05 which equals 5%)
                 ['rocket_launch_max'] = 500000, -- Max XP reward from rocket launches (Diggy default: 500000)
                 ['automation-science-pack'] = 4,
@@ -412,7 +412,7 @@ local config = {
                 {level = 30, price = 30, name = 'logistic-robot'},
                 {level = 31, price = 200, name = 'personal-roboport-equipment'},
                 {level = 32, price = 20, name = 'construction-robot'},
-                {level = 34, price = 750, name = 'fusion-reactor-equipment'},
+                {level = 34, price = 750, name = 'fission-reactor-equipment'},
                 {level = 35, price = 150, name = 'battery-equipment'},
                 {level = 38, price = 250, name = 'exoskeleton-equipment'},
                 {level = 40, price = 125, name = 'energy-shield-equipment'},

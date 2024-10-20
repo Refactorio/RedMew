@@ -2,7 +2,7 @@ local Event = require 'utils.event'
 local Server = require 'features.server'
 
 local to_discord_bold = Server.to_discord_bold
-local config = global.config.research_printer
+local config = storage.config.research_printer
 local template = {'research_printer.research_finished', nil}
 
 local function research_finished(event)

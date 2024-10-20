@@ -175,7 +175,7 @@ local function draw_main_frame_content(parent)
                 row.add {
                 type = 'sprite-button',
                 name = edit_tag_button_name,
-                sprite = 'utility/rename_icon_normal',
+                sprite = 'utility/rename_icon',
                 tooltip = {'tag_group.edit_group'}
             }
             edit_button.style.top_padding = 0
@@ -636,7 +636,7 @@ Gui.on_click(
             path = type .. '/' .. data.choose.elem_value
         end
 
-        if path and not frame.gui.is_valid_sprite_path(path) then
+        if path and not helpers.is_valid_sprite_path(path) then
             player.print({'tag_group.sprite_not_valid', path})
             return
         end

@@ -2,7 +2,7 @@
     (vanilla, not scenario) and configure the settings you want. When you launch the game, you can run the following:
     /c
     local str = serpent.block(game.surfaces.nauvis.map_gen_settings)
-    game.write_file('map_gen_settings.lua', str)
+    helpers.write_file('map_gen_settings.lua', str)
 
     This will output a file with a table that you can add to this resources file or into your specific map.
     In either case, make sure to set seed to nil unless you want your map to be *exactly* the same each time.

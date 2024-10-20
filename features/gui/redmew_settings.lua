@@ -274,12 +274,7 @@ local function setting_set(event)
     element_data.previous_value = Settings.toScalar(setting_name, event.old_value)
 end
 
-Gui.on_custom_close(
-    main_frame_name,
-    function(event)
-        Gui.destroy(event.element)
-    end
-)
+Gui.on_custom_close(main_frame_name, toggle)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 

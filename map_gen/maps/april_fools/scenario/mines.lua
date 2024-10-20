@@ -18,8 +18,8 @@ local function inside_radius(x, y, radius)
   return x*x + y*y < radius*radius + 3600 * Perlin.noise(x, y)
 end
 
-local function worm_by_distance(x, y)
-  local evo = game.forces.enemy.evolution_factor or 0
+local function worm_by_distance(x, y, surface)
+  local evo = game.forces.enemy.get_evolution_factor(surface) or 0
   local radius = math.sqrt(x*x + y*y)
   local weighted_distance = radius * (evo + 0.45)
 
@@ -60,7 +60,7 @@ Event.add(defines.events.on_chunk_generated, function(event)
         surface.create_entity { name = rock_list[math.random(rocks)], position = { x, y }, raise_built = false, move_stuck_players = true, force = 'neutral'}
       else
         if not inside_radius(x, y, biter_radius) and c < (0.000125 * PRECISION) then
-          surface.create_entity { name = worm_by_distance(x, y), position = {x, y}, move_stuck_players = true }
+          surface.create_entity { name = worm_by_distance(x, y, surface), position = {x, y}, move_stuck_players = true }
         end
       end
     end
@@ -105,12 +105,7 @@ local function give_command(group, target)
     group.start_moving()
   else
     local command = { type = defines.command.attack_area, destination = {0, 0}, radius = 32, distraction = defines.distraction.by_damage }
-
-    local members = group.members
-    for i = 1, #members do
-      local entitiy = members[i]
-      entitiy.set_command(command)
-    end
+    group.set_command(command)
   end
 end
 
@@ -123,7 +118,7 @@ Event.add(defines.events.on_entity_died, function(event)
   local surface = entity.surface
   local position = entity.position
   local spawn = entity.surface.create_entity
-  local evo = game.forces.enemy.evolution_factor
+  local evo = game.forces.enemy.get_evolution_factor(surface)
 
   local spawner = AlienEvolutionProgress.create_spawner_request(math.ceil(evo * 100 / 4))
   local aliens = AlienEvolutionProgress.get_aliens(spawner, evo)

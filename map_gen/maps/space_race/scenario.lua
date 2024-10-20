@@ -24,7 +24,7 @@ local load_gui = require 'map_gen.maps.space_race.gui.load_gui'
 
 local Public = {}
 
-local redmew_config = global.config
+local redmew_config = storage.config
 
 redmew_config.market.enabled = false
 redmew_config.score.enabled = false
@@ -106,9 +106,6 @@ Event.on_init(
 
         force_USSR.laboratory_speed_modifier = 1
         force_USA.laboratory_speed_modifier = 1
-
-        force_USSR.research_queue_enabled = true
-        force_USA.research_queue_enabled = true
 
         local lobby_permissions = game.permissions.create_group('lobby')
         lobby_permissions.set_allows_action(defines.input_action.start_walking, false)
@@ -284,7 +281,7 @@ end
 local function start_game()
     primitives.game_started = true
     primitives.started_tick = game.tick
-    game.forces.enemy.evolution_factor = 0
+    game.forces.enemy.set_evolution_factor(0, RS.get_surface_name())
     for _, player in pairs(primitives.force_USA.players) do
         restore_character(player)
     end
@@ -319,7 +316,7 @@ end
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
 
 local function on_built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
 
     if not entity or not entity.valid then
         return
@@ -407,9 +404,9 @@ local function teleport(_, player)
     local force = player.force
     if allow_teleport(force, position) then
         if math.abs(position.x) < 388.5 then
-            player.teleport(get_teleport_location(force, true))
+            player.teleport(get_teleport_location(force, true), player.physical_surface)
         else
-            player.teleport(get_teleport_location(force, false))
+            player.teleport(get_teleport_location(force, false), player.physical_surface)
         end
     else
         player.print('[color=yellow]Could not warp, you are too far from rocket silo![/color]')

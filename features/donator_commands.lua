@@ -6,7 +6,7 @@ local Color = require 'resources.color_presets'
 local Global = require 'utils.global'
 
 local format = string.format
-local config = global.config.donator.donator_perks
+local config = storage.config.donator.donator_perks
 
 
 Global.register(
@@ -14,7 +14,7 @@ Global.register(
         config = config
     },
     function()
-        config = global.config.donator.donator_perks
+        config = storage.config.donator.donator_perks
     end
 )
 

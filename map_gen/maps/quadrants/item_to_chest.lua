@@ -5,7 +5,7 @@ local Public = {}
 
 local function create_chest(player, position, radius, bounding_box)
     local surface = RS.get_surface()
-    position = position ~= nil and position or player.position
+    position = position ~= nil and position or player.physical_position
 
     local pos
     if radius then
@@ -36,18 +36,17 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
     local chest
     for _, inventory in pairs(inventories) do
         inventory = player.get_inventory(inventory)
-        for name, count in pairs(inventory.get_contents()) do
-            local ItemStack = {name = name, count = count}
-            inventory.remove(ItemStack)
+        for _, item_stack in pairs(inventory.get_contents()) do
+            inventory.remove(item_stack)
+            local count = item_stack.count
             while count > 0 do
-                if not chest or not chest.can_insert(ItemStack) then
+                if not chest or not chest.can_insert(item_stack) then
                     chest = create_chest(player, position, radius, bounding_box)
                     if not chest then
                         return false
                     end
                 end
-                count = count - chest.insert(ItemStack)
-                ItemStack = {name = name, count = count}
+                item_stack.count = count - chest.insert(item_stack)
             end
         end
     end

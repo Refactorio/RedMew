@@ -189,7 +189,7 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
     surface.set_tiles(new_tiles)
     erase_qchunk(surface, x, y)
     for player_index, position in pairs(player_positions) do
-        game.get_player(player_index).teleport(position)
+        game.get_player(player_index).teleport(position, surface)
     end
 end
 

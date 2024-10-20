@@ -30,7 +30,7 @@ local function draw_gui(player)
   this.last_lua_input[player.index] = this.last_lua_input[player.index] or ''
   this.last_lua_output[player.index] = this.last_lua_output[player.index] or ''
 
-  local info = canvas.add { type = 'frame', style = 'deep_frame_in_shallow_frame_for_tabs', direction = 'vertical' }
+  local info = canvas.add { type = 'frame', style = 'deep_frame_in_shallow_frame', direction = 'vertical' }
   Gui.set_style(info, { padding = 12, horizontally_stretchable = true })
   info.add { type = 'label', caption = '[font=default-bold][color=green]Input:[/color][/font]' }
   info.add { type = 'label', caption = '  -  no need to append `/c` at the beginning of the code' }

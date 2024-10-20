@@ -4,7 +4,7 @@ local Token = require 'utils.token'
 local Server = require 'features.server'
 local Donator = require 'features.donator'
 
-if global.config.poll.enabled then
+if storage.config.poll.enabled then
     local Event = require 'utils.event'
 
     local function set_poll()

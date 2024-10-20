@@ -7,7 +7,7 @@ local Ranks = require 'resources.ranks'
 local LandfillRemover = require 'features.landfill_remover'
 
 local main_inventory = defines.inventory.character_main
-local config = global.config.landfill_remover
+local config = storage.config.landfill_remover
 
 local tile_items = {
     'stone-brick',

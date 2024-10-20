@@ -4,7 +4,7 @@ local Sounds = {}
 
 local function play(players, sound_path)
   local sound = sound_path or default_sound_path
-  if not game.is_valid_sound_path(sound) then
+  if not helpers.is_valid_sound_path(sound) then
     error('Invalid sound path ' .. sound_path)
     return
   end

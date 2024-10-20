@@ -36,8 +36,8 @@ Declare.module({'features', 'death_corpse_tags'}, function()
     end)
 
     local function fake_death(player, has_items)
-        local surface = player.surface
-        local position = player.position
+        local surface = player.physical_surface
+        local position = player.physical_position
 
         local entity = surface.create_entity {
             name = 'character-corpse',
@@ -61,10 +61,10 @@ Declare.module({'features', 'death_corpse_tags'}, function()
     declare_test('corpse removed and empty message when corpse is empty', function(context)
         -- Arrange.
         local player = context.player
-        player.teleport({5, 5})
+        player.teleport({5, 5}, player.physical_surface)
 
         context:add_teardown(function()
-            player.teleport({0, 0})
+            player.teleport({0, 0}, player.physical_surface)
         end)
 
         local actual_text
@@ -83,7 +83,7 @@ Declare.module({'features', 'death_corpse_tags'}, function()
         DeathCorpseTags._player_died(event)
 
         -- Assert.
-        local corpses = player.surface.find_entities_filtered({name = 'character-corpse', position = player.position, radius = 1})
+        local corpses = player.physical_surface.find_entities_filtered({name = 'character-corpse', position = player.physical_position, radius = 1})
         Assert.equal(0, #corpses)
 
         local expected = {'death_corpse_tags.empty_corpse'}

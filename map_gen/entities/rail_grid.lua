@@ -298,9 +298,9 @@ local cities = {
 }
 
 local function connect_line(s, e)
-    local bitmap = global.bitmap
+    local bitmap = storage.bitmap
     for i = s[1], e[1] do
-        if global.bitmap[i] == nil then
+        if storage.bitmap[i] == nil then
             bitmap[i] = {}
         end
         bitmap[i][s[2]] = 1
@@ -314,7 +314,7 @@ local function connect_line(s, e)
 end
 
 local function on_init()
-    global.bitmap = {}
+    storage.bitmap = {}
     connect_line({6, -8}, {6, 0})
     connect_line({6, 0}, {11, 0})
     connect_line({9, 0}, {9, 9})
@@ -372,7 +372,7 @@ local function build_chunk(origin, dirs)
 end
 
 local function is_on_grid(gx, gy)
-    local bitmap = global.bitmap
+    local bitmap = storage.bitmap
     if bitmap[gx] and bitmap[gx][gy] == 1 then
         return true
     else

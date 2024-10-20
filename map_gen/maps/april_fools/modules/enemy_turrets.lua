@@ -61,7 +61,7 @@ local TURRET_ACTIONS = {
 }
 
 local function on_built_turret(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid and entity.name) then
     -- Invalid entity
     return

@@ -150,7 +150,7 @@ Events.add(Retailer.events.on_market_purchase, on_market_purchase)
 local spill_items =
     Token.register(
     function(data)
-        data.surface.spill_item_stack(data.position, {name = 'coin', count = data.count}, true)
+        data.surface.spill_item_stack{ position = data.position, stack = { name = 'coin', count = data.count }, enable_looted = true }
     end
 )
 
@@ -434,8 +434,8 @@ local function on_player_died(event)
             spill_items,
             {
                 count = player_kill_reward,
-                surface = player.surface,
-                position = player.position
+                surface = player.physical_surface,
+                position = player.physical_position
             }
         )
         update_unlock_progress(inverted_force, unlock_reasons.player_killed)

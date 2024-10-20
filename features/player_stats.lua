@@ -1,5 +1,6 @@
 local Global = require 'utils.global'
 local Event = require 'utils.event'
+local SA = require 'utils.space_age'
 local ScoreTracker = require 'utils.score_tracker'
 require 'utils.table'
 
@@ -22,6 +23,7 @@ local player_console_chats_name = 'player-console-chats'
 local player_items_crafted_name = 'player-items-crafted'
 local player_distance_walked_name = 'player-distance-walked'
 local satellites_launched_name = 'satellites-launched'
+local rockets_launched_name = 'rockets-launched'
 local player_units_killed_name = 'player-units-killed' -- biters and spitters
 local player_worms_killed_name = 'player-worms-killed'
 local player_spawners_killed_name = 'player-spawners-killed'
@@ -33,7 +35,7 @@ local player_resources_hand_mined_name = 'player_resources_hand_mined'
 local resources_hand_mined_name = 'resources_hand_mined'
 local resources_exhausted_name = 'resources_exhausted'
 
-ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
+ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.huge-rock]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
 ScoreTracker.register(player_count_name, {'player_stats.player_count'})
 ScoreTracker.register(kills_by_trains_name, {'player_stats.kills_by_trains'}, '[img=item.locomotive]')
@@ -46,7 +48,10 @@ ScoreTracker.register(player_deaths_name, {'player_stats.player_deaths'})
 ScoreTracker.register(player_console_chats_name, {'player_stats.player_console_chats'})
 ScoreTracker.register(player_items_crafted_name, {'player_stats.player_items_crafted'})
 ScoreTracker.register(player_distance_walked_name, {'player_stats.player_distance_walked'})
-ScoreTracker.register(satellites_launched_name, {'player_stats.satellites_launched'}, '[img=item.satellite]')
+if not SA.enabled() then
+    ScoreTracker.register(satellites_launched_name, {'player_stats.satellites_launched'}, '[img=item.satellite]')
+end
+ScoreTracker.register(rockets_launched_name, {'player_stats.rockets_launched'}, '[img=item.rocket-silo]')
 ScoreTracker.register(player_units_killed_name, {'player_stats.player_units_killed'})
 ScoreTracker.register(player_worms_killed_name, {'player_stats.player_worms_killed'})
 ScoreTracker.register(player_spawners_killed_name, {'player_stats.player_spawners_killed'})
@@ -110,7 +115,7 @@ end)
 local function player_created(event)
     local index = event.player_index
 
-    player_last_position[index] = game.get_player(index).position
+    player_last_position[index] = game.get_player(index).physical_position
     player_death_causes[index] = {}
     change_for_global(player_count_name, 1)
 end
@@ -198,7 +203,7 @@ local function player_console_chat(event)
 end
 
 local function player_built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if not entity or not entity.valid then
         return
     end
@@ -301,7 +306,9 @@ local function rocket_launched(event)
         return
     end
 
-    local inventory = entity.get_inventory(defines.inventory.rocket)
+    change_for_global(rockets_launched_name, 1)
+
+    local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
     if not inventory or not inventory.valid then
         return
     end
@@ -328,7 +335,7 @@ local function tick()
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
             local index = p.index
             local last_pos = player_last_position[index]
-            local pos = p.position
+            local pos = p.physical_position
 
             local d_x = last_pos.x - pos.x
             local d_y = last_pos.y - pos.y
@@ -368,6 +375,7 @@ local Public = {
     player_console_chats_name = player_console_chats_name,
     player_items_crafted_name = player_items_crafted_name,
     player_distance_walked_name = player_distance_walked_name,
+    rockets_launched_name = rockets_launched_name,
     satellites_launched_name = satellites_launched_name,
     player_units_killed_name = player_units_killed_name,
     player_worms_killed_name = player_worms_killed_name,

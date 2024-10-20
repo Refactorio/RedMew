@@ -76,7 +76,7 @@ local function player_joined_game(event)
         return
     end
 
-    player.print("Welcome to RedMew's Rail Grids Map. Rails can only be built on green tiles.", {r = 0, g = 1, b = 0, a = 1})
+    player.print("Welcome to RedMew's Rail Grids Map. Rails can only be built on green tiles.", {color = {r = 0, g = 1, b = 0, a = 1}})
 end
 
 Event.add(RestrictEntities.events.on_restricted_entity_destroyed, restricted_entity_destroyed)

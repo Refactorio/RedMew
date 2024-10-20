@@ -403,9 +403,9 @@ local column_builders = {
                 lines = lines + 1
 
                 if not prototype_locale_string_cache[name] then
-                    local prototype = game.entity_prototypes[name]
+                    local prototype = prototypes.entity[name]
                     if not prototype then
-                        prototype = game.item_prototypes[name]
+                        prototype = prototypes.item[name]
                     end
                     prototype_locale_string_cache[name] = prototype and prototype.localised_name or {'', name}
                 end
@@ -534,7 +534,7 @@ local function get_default_player_settings()
         report_heading_name,
     }
 
-    if global.config.player_list.show_coin_column then
+    if storage.config.player_list.show_coin_column then
         table.insert(columns, 6, coin_heading_name)
     end
 

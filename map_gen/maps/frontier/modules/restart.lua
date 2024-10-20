@@ -385,18 +385,18 @@ end)
 Gui.on_selection_state_changed(mode_dropdown_name, function(event)
   local mode = event.element.selected_index
   Public.get().server_commands.mode = mode
-  event.player.print('Restart mode changed to: '..restart_mode_text[mode], Color.info)
+  event.player.print('Restart mode changed to: '..restart_mode_text[mode], {color = Color.info})
   draw_gui(event.player)
 end)
 
 Gui.on_click(abort_button_name, function(event)
   local cmd = Public.get('server_commands')
   if not cmd.restarting then
-    event.player.print('No restart action in progress', Color.info)
+    event.player.print('No restart action in progress', {color = Color.info})
     return
   else
     cmd.restarting = false
-    game.print({'frontier.abort'}, Color.warning)
+    game.print({'frontier.abort'}, {color = Color.warning})
   end
 end)
 
@@ -424,7 +424,7 @@ Gui.on_click(load_confirm_button_name, function(event)
 end)
 
 Restart.restart_message_token = Token.register(function(seconds)
-  game.print({'frontier.restart', seconds}, Color.success)
+  game.print({'frontier.restart', seconds}, {color = Color.success})
 end)
 
 function Restart.set_game_state(player_won)
@@ -539,7 +539,7 @@ function Restart.print_endgame_statistics()
     tiles_traveled = math.ceil(Public.get('x')),
   }
   do
-    local resource_prototypes = game.get_filtered_entity_prototypes({{ filter = 'type', type = 'resource' }})
+    local resource_prototypes = prototypes.get_entity_filtered({{ filter = 'type', type = 'resource' }})
     local ore_products = {}
     for _, ore_prototype in pairs(resource_prototypes) do
       local mineable_properties = ore_prototype.mineable_properties
@@ -553,7 +553,7 @@ function Restart.print_endgame_statistics()
     local total_ore = 0
     local ore_totals_message = '('
     for ore_name in pairs(ore_products) do
-      local count = game.forces.player.item_production_statistics.get_input_count(ore_name)
+      local count = game.forces.player.get_item_production_statistics.get_input_count(ore_name)
       total_ore = total_ore + count
       ore_totals_message = ore_totals_message..ore_name:gsub( '-ore', '')..': '..format_number(count, true)..', '
     end

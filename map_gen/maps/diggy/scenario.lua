@@ -15,7 +15,7 @@ local Scenario = {}
 
 RS.set_first_player_position_check_override(true) -- forces players to spawn at 0,0
 RS.set_spawn_island_tile('stone-path')
-global.diggy_scenario_registered = false
+storage.diggy_scenario_registered = false
 
 --[[--
     Allows calling a callback for each enabled feature.
@@ -43,13 +43,13 @@ end
 
 ---Register the events required to initialize the scenario.
 function Scenario.register(diggy_config)
-    if global.diggy_scenario_registered then
+    if storage.diggy_scenario_registered then
         error('Cannot register the Diggy scenario multiple times.')
         return
     end
 
     -- disabled redmew features for diggy
-    local redmew_config = global.config
+    local redmew_config = storage.config
     redmew_config.market.enabled = false
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
@@ -77,7 +77,7 @@ function Scenario.register(diggy_config)
         end
     )
 
-    global.diggy_scenario_registered = true
+    storage.diggy_scenario_registered = true
 end
 
 

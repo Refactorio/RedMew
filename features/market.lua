@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Command = require 'utils.command'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
 local Ranks = require 'resources.ranks'
@@ -20,7 +21,7 @@ local pairs = pairs
 local round = math.round
 local random = math.random
 local format = string.format
-local market_config = global.config.market
+local market_config = storage.config.market
 local currency = market_config.currency
 local entity_drop_amount = market_config.entity_drop_amount
 
@@ -124,12 +125,12 @@ local function fish_earned(event, amount)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
-    player.surface.create_entity{name="flying-text", position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = Color.gold, render_player_index = player.index}
+    Game.create_local_flying_text{ surface = player.surface, position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = Color.gold, render_player_index = player.index}
 
     local diff = amount - inserted
     if diff > 0 then
         stack.count = diff
-        player.surface.spill_item_stack(player.position, stack, true)
+        player.surface.spill_item_stack{ position = player.position, stack = stack, enable_looted = true }
     end
 
     change_for_player(player_index, coins_earned_name, amount)
@@ -154,7 +155,7 @@ end
 local spill_items =
     Token.register(
     function(data)
-        data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
+        data.surface.spill_item_stack{ position = data.position, stack = {name = currency, count = data.count}, enable_looted = true }
     end
 )
 
@@ -308,7 +309,7 @@ local function player_created(event)
         return
     end
 
-    local count = global.config.player_rewards.info_player_reward and 1 or 10
+    local count = storage.config.player_rewards.info_player_reward and 1 or 10
     player.insert {name = currency, count = count}
 end
 

@@ -8,7 +8,7 @@ local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
 local ScoreTracker = require 'utils.score_tracker'
 local format_number = require 'util'.format_number
-local player_data_to_show = global.config.redmew_commands.whois.player_data_to_show
+local player_data_to_show = storage.config.redmew_commands.whois.player_data_to_show
 local print_to_player = Game.player_print
 local concat = table.concat
 local tostring = tostring
@@ -30,7 +30,7 @@ local function do_fish_kill(player, suicide)
         return false
     end
 
-    local e = player.surface.create_entity { name = 'fish', position = player.position }
+    local e = player.physical_surface.create_entity { name = 'fish', position = player.physical_position }
     c.die(player.force, e)
 
     -- Don't want people killing themselves for free fish.
@@ -169,8 +169,8 @@ end
 
 local function print_version()
     local version_str
-    if global.redmew_version then
-        version_str = global.redmew_version
+    if storage.redmew_version then
+        version_str = storage.redmew_version
     else
         version_str = { 'redmew_commands.print_version_from_source' }
     end

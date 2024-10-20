@@ -424,9 +424,11 @@ if _DEBUG then
     local names = {}
     Gui.names = names
 
+    local matching_path = '^.+__level__/(.+)$'
+
     function Gui.uid_name()
         local info = debug.getinfo(2, 'Sl')
-        local filepath = info.source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local filepath = info.source:match(matching_path):sub(1, -5)
         local line = info.currentline
 
         local token = gui_element_prefix .. tostring(Token.uid())

@@ -71,7 +71,7 @@ local function drop_meteors()
 
     -- Spawn Rock
     if surface.get_tile(map_position).collides_with('ground-tile') then
-      surface.create_entity({name = 'rock-huge', position = map_position, move_stuck_players = true,})
+      surface.create_entity({name = 'huge-rock', position = map_position, move_stuck_players = true,})
       surface.create_entity({name = 'massive-explosion', position = map_position,})
     end
 

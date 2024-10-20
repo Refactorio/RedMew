@@ -9,7 +9,7 @@ local Task = require 'utils.task'
 local Rank = require 'features.rank_system'
 local Gui = require 'utils.gui'
 
-local config = global.config.redmew_qol
+local config = storage.config.redmew_qol
 
 -- Localized functions
 local random = math.random
@@ -28,7 +28,7 @@ end)
 
 --- When placed, locomotives will get a random color
 local random_train_color = Token.register(function(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if entity and entity.valid and entity.type == 'locomotive' then
         entity.color = Utils.random_RGB()
     end
@@ -37,7 +37,7 @@ end)
 --- If a newly placed entity is a provider or non-logi chest, set it to only have 1 slot available.
 -- If placed from a bp and the bp has restrictions on the chest, it takes priority.
 local restrict_chest = Token.register(function(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if entity and entity.valid and (entity.name == 'logistic-chest-passive-provider' or entity.type == 'container') then
         local chest_inventory = entity.get_inventory(defines.inventory.chest)
         if #chest_inventory + 1 == chest_inventory.getbar() then
@@ -67,7 +67,7 @@ end
 
 --- Changes the backer name on an entity that supports having a backer name.
 local change_backer_name = Token.register(function(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if entity and entity.valid and entity.backer_name then
         entity.backer_name = pick_name() or entity.backer_name
     end
@@ -210,10 +210,6 @@ local function register_inserter_drops_pickup()
 end
 
 local function on_init()
-    -- Set player force's ghost_time_to_live to an hour. Giving the players ghosts before the research of robots is a nice QOL improvement.
-    if config.ghosts_before_research then
-        Public.set_ghost_ttl()
-    end
     if config.loaders then
         Task.set_timeout_in_ticks(1, loader_check_token, nil)
     end
@@ -222,16 +218,6 @@ end
 Event.on_init(on_init)
 
 -- Public functions
-
---- Sets a ghost_time_to_live as a quality of life feature: now ghosts
--- are created on death of entities before robot research
--- @param force_name string with name of force
--- @param time number of ticks for ghosts to live
-function Public.set_ghost_ttl(force_name, time)
-    force_name = force_name or 'player'
-    time = time or (30 * 60 * 60)
-    game.forces[force_name].ghost_time_to_live = time
-end
 
 --- Sets random_train_color on or off.
 -- @param enable <boolean> true to toggle on, false for off
@@ -345,12 +331,6 @@ end
 
 if config.save_bots then
     Event.add(defines.events.on_selected_entity_changed, preserve_bot)
-end
-
-if config.research_queue then
-    Event.on_init(function()
-        game.forces.player.research_queue_enabled = true
-    end)
 end
 
 local loader_crafter_frame_for_player_name = Gui.uid_name()
@@ -728,11 +708,11 @@ if config.loaders then
     end)
 
     Event.add(defines.events.on_built_entity, function(event)
-        loader_built(event.created_entity)
+        loader_built(event.entity)
     end)
 
     Event.add(defines.events.on_robot_built_entity, function(event)
-        loader_built(event.created_entity)
+        loader_built(event.entity)
     end)
 end
 

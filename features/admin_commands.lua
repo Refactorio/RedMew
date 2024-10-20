@@ -77,9 +77,9 @@ local function add_regular(args, player)
 
     local success = Rank.increase_player_rank_to(target_name, Ranks.regular)
     if success then
-        game.print({'admin_commands.regular_add_success', actor, target_name}, Color.info)
+        game.print({'admin_commands.regular_add_success', actor, target_name}, {color = Color.info})
         if maybe_target_player then
-            maybe_target_player.print({'admin_commands.regular_add_notify_target'}, Color.warning)
+            maybe_target_player.print({'admin_commands.regular_add_notify_target'}, {color = Color.warning})
         end
     else
         Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail, player)
@@ -98,9 +98,9 @@ local function remove_regular(args, player)
 
     if Rank.equal(target_name, Ranks.regular) then
         local _, new_rank = Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.regular_remove_success', actor, target_name, new_rank}, Color.info)
+        game.print({'admin_commands.regular_remove_success', actor, target_name, new_rank}, {color = Color.info})
         if maybe_target_player then
-            maybe_target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
+            maybe_target_player.print({'admin_commands.regular_remove_notify_target'}, {color = Color.warning})
         end
     else
         local rank_name = Rank.get_player_rank_name(target_name)
@@ -121,16 +121,16 @@ local function probation_add(args, player)
     if Rank.equal(target_name, Ranks.admin) then
         Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail, player)
         if maybe_target_player then
-            maybe_target_player.print({'admin_commands.probation_warn_admin', actor}, Color.warning)
+            maybe_target_player.print({'admin_commands.probation_warn_admin', actor}, {color = Color.warning})
         end
         return
     end
 
     local success = Rank.decrease_player_rank_to(target_name, Ranks.probation)
     if success then
-        game.print({'admin_commands.probation_add_success', actor, target_name}, Color.info)
+        game.print({'admin_commands.probation_add_success', actor, target_name}, {color = Color.info})
         if maybe_target_player then
-            maybe_target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
+            maybe_target_player.print({'admin_commands.probation_add_notify_target'}, {color = Color.warning})
         end
     else
         Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail, player)
@@ -149,9 +149,9 @@ local function probation_remove(args, player)
 
     if Rank.equal(target_name, Ranks.probation) then
         Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.probation_remove_success', actor, target_name}, Color.info)
+        game.print({'admin_commands.probation_remove_success', actor, target_name}, {color = Color.info})
         if maybe_target_player then
-            maybe_target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
+            maybe_target_player.print({'admin_commands.probation_remove_notify_target'}, {color = Color.warning})
         end
     else
         Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail, player)
@@ -191,14 +191,14 @@ end
 --- Creates a rectangle of water below an admin
 local function pool(_, player)
     local t = {}
-    local p = player.position
+    local p = player.physical_position
     for x = p.x - 3, p.x + 3 do
         for y = p.y + 2, p.y + 7 do
             table.insert(t, {name = 'water', position = {x, y}})
         end
     end
-    player.surface.set_tiles(t)
-    player.surface.create_entity {name = 'fish', position = {p.x + 0.5, p.y + 5}}
+    player.physical_surface.set_tiles(t)
+    player.physical_surface.create_entity {name = 'fish', position = {p.x + 0.5, p.y + 5}}
     Game.player_print({'admin_commands.create_pool'}, Color.success, player)
 end
 
@@ -212,12 +212,12 @@ local function invoke(args, player)
         return
     end
 
-    local pos = player.surface.find_non_colliding_position('character', player.position, 50, 1)
+    local pos = player.physical_surface.find_non_colliding_position('character', player.physical_position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.invoke_fail_no_location'}, player)
         return
     end
-    target.teleport({pos.x, pos.y}, player.surface)
+    target.teleport({pos.x, pos.y}, player.physical_surface)
     game.print({'admin_commands.invoke_announce', target.name})
 end
 
@@ -233,7 +233,12 @@ local function teleport_player(args, player)
 
     local target_name = target.name
     local surface = target.surface
-    local pos = surface.find_non_colliding_position('character', target.position, 50, 1)
+    local position = target.position
+    if target.is_player() then
+        position = target.physical_position
+        surface = target.physical_surface
+    end
+    local pos = surface.find_non_colliding_position('character', position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
@@ -249,12 +254,13 @@ local function teleport_location(_, player)
         Game.player_print({'admin_commands.tp_ent_fail_no_ent'}, Color.fail, player)
         return
     end
-    local pos = player.surface.find_non_colliding_position('character', player.selected.position, 50, 1)
+    local surface = player.selected.surface
+    local pos = surface.find_non_colliding_position('character', player.selected.position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
     end
-    player.teleport(pos)
+    player.teleport(pos, surface)
     Game.player_print({'admin_commands.tp_end_success'}, Color.success, player)
 end
 
@@ -263,13 +269,13 @@ local function built_entity(event)
     local index = event.player_index
 
     if tp_players[index] then
-        local entity = event.created_entity
+        local entity = event.entity
 
         if not entity or not entity.valid or entity.type ~= 'entity-ghost' then
             return
         end
 
-        game.get_player(index).teleport(entity.position)
+        game.get_player(index).teleport(entity.position, entity.surface)
         entity.destroy()
     end
 end
@@ -303,9 +309,9 @@ end
 --- Revives ghosts around the player
 local function revive_ghosts(args, player)
     local radius = args.radius
-    local pos = player.position
+    local pos = player.physical_position
     local count = 0
-    for _, e in pairs(player.surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}, type = 'entity-ghost'}) do
+    for _, e in pairs(player.physical_surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}, type = 'entity-ghost'}) do
         e.revive()
         count = count + 1
     end

@@ -35,7 +35,7 @@ return function(config_allowed_recipes)
             return
         end
 
-        for _, effect in pairs(research.effects) do
+        for _, effect in pairs(research.prototype.effects) do
             if effect.type ~= 'unlock-recipe' then
                 goto continue
             end

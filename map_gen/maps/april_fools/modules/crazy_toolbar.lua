@@ -34,7 +34,7 @@ local function change_quickbar_item()
         local max_attempts = 10
         while ((max_attempts > 0) and (not valid_item)) do
           rand_item = Item_list[math.random(1, #Item_list)]
-          valid_item = (game.item_prototypes[rand_item] ~= nil)
+          valid_item = (prototypes.item[rand_item] ~= nil)
           max_attempts = max_attempts - 1
         end
         if valid_item then

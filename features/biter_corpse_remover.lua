@@ -10,14 +10,14 @@ local queue_pop = Queue.pop
 local queue_size = Queue.size
 
 -- config table for the max queue size
--- Change at runtime with /sc global.config.biter_corpse_remover.max_queue_size = 100
-local biter_corpse_remover = global.config.biter_corpse_remover
+-- Change at runtime with /sc storage.config.biter_corpse_remover.max_queue_size = 100
+local biter_corpse_remover = storage.config.biter_corpse_remover
 
 local corpse_queue = Queue.new()
 
 Global.register(corpse_queue, function(tbl)
     corpse_queue = tbl
-    biter_corpse_remover = global.config.biter_corpse_remover
+    biter_corpse_remover = storage.config.biter_corpse_remover
 end)
 
 local function process_corpses(corpses)

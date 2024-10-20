@@ -16,7 +16,10 @@ Event.on_nth_tick(103, function()
       max = math.max(max, evo)
     end
   end
-  if game.forces.enemy.evolution_factor > 10 and max > 2 then
-    game.forces.enemy.evolution_factor = math.min(game.forces.enemy.evolution_factor, max - 1)
+  local evolution_factor = game.forces.enemy.get_evolution_factor('islands')
+  if evolution_factor > 10 and max > 2 then
+    local new_evo = math.min(evolution_factor, max - 1)
+    game.forces.enemy.set_evolution_factor(new_evo, 'islands')
+    game.forces.enemy.set_evolution_factor(new_evo, 'mines')
   end
 end)

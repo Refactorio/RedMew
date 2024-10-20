@@ -61,7 +61,7 @@ local function get_valid_force(lua_force_or_name)
         return force
     end
 
-    if type(lua_force_or_name) ~= 'table' or not lua_force_or_name.valid or nil == lua_force_or_name.evolution_factor then
+    if type(lua_force_or_name) ~= 'table' or not lua_force_or_name.valid then
         return
     end
 

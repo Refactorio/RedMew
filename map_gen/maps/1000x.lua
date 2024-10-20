@@ -21,7 +21,7 @@ local remove = table.remove
 local insert = table.insert
 local format = string.format
 
-local config = global.config
+local config = storage.config
 
 local decs_amount = 255 -- Change to make decoratives more "opaque" (Min 0, Max 255)
 
@@ -109,7 +109,7 @@ if config.market.enabled then
     local items_to_add = {
         {name = 'modular-armor', stack_limit = 1, player_limit = 1, price = 50},
         {name = 'power-armor', stack_limit = 1, player_limit = 1, price = 2000},
-        {name = 'fusion-reactor-equipment', stack_limit = 1, player_limit = 1, price = 300},
+        {name = 'fission-reactor-equipment', stack_limit = 1, player_limit = 1, price = 300},
         {name = 'energy-shield-equipment', stack_limit = 1, player_limit = 1, price = 350},
         {name = 'defender-capsule', stack_limit = 25, player_limit = 25, price = 1},
         {name = 'distractor-capsule', stack_limit = 50, player_limit = 50, price = 10},

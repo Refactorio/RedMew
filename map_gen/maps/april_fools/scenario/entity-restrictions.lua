@@ -13,7 +13,7 @@ local banned_per_surface = {
 }
 
 local function on_built(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid) then
     return
   end
@@ -31,8 +31,9 @@ local function on_built(event)
 
   entity.destroy()
 
-  local stack = event.stack
-  local player = game.get_player(event.player_index or 'none')
+  local stack = event.stack or event.consumed_items.get_contents()[1] -- TODO: proper handle of consumed_items as LuaInventory
+  local index = event.player_index
+  local player = index and game.get_player(index)
   local robot = event.robot
   if player and player.valid and not ghost and stack.valid then
     if player.can_insert(stack) then

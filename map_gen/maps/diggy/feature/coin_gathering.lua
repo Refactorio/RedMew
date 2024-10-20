@@ -65,7 +65,7 @@ function CoinGathering.register(config)
         end
 
         local modifier = modifiers[entity.name] or 1
-        local evolution_multiplier = force.evolution_factor
+        local evolution_multiplier = force.get_evolution_factor(entity.surface)
         local count = random(
             ceil(2 * evolution_multiplier * modifier),
             ceil(5 * evolution_multiplier * modifier)

@@ -267,7 +267,7 @@ local function redraw_tasks(data, enabled)
             parent.add({type = 'flow'}).add {
             type = 'sprite-button',
             name = edit_task_button_name,
-            sprite = 'utility/rename_icon_normal',
+            sprite = 'utility/rename_icon',
             tooltip = edit_button_tooltip
         }
         edit_button.enabled = enabled
@@ -346,7 +346,7 @@ local function draw_main_frame(left, player)
         announcements_header_flow.add {
         type = 'sprite-button',
         name = announcements_edit_button_name,
-        sprite = 'utility/rename_icon_normal',
+        sprite = 'utility/rename_icon',
         tooltip = edit_announcements_button_tooltip
     }
     edit_announcements_button.enabled = enabled

@@ -1,5 +1,6 @@
 --local Global = require 'utils.global'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local player_ammo_starting_modifiers = {
     ['artillery-shell'] = -0.75,
@@ -88,7 +89,7 @@ end
 local function enemy_weapon_damage()
     local f = game.forces.enemy
 
-    local ef = f.evolution_factor
+    local ef = f.get_evolution_factor(RS.get_surface_name())
 
     for k, v in pairs(enemy_ammo_evolution_modifiers) do
         local base = enemy_ammo_starting_modifiers[k]
@@ -102,7 +103,7 @@ local function research_finished(event)
     local r = event.research
     local p_force = r.force
 
-    for _, e in ipairs(r.effects) do
+    for _, e in ipairs(r.prototype.effects) do
         local t = e.type
 
         if t == 'ammo-damage' then

@@ -623,7 +623,7 @@ function Retailer.set_item(group_name, prototype)
     local name_label = prototype.name_label
 
     if not name_label then
-        local item_prototype = game.item_prototypes[item_name]
+        local item_prototype = prototypes.item[item_name]
         name_label = item_prototype and item_prototype.localised_name
     end
 

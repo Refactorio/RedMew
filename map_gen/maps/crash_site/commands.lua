@@ -2,6 +2,7 @@ local Command = require 'utils.command'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Server = require 'features.server'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Retailer = require 'features.retailer'
@@ -295,7 +296,7 @@ function Public.control(config)
         end
         -- Do some checks on the coordinates passed in the argument
         if #coords < 2 then
-            player.print({'command_description.crash_site_spy_invalid'}, Color.fail)
+            player.print({'command_description.crash_site_spy_invalid'}, {color = Color.fail})
             return
         end
 
@@ -308,7 +309,7 @@ function Public.control(config)
 
             -- Make sure player has enough coin to cover spying cost
             if coin_count < spy_cost then
-                player.print({'command_description.crash_site_spy_funds'}, Color.fail)
+                player.print({'command_description.crash_site_spy_funds'}, {color = Color.fail})
                 return
             else
                 -- show a fish on the map so players can easily find where the new spy locations are from the map view
@@ -318,7 +319,7 @@ function Public.control(config)
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
                 if spy_message_cooldown[1] == false then
-                    game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},Color.success)
+                    game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, {color = Color.success})
                     spy_message_cooldown[1] = true
                     set_timeout_in_ticks(60*30, spy_message_cooldown_callback)
                 end
@@ -378,8 +379,8 @@ function Public.control(config)
             time_to_live = timeout,
             forces = {f}
         }
-        s.create_entity {
-            name = "flying-text",
+        Game.create_local_flying_text {
+            surface = s,
             position = {data.position.x + 3, data.position.y},
             text = "[item=" .. data.item .. "] " .. data.player.name,
             speed = 1/180,
@@ -409,7 +410,7 @@ function Public.control(config)
         local radius_level = airstrike_data.radius_level -- max radius of the strike area
         local count_level = airstrike_data.count_level -- the number of poison capsules launched at the enemy
         if count_level == 1 then
-            player.print({'command_description.crash_site_airstrike_not_researched'}, Color.fail)
+            player.print({'command_description.crash_site_airstrike_not_researched'}, {color = Color.fail})
             return
         end
 
@@ -424,7 +425,7 @@ function Public.control(config)
 
         -- Do some checks on the coordinates passed in the argument
         if #coords < 2 then
-            player.print({'command_description.crash_site_airstrike_invalid'}, Color.fail)
+            player.print({'command_description.crash_site_airstrike_invalid'}, {color = Color.fail})
             return
         end
 
@@ -450,7 +451,7 @@ function Public.control(config)
                 player.print({
                     'command_description.crash_site_airstrike_insufficient_currency_error',
                     strikeCost - capCount
-                }, Color.fail)
+                }, {color = Color.fail})
                 return
             end
 
@@ -468,7 +469,7 @@ function Public.control(config)
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
             else
-                player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name},Color.fail)
+                player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name}, {color = Color.fail})
             end
 
             -- render some items regardless as good visual feedback where their strike was.
@@ -502,7 +503,7 @@ function Public.control(config)
         local count_level = barrage_data.count_level -- the number of rockets launched at the enemy
 
         if count_level == 1 then
-            player.print({'command_description.crash_site_barrage_not_researched'}, Color.fail)
+            player.print({'command_description.crash_site_barrage_not_researched'}, {color = Color.fail})
             return
         end
 
@@ -517,7 +518,7 @@ function Public.control(config)
 
         -- Do some checks on the coordinates passed in the argument
         if #coords < 2 then
-            player.print({'command_description.crash_site_airstrike_invalid'}, Color.fail)
+            player.print({'command_description.crash_site_airstrike_invalid'}, {color = Color.fail})
             return
         end
 
@@ -543,7 +544,7 @@ function Public.control(config)
                 player.print({
                     'command_description.crash_site_barrage_insufficient_currency_error',
                     strikeCost - capCount
-                }, Color.fail)
+                }, {color = Color.fail})
                 return
             end
 
@@ -557,7 +558,7 @@ function Public.control(config)
             local nest_count = #nests
             inv.remove({name = "explosive-rocket", count = strikeCost})
             if nest_count == 0 then
-                player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, Color.fail)
+                player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, {color = Color.fail})
             else
 
                 player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
@@ -650,7 +651,7 @@ function Public.control(config)
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
                 cursor_stack.label = 'Poison strike targetting remote'
-                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
+                cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'sand-rock-big'}
             end
@@ -709,7 +710,7 @@ function Public.control(config)
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
                 cursor_stack.label = 'Barrage targetting remote'
-                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
+                cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'sand-rock-big'}
             end
@@ -720,7 +721,7 @@ function Public.control(config)
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
                 cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
-                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'spidertron'}}}
+                cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'spidertron'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'sand-rock-big'}
         end

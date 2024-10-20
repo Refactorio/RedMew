@@ -10,7 +10,7 @@ local ScoreTracker = require 'utils.score_tracker'
 local format_number = require 'util'.format_number
 local pairs = pairs
 local concat = table.concat
-local scores_to_show = global.config.score.global_to_show
+local scores_to_show = storage.config.score.global_to_show
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local main_frame_name = Gui.uid_name()
 local main_button_name = Gui.uid_name()
@@ -111,11 +111,11 @@ local function score_show(top)
     local frame = top.add {
         type = 'frame',
         name = main_frame_name,
-        style = 'finished_game_subheader_frame',
+        style = 'subheader_frame',
         index = top[main_button_name].get_index_in_parent() + 1
     }
     frame.location = { x = 1, y = 38 }
-	Gui.set_style(frame, { natural_height = Styles.default_top_element.style.minimal_height, height = Styles.default_top_element.style.minimal_height })
+	Gui.set_style(frame, { natural_height = Styles.default_top_element.style.minimal_height, height = Styles.default_top_element.style.minimal_height, padding = 6 })
 
     local score_table = frame.add {type = 'table', name = 'score_table', column_count = table_size(scores)}
     local style = score_table.style

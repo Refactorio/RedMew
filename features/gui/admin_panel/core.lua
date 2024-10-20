@@ -73,7 +73,7 @@ function Public.get_main_frame(player)
     local flow = frame.add { type = 'flow', direction = 'horizontal' }
     Gui.set_style(flow, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
 
-    local label = flow.add { type = 'label', caption = 'Admin panel', style = 'heading_1_label' }
+    local label = flow.add { type = 'label', caption = 'Admin panel', style = 'frame_title' }
     label.drag_target = frame
 
     local dragger = flow.add { type = 'empty-widget', style = 'draggable_space_header' }
@@ -83,7 +83,7 @@ function Public.get_main_frame(player)
     flow.add {
       type = 'sprite-button',
       name = close_button_name,
-      sprite = 'utility/close_white',
+      sprite = 'utility/close',
       clicked_sprite = 'utility/close_black',
       style = 'close_button',
       tooltip = {'gui.close-instruction'}

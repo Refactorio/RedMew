@@ -212,7 +212,7 @@ Gui.on_click(
 
         if selected_player_index then
             input_text_box.text =
-                concat {'global.tokens[', Gui.token, '].data[', selected_player_index, '][', element_index, ']'}
+                concat {'storage.tokens[', Gui.token, '].data[', selected_player_index, '][', element_index, ']'}
         else
             input_text_box.text = 'missing player'
         end

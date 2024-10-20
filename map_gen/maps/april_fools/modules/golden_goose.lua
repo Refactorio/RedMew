@@ -52,8 +52,8 @@ local function geese_spawn_coin()
 
   for _, player in pairs(_global.rand_geese) do
     if (player and player.valid) then
-      local surface = player.surface
-      local position = player.position
+      local surface = player.physical_surface
+      local position = player.physical_position
       -- must be extra cautious with surface & players as they may be teleported across temporary surfaces
       if (surface and surface.valid and position) then
         surface.create_entity{

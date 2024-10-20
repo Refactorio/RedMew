@@ -20,7 +20,7 @@ local format = string.format
 local tostring = tostring
 local draw_text = rendering.draw_text
 local render_mode_game = defines.render_mode.game
-local register_on_entity_destroyed = script.register_on_entity_destroyed
+local register_on_object_destroyed = script.register_on_object_destroyed
 
 local b = require 'map_gen.shared.builders'
 
@@ -956,12 +956,12 @@ local function update_market_upgrade_description(outpost_data)
         local current_rate = base_rate + (level - 1) * upgrade_per_level
         local next_rate = current_rate + upgrade_per_level
 
-        local name = game.item_prototypes[k]
+        local name = prototypes.item[k]
         if name then
             tooltip_str[count] = concat {'[item=', k, ']'}
             mapview_str[count] = name.localised_name
         else
-            name = game.fluid_prototypes[k]
+            name = prototypes.fluid[k]
             if name then
                 tooltip_str[count] = concat {'[fluid=', k, ']'}
                 mapview_str[count] = name.localised_name
@@ -1365,7 +1365,7 @@ local function tick()
 end
 
 local function register_entity(entity, outpost_id)
-    local id = register_on_entity_destroyed(entity)
+    local id = register_on_object_destroyed(entity)
     turret_to_outpost[id] = outpost_id
 end
 
@@ -1949,7 +1949,7 @@ local function market_selected(event)
 end
 
 Event.add(defines.events.on_tick, tick)
-Event.add(defines.events.on_entity_destroyed, turret_died)
+Event.add(defines.events.on_object_destroyed, turret_died)
 
 Event.on_init(
     function()

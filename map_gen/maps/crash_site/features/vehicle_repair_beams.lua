@@ -8,7 +8,7 @@ Global.register({car_entities = car_entities}, function(tbl)
     car_entities = tbl.car_entities
 end)
 
-Event.add(defines.events.on_entity_destroyed, function(event)
+Event.add(defines.events.on_object_destroyed, function(event)
     car_entities[event.unit_number] = nil
 end)
 
@@ -26,7 +26,7 @@ Event.add(defines.events.on_player_driving_changed_state, function(event)
             return
         else
             car_entities[entity.unit_number] = entity
-            script.register_on_entity_destroyed(entity)
+            script.register_on_object_destroyed(entity)
         end
     end
 end)
@@ -71,7 +71,7 @@ local function on_nth_tick()
                         speed = 1,
                         duration = 20
                     }
-                    local max_health = entity.prototype.max_health
+                    local max_health = entity.prototype.get_max_health(entity.quality)
                     if (max_health - entity.health) < repair_amount then
                         repair_amount = max_health - entity.health -- so that the player doesn't lose part of a repair pack partially healing an entity
                     end

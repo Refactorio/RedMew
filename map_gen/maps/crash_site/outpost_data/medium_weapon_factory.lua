@@ -145,7 +145,7 @@ local market = {
             min_price = 7.5
         },
         {
-            name = 'fusion-reactor-equipment',
+            name = 'fission-reactor-equipment',
             price = 625,
             distance_factor = 312.5 / 512,
             min_price = 312.5

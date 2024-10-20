@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local math = require 'utils.math'
 local Surface = require 'features.gui.admin_panel.functions'.surface
+local RS = require 'map_gen.shared.redmew_surface'
 
 local main_button_name = Gui.uid_name()
 local slider_tag_name = Gui.uid_name()
@@ -187,7 +188,7 @@ local function draw_gui(player)
       value_step = 0.01,
     },
     format = '%.2f',
-    value = game.forces.enemy.evolution_factor * 100,
+    value = game.forces.enemy.get_evolution_factor(RS.get_surface_name()) * 100,
     tooltip = 'Current value, %',
   })
   make_slider(row_3, {
@@ -316,7 +317,7 @@ end)
 Gui.on_click(on_evolution_value, function(event)
   local element = event.element
   local value = update_slider(element)
-  game.forces.enemy.evolution_factor = value / 100
+  game.forces.enemy.set_evolution_factor(value / 100, RS.get_surface_name())
 end)
 
 Gui.on_click(on_evolution_destroy_factor, function(event)

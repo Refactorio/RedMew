@@ -2,6 +2,7 @@ local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Generate = require 'map_gen.shared.generate'
 local Global = require 'utils.global'
+local LP = require 'utils.logistic_point'
 local PriceRaffle = require 'features.price_raffle'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
@@ -115,8 +116,8 @@ return function(config)
     chest_data[entity.unit_number] = nil
     local inventory = entity.get_inventory(defines.inventory.chest)
     if not inventory.is_empty() then
-      for name, count in pairs(inventory.get_contents()) do
-        entity.surface.spill_item_stack(entity.position, { name = name, count = count }, true, nil, false)
+      for _, item_stack in pairs(inventory.get_contents()) do
+        entity.surface.spill_item_stack{ position = entity.position, stack = item_stack, enable_looted = true, allow_belts = false }
       end
     end
     inventory.clear()
@@ -125,11 +126,11 @@ return function(config)
   end
 
   local function remove_one_render(chest, key)
-    if rendering.is_valid(chest.price[key].render[1]) then
-      rendering.destroy(chest.price[key].render[1])
+    if chest.price[key].render[1].valid then
+      chest.price[key].render[1].destroy()
     end
-    if rendering.is_valid(chest.price[key].render[2]) then
-      rendering.destroy(chest.price[key].render[2])
+    if chest.price[key].render[2].valid then
+      chest.price[key].render[2].destroy()
     end
   end
 
@@ -195,7 +196,7 @@ return function(config)
   end
 
   local function create_costs_render(entity, name, offset)
-    local id = rendering.draw_sprite {
+    local obj1 = rendering.draw_sprite {
       sprite = 'virtual-signal/signal-white',
       surface = entity.surface,
       target = entity,
@@ -205,7 +206,7 @@ return function(config)
       target_offset = { offset, -1.5 },
       only_in_alt_mode = true,
     }
-    local id2 = rendering.draw_sprite {
+    local obj2 = rendering.draw_sprite {
       sprite = 'item/' .. name,
       surface = entity.surface,
       target = entity,
@@ -215,7 +216,7 @@ return function(config)
       target_offset = { offset, -1.5 },
       only_in_alt_mode = true,
     }
-    return { id, id2 }
+    return { obj1, obj2 }
   end
 
   local function init_chest(entity, budget)
@@ -276,7 +277,7 @@ return function(config)
     local inventory = container.entity.get_inventory(defines.inventory.chest)
 
     if not inventory.is_empty() then
-      local contents = inventory.get_contents()
+      local contents = table.array_to_dict(inventory.get_contents(), 'name')
       if contents['coin'] then
         local count_removed = inventory.remove({ name = 'coin', count = 1 })
         if count_removed > 0 then
@@ -327,20 +328,17 @@ return function(config)
       end
 
       if math.random() < chance_to_receive_token then
-        entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
+        entity.surface.spill_item_stack{ position = entity.position, stack = { name = 'coin', count = 1 }, enable_looted = true, allow_belts = false }
       end
       destroy_and_spill_content(entity)
 
       return new_area
     end
 
-    for slot = 1, 30 do
-      entity.clear_request_slot(slot)
-    end
+    local lp = container.entity.get_logistic_point(defines.logistic_member_index.logistic_container)
+    LP.clear_sections(lp)
+    LP.add_filters(lp, container.price)
 
-    for slot, item_stack in pairs(container.price) do
-      container.entity.set_request_slot(item_stack, slot)
-    end
     return false
   end
 
@@ -447,11 +445,11 @@ return function(config)
       local tree = surface.create_entity{name = 'tree-0'..math.random(9), position = entity.position}
       tree.destructible = false
     elseif entity.type == 'simple-entity' then
-      local rock = surface.create_entity{name = 'rock-huge', position = entity.position, move_stuck_players = true}
+      local rock = surface.create_entity{name = 'huge-rock', position = entity.position, move_stuck_players = true}
       rock.graphics_variation = math.random(16)
       rock.destructible = false
-      surface.spill_item_stack(entity.position, {name = ROCK_RESOURCES[math.random(#ROCK_RESOURCES)], count = math.random(80, 160)}, true, nil, true)
-      surface.spill_item_stack(entity.position, {name = 'stone', count = math.random(5, 15)}, true, nil, true)
+      surface.spill_item_stack{ position = entity.position, stack = { name = ROCK_RESOURCES[math.random(#ROCK_RESOURCES)], count = math.random(80, 160) }, enable_looted = true, allow_belts = true }
+      surface.spill_item_stack{ position = entity.position, stack = { name = 'stone', count = math.random(5, 15) }, enable_looted = true, allow_belts = true }
     end
   end
 
@@ -477,7 +475,7 @@ return function(config)
 
     local e = rs.create_entity{name = 'tree-01', position = {0, -8}}
     e.destructible = false
-    e = rs.create_entity{name = 'rock-huge', position = {0, 8}}
+    e = rs.create_entity{name = 'huge-rock', position = {0, 8}}
     e.destructible = false
     local oil = rs.create_entity{name = 'crude-oil', position = {-8, 0}}
     oil.amount, oil.initial_amount = 3e5, 3e7

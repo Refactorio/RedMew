@@ -27,7 +27,7 @@ local function damage_afk_players()
       if player.afk_time > ALLOWED_AFK_TIME then
         player.character.damage(BASE_DAMAGE * _global.level, 'enemy')
         if _global.level >= _global.max_level/2 then
-          player.surface.create_entity({name = 'fire-flame', position = player.position})
+          player.physical_surface.create_entity({name = 'fire-flame', position = player.physical_position})
         end
       end
     end

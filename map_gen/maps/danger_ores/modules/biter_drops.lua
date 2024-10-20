@@ -19,7 +19,7 @@ local spill_items = Token.register(function(data)
         return
     end
 
-    surface.spill_item_stack(data.position, data.stack, true)
+    surface.spill_item_stack{ position = data.position, stack = data.stack, enable_looted = true }
 end)
 
 Event.add(defines.events.on_entity_died, function(event)

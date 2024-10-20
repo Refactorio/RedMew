@@ -30,7 +30,7 @@ local ALLOWED_DRILLS = {
 -- ============================================================================
 
 local function on_built_miner(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid and entity.name and ALLOWED_DRILLS[entity.name]) then
     -- Invalid entity
     return

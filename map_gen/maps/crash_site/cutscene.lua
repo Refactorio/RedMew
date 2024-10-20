@@ -5,7 +5,7 @@ local Cutscene = require 'features.cutscene.cutscene_controller'
 local CS_Rendering = require 'features.cutscene.rendering'
 local Color = require 'resources.color_presets'
 local PC = require 'features.player_create'
-local register_rendering = Cutscene.register_rendering_id
+local register_rendering = Cutscene.register_rendering
 local play_sound = Cutscene.play_sound
 local draw_text = CS_Rendering.draw_text
 local draw_multi_line = CS_Rendering.draw_multi_line_text
@@ -63,9 +63,9 @@ local delayed_draw_arrow =
             local tick = params.tick
             params = params.params
             local rendering_parmas = params.params
-            local id = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas, params.fit_to_edge)
-            register_rendering(player.index, tick, id)
-            Rendering.blink(id, 20, rendering_parmas.time_to_live)
+            local obj = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas, params.fit_to_edge)
+            register_rendering(player.index, tick, obj)
+            Rendering.blink(obj, 20, rendering_parmas.time_to_live)
         end
 )
 local function delayed_function(func, player, tick, params, offset_time)
@@ -288,7 +288,7 @@ local function terminate_function_redmew(player_index,skip_btn_flag)
             return
         end
         PC.show_start_up(player)
-        player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
+        player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
         return
     end
     Task.set_timeout_in_ticks(1, start_cutscene_outpost, player_index)
@@ -302,7 +302,7 @@ local function terminate_function_outpost(player_index)
     local pos = game.surfaces.redmew.find_non_colliding_position('character', {0, 0}, 0, 1)
     player.teleport(pos, 'redmew')
     PC.show_start_up(player)
-    player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
+    player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
 end
 
 Cutscene.register_cutscene_function('Crashsite_Welcome', waypoints_redmew, Token.register(cutscene_function_redmew), Token.register(terminate_function_redmew))
@@ -321,7 +321,7 @@ local start_cutscene =
 )
 
 function CrashsiteCutscene.on_init()
-    global.config.player_create.cutscene = true
+    storage.config.player_create.cutscene = true
     CrashsiteCutscene.on_load()
 end
 

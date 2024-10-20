@@ -59,15 +59,15 @@
 -- local Event = require 'utils.event'
 --
 -- If you want to remove the handler you will need to keep a reference to it.
--- global.handler = function(event)
+-- storage.handler = function(event)
 --     game.print(serpent.block(event)) -- prints the content of the event table to console.
 -- end
 --
 -- The below code would typically be used at the command console.
--- Event.add_removable_function(defines.events.on_built_entity, global.handler)
+-- Event.add_removable_function(defines.events.on_built_entity, storage.handler)
 --
 -- When you no longer need the handler.
--- Event.remove_removable_function(defines.events.on_built_entity, global.handler)
+-- Event.remove_removable_function(defines.events.on_built_entity, storage.handler)
 --
 -- ** Other Events **
 --

@@ -41,11 +41,11 @@ local function spawn_biters_nearby_players()
 
   for _, player in pairs(game.players) do
     if (player and player.valid and _global.alt_biters_players[player.name]) then
-      local position = player.position
+      local position = player.physical_position
 
       for i=1, UNIT_COUNT do
         local unit_index = math.random(1, #biters)
-        player.surface.create_entity{
+        player.physical_surface.create_entity{
           name = biters[unit_index],
           position = position,
           force = 'enemy',

@@ -3,10 +3,11 @@
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ScenarioInfo = require 'features.gui.info'
-local config = global.config
+local config = storage.config
 local RE = require 'map_gen.shared.entity_placement_restriction'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 --- local math functions
 local floor = math.floor
 --- Scenario Info
@@ -127,7 +128,7 @@ RE.set_keep_alive_callback(
 local function on_destroy(event)
 	local p = event.player
 	if p and p.valid then
-		p.surface.create_entity{name="flying-text", position = p.position, text = 'You can only build that on top of ores, the ground is too soft'}
+		Game.create_local_flying_text{surface = p.surface, position = p.position, text = 'You can only build that on top of ores, the ground is too soft'}
 	end
 end
 Event.add(RE.events.on_restricted_entity_destroyed, on_destroy)
@@ -135,7 +136,7 @@ Event.add(RE.events.on_restricted_entity_destroyed, on_destroy)
 local function on_built_pumpjack(event)
 	local size = 7 -- size in all directions from center. total size = 2x+1
 	local density = 1 -- Every time a pumpjack is placed this much stone is added
-	local entity = event.created_entity
+	local entity = event.entity
 	if not entity or not entity.valid then
 		return
 	end

@@ -5,12 +5,13 @@ local Token = require 'utils.token'
 local Gui = require 'utils.gui'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
+local Table = require 'utils.table'
 
 local format = string.format
 
 local chests = {}
 local chests_next = {}
-local config = global.config.infinite_storage_chest
+local config = storage.config.infinite_storage_chest
 
 
 Global.register(
@@ -31,7 +32,7 @@ function Module.create_chest(surface, position, storage)
 end
 
 local function built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if not entity or not entity.valid or entity.name ~= 'infinity-chest' then
         return
     end
@@ -42,7 +43,7 @@ local function built_entity(event)
 end
 
 local function get_stack_size(name)
-    local proto = game.item_prototypes[name]
+    local proto = prototypes.item[name]
     if not proto then
         log('item prototype ' .. name .. ' not found')
         return 1
@@ -97,15 +98,16 @@ local function tick()
         chests[chest_id] = nil
     else
         local storage = chest_data.storage
-        local inv = entity.get_inventory(1) --defines.inventory.chest
+        local inv = entity.get_inventory(defines.inventory.chest)
         local contents = inv.get_contents()
 
-        for name, count in pairs(contents) do
-            do_item(name, count, inv, storage)
+        for _, item_stack in pairs(contents) do
+            do_item(item_stack.name, item_stack.count, inv, storage)
         end
 
+        local dict = Table.array_to_dict(contents, 'name')
         for name, _ in pairs(storage) do
-            if not contents[name] then
+            if not dict[name] then
                 do_item(name, 0, inv, storage)
             end
         end
@@ -114,7 +116,7 @@ end
 
 local function create_chest_gui_content(frame, player, chest)
     local storage = chest.storage
-    local inv = chest.entity.get_inventory(1).get_contents()
+    local inv = Table.array_to_dict(chest.entity.get_inventory(defines.inventory.chest).get_contents(), 'name')
 
     local grid = frame[chest_content_table_name]
 
@@ -125,7 +127,7 @@ local function create_chest_gui_content(frame, player, chest)
     end
 
     for name, count in pairs(storage) do
-        local number = count + (inv[name] or 0)
+        local number = count + (inv[name] and inv[name].count or 0)
         grid.add {
             type = 'sprite-button',
             sprite = 'item/' .. name,
@@ -136,12 +138,12 @@ local function create_chest_gui_content(frame, player, chest)
         }
     end
 
-    for name, count in pairs(inv) do
+    for name, item_stack in pairs(inv) do
         if not storage[name] then
             grid.add {
                 type = 'sprite-button',
                 sprite = 'item/' .. name,
-                number = count,
+                number = item_stack.count,
                 tooltip = name,
                 --style = 'slot_button'
                 enabled = false

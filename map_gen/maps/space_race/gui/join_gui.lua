@@ -16,7 +16,7 @@ function Public.show_gui(event)
         Gui.destroy(gui)
     end
 
-    frame = player.gui.center.add {name = 'Space-Race-Lobby', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    frame = player.gui.center.add {name = 'Space-Race-Lobby', type = 'frame', direction = 'vertical' }
 
     frame.style.minimal_width = 300
 

@@ -64,7 +64,7 @@ return {
     {price = 350,  name = 'modular-armor'},
     {price = 875,  name = 'power-armor'},
     {price = 40,   name = 'solar-panel-equipment'},
-    {price = 875,  name = 'fusion-reactor-equipment'},
+    {price = 875,  name = 'fission-reactor-equipment'},
     {price = 100,  name = 'battery-equipment'},
     {price = 625,  name = 'battery-mk2-equipment'},
     {price = 250,  name = 'belt-immunity-equipment'},

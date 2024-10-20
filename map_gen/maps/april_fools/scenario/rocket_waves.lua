@@ -42,12 +42,7 @@ local function give_command(group, data)
     group.start_moving()
   else
     local command = { type = defines.command.attack_area, destination = data.position, radius = 32, distraction = defines.distraction.by_damage }
-
-    local members = group.members
-    for i = 1, #members do
-      local entitiy = members[i]
-      entitiy.set_command(command)
-    end
+    group.set_command(command)
   end
 end
 
@@ -75,11 +70,11 @@ do_wave = Token.register(function(data)
 
   local spawner = data.spawner
 
-  local aliens = AlienEvolutionProgress.get_aliens(spawner, game.forces.enemy.evolution_factor)
+  local surface = chunk.surface
+  local aliens = AlienEvolutionProgress.get_aliens(spawner, game.forces.enemy.get_evolution_factor(surface))
 
   local left_top = chunk.area.left_top
   local center = { left_top.x + 16, left_top.y + 16 }
-  local surface = chunk.surface
   local find_non_colliding_position = surface.find_non_colliding_position
   local create_entity = surface.create_entity
 
@@ -149,7 +144,7 @@ local function rocket_launched(event)
     return
   end
 
-  local inventory = entity.get_inventory(defines.inventory.rocket)
+  local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
   if not inventory or not inventory.valid then
     return
   end
@@ -160,7 +155,7 @@ local function rocket_launched(event)
   end
 
   -- Increase enemy_evolution
-  local current_evolution = game.forces.enemy.evolution_factor
+  local current_evolution = game.forces.enemy.get_evolution_factor()
 
   if (satellite_count % 5) == 0 and win_data.evolution_rocket_maxed == -1 then
     local message = 'Continued launching of satellites has angered the local biter population, evolution increasing...'
@@ -168,7 +163,8 @@ local function rocket_launched(event)
     Server.to_discord_bold(message)
 
     current_evolution = current_evolution + 0.05
-    game.forces.enemy.evolution_factor = current_evolution
+    game.forces.enemy.set_evolution_factor(current_evolution, 'mines')
+    game.forces.enemy.set_evolution_factor(current_evolution, 'islands')
   end
 
   if current_evolution < 1 then

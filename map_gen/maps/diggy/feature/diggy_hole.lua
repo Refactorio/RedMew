@@ -76,7 +76,7 @@ local function update_robot_mining_damage()
     robot_mining.damage = old_modifier + robot_mining.active_modifier
 end
 
----Triggers a diggy diggy hole for a given sand-rock-big, rock-big or rock-huge.
+---Triggers a diggy diggy hole for a given sand-rock-big, rock-big or huge-rock.
 ---@param entity LuaEntity
 local function diggy_hole(entity)
     local tiles = {}
@@ -113,7 +113,7 @@ local function diggy_hole(entity)
         tiles[i] = {name = 'dirt-' .. random(1, 7), position = void_position}
         local predicted = random()
         if predicted < 0.2 then
-            rocks[i] = {name = 'rock-huge', position = void_position}
+            rocks[i] = {name = 'huge-rock', position = void_position}
         elseif predicted < 0.6 then
             rocks[i] = {name = 'rock-big', position = void_position}
         else
@@ -181,7 +181,7 @@ end)
 function DiggyHole.register(cfg)
     ScoreTracker.register(mine_size_name, {'diggy.score_mine_size'}, '[img=tile.out-of-map]')
 
-    local global_to_show = global.config.score.global_to_show
+    local global_to_show = storage.config.score.global_to_show
     global_to_show[#global_to_show + 1] = mine_size_name
 
     config = cfg

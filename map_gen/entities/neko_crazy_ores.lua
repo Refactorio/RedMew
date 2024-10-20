@@ -7,11 +7,11 @@ local random_dense = {1.6, 0.8, 1, 0.6, 0.5} --ore density reference
 
 local function run_ores_module_setup()
     local seed = RS.get_surface().map_gen_settings.seed
-    if not global.ores_seed_A then
-        global.ores_seed_A = seed
+    if not storage.ores_seed_A then
+        storage.ores_seed_A = seed
     end
-    if not global.ores_seed_B then
-        global.ores_seed_B = seed * 2
+    if not storage.ores_seed_B then
+        storage.ores_seed_B = seed * 2
     end
 end
 
@@ -25,11 +25,11 @@ return function(x, y, world)
 
     local distance_bonus = 100 + 0.4 * d_sq ^ 2.4 -- d ^ 1.2
 
-    local wiggle = 100 + perlin.noise((x * 0.005), (y * 0.005), global.ores_seed_A + 41) * 60
-    local Ores_A = perlin.noise((x * 0.01), (y * 0.01), global.ores_seed_B + 57) * wiggle
+    local wiggle = 100 + perlin.noise((x * 0.005), (y * 0.005), storage.ores_seed_A + 41) * 60
+    local Ores_A = perlin.noise((x * 0.01), (y * 0.01), storage.ores_seed_B + 57) * wiggle
 
     if Ores_A > 35 then --we place ores
-        local Ores_B = perlin.noise((x * 0.02), (y * 0.02), global.ores_seed_B + 13) * wiggle
+        local Ores_B = perlin.noise((x * 0.02), (y * 0.02), storage.ores_seed_B + 13) * wiggle
         local a = 5
         --
         if Ores_A < 76 then

@@ -124,7 +124,7 @@ local k2_items = {
   { price = 3000, name = 'power-armor' },
 
   { price = 80,   name = 'solar-panel-equipment' },
-  { price = 1250, name = 'fusion-reactor-equipment' },
+  { price = 1250, name = 'fission-reactor-equipment' },
   { price = 200,  name = 'battery-equipment' },
   { price = 950,  name = 'battery-mk2-equipment' },
   { price = 250,  name = 'belt-immunity-equipment' },

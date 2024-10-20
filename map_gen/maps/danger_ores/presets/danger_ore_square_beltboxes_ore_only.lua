@@ -55,7 +55,7 @@ ScenarioInfo.add_extra_rule({
     'info.rules_text_danger_ore'
 })
 
-global.config.redmew_qol.loaders = false
+storage.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.3way_beltboxes_ores'

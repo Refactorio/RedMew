@@ -66,7 +66,7 @@ ScenarioInfo.set_new_info([[
 ]])
 
 --- Config
-local Config = global.config
+local Config = storage.config
 Config.redmew_surface.enabled = true
 Config.market.enabled = false
 Config.player_rewards.enabled = false
@@ -82,7 +82,7 @@ Config.player_create.starting_items = {
 
 if script.active_mods['Krastorio2'] then
   Config.paint.enabled = false
-  global.config.redmew_qol.loaders = false
+  storage.config.redmew_qol.loaders = false
   table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-generator', count = 1 })
   table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-lab-repaired', count = 1 })
   table.insert(Config.player_create.starting_items, { name = 'kr-crash-site-assembling-machine-1-repaired', count = 1 })
@@ -293,7 +293,7 @@ Event.add(defines.events.on_robot_mined_entity, on_entity_mined)
 Event.add(defines.events.on_player_mined_entity, on_entity_mined)
 
 local function on_built_entity(event)
-  local entity = event.created_entity
+  local entity = event.entity
   if not (entity and entity.valid) then
     return
   end
@@ -317,13 +317,13 @@ local function on_entity_damaged(event)
 end
 Event.add(defines.events.on_entity_damaged, on_entity_damaged)
 
-local function on_entity_destroyed(event)
+local function on_object_destroyed(event)
   local unit_number = event.unit_number
   --local registration_number = event.registration_number
 
   Enemy.stop_tracking({ unit_number = unit_number })
 end
-Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
+Event.add(defines.events.on_object_destroyed, on_object_destroyed)
 
 local function on_ai_command_completed(event)
   if not event.was_distracted then

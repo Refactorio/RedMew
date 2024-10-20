@@ -1,7 +1,7 @@
 local shape = require 'map_selection'
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
-local config = global.config.map_generation
+local config = storage.config.map_generation
 
 local line = '-----------------------------\n'
 local shape_type = type(shape)

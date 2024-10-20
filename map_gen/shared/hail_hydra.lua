@@ -14,10 +14,10 @@ local compound = defines.command.compound
 local logical_or = defines.compound_command.logical_or
 local attack = defines.command.attack
 local attack_area = defines.command.attack_area
-local hail_hydra_conf = global.config.hail_hydra
+local hail_hydra_conf = storage.config.hail_hydra
 
 local spawn_table = {}
-for k, v in pairs(global.config.hail_hydra.hydras) do
+for k, v in pairs(storage.config.hail_hydra.hydras) do
     spawn_table[k] = v
 end
 
@@ -87,7 +87,7 @@ local on_died =
             player_scale = (num_online_players - primitives.online_player_scale) * 0.01
         end
 
-        local evolution_scaled = formula(force.evolution_factor)
+        local evolution_scaled = formula(force.get_evolution_factor(entity.surface))
         local evolution_factor = evolution_scaled + evolution_scaled * player_scale
 
         local cause = event.cause
@@ -103,7 +103,7 @@ local on_died =
                 amount = backwards_compatibility(amount)
             end
             local trigger = amount.trigger
-            if trigger == nil or trigger < force.evolution_factor then
+            if trigger == nil or trigger < force.get_evolution_factor(entity.surface) then
                 if amount.locked then
                     evolution_factor = evolution_scaled
                 end
@@ -138,14 +138,18 @@ local on_died =
 
             CreateParticles.blood_explosion(create_particle, particle_count, position)
 
+            local group = surface.create_unit_group {position = position }
             for _ = amount, 1, -1 do
                 position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position
                 local spawned = create_entity({name = hydra_spawn, force = force, position = position})
-                if spawned and spawned.type == 'unit' then
-                    spawned.set_command(command)
+                if spawned and spawned.valid and spawned.type == 'unit' then
+                    group.add_member(spawned)
                 elseif spawned and cause and cause.valid and cause.force and cause.type ~= "car" then
                     spawned.shooting_target = cause
                 end
+            end
+            if group and group.valid and #group.members > 0 then
+                group.set_command(command)
             end
         end
     end
@@ -206,7 +210,7 @@ function Public.add_hydras(hydras)
     end
 end
 
-if global.config.hail_hydra.enabled then
+if storage.config.hail_hydra.enabled then
     register_event()
 end
 

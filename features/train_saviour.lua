@@ -7,8 +7,8 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 local train_perk_flag = DonatorPerks.train
 
-local saviour_token_name = 'player-port' -- item name for what saves players
-local saviour_entity_token_name = 'player-port' -- entity name for the saviour_token_name, or nil if the item cannot be placed.
+local saviour_token_name = 'simple-entity-with-owner' -- item name for what saves players
+local saviour_entity_token_name = 'simple-entity-with-owner' -- entity name for the saviour_token_name, or nil if the item cannot be placed.
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
 
 table.insert(market_items, 3, {
@@ -30,12 +30,12 @@ local train_types = {['locomotive'] = true, ['cargo-wagon'] = true, ['fluid-wago
 local function save_player(player)
     player.character.health = 1
 
-    local pos = player.surface.find_non_colliding_position('character', player.position, 100, 2)
+    local pos = player.physical_surface.find_non_colliding_position('character', player.physical_position, 100, 2)
     if not pos then
         return
     end
 
-    player.teleport(pos, player.surface)
+    player.teleport(pos, player.physical_surface)
 end
 
 local function on_pre_death(event)
@@ -90,7 +90,7 @@ local delay_clear_cursor = Token.register(function(param)
 end)
 
 local function built_entity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if not entity or not entity.valid then
         return
     end
@@ -108,12 +108,11 @@ local function built_entity(event)
 
     local index = event.player_index
     local player = game.get_player(index)
-    local stack = event.stack
-
-    entity.destroy()
-
-    if player and player.valid and not ghost and stack.valid then
-        player.insert(stack)
+    if player and player.valid and not ghost then
+        for _, stack in pairs(event.consumed_items.get_contents()) do
+            player.insert(stack)
+        end
+        entity.destroy()
     end
 
     Task.set_timeout_in_ticks(1, delay_clear_cursor, {player = player})

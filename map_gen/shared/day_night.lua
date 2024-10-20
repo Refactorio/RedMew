@@ -5,7 +5,7 @@ local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 
 -- Localized global table
-local config = global.config.day_night
+local config = storage.config.day_night
 
 -- Localized functions
 local round = math.round

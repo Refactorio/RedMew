@@ -86,7 +86,7 @@ local function output(result, prepend, size, player)
 
     str = table.concat(str)
 
-    game.write_file('bp.lua', str, false, player.index)
+    helpers.write_file('bp.lua', str, false, player.index)
     player.print('bp.lua written')
 end
 

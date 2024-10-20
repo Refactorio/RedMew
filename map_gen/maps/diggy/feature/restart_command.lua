@@ -30,14 +30,14 @@ return function(config)
         local adjusted_difficulty = restart_difficulty - 1 --because the labels in game are different from the technologies[].level. This adjusts the printed messages so it's correct for player.
         if player.admin then
             if game.forces.player.technologies["mining-productivity-4"].level < restart_difficulty  then
-                player.print("Victory condition overriden. Did not reach Mining Productivity "..adjusted_difficulty,Color.fail)
+                player.print("Victory condition overriden. Did not reach Mining Productivity "..adjusted_difficulty, {color = Color.fail})
             else
-                player.print("Victory condition reached: Mining Productivity: "..adjusted_difficulty,Color.success)
+                player.print("Victory condition reached: Mining Productivity: "..adjusted_difficulty, {color = Color.success})
             end
             return true
         end
         if game.forces.player.technologies["mining-productivity-4"].level < restart_difficulty  then
-            player.print({'command_description.diggy_restart_condition_not_met', adjusted_difficulty},Color.fail)
+            player.print({'command_description.diggy_restart_condition_not_met', adjusted_difficulty}, {color = Color.fail})
             return false
         end
         return true

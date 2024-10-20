@@ -2,12 +2,12 @@ local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local RS = require 'map_gen.shared.redmew_surface'
 
-global.original_last_users_by_ent_pos = {}
+storage.original_last_users_by_ent_pos = {}
 
 Event.on_init(
     function()
-        global.ag_surface = game.create_surface('antigrief', {autoplace_controls = {coal = {frequency = 'normal', richness = 'normal', size = 'none'}, ['copper-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, ['crude-oil'] = {frequency = 'normal', richness = 'normal', size = 'none'}, desert = {frequency = 'normal', richness = 'normal', size = 'none'}, dirt = {frequency = 'normal', richness = 'normal', size = 'none'}, ['enemy-base'] = {frequency = 'normal', richness = 'normal', size = 'none'}, grass = {frequency = 'normal', richness = 'normal', size = 'none'}, ['iron-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, sand = {frequency = 'normal', richness = 'normal', size = 'none'}, stone = {frequency = 'normal', richness = 'normal', size = 'none'}, trees = {frequency = 'normal', richness = 'normal', size = 'none'}, ['uranium-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}}, cliff_settings = {cliff_elevation_0 = 1024, cliff_elevation_interval = 10, name = 'cliff'}, height = 2000000, peaceful_mode = false, seed = 3461559752, starting_area = 'very-low', starting_points = {{x = 0, y = 0}}, terrain_segmentation = 'normal', water = 'normal', width = 2000000})
-        global.ag_surface.always_day = true
+        storage.ag_surface = game.create_surface('antigrief', {autoplace_controls = {coal = {frequency = 'normal', richness = 'normal', size = 'none'}, ['copper-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, ['crude-oil'] = {frequency = 'normal', richness = 'normal', size = 'none'}, desert = {frequency = 'normal', richness = 'normal', size = 'none'}, dirt = {frequency = 'normal', richness = 'normal', size = 'none'}, ['enemy-base'] = {frequency = 'normal', richness = 'normal', size = 'none'}, grass = {frequency = 'normal', richness = 'normal', size = 'none'}, ['iron-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, sand = {frequency = 'normal', richness = 'normal', size = 'none'}, stone = {frequency = 'normal', richness = 'normal', size = 'none'}, trees = {frequency = 'normal', richness = 'normal', size = 'none'}, ['uranium-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}}, cliff_settings = {cliff_elevation_0 = 1024, cliff_elevation_interval = 10, name = 'cliff'}, height = 2000000, peaceful_mode = false, seed = 3461559752, starting_area = 'very-low', starting_points = {{x = 0, y = 0}}, terrain_segmentation = 'normal', water = 'normal', width = 2000000})
+        storage.ag_surface.always_day = true
     end
 )
 
@@ -63,10 +63,10 @@ local function on_entity_changed(event)
         return
     end --Freebees for admins
     if entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
-        place_entity_on_surface(entity, global.ag_surface, true, event.player_index)
+        place_entity_on_surface(entity, storage.ag_surface, true, event.player_index)
     end
     if entity.last_user then
-        global.original_last_users_by_ent_pos[get_position_str(entity.position)] = entity.last_user.index
+        storage.original_last_users_by_ent_pos[get_position_str(entity.position)] = entity.last_user.index
     end
 end
 
@@ -98,7 +98,7 @@ Event.add(
             return
         end
 
-        local ag_entities = global.ag_surface.find_entities_filtered {position = entity.position}
+        local ag_entities = storage.ag_surface.find_entities_filtered {position = entity.position}
         --If a player has rotated twice we want to preserve the original state.
         if #ag_entities == 0 or not ag_entities[1].last_user or ag_entities[1].last_user ~= entity.last_user then
             --Mock entity us used because the api doesnt support pre_player_rotated entity.
@@ -124,12 +124,12 @@ Event.add(
     function(event)
         --is a player on the same force as the destroyed object
         if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'character' then
-            local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
+            local new_entity = place_entity_on_surface(event.entity, storage.ag_surface, true, event.cause.player)
             if new_entity and event.entity.type == 'container' then
                 local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
                 if items then
-                    for item, n in pairs(items) do
-                        new_entity.insert {name = item, count = n}
+                    for _, item_stack in pairs(items) do
+                        new_entity.insert(item_stack)
                     end
                 end
             end
@@ -143,7 +143,7 @@ Event.add(
     defines.events.on_marked_for_deconstruction,
     function(event)
         if event.entity.last_user then
-            global.original_last_users_by_ent_pos[get_position_str(event.entity.position)] = event.entity.last_user.index
+            storage.original_last_users_by_ent_pos[get_position_str(event.entity.position)] = event.entity.last_user.index
         end
     end
 )
@@ -160,7 +160,7 @@ Module.undo =
 
     --Remove all items from all surfaces that player placed an entity on
     for _, surface in pairs(game.surfaces) do
-        if surface ~= global.ag_surface then
+        if surface ~= storage.ag_surface then
             for _, e in ipairs(surface.find_entities_filtered {force = player.force.name}) do
                 if e.last_user == player then
                     e.destroy()
@@ -169,26 +169,26 @@ Module.undo =
         end
     end
 
-    for _, e in ipairs(global.ag_surface.find_entities_filtered {}) do
+    for _, e in ipairs(storage.ag_surface.find_entities_filtered {}) do
         if e.last_user == player then
             --Place removed entity IF no collision is detected
-            local last_user = global.original_last_users_by_ent_pos[get_position_str(e.position)]
+            local last_user = storage.original_last_users_by_ent_pos[get_position_str(e.position)]
             local new_entity = place_entity_on_surface(e, RS.get_surface(), false, last_user)
             --Transfer items
             if new_entity then
                 local event_player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
-                local event = {created_entity = new_entity, player_index = event_player.index, stack = {}}
+                local event = {entity = new_entity, player_index = event_player.index, consumed_items = {}}
                 script.raise_event(defines.events.on_built_entity, event)
 
                 if e.type == 'container' then
                     local items = e.get_inventory(defines.inventory.chest).get_contents()
                     if items then
-                        for item, n in pairs(items) do
-                            new_entity.insert {name = item, count = n}
+                        for _, item_stack in pairs(items) do
+                            new_entity.insert(item_stack)
                         end
                     end
                 end
-                e.destroy() --destory entity only if a new entity was created
+                e.destroy() --destroy entity only if a new entity was created
             end
         end
     end
@@ -196,16 +196,16 @@ end
 
 Module.antigrief_surface_tp = function()
     if game.player then
-        if game.player.surface == global.ag_surface then
+        if game.player.surface == storage.ag_surface then
             game.player.teleport(game.player.position, RS.get_surface())
         else
-            game.player.teleport(game.player.position, global.ag_surface)
+            game.player.teleport(game.player.position, storage.ag_surface)
         end
     end
 end
 
 Module.count_removed_entities = function(player)
-    return #Utils.find_entities_by_last_user(player, global.ag_surface)
+    return #Utils.find_entities_by_last_user(player, storage.ag_surface)
 end
 
 return Module

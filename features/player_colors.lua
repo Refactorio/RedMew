@@ -81,7 +81,7 @@ local function on_command(event)
         return
     end
 
-    player.print({'player_colors.gui_setting_reference_message'}, Color.success)
+    player.print({'player_colors.gui_setting_reference_message'}, {color = Color.success})
     Settings.set(player_index, player_color_name, player.color)
 
     local error = Settings.validate(player_chat_color_name, player.chat_color)

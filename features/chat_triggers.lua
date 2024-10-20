@@ -89,20 +89,20 @@ local function mentions(event)
                 end
                 if admin_call and p.admin then
                     local message = {'chat_triggers.mention_success', prefix, game.get_player(event.player_index).name, word}
-                    p.print(message, Color.yellow)
+                    p.print(message, {color = Color.yellow})
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                 end
                 if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
                     if p.name == player.name then
                         if _DEBUG then
-                            player.print({'chat_triggers.mention_fail_mention_self', prefix}, Color.red)
+                            player.print({'chat_triggers.mention_fail_mention_self', prefix}, {color = Color.red})
                         end
                         success = true
                         break
                     end
 
-                    p.print({'chat_triggers.mention_success_target', prefix, player.name}, Color.yellow)
+                    p.print({'chat_triggers.mention_success_target', prefix, player.name}, {color = Color.yellow})
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     if p.character and p.character.valid then   -- If player is dead and they don't have a character then they won't get the hovering notification.
                         local message = {'chat_triggers.mention_success_target_floating', player.name}
@@ -110,7 +110,7 @@ local function mentions(event)
                     end
                     success = true
                     if _DEBUG then
-                        player.print(prefix .. 'Successful mentioned ' .. p.name, Color.red)
+                        player.print(prefix .. 'Successful mentioned ' .. p.name, {color = Color.red})
                     end
                     break
                 end
@@ -130,21 +130,21 @@ local function mentions(event)
     if missing_player_string ~= nil then
         missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string) - 2))
         if not_found > 1 then
-            player.print({'chat_triggers.mention_not_found_plural', prefix, missing_player_string}, Color.yellow)
+            player.print({'chat_triggers.mention_not_found_plural', prefix, missing_player_string}, {color = Color.yellow})
         else
-            player.print({'chat_triggers.mention_not_found_singular', prefix, missing_player_string}, Color.yellow)
+            player.print({'chat_triggers.mention_not_found_singular', prefix, missing_player_string}, {color = Color.yellow})
         end
     end
 end
 
-if global.config.hodor.enabled then
+if storage.config.hodor.enabled then
     Event.add(defines.events.on_console_chat, hodor)
 end
 
-if global.config.auto_respond.enabled then
+if storage.config.auto_respond.enabled then
     Event.add(defines.events.on_console_chat, auto_respond)
 end
 
-if global.config.mentions.enabled then
+if storage.config.mentions.enabled then
     Event.add(defines.events.on_console_chat, mentions)
 end

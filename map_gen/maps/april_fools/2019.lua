@@ -8,7 +8,7 @@ ScenarioInfo.set_map_description('You are Pinguins in Antarctica!')
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
 --- Config
-local config = global.config
+local config = storage.config
 config.currency = nil
 config.market.enabled = false
 config.player_rewards.enabled = false
@@ -185,7 +185,7 @@ Command.add(
         mod.level_reset()
       end
     end
-    game.print('Scenario reset!', Color.success)
+    game.print('Scenario reset!', {color = Color.success})
   end
 )
 
@@ -208,9 +208,9 @@ Command.add(
         msg = msg .. ' - ' .. mod.name
       end
       if player and player.valid then
-        player.print(msg, Color.info)
+        player.print(msg, {color = Color.info})
       else
-        game.print(msg, Color.info)
+        game.print(msg, {color = Color.info})
       end
     end
   end
@@ -231,7 +231,7 @@ Command.add(
         mod.level_set(mod.max_get())
       end
     end
-    game.print('Scenario maxed out!', Color.warning)
+    game.print('Scenario maxed out!', {color = Color.warning})
   end
 )
 

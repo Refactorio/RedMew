@@ -24,7 +24,7 @@ Global.register_init(
         local fluid_ores = tbl.require_fluid_ores
         local pumpjack_map = tbl.pumpjack_resources_map
 
-        for name, entity in pairs(game.entity_prototypes) do
+        for name, entity in pairs(prototypes.entity) do
             if entity.type == 'mining-drill' and entity.resource_categories['basic-solid'] then
                 local radius = entity.mining_drill_radius
 

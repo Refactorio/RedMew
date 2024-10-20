@@ -12,7 +12,7 @@ local concat = table.concat
 local remove = table.remove
 local set_data = Server.set_data
 local random = math.random
-local config = global.config.donator
+local config = storage.config.donator
 
 local donator_data_set = 'donators'
 local donators = {} -- global register
@@ -38,7 +38,7 @@ Global.register(
         donator_perks_perm = tbl.donator_perks_perm
         donator_perks_temp = tbl.donator_perks_temp
         donator_tiers = tbl.donator_tiers
-        config = global.config.donator
+        config = storage.config.donator
     end
 )
 
@@ -71,7 +71,7 @@ local print_after_timeout =
             return
         end
 
-        game.print(data.message, player.chat_color)
+        game.print(data.message, {color = player.chat_color})
     end
 )
 
@@ -238,12 +238,12 @@ local function player_died(event)
     end
 
     -- Generic: this person has died message
-    game.print({'donator.death_message', player.name}, player.chat_color)
+    game.print({'donator.death_message', player.name}, {color = player.chat_color})
 
     -- Player's selected message
     local message = messages[random(count)]
     message = concat({'*** ', message, ' ***'})
-    game.print(message, player.chat_color)
+    game.print(message, {color = player.chat_color})
 end
 
 local reset_run_speed =

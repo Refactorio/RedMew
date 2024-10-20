@@ -52,7 +52,7 @@ ScenarioInfo.set_new_info([[
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
-global.config.redmew_qol.loaders = false
+storage.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.bob_ores'
@@ -150,7 +150,7 @@ end)
         return
     end
 
-    for _, effect in pairs(research.effects) do
+    for _, effect in pairs(research.prototype.effects) do
         if effect.type ~= 'unlock-recipe' then
             goto continue
         end

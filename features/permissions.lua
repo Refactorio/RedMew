@@ -11,7 +11,7 @@ Global.register(data, function(tbl)
   data = tbl
 end)
 
-local config = global.config.permissions
+local config = storage.config.permissions
 local Public = {}
 
 -- defines.input_action listed at https://lua-api.factorio.com/latest/defines.html#defines.input_action

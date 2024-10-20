@@ -189,7 +189,7 @@ local transform_callback =
             return
         end
 
-        local returned_entries = global.transform_function(entries)
+        local returned_entries = storage.transform_function(entries)
 
         write_dataset(primitives.new_dataset, returned_entries)
 
@@ -206,7 +206,7 @@ local function transform_data(args)
         return
     end
 
-    local transform_function = global.transform_function
+    local transform_function = storage.transform_function
     if not transform_function then
         game.print('No transform function set')
         clear_primitives()
@@ -214,7 +214,7 @@ local function transform_data(args)
     end
 
     if type(transform_function) ~= 'function' then
-        game.print('global.transform_function does not contain a function')
+        game.print('storage.transform_function does not contain a function')
         clear_primitives()
         return
     end
@@ -243,7 +243,7 @@ local transform_test_callback =
             return
         end
 
-        local transform_function = global.transform_function
+        local transform_function = storage.transform_function
         if not transform_function then
             game.print('No transform function set.')
             clear_primitives()
@@ -251,20 +251,20 @@ local transform_test_callback =
         end
 
         if type(transform_function) ~= 'function' then
-            game.print('global.transform_function does not contain a function.')
+            game.print('storage.transform_function does not contain a function.')
             clear_primitives()
             return
         end
 
-        local returned_entries = global.transform_function(entries)
+        local returned_entries = storage.transform_function(entries)
 
         clear_primitives()
 
-        global.transform_results = returned_entries
+        storage.transform_results = returned_entries
         local result_str = table.inspect(returned_entries)
         game.print(result_str)
         log(result_str)
-        game.print('Test complete. The results can be better seen in the log or in global.transform_results')
+        game.print('Test complete. The results can be better seen in the log or in storage.transform_results')
     end
 )
 

@@ -39,9 +39,9 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
         if (popup) then
             Gui.destroy(popup)
         end
-        frame = player.gui.center.add {name = 'Popup.' .. popup_name, type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+        frame = player.gui.center.add {name = 'Popup.' .. popup_name, type = 'frame', direction = 'vertical' }
     else
-        frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+        frame = player.gui.center.add {type = 'frame', direction = 'vertical' }
     end
 
     frame.style.minimal_width = 300
