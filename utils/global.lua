@@ -1,7 +1,6 @@
 local Event = require 'utils.event_core'
 local Token = require 'utils.token'
 
---local matching_path = '^.+/currently%-playing/(.+)$'
 local matching_path = '^.+__level__/(.+)$'
 
 local Global = {}
@@ -50,10 +49,8 @@ if _DEBUG then
     Global.names = names
 
     function Global.register(tbl, callback)
-        log(debug.getinfo(2, 'S').source)
         local filepath = debug.getinfo(2, 'S').source:match(matching_path):sub(1, -5)
         local token = Token.register_global(tbl)
-        log(filepath)
 
         names[token] = concat {token, ' - ', filepath}
 

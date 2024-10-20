@@ -898,7 +898,7 @@ local function init(config)
                 price = 100,
                 name = 'simple-entity-with-owner',
                 name_label = 'Train Immunity (1x use)',
-                description = 'Each player port in your inventory will save you from being killed by a train once.'
+                description = 'Each train immunity item in your inventory will save you from being killed by a train once.'
             }
         }
     }

@@ -424,7 +424,6 @@ if _DEBUG then
     local names = {}
     Gui.names = names
 
-    --local matching_path = '^.+/currently%-playing/(.+)$'
     local matching_path = '^.+__level__/(.+)$'
 
     function Gui.uid_name()

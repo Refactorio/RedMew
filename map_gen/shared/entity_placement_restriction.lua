@@ -214,7 +214,7 @@ local on_built_token =
 
         local index = event.player_index
 
-        local stack = event.consumed_items.get_contents()[1]
+        local stack = event.consumed_items.get_contents()[1] -- TODO: proper handle of consumed_items as LuaInventory
         raise_event(
             Public.events.on_pre_restricted_entity_destroyed,
             {
@@ -225,7 +225,7 @@ local on_built_token =
             }
         )
 
-        local player = game.get_player(index)
+        local player = game.get_player(index or 'none')
 
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
