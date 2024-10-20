@@ -225,7 +225,7 @@ local on_built_token =
             }
         )
 
-        local player = game.get_player(index or 'none')
+        local player = game.get_player(index)
 
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
