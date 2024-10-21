@@ -64,7 +64,7 @@ local function on_console_chat(event)
     target = player.character,
     target_offset = {0, -4},
     color = color,
-    font = 'compilatron-message-font',
+    font = 'compi',
     scale = 1.75,
     time_to_live = get_message_lifetime(safe_message),
     forces = { player.force },
