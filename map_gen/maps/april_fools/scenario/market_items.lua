@@ -32,7 +32,6 @@ return {
   {price =     8, name = 'grenade'},
   {price =    10, name = 'artillery-shell'},
   {price =    10, name = 'light-armor'},
-  {price =    25, name = 'artillery-targeting-remote'},
   {price =    25, name = 'cliff-explosives'},
   {price =    25, name = 'flamethrower-ammo'},
   {price =    30, name = 'submachine-gun'},

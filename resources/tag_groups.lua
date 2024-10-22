@@ -28,7 +28,7 @@ return {
         leave_message = '{player} has left the {tag} squad'
     },
     ['Wizard'] = {
-        path = 'item/green-wire',
+        path = 'item/selector-combinator',
         join_message = '{tag} has combinated with {player}',
         leave_message = '{player} has left the {tag} squad'
     },

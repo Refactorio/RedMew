@@ -117,7 +117,6 @@ local k2_items = {
   { price = 45,   name = 'poison-capsule' },
   { price = 45,   name = 'slowdown-capsule' },
 
-  { price = 100,  name = 'artillery-targeting-remote' },
   { price = 2000, name = 'artillery-turret' },
 
   { price = 900,  name = 'modular-armor' },

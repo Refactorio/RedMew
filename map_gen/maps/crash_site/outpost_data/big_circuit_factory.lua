@@ -9,7 +9,6 @@ local loot = {
     {stack = {name = 'electronic-circuit', count = 800, distance_factor = 1}, weight = 5},
     {stack = {name = 'advanced-circuit', count = 400, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'processing-unit', count = 200, distance_factor = 1 / 4}, weight = 5},
-    {stack = {name = 'rocket-control-unit', count = 30, distance_factor = 1 / 20}, weight = 2}
 }
 
 local factory = {
@@ -39,8 +38,8 @@ local factory_c = {
 local factory_d = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'rocket-control-unit',
-        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'rocket-control-unit'}
+        recipe = 'processing-unit',
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'processing-unit'}
     }
 }
 
@@ -75,12 +74,6 @@ local market = {
             distance_factor = 8 / 512,
             min_price = 0.8
         },
-        {
-            name = 'rocket-control-unit',
-            price = 35,
-            distance_factor = 17.5 / 512,
-            min_price = 3.5
-        }
     }
 }
 

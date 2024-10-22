@@ -46,8 +46,6 @@ if _DEBUG then
     {name = 'construction-robot', count = 50},
     {name = 'rocket-launcher', count = 1},
     {name = 'explosive-rocket', count = 200},
-    {name = 'green-wire', count = 200},
-    {name = 'red-wire', count = 200},
     {name = 'dungeon-support', count = 50},
   }
 else

@@ -120,7 +120,6 @@ if config.market.enabled then
         'tank-machine-gun',
         'artillery-wagon-cannon',
         'artillery-turret',
-        'artillery-targeting-remote',
         'defender-capsule',
         'destroyer-capsule',
         'programmable-speaker',

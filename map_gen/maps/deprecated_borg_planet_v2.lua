@@ -24,7 +24,6 @@ local random = math.random
 local wreck_item_pool = {
     {name = 'iron-gear-wheel', count = 32},
     {name = 'iron-plate', count = 64},
-    {name = 'rocket-control-unit', count = 1},
     {name = 'rocket-fuel', count = 7},
     {name = 'coal', count = 8},
     {name = 'rocket-launcher', count = 1},
