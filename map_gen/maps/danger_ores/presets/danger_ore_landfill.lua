@@ -117,6 +117,7 @@ restart_command({scenario_name = 'danger-ore-landfill'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
+require 'features.landfill_remover'
 
 local config = {
     spawn_shape = b.circle(64),

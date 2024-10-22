@@ -176,7 +176,7 @@ local allowed_recipes = require 'map_gen.maps.danger_ores.config.krastorio2_allo
 whitelist_stacked_recipes(allowed_recipes)
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
-
+require 'features.landfill_remover'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {

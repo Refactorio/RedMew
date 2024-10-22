@@ -1,3 +1,4 @@
+-- Module deprecated in 2.0, became a built-in feature
 -- This feature allows players to remove landfill.
 -- To use, create a deconstruction planner with the landfill tile filter and select tiles only mode.
 -- Use the decon planner within range of the landfill to remove it

@@ -129,6 +129,7 @@ local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_spiral'
+require 'features.landfill_remover'
 
 local config = {
     spawn_shape = b.circle(64),

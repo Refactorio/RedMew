@@ -1,3 +1,4 @@
+-- Module deprecated in 2.0, became a built-in feature
 -- Functions to allow players to select a group of spidertrons with a deconstruction planner and then assign them to follow another spidertron
 local Event = require 'utils.event'
 local Global = require 'utils.global'
@@ -29,7 +30,7 @@ local function is_targetting_deconstruction_planner(cursor_stack)
         return false
     end
 
-      -- check if the player has given the decon planner an icon. This is how  we will determine  their intention
+    -- check if the player has given the deconstruction planner an icon. This is how  we will determine  their intention
     if not cursor_stack.preview_icons or not cursor_stack.preview_icons[1] or not cursor_stack.preview_icons[1].signal.name then
         return false
     end

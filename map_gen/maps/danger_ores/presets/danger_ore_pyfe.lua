@@ -146,6 +146,7 @@ tech_scaling({ effects = {
 -- concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
+require 'features.landfill_remover'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {

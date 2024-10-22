@@ -58,9 +58,9 @@ storage.config = {
         enabled = false,
         cost = 100
     },
-    -- Allows removing landfill using the deconstruction planner.
+    -- Allows removing landfill using the deconstruction planner. Built-in for 2.0
     landfill_remover = {
-        enabled = true,
+        enabled = false,
         -- The tile that is used to replace landfill when it is removed.
         revert_tile = 'water-mud'
     },
@@ -436,8 +436,9 @@ storage.config = {
         print_to_discord = true, -- print a message to the discord channel when the player force finishes a new research.
         ignore_script = false -- ignore researches unlocked by commands or by code.
     },
+    -- Control groups of spiders with a decon planner. Built-in for 2.0
     spidertron_group_control = {
-        enabled = true
+        enabled = false
     },
     donator = {
         donator_perks = {
