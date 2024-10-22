@@ -58,7 +58,7 @@ local function validate_entry(item, proto_table, player)
         return item
     end
 
-    player.print({'player_quick_bars.incompatible_item', item}, Color.warning)
+    player.print({'player_quick_bars.incompatible_item', item}, {color = Color.warning})
 end
 
 --- Sets the quick bars of a player.
@@ -76,7 +76,7 @@ local set_bars_callback =
             return
         end
 
-        local item_prototypes = game.item_prototypes
+        local item_prototypes = prototypes.item
         local item
         for i = 1, quickbar_slots do
             item = validate_entry(bars[i], item_prototypes, player)

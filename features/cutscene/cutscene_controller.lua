@@ -127,7 +127,7 @@ function Public.play_sound(tick, player, path, times, delay, initial_delay)
     if (not valid(player)) then
         return
     end
-    if not game.is_valid_sound_path(path) then
+    if not helpers.is_valid_sound_path(path) then
         debug_print('Provided SoundPath is invalid. Try opening /radio and browse for a valid path')
         return
     end
@@ -156,9 +156,9 @@ local remove_renderings =
     Token.register(
     function(renderings)
         for _, v in pairs(renderings) do
-            if rendering.is_valid(v) then
-                rendering.destroy(v)
-                debug_print('Deleted rendering with id: ' .. v)
+            if v.valid then
+                debug_print('Deleted rendering with id: ' .. v.id)
+                v.destroy()
             end
         end
     end
@@ -225,7 +225,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         character = player.character,
         terminate_func = cutscene_function.terminate_func,
         rendering = {},
-        current_index = -1,
+        current_index = 0,
         start_tick = 0
     }
     local running_cutscene = running_cutscenes[player_index]
@@ -284,7 +284,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         running_cutscene.auto_play_cutscene_checkbox = auto_play_cutscene_checkbox
     end
 
-    handler({player_index = player_index, waypoint_index = -1, tick = game.tick})
+    handler({player_index = player_index, waypoint_index = 0, tick = game.tick})
 end
 
 local function restart_cutscene(player_index, waypoints, start_index)
@@ -343,7 +343,7 @@ local function restart_cutscene(player_index, waypoints, start_index)
     if start_index then
         player.jump_to_cutscene_waypoint(start_index + 1)
     else
-        start_index = -1
+        start_index = 0
     end
 
     handler({player_index = player_index, waypoint_index = start_index, tick = game.tick})
@@ -410,7 +410,7 @@ local reconnect_character =
     end
 )
 
-function Public.terminate_cutscene(player_index, ticks,skip_btn_flag)
+function Public.terminate_cutscene(player_index, ticks, skip_btn_flag)
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
         return
@@ -433,18 +433,18 @@ function Public.terminate_cutscene(player_index, ticks,skip_btn_flag)
     )
 end
 
-function Public.register_rendering_id(player_index, tick, render_id)
-    if type(render_id) ~= 'table' then
-        render_id = {render_id}
+function Public.register_rendering(player_index, tick, render)
+    if type(render) ~= 'table' then
+        render = {render}
     end
     local running_cutscene = running_cutscenes[player_index]
-    for _, id in pairs(render_id) do
-        if rendering.is_valid(id) then
+    for _, obj in pairs(render) do
+        if obj.valid then
             if not waypoint_still_active(tick, player_index) then
-                debug_print('The rendering with id ' .. id .. ' was not added. Destroying it instead')
-                rendering.destroy(id)
+                debug_print('The rendering with id ' .. obj.id .. ' was not added. Destroying it instead')
+                obj.destroy()
             else
-                table.insert(running_cutscene.rendering, id)
+                table.insert(running_cutscene.rendering, obj)
             end
         end
     end
@@ -467,15 +467,15 @@ handler = function(event)
     if not running_cutscene then
         return
     end
-    running_cutscene.current_index = waypoint_index + 1
+    running_cutscene.current_index = waypoint_index
     running_cutscene.start_tick = tick
 
     local update = running_cutscene.update
     if update then
-        restart_cutscene(player_index, update, waypoint_index)
+        restart_cutscene(player_index, update, waypoint_index - 1)
         return
     end
-    local ticks = running_cutscene.waypoints[waypoint_index + 2]
+    local ticks = running_cutscene.waypoints[waypoint_index + 1]
     if ticks then
         ticks = ticks.transition_time
     else
@@ -486,7 +486,7 @@ handler = function(event)
     if not func then
         return
     end
-    local current_waypoint = running_cutscene.waypoints[waypoint_index + 2]
+    local current_waypoint = running_cutscene.waypoints[waypoint_index + 1]
     if not current_waypoint or current_waypoint.terminate then
         Public.terminate_cutscene(player_index, ticks)
         return
@@ -500,19 +500,19 @@ handler = function(event)
         tick = tick
     }
 
-    debug_print('Waypoint_index ' .. waypoint_index + 1 .. ' (waypoint #' .. waypoint_index + 2 .. ') callback in ' .. ticks .. ' ticks')
+    debug_print('Waypoint_index ' .. waypoint_index .. ' (waypoint #' .. waypoint_index + 1 .. ') callback in ' .. ticks .. ' ticks')
 
-    set_timeout_in_ticks(ticks, callback_function, {func = running_cutscene.func, player_index = player_index, waypoint_index = waypoint_index, params = params})
+    set_timeout_in_ticks(ticks, callback_function, {func = running_cutscene.func, player_index = player_index, waypoint_index = waypoint_index - 1, params = params})
 end
 
 function Public.goTo(player_index, waypoint_index)
     local running_cutscene = running_cutscenes[player_index]
-    if waypoint_index < 0 or waypoint_index > #running_cutscene.waypoints - 2 then
+    if waypoint_index < 1 or waypoint_index > #running_cutscene.waypoints - 1 then
         return false
     end
     Token.get(remove_renderings)(running_cutscene.rendering)
     game.get_player(player_index).jump_to_cutscene_waypoint(waypoint_index)
-    handler({player_index = player_index, waypoint_index = waypoint_index - 1, tick = game.tick})
+    handler({player_index = player_index, waypoint_index = waypoint_index, tick = game.tick})
     running_cutscene.current_index = waypoint_index
     return true
 end

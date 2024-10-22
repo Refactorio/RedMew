@@ -1,5 +1,6 @@
 -- A feature to add cute flying text of a fish when a player uses a fish to heal themselves. Useful for teamwork.
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local function capsule_used(event)
     if event.item.name ~= "raw-fish" then
@@ -16,10 +17,10 @@ local function capsule_used(event)
         return
     end
 
-    player.surface.create_entity {
-        name = 'tutorial-flying-text',
+    Game.create_local_flying_text {
+        surface = player.physical_surface,
         text = '[img=item.raw-fish]',
-        position = {player.position.x,player.position.y-3} -- creates the fish just above players head
+        position = {player.physical_position.x,player.physical_position.y-3} -- creates the fish just above players head
     }
 
 end

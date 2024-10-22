@@ -1,4 +1,4 @@
-local Config = global.config
+local Config = storage.config
 local Public = require 'map_gen.maps.frontier.shared.core'
 
 local Lobby = {}
@@ -30,7 +30,7 @@ end
 
 function Lobby.teleport_from(player, destination)
   for _, stack in pairs(Config.player_create.starting_items) do
-    if game.item_prototypes[stack.name] then
+    if prototypes.item[stack.name] then
       player.insert(stack)
     end
   end

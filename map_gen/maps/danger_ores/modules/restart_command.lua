@@ -131,7 +131,7 @@ return function(config)
             end
         end
 
-        local resource_prototypes = game.get_filtered_entity_prototypes({{filter = "type", type = "resource"}})
+        local resource_prototypes = prototypes.get_entity_filtered({{filter = "type", type = "resource"}})
         local ore_products = {}
         for _, ore_prototype in pairs(resource_prototypes) do
             local mineable_properties = ore_prototype.mineable_properties
@@ -145,7 +145,7 @@ return function(config)
         local total_ore = 0
         local ore_totals_message = '('
         for ore_name in pairs(ore_products) do
-            local count = game.forces["player"].item_production_statistics.get_input_count(ore_name)
+            local count = game.forces["player"].get_item_production_statistics.get_input_count(ore_name)
             total_ore = total_ore + count
             ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
         end

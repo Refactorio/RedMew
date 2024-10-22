@@ -18,7 +18,7 @@ You may not build the factory on ore patches. Exceptions:
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt] [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]  [item=splitter] [item=fast-splitter] [item=express-splitter]
  [item=pipe] [item=pipe-to-ground] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation]
  [item=electric-mining-drill] [item=burner-mining-drill] [item=pumpjack] [item=mo-mine] [item=diamond-mine] [item=regolite-mine] [item=borax-mine] [item=niobium-mine] [item=car] [item=tank] [item=spidertron]
- [item=burner-inserter] [item=inserter] [item=long-handed-inserter] [item=fast-inserter] [item=filter-inserter] [item=stack-inserter] [item=stack-filter-inserter]
+ [item=burner-inserter] [item=inserter] [item=long-handed-inserter] [item=fast-inserter] [item=stack-inserter]
  [item=rail] [item=rail-chain-signal] [item=train-stop] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
  [item=mk02-locomotive] [item=mk02-wagon] [item=mk02-fluid-wagon] [item=niobium-pipe] [item=niobium-pipe-to-ground] [item=pipe] [item=pipe-to-ground]
 
@@ -34,7 +34,7 @@ ScenarioInfo.set_new_info([[
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
-global.config.redmew_qol.loaders = false
+storage.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.pyfe_ores'
@@ -146,6 +146,7 @@ tech_scaling({ effects = {
 -- concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
+require 'features.landfill_remover'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {

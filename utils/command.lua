@@ -1,6 +1,5 @@
 -- luacheck: globals commands
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Utils = require 'utils.core'
 local Timestamp = require 'utils.timestamp'
 local ErrorLogging = require 'utils.error_logging'
@@ -294,6 +293,7 @@ local function on_command(event)
 end
 
 --- Traps command errors if not in DEBUG.
+--[[ FIXME:
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -311,10 +311,12 @@ if not _DEBUG then
         )
     end
 end
+]]
 
 Event.add(defines.events.on_console_command, on_command)
 
 -- Backdoor for testing
+--[[ FIXME:
 if _DEBUG then
     local EventCore = require 'utils.event_core'
 
@@ -339,5 +341,6 @@ if _DEBUG then
             parameters = parameter })
     end
 end
+]]
 
 return Command

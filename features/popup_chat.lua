@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 
-local config = global.config.popup_chat
+local config = storage.config.popup_chat
 local MIN_LIFETIME = config.min_lifetime or 06 * 60 -- 06s
 local MAX_LIFETIME = config.max_lifetime or 20 * 60 -- 20s
 local MIN_MESSAGE_LENGTH = config.min_length or 40
@@ -48,30 +48,29 @@ local function on_console_chat(event)
     return
   end
 
-  local popup_ID = data.popup_chat[index]
-  if popup_ID then
-    rendering.destroy(popup_ID)
-    data.popup_chat[popup_ID] = nil
+  local popup = data.popup_chat[index]
+  if popup and popup.valid then
+    popup.destroy()
+    data.popup_chat[index] = nil
   end
 
   local safe_message = get_safe_message(message)
   local color = player.color
   color.a = 0.9
 
-  popup_ID = rendering.draw_text({
+  data.popup_chat[index] = rendering.draw_text({
     text = safe_message,
     surface = player.surface,
     target = player.character,
     target_offset = {0, -4},
     color = color,
-    font = 'compilatron-message-font',
+    font = 'compi',
     scale = 1.75,
     time_to_live = get_message_lifetime(safe_message),
     forces = { player.force },
     alignment = 'center',
     use_rich_text = true,
   })
-  data.popup_chat[index] = popup_ID
 end
 
 Event.add(defines.events.on_console_chat, on_console_chat)

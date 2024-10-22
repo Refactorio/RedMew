@@ -67,24 +67,24 @@ end
 local fade_token =
     Token.register(
     function(params)
-        local id = params.id
-        if rendering.is_valid(id) then
-            rendering.set_color(id, params.color)
+        local obj = params.obj
+        if obj.valid then
+            obj.color = params.color
         end
     end
 )
 
-function Public.fade(id, time, ticks)
+function Public.fade(obj, time, ticks)
     ticks = ticks or 20
     local count = (time - time % ticks) / ticks
-    if rendering.is_valid(id) then
-        local color = rendering.get_color(id)
+    if obj.valid then
+        local color = obj.color
         local a = color.a or 1
         local decrement = a / count
         for i = 1, count do
             a = a - decrement
             a = a >= 0 and a or 0
-            Task.set_timeout_in_ticks(ticks * i, fade_token, {id = id, color = {r = color.r, b = color.b, g = color.g, a = a}})
+            Task.set_timeout_in_ticks(ticks * i, fade_token, {obj = obj, color = {r = color.r, b = color.b, g = color.g, a = a}})
         end
     end
 end
@@ -92,21 +92,21 @@ end
 local blink_token =
     Token.register(
     function(params)
-        local id = params.id
-        if rendering.is_valid(id) then
-            rendering.set_visible(id, params.visible)
+        local obj = params.obj
+        if obj.valid then
+            obj.visible = params.visible
         end
     end
 )
 
-function Public.blink(id, rate, time)
+function Public.blink(obj, rate, time)
     local count = (time - time % rate) / rate
     rate = (time / count) * 2
-    if rendering.is_valid(id) then
-        local visible = rendering.get_visible(id)
+    if obj.valid then
+        local visible = obj.visible
         for i = 1, count do
             visible = not visible
-            Task.set_timeout_in_ticks(rate * i, blink_token, {id = id, visible = visible})
+            Task.set_timeout_in_ticks(rate * i, blink_token, {obj = obj, visible = visible})
         end
     end
 end

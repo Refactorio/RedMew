@@ -10,7 +10,7 @@ local abs = math.abs
 local concat = table.concat
 
 local Public = {}
-local reward_token = {global.config.player_rewards.token} or {global.config.market.currency} or {'coin'}
+local reward_token = {storage.config.player_rewards.token} or {storage.config.market.currency} or {'coin'}
 
 Global.register(
     {
@@ -34,7 +34,7 @@ end
 -- @param reward string - item name to use as reward
 -- @return boolean true - indicating success
 Public.set_reward = function(reward)
-    if global.config.player_rewards.enabled == false then
+    if storage.config.player_rewards.enabled == false then
         return false
     end
 
@@ -53,7 +53,7 @@ end
 -- @param message <string> an optional message to send to the affected player
 -- @return <number> indicating how many were inserted or if operation failed
 Public.give_reward = function(player, amount, message)
-    if global.config.player_rewards.enabled == false then
+    if storage.config.player_rewards.enabled == false then
         return 0
     end
 
@@ -84,7 +84,7 @@ end
 -- @param message <string> an optional message to send to the affected player
 -- @return <number> indicating how many were removed or if operation failed
 Public.remove_reward = function(player, amount, message)
-    if global.config.player_rewards.enabled == false then
+    if storage.config.player_rewards.enabled == false then
         return 0
     end
 

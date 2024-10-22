@@ -3,7 +3,7 @@ local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
 local Scenario_Info = require 'features.gui.info'
 
-local creators = global.config.map_info
+local creators = storage.config.map_info
 
 local gui_frame = Gui.uid_name()
 local generate_tags = Gui.uid_name()

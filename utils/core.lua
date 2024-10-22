@@ -44,7 +44,7 @@ function Module.print_except(msg, player, color)
 
     for _, p in pairs(game.connected_players) do
         if p ~= player then
-            p.print(msg, color)
+            p.print(msg, {color = color})
         end
     end
 end
@@ -71,7 +71,7 @@ function Module.print_admins(msg, source)
     log(formatted_msg)
     for _, p in pairs(game.connected_players) do
         if p.admin then
-            p.print(formatted_msg, chat_color)
+            p.print(formatted_msg, {color = chat_color})
         end
     end
 end
@@ -115,7 +115,7 @@ function Module.find_entities_by_last_user(player, surface, filters)
         )
         return
     end
-    if type(surface) ~= 'table' and type(surface) ~= 'number' then
+    if type(surface) ~= 'userdata' and type(surface) ~= 'number' then
         error(
             "bad argument #2 to '" ..
                 debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')',
@@ -247,7 +247,7 @@ end
 -- @param msg <string> The message to print
 -- @param warning_prefix <string> The name of the module/warning
 function Module.action_warning(warning_prefix, msg)
-    game.print(prefix .. msg, Color.yellow)
+    game.print(prefix .. msg, {color = Color.yellow})
     msg = format('%s %s', warning_prefix, msg)
     log(msg)
     Server.to_discord_bold(msg)
@@ -272,7 +272,7 @@ function Module.validate_player(player_ident)
     local data_type = type(player_ident)
     local player
 
-    if data_type == 'table' and player_ident.valid then
+    if data_type == 'userdata' and player_ident.valid then
         local is_player = player_ident.is_player()
         if is_player then
             player = player_ident

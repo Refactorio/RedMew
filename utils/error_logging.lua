@@ -65,7 +65,7 @@ local function try_generate_report(str)
         file_name = file_name .. '_' .. Timestamp.to_date_string(server_time) .. '.log'
     else
         file_name = file_name .. '.log'
-        game.write_file(file_name, '', false, 0)
+        helpers.write_file(file_name, '', false, 0)
     end
 
     if first_error then
@@ -75,12 +75,12 @@ local function try_generate_report(str)
 
     local tick = 'Time of error: ' .. format_time(game.tick)
 
-    local redmew_version = global.redmew_version or 'Unknown'
+    local redmew_version = storage.redmew_version or 'Unknown'
     redmew_version = 'RedMew version: ' .. redmew_version
 
     local output = concat({server_time_str, tick, redmew_version, str, '\n'}, '\n')
 
-    game.write_file(file_name, output, true, 0)
+    helpers.write_file(file_name, output, true, 0)
 end
 
 --- Takes the given string and generates an entry in the error file.

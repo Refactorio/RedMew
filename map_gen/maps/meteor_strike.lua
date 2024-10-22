@@ -11,10 +11,10 @@ local block_weight = 1
 local dud_weight = 0
 local min_blocks_in_list = 10 -- no dud meteors if the number of blocks in the list is less than or equal to this
 
-global.blocks = nil
-global.used_blocks = nil
-global.strike_time = strike_time
-global.weight_count = 0
+storage.blocks = nil
+storage.used_blocks = nil
+storage.strike_time = strike_time
+storage.weight_count = 0
 
 local half_start_size = (start_size * block_size) / 2
 local total_weight = block_weight + dud_weight
@@ -38,8 +38,8 @@ local function init_blocks()
         end
     end
 
-    global.blocks = blocks
-    global.used_blocks = used_blocks
+    storage.blocks = blocks
+    storage.used_blocks = used_blocks
 end
 
 local function get_resource(x, y)
@@ -71,7 +71,7 @@ local function get_resource(x, y)
 end
 
 function run_combined_module(event) -- luacheck: globals run_combined_module
-    if not global.blocks then
+    if not storage.blocks then
         init_blocks()
     end
 
@@ -106,8 +106,8 @@ function run_combined_module(event) -- luacheck: globals run_combined_module
 end
 
 local function get_block()
-    local blocks = global.blocks
-    local count = global.weight_count
+    local blocks = storage.blocks
+    local count = storage.weight_count
     while count >= block_weight and count < total_weight and #blocks > min_blocks_in_list do
         local index = math.random(#blocks)
         table.remove(blocks, index)
@@ -119,9 +119,9 @@ local function get_block()
     end
 
     if count == total_weight then
-        global.weight_count = 0
+        storage.weight_count = 0
     else
-        global.weight_count = count
+        storage.weight_count = count
     end
 
     local index = math.random(#blocks)
@@ -133,9 +133,9 @@ local function do_strike()
 
     local function add(x, y)
         local key = x .. ',' .. y
-        if not global.used_blocks[key] then
-            table.insert(global.blocks, {x = x, y = y})
-            global.used_blocks[key] = true
+        if not storage.used_blocks[key] then
+            table.insert(storage.blocks, {x = x, y = y})
+            storage.used_blocks[key] = true
         end
     end
 
@@ -160,11 +160,11 @@ local function do_strike()
 end
 
 local function on_tick()
-    if global.strike_time == 0 then
+    if storage.strike_time == 0 then
         do_strike()
-        global.strike_time = strike_time
+        storage.strike_time = strike_time
     else
-        global.strike_time = global.strike_time - 1
+        storage.strike_time = storage.strike_time - 1
     end
 end
 

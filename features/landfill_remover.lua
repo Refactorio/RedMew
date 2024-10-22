@@ -1,3 +1,4 @@
+-- Module deprecated in 2.0, became a built-in feature
 -- This feature allows players to remove landfill.
 -- To use, create a deconstruction planner with the landfill tile filter and select tiles only mode.
 -- Use the decon planner within range of the landfill to remove it
@@ -7,7 +8,7 @@ local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 local table = require 'utils.table'
 local math = require 'utils.math'
-local config = global.config.landfill_remover
+local config = storage.config.landfill_remover
 
 local Public = {}
 

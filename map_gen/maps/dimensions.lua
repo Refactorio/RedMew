@@ -8,18 +8,18 @@ local resource_types = {'copper-ore', 'iron-ore', 'coal', 'stone', 'uranium-ore'
 
 local Public = {}
 
-global.current_portal_index = 1
-global.portals = {}
+storage.current_portal_index = 1
+storage.portals = {}
 --Sample Portal:
 --{position : LuaPosition, source: LuaSurface, target : LuaPosition, target_surface : LuaSurface}
 
-global.current_magic_chest_index = 1
-global.magic_chests = {}
+storage.current_magic_chest_index = 1
+storage.magic_chests = {}
 --{entity : LuaEntity, target : LuaEntity}
 
-global.last_tp = {}
-global.teleport_cooldown = 3
-global.portal_radius = 2
+storage.last_tp = {}
+storage.teleport_cooldown = 3
+storage.portal_radius = 2
 
 local function get_nice_surface_name(name)
     name = name:gsub('-ore', ''):gsub('-oil', ' Oil')
@@ -74,44 +74,44 @@ function Public.run_combined_module(event)
 end
 
 local function teleport_nearby_players(portal)
-    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'character', type = 'character'}) do
+    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - storage.portal_radius, portal.position.y - storage.portal_radius}, {portal.position.x + storage.portal_radius, portal.position.y + storage.portal_radius}}, name = 'character', type = 'character'}) do
         local player = player_character.player
-        if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
+        if not storage.last_tp[player.name] or storage.last_tp[player.name] + storage.teleport_cooldown * 60 < game.tick then
             player.teleport(portal.target, portal.target_surface)
-            global.last_tp[player.name] = game.tick
+            storage.last_tp[player.name] = game.tick
             player.print('Wooosh! You are now in the ' .. portal.target_surface.name .. ' dimension.')
         end
     end
 end
 
 local function teleport_players()
-    local num_portals = #global.portals
+    local num_portals = #storage.portals
     if num_portals > 0 then
-        local portal = global.portals[global.current_portal_index]
+        local portal = storage.portals[storage.current_portal_index]
         if portal.target then
             teleport_nearby_players(portal)
         end
-        global.current_portal_index = (global.current_portal_index) % num_portals + 1 --Next portal
+        storage.current_portal_index = (storage.current_portal_index) % num_portals + 1 --Next portal
     end
 end
 
 local function teleport_stuff()
-    local num_chests = #global.magic_chests
+    local num_chests = #storage.magic_chests
     if num_chests > 0 then
-        local chest = global.magic_chests[global.current_magic_chest_index]
+        local chest = storage.magic_chests[storage.current_magic_chest_index]
         if chest.entity and chest.target and chest.entity.valid and chest.target.valid then
             local inv = chest.entity.get_inventory(defines.inventory.chest)
             local target_inv = chest.target.get_inventory(defines.inventory.chest)
             if inv and target_inv then
-                for item, count in pairs(inv.get_contents()) do
-                    local n_inserted = target_inv.insert {name = item, count = count}
+                for _, item_stack in pairs(inv.get_contents()) do
+                    local n_inserted = target_inv.insert(item_stack)
                     if n_inserted > 0 then
-                        inv.remove {name = item, count = n_inserted}
+                        inv.remove { name = item_stack.name, count = n_inserted, quality = item_stack.quality }
                     end
                 end
             end
         end
-        global.current_magic_chest_index = (global.current_magic_chest_index) % num_chests + 1 --Next magic chest
+        storage.current_magic_chest_index = (storage.current_magic_chest_index) % num_chests + 1 --Next magic chest
     end
 end
 
@@ -123,38 +123,38 @@ local function dim_on_tick()
     end
 end
 
-global.chest_selected = false
+storage.chest_selected = false
 local function linkchests()
     if game.player and game.player.admin and game.player.selected and (game.player.selected.type == 'logistic-container' or game.player.selected.type == 'container') then
         game.player.selected.destructible = false
         game.player.selected.minable = false
-        if global.chest_selected then
-            global.magic_chests[#global.magic_chests].target = game.player.selected
+        if storage.chest_selected then
+            storage.magic_chests[#storage.magic_chests].target = game.player.selected
             game.print('Link established.')
         else
-            table.insert(global.magic_chests, {entity = game.player.selected})
+            table.insert(storage.magic_chests, {entity = game.player.selected})
             game.print('Selected first chest.')
         end
-        global.chest_selected = not global.chest_selected
+        storage.chest_selected = not storage.chest_selected
     else
         game.print('failed.')
     end
 end
 
-global.portal_selected = false
+storage.portal_selected = false
 local function linkportals()
     if game.player and game.player.admin then
-        if global.portal_selected then
-            global.portals[#global.portals].target = game.player.position
-            global.portals[#global.portals].target_surface = game.player.surface
+        if storage.portal_selected then
+            storage.portals[#storage.portals].target = game.player.position
+            storage.portals[#storage.portals].target_surface = game.player.surface
             --Way back home:
-            table.insert(global.portals, {position = game.player.position, target = global.portals[#global.portals].position, source = game.player.surface, target_surface = global.portals[#global.portals].source})
+            table.insert(storage.portals, {position = game.player.position, target = storage.portals[#storage.portals].position, source = game.player.surface, target_surface = storage.portals[#storage.portals].source})
             game.print('Portal link established.')
         else
-            table.insert(global.portals, {position = game.player.position, source = game.player.surface})
+            table.insert(storage.portals, {position = game.player.position, source = game.player.surface})
             game.print('Selected first portal.')
         end
-        global.portal_selected = not global.portal_selected
+        storage.portal_selected = not storage.portal_selected
     else
         game.print('failed.')
     end

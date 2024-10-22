@@ -12,7 +12,7 @@ local MGSP = require 'resources.map_gen_settings'
 local market_items = require 'resources.market_items'
 
 local insert = table.insert
-local config = global.config
+local config = storage.config
 
 ScenarioInfo.set_map_name('Solid Rock')
 ScenarioInfo.set_map_description("The entire planet is so solid that we can't seem to dig into it.")

@@ -6,7 +6,6 @@ local random = math.random
 local wreck_item_pool = {
     {name = 'iron-gear-wheel', count = 32},
     {name = 'iron-plate', count = 64},
-    {name = 'rocket-control-unit', count = 1},
     {name = 'atomic-bomb', count = 1},
     {name = 'rocket-fuel', count = 7},
     {name = 'coal', count = 8},
@@ -15,9 +14,8 @@ local wreck_item_pool = {
     {name = 'copper-cable', count = 128},
     {name = 'land-mine', count = 64},
     {name = 'fast-inserter', count = 8},
-    {name = 'stack-filter-inserter', count = 2},
     {name = 'belt-immunity-equipment', count = 1},
-    {name = 'fusion-reactor-equipment', count = 1},
+    {name = 'fission-reactor-equipment', count = 1},
     {name = 'electric-engine-unit', count = 8},
     {name = 'exoskeleton-equipment', count = 1},
     {name = 'rocket-fuel', count = 10},

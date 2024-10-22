@@ -105,7 +105,7 @@ if Game_mode_config.king_of_the_hill then
                 local e = surface.create_entity(entity)
                 lock_entity(e)
                 if entity.recipe then
-                    e.set_recipe('rocket-control-unit')
+                    e.set_recipe('processing-unit')
                     e.recipe_locked = true
                     register_crafter(e)
                 end

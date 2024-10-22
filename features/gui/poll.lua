@@ -257,7 +257,7 @@ local function redraw_poll_viewer_content(data)
             question_flow.add {
             type = 'sprite-button',
             name = poll_view_edit_name,
-            sprite = 'utility/rename_icon_normal',
+            sprite = 'utility/rename_icon',
             tooltip = 'Edit Poll.'
         }
 

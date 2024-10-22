@@ -3,7 +3,6 @@ local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
 local Token = require 'utils.token'
-local Color = require 'resources.color_presets'
 local Retailer = require 'features.retailer'
 local Task = require 'utils.task'
 local Popup = require 'features.gui.popup'
@@ -12,7 +11,7 @@ local Report = require 'features.report'
 local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 
-local redmew_config = global.config
+local redmew_config = storage.config
 
 -- Needed because refined hazard concrete is needed and must not be changed by this module
 redmew_config.paint.enabled = false
@@ -118,7 +117,6 @@ local entity_tiers = {
     ['assembling-machine-2'] = 2,
     ['steel-furnace'] = 2,
     ['fast-inserter'] = 2,
-    ['filter-inserter'] = 2,
     ['accumulator'] = 2,
     ['big-electric-pole'] = 2,
     -- Tier 3
@@ -136,7 +134,6 @@ local entity_tiers = {
     ['substation'] = 3,
     ['laser-turret'] = 3,
     ['stack-inserter'] = 3,
-    ['stack-filter-inserter'] = 3,
     ['logistic-chest-active-provider'] = 3,
     ['logistic-chest-passive-provider'] = 3,
     ['logistic-chest-buffer'] = 3,
@@ -303,25 +300,11 @@ Please be careful!
     )
 )
 
-local function print_floating_text(player, entity, text, color)
-    color = color or Color.white
-    local surface = player.surface
-    local position = entity.position
-
-    return surface.create_entity {
-        name = 'tutorial-flying-text',
-        color = color,
-        text = text,
-        position = position,
-        render_player_index = player.index
-    }
-end
-
 --- Warning for players when their entities are destroyed (needs to be pre because of the stack)
 local function on_destroy(event)
     local p = game.get_player(event.player_index)
     local stack = event.stack
-    local entity = event.created_entity
+    local entity = event.entity
     local name
 
     if stack.valid_for_read then
@@ -343,7 +326,7 @@ local function on_destroy(event)
                 tier = {'item-name.refined-concrete'}
             end
             local text = {'concrete_jungle.entity_not_enough_ground_support', '[item=' .. name .. ']', tier}
-            print_floating_text(p, entity, text)
+            p.create_local_flying_text({position = entity.position, text = text})
         else
             p.print({'', '[color=yellow]', {'concrete_jungle.blueprint_not_enough_ground_support', {'', '[/color][color=red]', {'concrete_jungle.blueprint'}, '[/color][color=yellow]'}}, '[/color]'})
         end
@@ -429,7 +412,7 @@ local function player_built_tile(event)
                 if player.can_insert(item) then
                     player.insert(item)
                 else
-                    player.surface.spill_item_stack(position, item, true, player.force, false)
+                    player.surface.spill_item_stack{ position = position, stack = item, enable_looted = true, force = player.force, allow_belts = false }
                 end
             end
         end

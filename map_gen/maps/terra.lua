@@ -89,7 +89,7 @@ centre = b.change_map_gen_collision_tile(centre, 'ground-tile', 'stone-path')
 local startx = 0
 local starty = 0
     --market
-global.config.market.standard_market_location = {x = startx, y = starty}
+storage.config.market.standard_market_location = {x = startx, y = starty}
  --player
 local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
 RS.set_spawn_position(spawn_position, surface)
@@ -291,7 +291,7 @@ start_gear = b.change_tile(start_gear, true, "grass-3")
 map = b.if_else(start_gear, map)
 map = b.if_else(centre, map)
         --Starting equipment
-local player_create = global.config.player_create
+local player_create = storage.config.player_create
 player_create.starting_items = {
     {name = 'modular-armor', count = 1},
     {name = 'solar-panel-equipment', count = 7},

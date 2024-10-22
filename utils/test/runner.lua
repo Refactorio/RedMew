@@ -54,19 +54,19 @@ local function finish_test_run(data)
 end
 
 local function print_error(player, test_name, error_message)
-    player.print(table.concat {"Failed - '", test_name, "': ", tostring(error_message)}, {r = 1})
+    player.print(table.concat {"Failed - '", test_name, "': ", tostring(error_message)}, {color = {r = 1}})
 end
 
 local function print_success(player, test_name)
-    player.print(table.concat {"Passed - '", test_name, "'"}, {g = 1})
+    player.print(table.concat {"Passed - '", test_name, "'"}, {color = {g = 1}})
 end
 
 local function print_hook_error(hook)
-    hook.context.player.print(table.concat {'Failed ', hook.name, " hook -':", tostring(hook.error)}, {r = 1})
+    hook.context.player.print(table.concat {'Failed ', hook.name, " hook -':", tostring(hook.error)}, {color = {r = 1}})
 end
 
 local function print_teardown_error(context, name, error_message)
-    context.player.print(table.concat {'Failed ', name, " teardown -':", error_message}, {r = 1})
+    context.player.print(table.concat {'Failed ', name, " teardown -':", error_message}, {color = {r = 1}})
 end
 
 local function record_hook_error_in_module(hook)

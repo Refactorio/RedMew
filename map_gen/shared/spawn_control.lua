@@ -2,8 +2,8 @@ local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local Module = {}
 
-global.player_spawns = {} -- player_index to spawn_name
-global.spawns = {} -- spawn_name to x, y, player_online_count
+storage.player_spawns = {} -- player_index to spawn_name
+storage.spawns = {} -- spawn_name to x, y, player_online_count
 
 Module.add_spawn = function(name, x, y)
     if type(name) ~= 'string' then
@@ -21,14 +21,14 @@ Module.add_spawn = function(name, x, y)
         return
     end
 
-    global.spawns[name] = {x = x, y = y, count = 0}
+    storage.spawns[name] = {x = x, y = y, count = 0}
 end
 
 local function get_min_count_spawn_name()
     local min = 1000000
     local min_spawn = nil
 
-    for name, t in pairs(global.spawns) do
+    for name, t in pairs(storage.spawns) do
         local count = t.count
         if min > count then
             min = count
@@ -41,11 +41,11 @@ end
 
 local function player_joined_game(event)
     local index = event.player_index
-    local spawn_name = global.player_spawns[index]
+    local spawn_name = storage.player_spawns[index]
 
     -- player already has a spawn.
     if spawn_name then
-        local spawn = global.spawns[spawn_name]
+        local spawn = storage.spawns[spawn_name]
         local count = spawn.count
         spawn.count = count + 1
         return
@@ -57,9 +57,10 @@ local function player_joined_game(event)
         return
     end
 
-    local spawn = global.spawns[spawn_name]
-    global.player_spawns[index] = spawn_name
-    game.get_player(index).teleport(spawn)
+    local spawn = storage.spawns[spawn_name]
+    storage.player_spawns[index] = spawn_name
+    local player = game.get_player(index)
+    player.teleport(spawn, player.physical_surface)
 
     local count = spawn.count
     spawn.count = count + 1
@@ -67,8 +68,8 @@ end
 
 local function player_left_game(event)
     local index = event.player_index
-    local spawn_name = global.player_spawns[index]
-    local spawn = global.spawns[spawn_name]
+    local spawn_name = storage.player_spawns[index]
+    local spawn = storage.spawns[spawn_name]
 
     if not spawn then
         return
@@ -80,14 +81,15 @@ end
 
 local function player_respawned(event)
     local index = event.player_index
-    local spawn_name = global.player_spawns[index]
-    local spawn = global.spawns[spawn_name]
+    local spawn_name = storage.player_spawns[index]
+    local spawn = storage.spawns[spawn_name]
 
     if not spawn then
         return
     end
 
-    game.get_player(index).teleport(spawn)
+    local player = game.get_player(index)
+    player.teleport(spawn, player.physical_surface)
 end
 
 local function tp_spawn(player_name, spawn_name)
@@ -98,7 +100,7 @@ local function tp_spawn(player_name, spawn_name)
         return
     end
 
-    local spawn = global.spawns[spawn_name]
+    local spawn = storage.spawns[spawn_name]
     if not spawn then
         spawn_name = spawn_name or ''
         game.player.print('spawn ' .. spawn_name .. ' does not exist.')
@@ -109,7 +111,7 @@ local function tp_spawn(player_name, spawn_name)
 end
 
 local function change_spawn(player_name, spawn_name)
-    local new_spawn = global.spawns[spawn_name]
+    local new_spawn = storage.spawns[spawn_name]
 
     if not new_spawn then
         spawn_name = spawn_name or ''
@@ -126,8 +128,8 @@ local function change_spawn(player_name, spawn_name)
     end
 
     local index = player.index
-    local old_spawn_name = global.player_spawns[index]
-    local old_spawn = global.spawns[old_spawn_name]
+    local old_spawn_name = storage.player_spawns[index]
+    local old_spawn = storage.spawns[old_spawn_name]
 
     if old_spawn then
         local count = old_spawn.count
@@ -137,26 +139,26 @@ local function change_spawn(player_name, spawn_name)
     local count = new_spawn.count
     new_spawn.count = count + 1
 
-    global.player_spawns[index] = spawn_name
+    storage.player_spawns[index] = spawn_name
 
     game.player.print(player_name .. ' spawn moved to ' .. spawn_name)
 end
 
 local function print_spawns()
-    for name, spawn in pairs(global.spawns) do
+    for name, spawn in pairs(storage.spawns) do
         game.player.print(string.format('%s: (%d, %d), player count = %d', name, spawn.x, spawn.y, spawn.count))
     end
 end
 
 local function print_players_for_spawn(target_spawn_name)
-    if not global.spawns[target_spawn_name] then
+    if not storage.spawns[target_spawn_name] then
         target_spawn_name = target_spawn_name or ''
         game.player.print('spawn ' .. target_spawn_name .. ' does not exist.')
         return
     end
 
     local str = ''
-    for index, spawn_name in pairs(global.player_spawns) do
+    for index, spawn_name in pairs(storage.player_spawns) do
         if target_spawn_name == spawn_name then
             local player = game.get_player(index)
             if player.connected then

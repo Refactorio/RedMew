@@ -26,7 +26,7 @@ local getmetatable = getmetatable
 --
 -- If you store the LocalisedStrings in global, when you fetch from global you need to restore
 -- the metatable to be able to use :add calls. To do that use
--- LocaleBuilder(global.stored_locale_string)
+-- LocaleBuilder(storage.stored_locale_string)
 local Public = {}
 
 local add

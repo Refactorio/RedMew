@@ -13,7 +13,7 @@ ScenarioInfo.set_map_extra_info(
     'Only the native grasses are suitable to build on. Ores and trees have sunk into the sand, but biters have adapted to live happily in the barren landscape. Some even speak of a Hydra living deep within the desert. \n\n Map created by R. Nukem and Jayefuu, with help from grilledham and the rest of the Redmew admin team.'
 )
 --enable Hydra
-local hail_hydra = global.config.hail_hydra
+local hail_hydra = storage.config.hail_hydra
 hail_hydra.enabled = true
 --tweak hydra settings. Defualt settings are WAY too hard (circa 2019-02-22 hydra)
 --This section will need updated in the future pending changes to how hydra is configured (PR #795)
@@ -198,7 +198,7 @@ local Event = require 'utils.event'
 Event.add(
     defines.events.on_built_entity,
     function(event)
-        local entity = event.created_entity
+        local entity = event.entity
         if not entity or not entity.valid then
             return
         end
@@ -232,7 +232,9 @@ Event.add(
             end
             entity.destroy()
             if not ghost then
-                p.insert(event.stack)
+                for _, stack in pairs(event.consumed_items.get_contents()) do
+                    p.insert(stack)
+                end
             end
         end
     end

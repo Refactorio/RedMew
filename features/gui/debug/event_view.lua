@@ -25,14 +25,14 @@ local clear_filter_name = Gui.uid_name()
 -- global tables
 local enabled = {}
 local last_events = {}
-global.debug_event_view = {
+storage.debug_event_view = {
     enabled = enabled,
     last_events = last_events,
     filter = ''
 }
 
 function Public.on_open_debug()
-    local tbl = global.debug_event_view
+    local tbl = storage.debug_event_view
     if tbl then
         enabled = tbl.enabled
         last_events = tbl.last_events
@@ -40,7 +40,7 @@ function Public.on_open_debug()
         enabled = {}
         last_events = {}
 
-        global.debug_event_view = {
+        storage.debug_event_view = {
             enabled = enabled,
             last_events = last_events
         }
@@ -108,7 +108,7 @@ local function redraw_event_table(gui_table, filter)
 end
 
 function Public.show(container)
-    local filter = global.debug_event_view.filter
+    local filter = storage.debug_event_view.filter
 
     local main_frame_flow = container.add({type = 'flow', direction = 'vertical'})
 
@@ -136,7 +136,7 @@ Gui.on_text_changed(
 
         local filter = element.text:gsub(' ', '_')
 
-        global.debug_event_view.filter = filter
+        storage.debug_event_view.filter = filter
         element.text = filter
 
         gui_table.clear()
@@ -153,7 +153,7 @@ Gui.on_click(
         local gui_table = data.gui_table
 
         filter_textfield.text = ''
-        global.debug_event_view.filter = ''
+        storage.debug_event_view.filter = ''
 
         gui_table.clear()
         redraw_event_table(gui_table, '')

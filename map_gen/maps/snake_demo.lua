@@ -7,7 +7,7 @@ local floor = math.floor
 local Snake_Control = require 'features.snake.control'
 
 
-local config = global.config
+local config = storage.config
 local size = 45
 
 config.market.enabled = false

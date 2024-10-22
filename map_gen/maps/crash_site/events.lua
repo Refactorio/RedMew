@@ -1,10 +1,12 @@
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
@@ -49,7 +51,7 @@ local spill_items =
     Token.register(
     function(data)
         local stack = {name = 'coin', count = data.count}
-        data.surface.spill_item_stack(data.position, stack, true)
+        data.surface.spill_item_stack{ position = data.position, stack = stack, enable_looted = true }
     end
 )
 
@@ -150,7 +152,7 @@ local spawn_worm =
 )
 
 local function get_level()
-    local ef = game.forces.enemy.evolution_factor
+    local ef = game.forces.enemy.get_evolution_factor(RS.get_surface_name())
     if ef == 0 then
         return 1
     else
@@ -276,13 +278,13 @@ end
 local function do_evolution(entity, entity_name, entity_force)
     local factor = turret_evolution_factor[entity_name]
     if factor then
-        local old = entity_force.evolution_factor
+        local old = entity_force.get_evolution_factor(RS.get_surface_name())
         local extra = (1 - old) * factor
         local new = old + extra
         if new < 1 then
-            entity_force.evolution_factor = new
+            entity_force.set_evolution_factor(new, RS.get_surface_name())
             local position = entity.position
-            entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. round(extra*100,2) .. "% evo", color = Color.plum}
+            Game.create_local_flying_text{surface = entity.surface, position = {position.x - 1, position.y}, text = "+" .. round(extra*100,2) .. "% evo", color = Color.plum}
         end
     end
 end
@@ -345,7 +347,7 @@ local function do_bot_spawn(entity_name, entity, event)
 
     -- Return if the evolution is too low
     local entity_force = entity.force
-    local ef = entity_force.evolution_factor
+    local ef = entity_force.get_evolution_factor(entity.surface)
     if ef <= 0.2 then
         return
     end
@@ -467,7 +469,7 @@ local function do_coin_drop(entity_name, entity, cause)
             local coins = {name = "coin", count = count}
             if player.can_insert(coins) then
                 player.insert(coins)
-                entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
+                Game.create_local_flying_text{surface = entity.surface, position = {position.x - 1, position.y}, text = "+" .. count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
                 return
             end
         end

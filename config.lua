@@ -3,7 +3,7 @@ _CHEATS = false
 _DUMP_ENV = false
 local currency = 'coin'
 
-global.config = {
+storage.config = {
     -- adds a GUI listing the scenario features, the rules, and the details of the current map
     map_info = {
         enabled = true,
@@ -49,7 +49,7 @@ global.config = {
     player_colors = {
         enabled = true
     },
-    -- saves players' lives if they have a player-port in their inventory, also adds the player-port to the market and must therefor be loaded first
+    -- saves players' lives if they have a 'simple-entity-with-owner' in their inventory, also adds the 'simple-entity-with-owner' to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
     },
@@ -58,9 +58,9 @@ global.config = {
         enabled = false,
         cost = 100
     },
-    -- Allows removing landfill using the deconstruction planner.
+    -- Allows removing landfill using the deconstruction planner. Built-in for 2.0
     landfill_remover = {
-        enabled = true,
+        enabled = false,
         -- The tile that is used to replace landfill when it is removed.
         revert_tile = 'water-mud'
     },
@@ -97,6 +97,7 @@ global.config = {
         -- the global score trackers to show
         global_to_show = {
             'satellites-launched',
+            'rockets-launched',
             'aliens-killed',
             'built-by-players',
             'built-by-robots',
@@ -211,7 +212,7 @@ global.config = {
                 {name = 'substation', count = 50},
                 {name = 'roboport', count = 10},
                 {name = 'infinity-chest', count = 10},
-                {name = 'player-port', count = 2},
+                {name = 'simple-entity-with-owner', count = 2},
                 {name = 'coin', count = 20000},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
@@ -337,16 +338,12 @@ global.config = {
         backer_name = true,
         -- gives locos placed a random color
         random_train_color = true,
-        -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
-        ghosts_before_research = true,
         -- adds craftable loaders.
         loaders = true,
         -- turns on entity info aka alt-mode on first joining
         set_alt_on_create = true,
         -- prevents personal construction robots from being mined by other players
         save_bots = true,
-        -- enable research_queue
-        research_queue = true,
         -- pick up item an inserter put on the ground, when the inserter is mined
         inserter_drops_pickup = true
     },
@@ -435,12 +432,13 @@ global.config = {
     },
     research_printer = {
         enabled = true,
-        print_to_force = true, -- print a message to force chat when that force finishes a new research.
+        print_to_force = false, -- print a message to force chat when that force finishes a new research.
         print_to_discord = true, -- print a message to the discord channel when the player force finishes a new research.
         ignore_script = false -- ignore researches unlocked by commands or by code.
     },
+    -- Control groups of spiders with a decon planner. Built-in for 2.0
     spidertron_group_control = {
-        enabled = true
+        enabled = false
     },
     donator = {
         donator_perks = {
@@ -476,4 +474,4 @@ global.config = {
     }
 }
 
-return global.config
+return storage.config

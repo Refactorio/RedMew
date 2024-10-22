@@ -20,7 +20,7 @@ Event.add(
     function(event)
         local p_force = game.forces.player
         local r = event.research
-        for _, effect in pairs(r.effects) do
+        for _, effect in pairs(r.prototype.effects) do
             local recipe = effect.recipe
             if recipe and recipes[recipe] then
                 p_force.recipes[recipe].enabled = false

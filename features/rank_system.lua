@@ -16,7 +16,7 @@ local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
 local Colors = require 'resources.color_presets'
 
-local config = global.config.rank_system
+local config = storage.config.rank_system
 local trust_time = config.time_for_trust
 local everyone_is_regular = config.everyone_is_regular
 

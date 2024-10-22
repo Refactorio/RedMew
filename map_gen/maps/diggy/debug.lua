@@ -1,17 +1,41 @@
 -- dependencies
 local BaseDebug = require 'utils.debug'
 local Color = require 'resources.color_presets'
+local Global = require 'utils.global'
 
 local min = math.min
 local max = math.max
 local floor = math.floor
 local abs = math.abs
+local rendering = rendering
+local create_text = rendering.draw_text
 
 -- this
 local Debug = {}
 
 local default_base_color = Color.white
 local default_delta_color = Color.black
+local render_list = {}
+
+Global.register(render_list, function(tbl) render_list = tbl end)
+
+local function get_render(surface_index, position)
+    local srl = render_list[surface_index]
+    if not srl then
+        return
+    end
+    return srl[position.x] and srl[position.x][position.y]
+end
+
+local function set_render(surface_index, position, obj)
+    local srl = render_list[surface_index]
+    if not srl then
+        srl = {}
+        render_list[surface_index] = srl
+    end
+    srl[position.x] = srl[position.x] or {}
+    srl[position.x][position.y] = obj
+end
 
 ---@deprecated use 'utils.debug'.print instead
 function Debug.print(message)
@@ -82,7 +106,7 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
     text = tostring(text)
 
     if not immutable then
-        local text_entity = surface.find_entity('flying-text', position)
+        local text_entity = get_render(surface.index, position)
 
         if text_entity then
             text_entity.text = text
@@ -91,12 +115,12 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
         end
     end
 
-    surface.create_entity{
-        name = 'flying-text',
+    set_render(surface.index, position, create_text {
+        surface = surface,
         color = color,
         text = text,
-        position = position
-    }.active = false
+        target = position
+    })
 end
 
 --[[--
@@ -158,7 +182,7 @@ function Debug.print_colored_grid_value(value, surface, position, offset, immuta
     text = tostring(text)
 
     if not immutable then
-        local text_entity = surface.find_entity('flying-text', position)
+        local text_entity = get_render(surface.index, position)
 
         if text_entity then
             text_entity.text = text
@@ -167,12 +191,12 @@ function Debug.print_colored_grid_value(value, surface, position, offset, immuta
         end
     end
 
-    surface.create_entity{
-        name = 'flying-text',
+    set_render(surface.index, position, create_text {
+        surface = surface,
         color = color,
         text = text,
-        position = position
-    }.active = false
+        target = position
+    })
 end
 
 return Debug

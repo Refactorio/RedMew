@@ -8,7 +8,7 @@ function SetupPlayer.register(cfg)
     Event.add(
         defines.events.on_player_created,
         function()
-            local redmew_player_create = global.config.player_create
+            local redmew_player_create = storage.config.player_create
 
             if #cfg.starting_items > 0 then
                 redmew_player_create.starting_items = cfg.starting_items

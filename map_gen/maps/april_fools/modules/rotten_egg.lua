@@ -52,8 +52,8 @@ local function eggs_spawn_pollution()
 
   for _, player in pairs(_global.rand_eggs) do
     if (player and player.valid) then
-      local surface = player.surface
-      local position = player.position
+      local surface = player.physical_surface
+      local position = player.physical_position
       local amount = (_global.level or 1) * DROP_AMOUNT
       -- must be extra cautious with surface & players as they may be teleported across temporary surfaces
       if (surface and surface.valid and position) then

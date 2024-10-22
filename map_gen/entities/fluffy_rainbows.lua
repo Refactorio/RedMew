@@ -15,7 +15,7 @@ local ore_base_amounts = {
 }
 
 local function init()
-    global.perlin_noise_seed = RS.get_surface().map_gen_settings.seed
+    storage.perlin_noise_seed = RS.get_surface().map_gen_settings.seed
     -- math.random(1000, 1000000)
 end
 
@@ -47,7 +47,7 @@ return function(x, y, world)
         end
     end ]]
 
-    local seed = global.perlin_noise_seed
+    local seed = storage.perlin_noise_seed
 
     local noise_terrain_1 = perlin.noise(((x + seed) / 350), ((y + seed) / 350), 0)
     local noise_terrain_2 = perlin.noise(((x + seed) / 50), ((y + seed) / 50), 0)

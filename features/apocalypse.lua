@@ -91,7 +91,7 @@ local biter_spawn_token =
         surface = RS.get_surface()
         player_force = game.forces.player
 
-        enemy_force.evolution_factor = 1
+        enemy_force.set_evolution_factor(1, surface)
 
         local p_spawn = player_force.get_spawn_position(surface)
         local group = surface.create_unit_group {position = p_spawn}
@@ -134,7 +134,7 @@ function Public.begin_apocalypse(_, player)
     end
 
     primitives.apocalypse_now = true
-    game.print({'apocalypse.apocalypse_begins'}, Color.pink)
+    game.print({'apocalypse.apocalypse_begins'}, {color = Color.pink})
     Task.set_timeout(1, biter_spawn_token, {})
 end
 

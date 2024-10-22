@@ -1,3 +1,4 @@
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local random = math.random
@@ -40,12 +41,12 @@ local function compute_fullness(player, position)
       local damage = ceil((warn_player.count / 2) * warn_player.count)
       if player.character.health >= damage then
         player.character.damage(damage, 'player', 'explosion')
-        player.character.surface.create_entity({ name = 'water-splash', position = player.position })
-        player.surface.create_entity({ name = 'flying-text', position = { position.x, position.y + 0.6 }, text = messages[random(#messages)], color = { r = 0.75, g = 0.0, b = 0.0 } })
+        player.character.surface.create_entity({ name = 'water-splash', position = player.physical_position })
+        Game.create_local_flying_text({ surface = player.surface, position = { position.x, position.y + 0.6 }, text = messages[random(#messages)], color = { r = 0.75, g = 0.0, b = 0.0 } })
       else
         player.character.die('enemy')
         is_player_warned(player, true)
-        game.print(player.name .. ' should have emptied their pockets.', { r = 0.75, g = 0.0, b = 0.0 })
+        game.print(player.name .. ' should have emptied their pockets.', {color = { r = 0.75, g = 0.0, b = 0.0 }})
         return free_slots
       end
     end
@@ -54,7 +55,7 @@ local function compute_fullness(player, position)
   end
   if free_slots > 1 then
     if floor(inventory_size / free_slots) == 10 then -- When player has 10% free slots
-      player.surface.create_entity({ name = 'flying-text', position = { position.x, position.y + 0.6 }, text = 'You are feeling heavy', color = { r = 1.0, g = 0.5, b = 0.0 } })
+      Game.create_local_flying_text({ surface = player.surface, position = { position.x, position.y + 0.6 }, text = 'You are feeling heavy', color = { r = 1.0, g = 0.5, b = 0.0 } })
     end
   end
   return free_slots

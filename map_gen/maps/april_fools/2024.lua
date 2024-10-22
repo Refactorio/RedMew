@@ -23,7 +23,7 @@ ScenarioInfo.set_map_description([[
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
 --- Config
-local Config = global.config
+local Config = storage.config
 Config.paint.enabled = false
 Config.redmew_surface.enabled = false
 Config.currency = 'coin'
@@ -40,14 +40,12 @@ if _DEBUG then
     {name = 'iron-plate', count = 26 },
     {name = 'steel-chest', count = 12},
     {name = 'power-armor-mk2', count = 1},
-    {name = 'fusion-reactor-equipment', count = 4},
+    {name = 'fission-reactor-equipment', count = 4},
     {name = 'personal-roboport-mk2-equipment', count = 4},
     {name = 'battery-mk2-equipment', count = 4},
     {name = 'construction-robot', count = 50},
     {name = 'rocket-launcher', count = 1},
     {name = 'explosive-rocket', count = 200},
-    {name = 'green-wire', count = 200},
-    {name = 'red-wire', count = 200},
     {name = 'dungeon-support', count = 50},
   }
 else
@@ -283,7 +281,7 @@ Command.add(
         mod.level_reset()
       end
     end
-    game.print('Scenario reset!', Color.success)
+    game.print('Scenario reset!', {color = Color.success})
   end
 )
 
@@ -306,9 +304,9 @@ Command.add(
         msg = msg .. ' - ' .. mod.name
       end
       if player and player.valid then
-        player.print(msg, Color.info)
+        player.print(msg, {color = Color.info})
       else
-        game.print(msg, Color.info)
+        game.print(msg, {color = Color.info})
       end
     end
   end
@@ -329,7 +327,7 @@ Command.add(
         mod.level_set(mod.max_get())
       end
     end
-    game.print('Scenario maxed out!', Color.warning)
+    game.print('Scenario maxed out!', {color = Color.warning})
   end
 )
 

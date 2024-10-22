@@ -1,5 +1,5 @@
 -- luacheck: globals script
--- This module exists to break the circular dependency between event.lua and global.lua.
+-- This module exists to break the circular dependency between event.lua and storage.lua.
 -- It is not expected that any user code would require this module instead event.lua should be required.
 local ErrorLogging = require 'utils.error_logging'
 

@@ -17,7 +17,7 @@ local pairs = pairs
 local round = math.round
 local random = math.random
 local format = string.format
-local market_config = global.config.market
+local market_config = storage.config.market
 local currency = market_config.currency
 local entity_drop_amount = market_config.entity_drop_amount
 local max_coins_earned = 5
@@ -85,7 +85,7 @@ local function spawn_market(args, player)
   local maket_spawn_pos = market_config.standard_market_location
 
   if args and args.surface then
-    surface = game.get_surface(type(args.surface) == 'table' and args.surface.name or args.surface)
+    surface = game.get_surface(type(args.surface) == 'userdata' and args.surface.name or args.surface)
   end
 
   if player then -- If we have a player, this is coming from a player running the command
@@ -120,19 +120,17 @@ local function fish_earned(event, amount)
   local stack = { name = currency, count = amount }
   local inserted = player.insert(stack)
   if amount > 0 then
-    player.surface.create_entity {
-      name = 'flying-text',
+    player.create_local_flying_text {
       position = { player.position.x - 1, player.position.y },
       text = '+' .. amount .. ' [img=item.coin]',
       color = Color.gold,
-      render_player_index = player.index,
     }
   end
 
   local diff = amount - inserted
   if diff > 0 then
     stack.count = diff
-    player.surface.spill_item_stack(player.position, stack, true)
+    player.surface.spill_item_stack{ position = player.position, stack = stack, enable_looted = true }
   end
 
   change_for_player(player_index, coins_earned_name, amount)
@@ -157,7 +155,7 @@ local function pre_player_mined_item(event)
 end
 
 local spill_items = Token.register(function(data)
-  data.surface.spill_item_stack(data.position, { name = currency, count = data.count }, true)
+  data.surface.spill_item_stack{ position = data.position, stack = { name = currency, count = data.count }, enable_looted =  true }
 end)
 
 -- Determines how many coins to drop when enemy entity dies based upon the entity_drop_amount table in config.lua
@@ -291,7 +289,7 @@ local function player_created(event)
     return
   end
 
-  local count = global.config.player_rewards.info_player_reward and 1 or 10
+  local count = storage.config.player_rewards.info_player_reward and 1 or 10
   player.insert { name = currency, count = count }
 end
 

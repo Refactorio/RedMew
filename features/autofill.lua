@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Settings = require 'utils.redmew_settings'
 local pairs = pairs
@@ -50,7 +51,7 @@ function Public.set_player_ammo(player_index, name, value)
 end
 
 local function entity_built(event)
-    local entity = event.created_entity
+    local entity = event.entity
 
     if not entity.valid then
         return
@@ -98,9 +99,9 @@ local function entity_built(event)
 
             local remaining_count = inventory.get_item_count(name)
 
-            player.surface.create_entity(
+            Game.create_local_flying_text(
                 {
-                    name = 'flying-text',
+                    surface = player.surface,
                     position = entity.position,
                     text = {'autofill.insert_item', inserted, Ammos.locale[name], remaining_count}
                 }

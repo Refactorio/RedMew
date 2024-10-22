@@ -7,12 +7,12 @@ local serialize = serpent.line
 -- this
 local Debug = {}
 
-global.debug_message_count = 0
+storage.debug_message_count = 0
 
 ---@return number next index
 local function increment()
-    local next = global.debug_message_count + 1
-    global.debug_message_count = next
+    local next = storage.debug_message_count + 1
+    storage.debug_message_count = next
 
     return next
 end

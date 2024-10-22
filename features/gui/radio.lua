@@ -201,7 +201,7 @@ local function handler(event)
     if subname == 'radio_play:' then
         local path = string.sub(name, 12)
         local player = game.get_player(event.player_index)
-        if (game.is_valid_sound_path(path)) then
+        if (helpers.is_valid_sound_path(path)) then
             player.play_sound {path = path}
             return
         else

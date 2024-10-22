@@ -46,18 +46,18 @@ local function create_camera(args, player)
     end
 
     if not mainframe then
-        mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame'}
+        mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical'}
         mainframe.visible = true
     end
 
     local headerframe = mainframe.headerframe
     if not headerframe then
-        mainframe.add {type = 'frame', name = 'headerframe', direction = 'horizontal', style = 'captionless_frame'}
+        mainframe.add {type = 'frame', name = 'headerframe', direction = 'horizontal'}
     end
 
     local cameraframe = mainframe.cameraframe
     if not cameraframe then
-        mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
+        mainframe.add {type = 'frame', name = 'cameraframe'}
     end
 
     mainframe.add {type = 'label', caption = 'Following: ' .. target.name}
@@ -88,7 +88,7 @@ end
 local function camera_command(args, player)
     destroy_camera({player = player})
     -- Once the old camera is destroyed, check to see if we need to make a new one
-    if global.config.camera_disabled then
+    if storage.config.camera_disabled then
         player.print('The watch/camera function has been disabled for performance reasons.')
         return
     end
@@ -98,8 +98,8 @@ local function camera_command(args, player)
 end
 
 local function update_camera_render(target, targetframe, zoom, size, visible)
-    local position = {x = target.position.x, y = target.position.y - 0.5}
-    local surface_index = target.surface.index
+    local position = {x = target.physical_position.x, y = target.physical_position.y - 0.5}
+    local surface_index = target.physical_surface.index
     local preview_size = size
     local camera = targetframe.camera
 
@@ -153,7 +153,7 @@ local function update_camera_size(targetframe)
 end
 
 local function on_tick()
-    if global.config.camera_disabled then
+    if storage.config.camera_disabled then
         return
     end
     for table_key, camera_table in pairs(camera_users) do

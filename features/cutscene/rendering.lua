@@ -120,7 +120,7 @@ local function text_background(settings, offset, player, percentages, size, numb
 end
 
 function Public.draw_text(settings, offset, text, player, params, draw_background, fit_to_edge)
-    local ids = {}
+    local list = {}
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
@@ -139,10 +139,10 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
     local size = text_height_in_tiles(scale, settings.player_zoom)
 
     if draw_background == true then
-        insert(ids, text_background(settings, offset, player, percentages, size, 1, params, fit_to_edge))
+        insert(list, text_background(settings, offset, player, percentages, size, 1, params, fit_to_edge))
     end
 
-    local target = {x = player.position.x + offset.x, y = player.position.y + offset.y}
+    local target = {x = player.physical_position.x + offset.x, y = player.physical_position.y + offset.y}
 
     local color = params.color
     color = color and color or {r = 255, g = 255, b = 255}
@@ -200,12 +200,12 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
 
     debug_print(rendering_params)
 
-    insert(ids, rendering.draw_text(rendering_params))
-    return ids
+    insert(list, rendering.draw_text(rendering_params))
+    return list
 end
 
 function Public.draw_multi_line_text(settings, offset, texts, player, params, draw_background, fit_to_edge)
-    local ids = {}
+    local list = {}
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
@@ -223,15 +223,15 @@ function Public.draw_multi_line_text(settings, offset, texts, player, params, dr
     offset.y = offset.y - size * 0.5
 
     if draw_background then
-        insert(ids, text_background(settings, offset, player, percentages, size, #texts, params, fit_to_edge))
+        insert(list, text_background(settings, offset, player, percentages, size, #texts, params, fit_to_edge))
         draw_background = -1
     end
 
     for i = 1, #texts do
-        insert(ids, Public.draw_text(settings, offset, texts[i], player, params, draw_background, fit_to_edge)[1])
+        insert(list, Public.draw_text(settings, offset, texts[i], player, params, draw_background, fit_to_edge)[1])
         offset.y = offset.y + (size * 1.5)
     end
-    return ids
+    return list
 end
 
 function Public.draw_rectangle(settings, offset, left_top, right_bottom, player, params, fit_to_edge)
@@ -248,8 +248,8 @@ function Public.draw_rectangle(settings, offset, left_top, right_bottom, player,
         right_bottom = fit_to_screen(percentages, right_bottom)
     end
 
-    local target_left = {x = player.position.x + left_top.x + offset.x, y = player.position.y + left_top.y + offset.y}
-    local target_right = {x = player.position.x + right_bottom.x + offset.x, y = player.position.y + right_bottom.y + offset.y}
+    local target_left = {x = player.physical_position.x + left_top.x + offset.x, y = player.physical_position.y + left_top.y + offset.y}
+    local target_right = {x = player.physical_position.x + right_bottom.x + offset.x, y = player.physical_position.y + right_bottom.y + offset.y}
 
     local color = params.color
     color = color and color or {}

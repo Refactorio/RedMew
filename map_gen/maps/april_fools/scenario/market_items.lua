@@ -32,7 +32,6 @@ return {
   {price =     8, name = 'grenade'},
   {price =    10, name = 'artillery-shell'},
   {price =    10, name = 'light-armor'},
-  {price =    25, name = 'artillery-targeting-remote'},
   {price =    25, name = 'cliff-explosives'},
   {price =    25, name = 'flamethrower-ammo'},
   {price =    30, name = 'submachine-gun'},
@@ -61,7 +60,7 @@ return {
   {price =  1000, name = 'tunnel'},
   {price =  1200, name = 'tank'},
   {price =  1500, name = 'power-armor'},
-  {price =  2250, name = 'fusion-reactor-equipment'},
+  {price =  2250, name = 'fission-reactor-equipment'},
   {price =  7500, name = 'atomic-bomb'},
   {price = 12000, name = 'power-armor-mk2'},
 }

@@ -193,7 +193,6 @@ local function draw_gui(player)
   local textbox = row_3.add { type = 'text-box', text = generate_ban_text(player) }
   Gui.set_style(textbox, { minimal_width = 460, maximal_width = 460, minimal_height = 72, horizontally_stretchable = true, vertically_stretchable = true })
   textbox.word_wrap = true
-  textbox.clear_and_focus_on_right_click = true
 
   local flow_3 = row_3.add { type = 'flow', direction = 'horizontal' }
   Gui.add_pusher(flow_3)

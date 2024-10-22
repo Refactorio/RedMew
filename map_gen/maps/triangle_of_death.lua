@@ -22,7 +22,7 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
-global.config.market.create_standard_market = false
+storage.config.market.create_standard_market = false
 
 local generator
 
@@ -56,7 +56,7 @@ Event.add(
         local p_force = game.forces.player
         local r = event.research
 
-        for _, e in ipairs(r.effects) do
+        for _, e in ipairs(r.prototype.effects) do
             local t = e.type
 
             if t == 'ammo-damage' then
@@ -219,7 +219,6 @@ local item_pool = {
     {name = 'slowdown-capsule', count = 100, weight = 100},
     {name = 'construction-robot', count = 50, weight = 100},
     {name = 'solar-panel-equipment', count = 5, weight = 833.3333},
-    {name = 'artillery-targeting-remote', count = 1, weight = 50},
     {name = 'tank-flamethrower', count = 1, weight = 33.3333},
     {name = 'explosive-uranium-cannon-shell', count = 100, weight = 33.3333},
     {name = 'destroyer-capsule', count = 10, weight = 33.3333},
@@ -239,7 +238,7 @@ local item_pool = {
     {name = 'battery-mk2-equipment', count = 1, weight = 40},
     {name = 'tank-machine-gun', count = 1, weight = 3.3333},
     {name = 'power-armor', count = 1, weight = 33.3333},
-    {name = 'fusion-reactor-equipment', count = 1, weight = 33.3333},
+    {name = 'fission-reactor-equipment', count = 1, weight = 33.3333},
     {name = 'production-science-pack', count = 200, weight = 100},
     {name = 'utility-science-pack', count = 200, weight = 100},
     {name = 'artillery-turret', count = 1, weight = 2.5},

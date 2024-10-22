@@ -5,6 +5,7 @@ local b = require 'map_gen.shared.builders'
 local snake_game = require 'features.snake.game'
 local config = require 'map_gen.maps.space_race.config'
 local Gui = require 'utils.gui'
+local RS = require 'map_gen.shared.redmew_surface'
 
 --Guis
 local join_gui = require 'map_gen.maps.space_race.gui.join_gui'
@@ -91,7 +92,7 @@ function Public.show_gui(event)
         if not snake_game.is_running() and game.tick > 60 * 55 then
             Token.get(snake_generate)()
         end
-        game.forces.enemy.evolution_factor = 0
+        game.forces.enemy.set_evolution_factor(0, RS.get_surface_name())
         wait_gui.show_gui(event)
         return
     end

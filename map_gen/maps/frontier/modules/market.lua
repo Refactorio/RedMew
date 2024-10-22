@@ -73,7 +73,7 @@ function Market.spawn_exchange_market(position)
         local price = expensive_value / cheap_value
         local nerf = Public.PROD_PENALTY * math_clamp(math_sqrt(this.max_distance / (position.x * 10)), 1, 4.2) * (1 + math_random()) -- 1.4 = productivity, + some distance scaling. Further ) better offers
         price = math_min(math_ceil(price * nerf), 2^16-1)
-        local stack_size = game.item_prototypes[cheap].stack_size
+        local stack_size = prototypes.item[cheap].stack_size
         if price / stack_size < 80 then
           market.add_market_item {
             offer = { type = 'give-item', item = expensive, count = 1 },
@@ -97,7 +97,7 @@ function Market.spawn_exchange_market(position)
           local price = expensive_value / cheap_value
           local nerf = Public.PROD_PENALTY * math_clamp(math_sqrt(this.max_distance / (position.x * 10)), 1, 4) * (1 + math_random()) -- 1.4 = productivity, + some distance scaling. Further ) better offers
           price = math_min(math_ceil(price * nerf), 2^16-1)
-          local stack_size = game.item_prototypes[cheap].stack_size
+          local stack_size = prototypes.item[cheap].stack_size
           if price / stack_size < 50 then
             market.add_market_item {
               offer = { type = 'give-item', item = expensive, count = 1 },

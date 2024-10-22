@@ -50,12 +50,7 @@ return function(config)
                 radius = 32,
                 distraction = defines.distraction.by_damage
             }
-
-            local members = group.members
-            for i = 1, #members do
-                local entitiy = members[i]
-                entitiy.set_command(command)
-            end
+            group.set_command(command)
         end
     end
 
@@ -92,11 +87,11 @@ return function(config)
 
             local spawner = data.spawner
 
-            local aliens = AlienEvolutionProgress.get_aliens(spawner, game.forces.enemy.evolution_factor)
+            local surface = chunk.surface
+            local aliens = AlienEvolutionProgress.get_aliens(spawner, game.forces.enemy.get_evolution_factor(surface))
 
             local left_top = chunk.area.left_top
             local center = {left_top.x + 16, left_top.y + 16}
-            local surface = chunk.surface
             local find_non_colliding_position = surface.find_non_colliding_position
             local create_entity = surface.create_entity
 
@@ -167,7 +162,7 @@ return function(config)
             return
         end
 
-        local inventory = entity.get_inventory(defines.inventory.rocket)
+        local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
         if not inventory or not inventory.valid then
             return
         end
@@ -182,7 +177,7 @@ return function(config)
         end
 
         -- Increase enemy_evolution
-        local current_evolution = game.forces.enemy.evolution_factor
+        local current_evolution = game.forces.enemy.get_evolution_factor(RS.get_surface_name())
 
         if (satellite_count % 5) == 0 and win_data.evolution_rocket_maxed == -1 then
             local message =
@@ -191,7 +186,7 @@ return function(config)
             Server.to_discord_bold(message)
 
             current_evolution = current_evolution + 0.05
-            game.forces.enemy.evolution_factor = current_evolution
+            game.forces.enemy.set_evolution_factor(current_evolution, RS.get_surface_name())
         end
 
         if current_evolution < 1 then

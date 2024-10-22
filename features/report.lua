@@ -253,7 +253,7 @@ end
 -- @param player <LuaPlayer|'<script>'|nil> the admin as LuaPlayer or '<script>' or server as nil
 function Module.jail(target_player, player)
     local print
-    if type(player) == 'table' then
+    if type(player) == 'userdata' then
         print = player.print
     else
         player = {name = player or '<server>'}
@@ -418,7 +418,7 @@ function Module.unjail(target_player, player)
         -- Let admin know it worked, let target know what's going on.
         Game.player_print(target_name .. ' has been returned to the default group. They have been advised of this.', Color.success, player)
         target_player.print(prefix)
-        target_player.print('Your ability to perform actions has been restored', Color.light_green)
+        target_player.print('Your ability to perform actions has been restored', {color = Color.light_green})
         target_player.print(prefix_e)
         Utils.print_admins(format('%s has been released from jail by %s', target_name, player.name))
         Utils.log_command(Utils.get_actor(), 'unjail', target_name)

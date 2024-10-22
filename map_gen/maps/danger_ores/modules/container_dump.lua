@@ -40,12 +40,12 @@ return function(config)
             local count = 0
             local deadlock_stack_size = (settings.startup['deadlock-stack-size'] or {}).value or 1
             local contents = inventory.get_contents()
-            for name, c in pairs(contents) do
+            for _, item_stack in pairs(contents) do
                 local real_count
-                if name:sub(1, #'deadlock-stack') == 'deadlock-stack' then
-                    real_count = c * deadlock_stack_size
+                if item_stack.name:sub(1, #'deadlock-stack') == 'deadlock-stack' then
+                    real_count = item_stack.count * deadlock_stack_size
                 else
-                    real_count = c
+                    real_count = item_stack.count
                 end
 
                 count = count + real_count

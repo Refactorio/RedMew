@@ -53,7 +53,7 @@ ScenarioInfo.set_new_info([[
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
-global.config.redmew_qol.loaders = false
+storage.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores_landfill'
@@ -129,7 +129,7 @@ local remove_non_ore_stacked_recipes = require 'map_gen.maps.danger_ores.modules
 remove_non_ore_stacked_recipes()
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
-
+require 'features.landfill_remover'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_spiral'

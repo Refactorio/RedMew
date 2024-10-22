@@ -10,7 +10,7 @@ local Color = require 'resources.color_presets'
 
 local format = string.format
 
-local config = global.config
+local config = storage.config
 local config_mapinfo = config.map_info
 local config_prewards = config.player_rewards
 
@@ -416,7 +416,7 @@ local pages = {
             local market_label = grid.add {type = 'label', caption = {'info.softmods_market_text'}}
             market_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'item/player-port'}
+            grid.add {type = 'sprite', sprite = 'item/simple-entity-with-owner'}
             local train_savior = grid.add {type = 'label', caption = {'info.softmods_saviour_label'}}
             local train_savior_style = train_savior.style
             train_savior_style.font = 'default-listbox'
@@ -716,9 +716,7 @@ Gui.on_text_changed(editable_textbox_name, function(event)
     primitives.info_edited = true
 end)
 
-Gui.on_custom_close(main_frame_name, function(event)
-    close_main_frame(event.element, event.player)
-end)
+Gui.on_custom_close(main_frame_name, toggle)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 

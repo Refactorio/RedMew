@@ -36,7 +36,7 @@ ScenarioInfo.set_new_info([[
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
-global.config.redmew_qol.loaders = false
+storage.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.omnimatter_cages'
@@ -132,7 +132,7 @@ container_dump({entity_name = 'coal'})
 -- concrete_on_landfill({tile = 'blue-refined-concrete', refund_tile = 'omnite-refined-concrete'})
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
-
+require 'features.landfill_remover'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {

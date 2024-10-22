@@ -1,4 +1,7 @@
+-- Get random item stacks based off a budget
+-- modified by RedRafe
 -- source: https://github.com/ComfyFactory/ComfyFactorio/blob/develop/maps/expanse/price_raffle.lua
+-- ======================================================= --
 
 -- @usage PriceRaffle
 --[[
@@ -53,6 +56,7 @@ local item_worths = {
   ['burner-mining-drill'] = 8,
   ['cannon-shell'] = 8,
   ['car'] = 128,
+  ['cargo-landing-pad'] = 2048,
   ['cargo-wagon'] = 256,
   ['centrifuge'] = 2048,
   ['chemical-plant'] = 128,
@@ -72,7 +76,6 @@ local item_worths = {
   ['defender-capsule'] = 16,
   ['destroyer-capsule'] = 256,
   ['discharge-defense-equipment'] = 2048,
-  ['discharge-defense-remote'] = 32,
   ['distractor-capsule'] = 128,
   ['effectivity-module-2'] = 512,
   ['effectivity-module-3'] = 2048,
@@ -97,16 +100,14 @@ local item_worths = {
   ['fast-splitter'] = 64,
   ['fast-transport-belt'] = 16,
   ['fast-underground-belt'] = 64,
-  ['filter-inserter'] = 40,
   ['firearm-magazine'] = 4,
   ['flamethrower-ammo'] = 32,
   ['flamethrower-turret'] = 2048,
   ['flamethrower'] = 512,
   ['fluid-wagon'] = 256,
   ['flying-robot-frame'] = 128,
-  ['fusion-reactor-equipment'] = 8192,
+  ['fission-reactor-equipment'] = 8192,
   ['gate'] = 16,
-  ['green-wire'] = 4,
   ['grenade'] = 16,
   ['gun-turret'] = 64,
   ['hazard-concrete'] = 4,
@@ -171,17 +172,16 @@ local item_worths = {
   ['rail-chain-signal'] = 16,
   ['rail-signal'] = 16,
   ['rail'] = 8,
-  ['red-wire'] = 4,
   ['refined-concrete'] = 16,
   ['refined-hazard-concrete'] = 16,
   ['repair-pack'] = 8,
   ['roboport'] = 2048,
-  ['rocket-control-unit'] = 256,
   ['rocket-fuel'] = 256,
   ['rocket-launcher'] = 128,
   ['rocket-silo'] = 65536,
   ['rocket'] = 8,
   ['satellite'] = 32768,
+  ['selector-combinator'] = 16,
   ['shotgun-shell'] = 4,
   ['shotgun'] = 16,
   ['slowdown-capsule'] = 16,
@@ -195,7 +195,6 @@ local item_worths = {
   ['speed-module-3'] = 2048,
   ['speed-module'] = 128,
   ['splitter'] = 16,
-  ['stack-filter-inserter'] = 160,
   ['stack-inserter'] = 128,
   ['steam-engine'] = 32,
   ['steam-turbine'] = 256,
@@ -272,7 +271,7 @@ function Public.roll_item_stack(remaining_budget, blacklist, value_blacklist)
     end
   end
 
-  local stack_size = game.item_prototypes[item_name].stack_size * 32
+  local stack_size = prototypes.item[item_name].stack_size * 32
 
   local item_count = 1
 
@@ -354,7 +353,7 @@ local function add_recipe_products(recipe)
       name = name .. '-barrel'
     end
 
-    if game.item_prototypes[name] ~= nil then
+    if prototypes.item[name] ~= nil then
       item_unlocked[name] = item_worths[name]
       if item_unlocked[name] ~= nil then
         table_insert(item_names, name)
@@ -402,7 +401,7 @@ Event.add(defines.events.on_research_finished, function(event)
     return
   end
 
-  for _, effect in pairs(technology.effects or {}) do
+  for _, effect in pairs(technology.prototype.effects or {}) do
     if effect.recipe then
       add_recipe_products(game.forces.player.recipes[effect.recipe])
     end

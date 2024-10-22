@@ -18,7 +18,7 @@ local function clear_inventory_train(event)
     if not(Settings.features.train_crossings.enabled) then
         return true
     end
-    local pos = player.position
+    local pos = player.physical_position
     local force = player.force
 
     local within_range = false
@@ -94,7 +94,7 @@ local function clear_inventory_train(event)
         success = wrap_transfer(rail_location[3]) or wrap_transfer(nil, 0)
     end
 
-    player.print({"", {'quadrants.train_notice1', rail_location[4]}, " [gps=" .. success.x .. ', ' .. success.y .. "]"}, Color.red)
+    player.print({"", {'quadrants.train_notice1', rail_location[4]}, " [gps=" .. success.x .. ', ' .. success.y .. "]"}, {color = Color.red})
     return success
 end
 
@@ -104,7 +104,7 @@ local function clear_inventory(event)
         return
     end
     local player = game.get_player(event.player_index)
-    local pos = player.position
+    local pos = player.physical_position
     local quadrant
     if (pos.x >= 0 and pos.y <= 0) then
         quadrant = 1

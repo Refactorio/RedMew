@@ -7,7 +7,7 @@ local MGSP = require 'resources.map_gen_settings'
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Popup = require 'features.gui.popup'
 
-local config = global.config
+local config = storage.config
 
 local degrees = require 'utils.math'.degrees
 
@@ -34,9 +34,7 @@ RestrictEntities.add_banned(
         'inserter',
         'long-handed-inserter',
         'fast-inserter',
-        'filter-inserter',
         'stack-inserter',
-        'stack-filter-inserter',
         'electric-mining-drill'
     }
 )
@@ -49,7 +47,7 @@ config.redmew_qol.loaders = false
 Event.add(
     defines.events.on_research_finished,
     function(event)
-        local effects = event.research.effects
+        local effects = event.research.prototype.effects
         local f = game.forces.player
 
         for _, e in pairs(effects) do
