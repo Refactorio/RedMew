@@ -34,9 +34,7 @@ RestrictEntities.add_banned(
         'inserter',
         'long-handed-inserter',
         'fast-inserter',
-        'filter-inserter',
         'stack-inserter',
-        'stack-filter-inserter',
         'electric-mining-drill'
     }
 )

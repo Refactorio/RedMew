@@ -42,9 +42,7 @@ return {
   'inserter',
   'long-handed-inserter',
   'fast-inserter',
-  'filter-inserter',
   'stack-inserter',
-  'stack-filter-inserter',
   -- Py drills
   'aluminium-mine',
   'antimonium-drill-mk01',

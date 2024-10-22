@@ -15,7 +15,6 @@ local wreck_item_pool = {
     {name = 'copper-cable', count = 128},
     {name = 'land-mine', count = 64},
     {name = 'fast-inserter', count = 8},
-    {name = 'stack-filter-inserter', count = 2},
     {name = 'belt-immunity-equipment', count = 1},
     {name = 'fission-reactor-equipment', count = 1},
     {name = 'electric-engine-unit', count = 8},

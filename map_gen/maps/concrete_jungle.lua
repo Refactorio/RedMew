@@ -117,7 +117,6 @@ local entity_tiers = {
     ['assembling-machine-2'] = 2,
     ['steel-furnace'] = 2,
     ['fast-inserter'] = 2,
-    ['filter-inserter'] = 2,
     ['accumulator'] = 2,
     ['big-electric-pole'] = 2,
     -- Tier 3
@@ -135,7 +134,6 @@ local entity_tiers = {
     ['substation'] = 3,
     ['laser-turret'] = 3,
     ['stack-inserter'] = 3,
-    ['stack-filter-inserter'] = 3,
     ['logistic-chest-active-provider'] = 3,
     ['logistic-chest-passive-provider'] = 3,
     ['logistic-chest-buffer'] = 3,
