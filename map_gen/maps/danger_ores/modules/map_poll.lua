@@ -18,7 +18,7 @@ end)
 local mod_packs = {
     normal    = 'danger_ore_normal',
     bob_angel = 'danger_ore_bob_angel',
-    bobs      = 'danger_ore_bob',
+    bob       = 'danger_ore_bob',
     bz        = 'danger_ore_bz',
     ei        = 'danger_ore_ei',
     ir3       = 'danger_ore_ir3',
