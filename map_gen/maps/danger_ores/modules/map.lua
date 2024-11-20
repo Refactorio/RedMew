@@ -50,7 +50,6 @@ local function empty_builder()
 end
 
 return function(config)
-    log(serpent.block(config))
     local ore_builder = config.ore_builder or default_ore_builder
     local map
     Global.register_init({}, function(tbl)
