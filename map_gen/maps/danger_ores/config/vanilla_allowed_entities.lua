@@ -1,21 +1,25 @@
 return {
     -- pipes
+    'pump',
     'pipe',
     'pipe-to-ground',
     -- belts
     'transport-belt',
     'fast-transport-belt',
     'express-transport-belt',
+    'turbo-transport-belt',
     -- undergrounds
     'underground-belt',
     'fast-underground-belt',
     'express-underground-belt',
+    'turbo-underground-belt',
     -- poles
     'small-electric-pole',
     'medium-electric-pole',
     'big-electric-pole',
     'substation',
     -- drills
+    'big-mining-drill',
     'electric-mining-drill',
     'electric-mining-drill-2',
     'electric-mining-drill-3',
@@ -35,6 +39,12 @@ return {
     'legacy-curved-rail',
     'rail-signal',
     'rail-chain-signal',
+    'rail-ramp',
+    'rail-support',
+    'elevated-straight-rail',
+    'elevated-curved-rail-a',
+    'elevated-curved-rail-b',
+    'elevated-half-diagonal-rail',
     'train-stop',
     'locomotive',
     'cargo-wagon',

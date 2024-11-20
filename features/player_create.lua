@@ -56,7 +56,9 @@ local function player_created(event)
     local player_insert = player.insert
 
     for _, item in pairs(config.starting_items) do
-        player_insert(item)
+        if prototypes.item[item.name] then
+            player_insert(item)
+        end
     end
 end
 

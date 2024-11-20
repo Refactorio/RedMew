@@ -5,7 +5,7 @@ local Token = require 'utils.token'
 
 return function(allowed_entities, message)
     --- Items explicitly allowed on ores
-    RestrictEntities.add_allowed(allowed_entities)
+    RestrictEntities.add_allowed(allowed_entities or {})
 
     --- The logic for checking that there are resources under the entity's position
     RestrictEntities.set_keep_alive_callback(
