@@ -79,13 +79,14 @@ local function on_init()
 
   -- Above ground
   local islands_preset = Biomes.presets.ice
-  islands_preset.water = ABS.water.max
-  islands_preset.enemy = ABS.enemy.high
+  islands_preset.water = ABS.water.low
+  islands_preset.enemy = ABS.enemy.low
   local islands_mgs = mgs(islands_preset)
   for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
     islands_mgs.autoplace_controls[resource] = { frequency = 1, richness = 1, size = 0 }
   end
   islands_mgs.autoplace_controls['crude-oil'] = { frequency = 1, richness = 2, size = 1.2 }
+  islands_mgs.property_expression_names.elevation = 'elevation_island'
   local islands = game.create_surface('islands', islands_mgs)
   islands.request_to_generate_chunks(spawn, 5)
   islands.force_generate_chunk_requests()
@@ -94,6 +95,7 @@ local function on_init()
   -- Under ground
   local mines_preset = Biomes.presets.volcano
   mines_preset.water = ABS.water.none
+  mines_preset.enemy = ABS.enemy.none
   local mines_mgs = mgs(mines_preset)
   mines_mgs.seed = _DEBUG and 309111855 or nil
   mines_mgs.autoplace_settings = {
@@ -116,6 +118,7 @@ local function on_init()
   mines.show_clouds = false
   mines.brightness_visual_weights = {1/0.85, 1/0.85, 1/0.85}
 
+  game.forces.player.set_surface_hidden('nauvis', true)
   game.forces.player.set_spawn_position(spawn, 'islands')
   game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1.2
 end

@@ -36,7 +36,7 @@ function Public.preset_to_mgs(preset)
   end
 
   if preset.water then
-    mgs.water = preset.water.water.size
+    mgs.autoplace_controls.water = preset.water.water
     if preset.water.water.frequency and preset.water.water.frequency > 0 then
       mgs.terrain_segmentation = 1 / preset.water.water.frequency
     end
