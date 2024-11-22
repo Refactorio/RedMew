@@ -433,6 +433,38 @@ local function set_market_group_name(position, group_name)
     memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])] = group_name
 end
 
+local function close_market_gui(player)
+    local element = player.gui.center
+    memory.players_in_market_view[player.index] = nil
+
+    if element and element.valid then
+        element = element[market_frame_name]
+        if element and element.valid then
+            Gui.destroy(element)
+        end
+    end
+    player.opened = nil
+end
+
+local function check_player_in_range(player, market)
+    if not(player and player.valid and player.character and player.character.valid) then
+        return
+    end
+
+    local player_position = player.physical_position
+    local market_position = market.position
+    local delta_x = player_position.x - market_position.x
+    local delta_y = player_position.y - market_position.y
+
+    local reach_distance = player.character.reach_distance * 1.05
+    if delta_x * delta_x + delta_y * delta_y > reach_distance * reach_distance then
+        close_market_gui(player)
+        return false
+    end
+
+    return true
+end
+
 Event.add(defines.events.on_gui_opened, function (event)
     if not event.gui_type == defines.gui_type.entity then
         return
@@ -454,6 +486,10 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
+    if not check_player_in_range(player, entity) then
+        return
+    end
+
     memory.players_in_market_view[player.index] = {
         position = position,
         group_name = group_name,
@@ -468,18 +504,6 @@ Gui.on_custom_close(market_frame_name, function (event)
     memory.players_in_market_view[event.player.index] = nil
     Gui.destroy(element)
 end)
-
-local function close_market_gui(player)
-    local element = player.gui.center
-    memory.players_in_market_view[player.index] = nil
-
-    if element and element.valid then
-        element = element[market_frame_name]
-        if element and element.valid then
-            Gui.destroy(element)
-        end
-    end
-end
 
 Gui.on_click(market_frame_close_button_name, function (event)
     close_market_gui(event.player)
@@ -715,14 +739,8 @@ Event.on_nth_tick(37, function()
     for player_index, view_data in pairs(memory.players_in_market_view) do
         local player = game.get_player(player_index)
         if player and player.valid then
-            local player_position = player.position
-            local market_position = view_data.position
-            local delta_x = player_position.x - market_position.x
-            local delta_y = player_position.y - market_position.y
-
-            local reach_distance = player.reach_distance * 1.05
-            if delta_x * delta_x + delta_y * delta_y > reach_distance * reach_distance then
-                close_market_gui(player)
+            if not check_player_in_range(player, view_data) then
+                return
             end
         else
             -- player is no longer in the game, remove it from the market view
