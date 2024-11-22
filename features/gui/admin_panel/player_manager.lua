@@ -27,6 +27,9 @@ local on_invoke_player = Gui.uid_name()
 local on_goto_player = Gui.uid_name()
 local on_spank_player = Gui.uid_name()
 local on_ban_player = Gui.uid_name()
+local on_create_oil_field = Gui.uid_name()
+local on_toggle_blueprints = Gui.uid_name()
+local on_create_pollution = Gui.uid_name()
 -- local on_teleport = Gui.uid_name()
 -- local on_destroy_selected = Gui.uid_name()
 
@@ -153,7 +156,10 @@ local function draw_gui(player)
   for _, button in pairs({
     { name = on_cheat_mode, caption = 'Cheat mode' },
     { name = on_show_reports, caption = 'Show reports' },
+    { name = on_toggle_blueprints, caption = 'Blueprints ON/OFF' },
     { name = on_create_pool, caption = 'Create pool' },
+    { name = on_create_oil_field, caption = 'Create oil field' },
+    { name = on_create_pollution, caption = 'Spawn pollution' },
     { name = on_revive_ghosts, caption = 'Revive ghosts' },
     { name = on_save_game, caption = 'Save game' },
     { name = on_delete_blueprints, caption = 'Destroy ghost entities' },
@@ -253,8 +259,20 @@ Gui.on_click(on_show_reports, function(event)
   Actions.show_reports(nil, event.player)
 end)
 
+Gui.on_click(on_toggle_blueprints, function(event)
+  Actions.toggle_blueprint_permissions(event.player)
+end)
+
 Gui.on_click(on_create_pool, function(event)
   Actions.create_pool(nil, event.player)
+end)
+
+Gui.on_click(on_create_oil_field, function(event)
+  Actions.create_oil_field(event.player)
+end)
+
+Gui.on_click(on_create_pollution, function(event)
+  Actions.create_pollution(event.player)
 end)
 
 Gui.on_click(on_revive_ghosts, function(event)

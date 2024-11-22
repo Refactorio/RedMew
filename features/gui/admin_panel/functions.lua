@@ -87,6 +87,54 @@ function Actions.spank(target_name, source_player)
   game.print(source_player.name .. ' spanked ' .. target_player.name, {color = Color.warning})
 end
 
+---@param player LuaPlayer
+function Actions.toggle_blueprint_permissions(player)
+  local allowed = true
+  local no_blueprints = {
+    defines.input_action.import_blueprint,
+    defines.input_action.import_blueprint_string,
+    defines.input_action.import_blueprints_filtered,
+    defines.input_action.import_permissions_string,
+    defines.input_action.open_blueprint_library_gui,
+    defines.input_action.open_blueprint_record,
+    defines.input_action.upgrade_opened_blueprint_by_record,
+  }
+  local Default = game.permissions.get_group("Default")
+  for _, action in pairs(no_blueprints) do
+    allowed = allowed and Default.allows_action(action)
+  end
+  allowed = not allowed
+  for _, action in pairs(no_blueprints) do
+    Default.set_allows_action(action, allowed)
+  end
+  local on, off = '[color=blue]ON[/color]', '[color=red]OFF[/color]'
+  Game.player_print('Blueprint permissions: ' .. (allowed and on or off), Color.success, player)
+end
+
+---@param player LuaPlayer\
+function Actions.create_oil_field(player)
+  local src = player.physical_position
+  local oil = prototypes.entity['crude-oil']
+  local try = player.physical_surface and player.physical_surface.can_place_entity
+  local create = player.physical_surface and player.physical_surface.create_entity
+  if not create or not oil then
+    return
+  end
+  for y = 0, 2 do
+    for x = 0, 2 do
+      local def = { name = oil, amount = 3e5, position = { x = src.x + x*7 - 7, y = src.y + y*7 - 7 } }
+      if try(def) then create(def) end
+    end
+  end
+  Game.player_print('Caution: slippery oil', Color.success, player)
+end
+
+---@param player LuaPlayer
+function Actions.create_pollution(player)
+  player.surface.pollute(player.position, 1e6)
+  Game.player_print('Your feet smell like pollution', Color.success, player)
+end
+
 -- == SURFACE =================================================================
 
 local Surface = {}
