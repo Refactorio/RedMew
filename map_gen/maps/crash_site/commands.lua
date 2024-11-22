@@ -283,7 +283,7 @@ function Public.control(config)
 
     local function spy(args, player)
         local player_name = player.name
-        local inv = player.get_inventory(defines.inventory.character_main)
+        local inv = player.character.get_inventory(defines.inventory.character_main)
 
         -- Parse the values from the location string
         -- {location = "[gps=-110,-17,redmew]"}
