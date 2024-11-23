@@ -9,10 +9,6 @@ ScenarioInfo.add_map_extra_info([[
   This map is split in 6 sectors.
   Each sector has a main resource.
 ]])
-ScenarioInfo.set_new_info([[
-  2023-10-24:
-      - Added PyFE preset
-]])
 
 DOC.scenario_name = 'danger-ore-pyfe'
 DOC.compatibility.redmew_data.remove_resource_patches = false

@@ -18,6 +18,7 @@ ScenarioInfo.set_map_description([[
   A significant amount of pollution must affect a section of the map before it is revealed.
   Pollution does not affect biter evolution.
 ]])
+ScenarioInfo.set_new_info(require 'map_gen.maps.danger_ores.changelog')
 
 Config.apocalypse.enabled = false
 Config.dump_offline_inventories = {

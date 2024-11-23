@@ -9,21 +9,6 @@ ScenarioInfo.add_map_extra_info([[
   This map is split in four sectors [item=iron-ore] [item=copper-ore] [item=coal] [item=stone].
   Each sector has a main resource and the other resources at a lower ratio.
 ]])
-ScenarioInfo.set_new_info([[
-  2023-10-26:
-      - Reduced tech multiplier (10 -> 5)
-      - Increased Uranium ore & Compact raw rare metals spawn radius (128 -> 192 tiles)
-      - Eased terraforming requirements (8 -> 10 chunks, 9 -> 8 pollution increase, 24k -> 16k max pollution, 600 -> 400 min pollution)
-      - Reduced rocket required to win (500 -> 100)
-      - Removed Expensive Warehousing from required mods
-
-  2023-10-11:
-      - Increased Uranium ore & Compact raw rare metals spawn radius to 128 tiles
-      - Reduced Compact raw rare metals yield weight (8 -> 4)
-
-  2023-10-01:
-      - Added K2 preset
-]])
 
 Config.redmew_qol.loaders = false
 Config.player_create.starting_items = {

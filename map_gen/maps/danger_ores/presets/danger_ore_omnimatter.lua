@@ -11,11 +11,6 @@ ScenarioInfo.add_map_extra_info([[
   This map is covered in [item=omnite].
   Mine it to make room for your factory.
 ]])
-ScenarioInfo.set_new_info([[
-  2023-10-17:
-      - Added Omnimatter preset
-]])
-
 
 Config.redmew_qol.loaders = false
 Config.player_create.starting_items = {

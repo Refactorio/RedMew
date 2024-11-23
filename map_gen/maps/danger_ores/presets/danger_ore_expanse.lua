@@ -32,20 +32,6 @@ ScenarioInfo.add_map_extra_info([[
   You can fulfill part of the request & then reroll to change the remaining part (it will always reroll based on its remaining content to be fulfilled).
   Unlocking new land may or may not reward you with another Coin.
 ]])
-ScenarioInfo.set_new_info([[
-  2024-08-01:
-      - Fixed allowed entities list with Mk2-3 drills
-      - Fixed typos in description
-  2024-04-08:
-      - Forked from DO/terraforming
-      - Added DO/expanse
-      - Lowered tech multiplier 25 > 5
-  2024-04-17:
-      - Fixed incorrect request computation
-      - Fixed persistent chests on new chunk unlocks
-      - Added chests for each new expansion border
-      - Reduced pre_multiplier from 0.33 >s 0.20
-]])
 
 Config.market.enabled = false
 Config.player_rewards.enabled = true

@@ -10,10 +10,6 @@ ScenarioInfo.add_map_extra_info([[
   This map is covered in [entity=scrap].
   Mine it to make room for your factory.
 ]])
-ScenarioInfo.set_new_info([[
-  2024-02-24:
-      - Added Scrap preset
-]])
 
 Config.player_create.starting_items = {
   { count =  2, name = 'burner-mining-drill' },

@@ -8,10 +8,6 @@ ScenarioInfo.set_map_name('Danger Ores - Industrial Revolution 3')
 ScenarioInfo.add_map_extra_info([[
   This map is split in 6 sectors. Each sector has a main resource. Gas fissures are scattered across the map.
 ]])
-ScenarioInfo.set_new_info([[
-  2023-10-24:
-      - Added IR3 preset
-]])
 
 Config.redmew_qol.loaders = false
 Config.player_create.starting_items = {

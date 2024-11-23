@@ -8,10 +8,6 @@ ScenarioInfo.add_map_extra_info([[
   This map is split in 3 sectors. Each sector has a main resource.
   Resource veins are scattered across the map.
 ]])
-ScenarioInfo.set_new_info([[
-  2023-10-23:
-      - Added EI preset
-]])
 
 storage.config.redmew_qol.loaders = false
 
