@@ -30,12 +30,6 @@ local function do_tile_inner(tiles, tile, pos)
     end
 end
 
-local function do_landfill_hidden_tile(tiles, tile, pos)
-    if (tile.tile or tile) == 'landfill' and not tile.hidden_tile then
-        insert(tiles, {tile = 'water-shallow', position = pos})
-    end
-end
-
 local function do_tile(y, x, data, shape)
     local pos = {x, y}
 
@@ -69,7 +63,6 @@ local function do_tile(y, x, data, shape)
     else
         do_tile_inner(data.tiles, tile, pos)
     end
-    do_landfill_hidden_tile(data.hidden_tiles, tile, pos)
 end
 
 local function do_row(row, data, shape)
@@ -116,7 +109,6 @@ local function do_row(row, data, shape)
         else
             do_tile_inner(tiles, tile, pos)
         end
-        do_landfill_hidden_tile(data.hidden_tiles, tile, pos)
     end
 end
 
