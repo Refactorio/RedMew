@@ -64,6 +64,11 @@ return {
     max_pollution = 15000,
     pollution_increment = 4,
   },
+  technologies = {
+    enabled = true,
+    uranium = true,
+    liquefaction = true,
+  },
   game = {
     draw_resource_selection = false,
     technology_price_multiplier = 25,

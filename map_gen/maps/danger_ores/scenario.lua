@@ -46,6 +46,7 @@ local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
 local mining_productivity    = require 'map_gen.maps.danger_ores.modules.mining_productivity'
 local restart_command        = require 'map_gen.maps.danger_ores.modules.restart_command'
 local rocket_launched        = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
+local technologies           = require 'map_gen.maps.danger_ores.modules.technologies'
 local terraforming           = require 'map_gen.maps.danger_ores.modules.terraforming'
 
 local Public = {}
@@ -99,6 +100,9 @@ Public.register = function(danger_ores_config)
   end
   if _C.terraforming.enabled then
     terraforming(_C.terraforming)
+  end
+  if _C.technologies.enabled then
+    technologies(_C.technologies)
   end
 
   Event.on_init(function()
