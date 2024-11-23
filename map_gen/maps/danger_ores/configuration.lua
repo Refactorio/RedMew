@@ -66,8 +66,10 @@ return {
   },
   technologies = {
     enabled = true,
-    uranium = true,
-    liquefaction = true,
+    unlocks = {
+      ['uranium-mining'] = { 'uranium-processing' },
+      ['oil-gathering'] = { 'oil-processing', 'coal-liquefaction' },
+    },
   },
   game = {
     draw_resource_selection = false,

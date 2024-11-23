@@ -1,29 +1,19 @@
 local Event = require 'utils.event'
 
-local trigger_names = {
-  uranium = {
-    'uranium-mining',
-    'uranium-processing',
-  },
-  liquefaction = {
-    'oil-processing',
-  },
-}
-
 return function(config)
-  Event.on_init(function()
-    for _, force in pairs(game.forces) do
-      for key, enabled in pairs(config) do
+  local unlocks = config.unlocks or {}
+  if table_size(unlocks) == 0 then
+    return
+  end
 
-        local names = enabled and trigger_names[key] or {}
+  Event.add(defines.events.on_research_finished, function(event)
+    local research = event.research
+    local techs = research.force.technologies
 
-        for _, name in pairs(names) do
-          local tech = force.technologies[name]
-          if tech and tech.prototype.research_trigger then
-            tech.researched = true
-          end
-        end
-
+    for _, name in pairs(unlocks[research.name] or {}) do
+      local tech = techs[name]
+      if tech and tech.prototype.research_trigger then
+        tech.researched = true
       end
     end
   end)
