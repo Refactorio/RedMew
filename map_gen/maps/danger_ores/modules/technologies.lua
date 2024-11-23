@@ -12,7 +12,7 @@ return function(config)
 
     for _, name in pairs(unlocks[research.name] or {}) do
       local tech = techs[name]
-      if tech and tech.prototype.research_trigger then
+      if tech then
         tech.researched = true
       end
     end
