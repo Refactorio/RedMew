@@ -78,7 +78,7 @@ end
 ---@param element LuaGuiElement
 ---@param style string|table
 function Gui.set_style(element, style)
-    if type(style) == string then
+    if type(style) == 'string' then
         element.style = style
     else
         local element_style = element.style
