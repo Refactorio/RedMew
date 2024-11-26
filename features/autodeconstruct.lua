@@ -4,7 +4,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
-local table = require 'utils.table'
 
 local drill_radius_map = {}
 local max_radius = 0
@@ -12,56 +11,74 @@ local require_fluid_ores = {}
 local pumpjack_resources_map = {}
 local drill_names = {}
 
+local function setup(tbl)
+    local map = tbl.drill_radius_map
+    local max = 0
+    local fluid_ores = tbl.require_fluid_ores
+    local pumpjack_map = tbl.pumpjack_resources_map
+    local names = tbl.drill_names
+
+    for name, entity in pairs(prototypes.entity) do
+        if entity.type == 'mining-drill' and entity.resource_categories['basic-solid'] then
+            local radius = entity.mining_drill_radius
+
+            map[name] = radius
+
+            if radius > max then
+                max = radius
+            end
+        elseif entity.type == 'resource' then
+            local props = entity.mineable_properties
+
+            if props.required_fluid then
+                fluid_ores[name] = true
+            end
+
+            local products = props.products or {}
+            for i = 1, #products do
+                local product = products[i]
+                if product.type == 'fluid' then
+                    pumpjack_map[name] = true
+                    break
+                end
+            end
+        end
+    end
+
+    tbl.max_radius = max
+    for k, _ in pairs(names) do
+        names[k] = nil
+    end
+    for k, _ in pairs(map) do
+        names[#names + 1] = k
+    end
+end
+
 Global.register_init(
     {
         drill_radius_map = drill_radius_map,
         require_fluid_ores = require_fluid_ores,
-        pumpjack_resources_map = pumpjack_resources_map
+        pumpjack_resources_map = pumpjack_resources_map,
+        drill_names = drill_names
     },
-    function(tbl)
-        local map = tbl.drill_radius_map
-        local max = 0
-        local fluid_ores = tbl.require_fluid_ores
-        local pumpjack_map = tbl.pumpjack_resources_map
-
-        for name, entity in pairs(prototypes.entity) do
-            if entity.type == 'mining-drill' and entity.resource_categories['basic-solid'] then
-                local radius = entity.mining_drill_radius
-
-                map[name] = radius
-
-                if radius > max then
-                    max = radius
-                end
-            elseif entity.type == 'resource' then
-                local props = entity.mineable_properties
-
-                if props.required_fluid then
-                    fluid_ores[name] = true
-                end
-
-                local products = props.products or {}
-                for i = 1, #products do
-                    local product = products[i]
-                    if product.type == 'fluid' then
-                        pumpjack_map[name] = true
-                        break
-                    end
-                end
-            end
-        end
-
-        tbl.max_radius = max
-    end,
+    setup,
     function(tbl)
         drill_radius_map = tbl.drill_radius_map
         max_radius = tbl.max_radius
         require_fluid_ores = tbl.require_fluid_ores
         pumpjack_resources_map = tbl.pumpjack_resources_map
-
-        drill_names = table.keys(drill_radius_map)
+        drill_names = tbl.drill_names
     end
 )
+
+Event.on_configuration_changed(function()
+    setup({
+        drill_radius_map = drill_radius_map,
+        require_fluid_ores = require_fluid_ores,
+        pumpjack_resources_map = pumpjack_resources_map,
+        drill_names = drill_names
+    })
+end)
 
 local function is_depleted(drill, entity)
     local radius = drill_radius_map[drill.name]
