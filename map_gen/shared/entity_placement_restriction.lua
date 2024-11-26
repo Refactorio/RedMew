@@ -213,8 +213,15 @@ local on_built_token =
         end
 
         local index = event.player_index
+        local stack = event.consumed_items.get_contents()[1]
+        if not stack then
+            if index then
+                return
+            else
+                stack = {}
+            end
+        end
 
-        local stack = event.consumed_items.get_contents()[1] -- TODO: proper handle of consumed_items as LuaInventory
         raise_event(
             Public.events.on_pre_restricted_entity_destroyed,
             {
