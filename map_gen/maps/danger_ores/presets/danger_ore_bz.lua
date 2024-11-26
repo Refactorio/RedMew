@@ -15,10 +15,6 @@ DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.bz.or
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.bz.resource_patches'
 DOC.map_config.spawn_tile = script.active_mods['alien-biomes'] and 'volcanic-green-heat-2' or 'grass-1'
 DOC.rocket_launched.win_satellite_count = 100
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.bz.allowed_entities'
-}
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- fluid patches
   'crude-oil',

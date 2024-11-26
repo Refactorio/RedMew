@@ -17,10 +17,6 @@ DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compa
 DOC.map_config.spawn_shape = B.circle(80)
 DOC.map_config.start_ore_shape = B.circle(86)
 DOC.rocket_launched.enabled = false
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.bob_angel.allowed_entities'
-}
 DOC.map_gen_settings.settings = H.empty_map_settings{
   'angels-ore1', -- Saphirite
   'angels-ore2', -- Jivolite

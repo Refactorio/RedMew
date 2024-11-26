@@ -30,10 +30,6 @@ DOC.scenario_name = 'danger-ore-industrial-revolution-3'
 DOC.game.technology_price_multiplier = 5
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.ores'
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.resource_patches'
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.allowed_entities'
-}
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- point patches
   'crude-oil',

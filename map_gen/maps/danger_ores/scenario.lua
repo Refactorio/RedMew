@@ -40,7 +40,7 @@ Config.player_shortcuts.enabled = true
 Config.player_shortcuts.shortcuts.battery_charge = false
 Config.reactor_meltdown.enabled = false
 
-local allowed_entities       = require 'map_gen.maps.danger_ores.modules.banned_entities'
+local allowed_entities       = require 'map_gen.maps.danger_ores.modules.allowed_entities'.register
 local concrete_on_landfill   = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 local container_dump         = require 'map_gen.maps.danger_ores.modules.container_dump'
 local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
@@ -56,7 +56,7 @@ Public.register = function(danger_ores_config)
   local _C = danger_ores_config
 
   if _C.allowed_entities.enabled then
-    allowed_entities(_C.allowed_entities.entities, _C.allowed_entities.message)
+    allowed_entities(_C.allowed_entities)
   end
   if _C.biter_drops.enabled then
     require 'map_gen.maps.danger_ores.modules.biter_drops'

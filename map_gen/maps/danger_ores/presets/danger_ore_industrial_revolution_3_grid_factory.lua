@@ -32,10 +32,6 @@ DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.mai
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.ores_grid_factory'
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.resource_patches'
 DOC.map_config.spawn_tile = 'tarmac'
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.allowed_entities'
-}
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- point patches
   'crude-oil',

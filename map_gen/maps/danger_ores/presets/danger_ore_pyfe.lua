@@ -19,10 +19,8 @@ DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compa
 DOC.map_config.spawn_shape = B.rectangle(100)
 DOC.map_config.spawn_tile = 'landfill'
 DOC.map_config.start_ore_shape = B.empty_shape
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.pyanodon.allowed_entities'
-}
+DOC.allowed_entities.types['inserter'] = true
+DOC.allowed_entities.types['splitter'] = true
 DOC.game.on_init = function()
   game.map_settings.pollution.diffusion_ratio = 0.01
   game.map_settings.pollution.min_to_diffuse = 300

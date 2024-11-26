@@ -18,10 +18,6 @@ DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compa
 DOC.map_config.spawn_shape = B.circle(40)
 DOC.map_config.start_ore_shape = B.circle(48)
 DOC.rocket_launched.win_satellite_count = 2500
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.bob.allowed_entities'
-}
 DOC.map_gen_settings.settings = H.empty_map_settings{
   'bauxite-ore',
   'coal',

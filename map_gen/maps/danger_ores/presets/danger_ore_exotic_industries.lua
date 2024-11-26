@@ -15,10 +15,7 @@ DOC.scenario_name = 'danger-ore-exotic-industries'
 DOC.compatibility.redmew_data.remove_resource_patches = false
 DOC.game.technology_price_multiplier = 1
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.exotic_industries.resource_patches'
-DOC.allowed_entities.entities = table.merge{
-  DOC.allowed_entities.entities,
-  require 'map_gen.maps.danger_ores.compatibility.exotic_industries.allowed_entities'
-}
+DOC.allowed_entities.allowed_entities['ei_alien-stabilizer'] = true
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- point patches
   'crude-oil',
