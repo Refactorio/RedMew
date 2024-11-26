@@ -111,14 +111,12 @@ end
 Event.add(defines.events.on_built_entity, on_built)
 Event.add(defines.events.on_robot_built_entity, on_built)
 
-local function register_dictionary(src, dst, call)
+local function register_dictionary(src, dst)
   if not src or not dst then
     return
   end
-
-  call = call or function(v) return v end
   for k, v in pairs(src) do
-    dst[k] = call(v)
+    dst[k] = v
   end
 end
 
