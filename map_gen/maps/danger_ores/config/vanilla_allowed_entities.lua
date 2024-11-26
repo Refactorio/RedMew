@@ -9,6 +9,7 @@ return {
     ['underground-belt'] = true,
 
     -- misc
+    ['resource'] = true,
     ['tile-ghost'] = true,
     ['electric-pole'] = true,
     ['mining-drill'] = true,
