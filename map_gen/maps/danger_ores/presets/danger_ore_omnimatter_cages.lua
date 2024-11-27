@@ -12,7 +12,6 @@ ScenarioInfo.add_map_extra_info([[
   Mine it to make room for your factory.
 ]])
 
-Config.redmew_qol.loaders = false
 Config.player_create.starting_items = {
   { count =  1, name = 'stone-furnace' },
   { count =  2, name = 'burner-mining-drill' },

@@ -76,4 +76,8 @@ return [[
       - [DO] Updated rocket launches requirement to win at 1000 for most presets
       - [DO] Updated technology multiplier to x25 for most presets
       - [DO] Updated terraforming for most presets
+
+  2024-11-27:
+      - [DO] Enabled presets: PyShort, Omnimatter (x2), and Scrap
+      - [DO] Changed default permissions to allow blueprints
 ]]

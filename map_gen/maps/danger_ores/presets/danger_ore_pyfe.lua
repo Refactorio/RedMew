@@ -21,6 +21,7 @@ DOC.map_config.spawn_tile = 'landfill'
 DOC.map_config.start_ore_shape = B.empty_shape
 DOC.allowed_entities.types['inserter'] = true
 DOC.allowed_entities.types['splitter'] = true
+DOC.game.technology_price_multiplier = 1
 DOC.game.on_init = function()
   game.map_settings.pollution.diffusion_ratio = 0.01
   game.map_settings.pollution.min_to_diffuse = 300

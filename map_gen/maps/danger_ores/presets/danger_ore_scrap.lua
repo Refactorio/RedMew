@@ -15,7 +15,7 @@ Config.player_create.starting_items = {
   { count =  2, name = 'burner-mining-drill' },
   { count =  5, name = 'iron-chest' },
   { count = 50, name = 'wood' },
-  { count =  1, name = 'reverse-factory-1' },
+  { count =  1, name = 'recycler' },
 }
 
 DOC.scenario_name = 'danger-ore-scrap'
@@ -27,7 +27,7 @@ DOC.map_config.start_ore_shape = B.square_diamond(44 * 2)
 DOC.game.technology_price_multiplier = 5
 DOC.game.on_init = function()
   game.forces.player.technologies['automation'].researched = true
-  game.forces.player.technologies['reverse-factory-1'].researched = true
+  game.forces.player.technologies['recycling'].researched = true
 end
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- fluid patches
