@@ -23,6 +23,7 @@ DOC.allowed_entities.entities = table.merge{
   DOC.allowed_entities.entities,
   require 'map_gen.maps.danger_ores.compatibility.pyanodon.allowed_entities'
 }
+DOC.game.technology_price_multiplier = 1
 DOC.game.on_init = function()
   game.map_settings.pollution.diffusion_ratio = 0.01
   game.map_settings.pollution.min_to_diffuse = 300
