@@ -28,7 +28,7 @@ Config.dump_offline_inventories = {
 }
 Config.market.enabled = false
 Config.paint.enabled = false
-Config.permissions.presets.no_blueprints = true
+Config.permissions.presets.no_blueprints = false
 Config.player_create.starting_items = {
   { count = 4,  name = 'burner-mining-drill' },
   { count = 4,  name = 'stone-furnace' },
