@@ -60,6 +60,7 @@ local maps = {
     { name = 'danger-ore-split', display_name = 'Split (4x sectors)', mod_pack = mod_packs.normal },
     { name = 'danger-ore-square', display_name = 'Square (corner start)', mod_pack = mod_packs.normal },
     { name = 'danger-ore-terraforming', display_name = 'Terraforming (default)', mod_pack = mod_packs.normal },
+    { name = 'danger-ore-x-cross', display_name = 'C Cross (45 degree)', mod_pack = mod_packs.normal },
     --{ name = 'danger-ore-xmas-tree', display_name = 'Christmas Tree (triangle)', mod_pack = mod_packs.normal },
 }
 
