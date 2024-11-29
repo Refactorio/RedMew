@@ -191,6 +191,16 @@ end
 
 local Public = {}
 
+---@param entity LuaEntity
+---@return bool
+Public.is_allowed = function(entity)
+  local e = get_entity_info(entity)
+  if not banned_entities[e.name] and (allowed_entities[e.name] or types[e.type]) then
+    return true
+  end
+  return false
+end
+
 ---@param config
 ---@field types? table<string, bool>
 ---@field allowed_entities? table<string, bool>

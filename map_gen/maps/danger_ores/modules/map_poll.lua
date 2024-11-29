@@ -53,6 +53,7 @@ local maps = {
     { name = 'danger-ore-one-direction', display_name = 'One Direction (right ribbon world)', mod_pack = mod_packs.normal },
     { name = 'danger-ore-one-direction-wide', display_name = 'One Direction Wide (wide right ribbon world)', mod_pack = mod_packs.normal },
     { name = 'danger-ore-patches', display_name = 'Patches (ore islands in coal)', mod_pack = mod_packs.normal },
+    { name = 'danger-ore-permanence', display_name = 'Permanence (rebuilding penalty)', mod_pack = mod_packs.normal },
     --{ name = 'danger-ore-poor-mans-coal-fields', display_name = 'Poor Man\'s Coal Fields (Alex Gaming\'s map)', mod_pack = mod_packs.normal },
     { name = 'danger-ore-pyfe', display_name = 'Pyanodon Short (PyFe)', mod_pack = mod_packs.py_short },
     { name = 'danger-ore-scrap', display_name = 'Scrapworld (no ores, all scraps)', mod_pack = mod_packs.scrap },
