@@ -80,4 +80,8 @@ return [[
   2024-11-27:
       - [DO] Enabled presets: PyShort, Omnimatter (x2), and Scrap
       - [DO] Changed default permissions to allow blueprints
+
+  2024-12-01:
+      - [DO:XCross] Added X-Cross preset
+      - [DO:Permanence] Added Permanence preset
 ]]

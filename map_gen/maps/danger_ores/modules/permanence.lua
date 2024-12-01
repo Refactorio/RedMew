@@ -74,7 +74,7 @@ return function(config)
   Event.add(defines.events.on_robot_mined_entity, on_mined)
   Event.add(defines.events.on_entity_died, function(event)
     local force = event.entity and event.entity.force
-    if force.name ~= 'player' then
+    if not force or force.name ~= 'player' then
       return
     end
     on_mined(event)
