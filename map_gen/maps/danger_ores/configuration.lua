@@ -61,7 +61,7 @@ return {
   },
   terraforming = {
     enabled = true,
-    start_size = 8 * 32,
+    start_size = 12 * 32,
     min_pollution = 400,
     max_pollution = 15000,
     pollution_increment = 4,
