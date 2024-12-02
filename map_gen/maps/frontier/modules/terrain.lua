@@ -80,7 +80,6 @@ RS.set_map_gen_settings({
       ['control-setting:moisture:frequency:multiplier'] = '3.000000',
     },
     starting_area = 3,
-    terrain_segmentation = 1,
   },
   MGSP.water_none,
 })

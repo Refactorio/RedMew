@@ -63,12 +63,13 @@ local settings = {
                     frequency = 0.5,
                     richness = 0.25,
                     size = 0.5
+                },
+                water = {
+                    frequency = 2,
+                    richness = 1,
+                    size = 0.5
                 }
             }
-        },
-        water = {
-            terrain_segmentation = 0.5,
-            water = 0.5
         },
         enemy = {
             autoplace_controls = {

@@ -7,7 +7,11 @@
     This will output a file with a table that you can add to this resources file or into your specific map.
     In either case, make sure to set seed to nil unless you want your map to be *exactly* the same each time.
     The expectation is that all changes that deviate from default generation are noted.
-    Water size and frequency is not denoted as such. Instead water size = water and water frequency = terrain_segmentation
+
+    Water:
+        frequency: (water scale), defines "Terrain segmentation" := 1 / water.frequency
+        richness: 0/1, defines the presence of water on map
+        size: (water coverage), defines the amount of water on map
 ]]
 return {
     -- the default table is included as a reference but also to give the option of overwriting all user settings
@@ -38,6 +42,21 @@ return {
                 richness = 1,
                 size = 1
             },
+            nauvis_cliff = {
+                frequency = 1,
+                richness = 1,
+                size = 1
+            },
+            rocks = {
+                frequency = 1,
+                richness = 1,
+                size = 1
+            },
+            starting_area_moisture = {
+                frequency = 1,
+                richness = 1,
+                size = 1
+            },
             stone = {
                 frequency = 1,
                 richness = 1,
@@ -52,16 +71,24 @@ return {
                 frequency = 1,
                 richness = 1,
                 size = 1
-            }
+            },
+            water = {
+                frequency = 1,
+                richness = 1,
+                size = 1
+            },
         },
         autoplace_settings = {},
         cliff_settings = {
             cliff_elevation_0 = 10,
             cliff_elevation_interval = 40,
+            cliff_smoothing = 0,
+            control = 'nauvis_cliff',
             name = 'cliff',
             richness = 1
         },
         height = 2000000,
+        no_enemies_mode = false,
         peaceful_mode = false,
         property_expression_names = {},
         seed = nil,
@@ -72,8 +99,6 @@ return {
                 y = 0
             }
         },
-        terrain_segmentation = 1,
-        water = 1,
         width = 2000000
     },
     -- no enemies
@@ -198,8 +223,32 @@ return {
     },
     -- very low water
     water_very_low = {
-        terrain_segmentation = 0.5,
-        water = 0.5
+        autoplace_controls = {
+            water = {
+                frequency = 1/6,
+                richness = 1,
+                size = 1/6
+            },
+        }
+    },
+    -- segmented water (terrain_segmentation = 6, water = 0.25)
+    water_segmented = {
+        autoplace_controls = {
+            water = {
+                frequency = 1/6,
+                richness = 1,
+                size = 0.25,
+            }
+        }
+    },
+    water_normal = {
+        autoplace_controls = {
+            water = {
+                frequency = 1,
+                richness = 1,
+                size = 1,
+            }
+        }
     },
     -- no cliffs
     cliff_none = {
@@ -211,9 +260,14 @@ return {
     },
     -- normal cliffs
     cliff_normal = {
-        name = 'cliff',
-        cliff_elevation_0 = 10,
-        cliff_elevation_interval = 10
+        cliff_settings = {
+            cliff_elevation_0 = 10,
+            cliff_elevation_interval = 40,
+            cliff_smoothing = 0,
+            control = 'nauvis_cliff',
+            name = 'cliff',
+            richness = 1
+        },
     },
     -- cliffs to high frequency, big size
     cliff_high = {

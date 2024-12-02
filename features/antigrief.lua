@@ -6,7 +6,30 @@ storage.original_last_users_by_ent_pos = {}
 
 Event.on_init(
     function()
-        storage.ag_surface = game.create_surface('antigrief', {autoplace_controls = {coal = {frequency = 'normal', richness = 'normal', size = 'none'}, ['copper-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, ['crude-oil'] = {frequency = 'normal', richness = 'normal', size = 'none'}, desert = {frequency = 'normal', richness = 'normal', size = 'none'}, dirt = {frequency = 'normal', richness = 'normal', size = 'none'}, ['enemy-base'] = {frequency = 'normal', richness = 'normal', size = 'none'}, grass = {frequency = 'normal', richness = 'normal', size = 'none'}, ['iron-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}, sand = {frequency = 'normal', richness = 'normal', size = 'none'}, stone = {frequency = 'normal', richness = 'normal', size = 'none'}, trees = {frequency = 'normal', richness = 'normal', size = 'none'}, ['uranium-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'}}, cliff_settings = {cliff_elevation_0 = 1024, cliff_elevation_interval = 10, name = 'cliff'}, height = 2000000, peaceful_mode = false, seed = 3461559752, starting_area = 'very-low', starting_points = {{x = 0, y = 0}}, terrain_segmentation = 'normal', water = 'normal', width = 2000000})
+        storage.ag_surface = game.create_surface('antigrief', {
+            autoplace_controls = {
+                coal = {frequency = 'normal', richness = 'normal', size = 'none'},
+                ['copper-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'},
+                ['crude-oil'] = {frequency = 'normal', richness = 'normal', size = 'none'},
+                desert = {frequency = 'normal', richness = 'normal', size = 'none'},
+                dirt = {frequency = 'normal', richness = 'normal', size = 'none'},
+                ['enemy-base'] = {frequency = 'normal', richness = 'normal', size = 'none'},
+                grass = {frequency = 'normal', richness = 'normal', size = 'none'},
+                ['iron-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'},
+                sand = {frequency = 'normal', richness = 'normal', size = 'none'},
+                stone = {frequency = 'normal', richness = 'normal', size = 'none'},
+                trees = {frequency = 'normal', richness = 'normal', size = 'none'},
+                ['uranium-ore'] = {frequency = 'normal', richness = 'normal', size = 'none'},
+                water = {frequency = 'normal', richness = 'normal', size = 'normal'},
+            },
+            cliff_settings = {cliff_elevation_0 = 1024, cliff_elevation_interval = 10, name = 'cliff'},
+            height = 2000000,
+            peaceful_mode = false,
+            seed = 3461559752,
+            starting_area = 'very-low',
+            starting_points = {{x = 0, y = 0}},
+            width = 2000000
+        })
         storage.ag_surface.always_day = true
     end
 )

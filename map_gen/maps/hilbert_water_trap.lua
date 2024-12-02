@@ -94,8 +94,13 @@ local tree_settings = {
 -- This seems to be a decent balance between small pools of water and not blocking entire sections
 -- of the maze near spawn by lakes
 local water_settings = {
-    terrain_segmentation = 'high',
-    water = 'low'
+    autoplace_controls = {
+        water = {
+            frequency = 'low', -- 'high' terrain segmentation
+            richness = 'normal',
+            size = 'low'
+        },
+    }
 }
 --Set map settings
 RS.set_map_gen_settings(

@@ -53,11 +53,11 @@ return {
     max       = { cliff = { frequency = 6,    richness = 2 } },
   },
   water = {
-    none      = { water = { frequancy = 1,   size = 0 } },
-    low       = { water = { frequency = 0.5, size = 0.3 } },
-    med       = { water = { frequency = 1,   size = 1 } },
-    high      = { water = { frequency = 1,   size = 4 } },
-    max       = { water = { frequency = 0.5, size = 10 } },
+    none      = { water = { frequency = 1,   richness = 1, size = 0 } },
+    low       = { water = { frequency = 0.5, richness = 1, size = 0.3 } },
+    med       = { water = { frequency = 1,   richness = 1, size = 1 } },
+    high      = { water = { frequency = 1,   richness = 1, size = 4 } },
+    max       = { water = { frequency = 0.5, richness = 1, size = 10 } },
   },
   enemy = {
     none      = { ['enemy-base'] = { frequency = 1e-6, size = -1,  richness = -1 } },

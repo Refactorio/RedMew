@@ -50,6 +50,11 @@ return {
             frequency = 1,
             richness = 1,
             size = 0
+        },
+        water = {
+            frequency = 1,
+            richness = 1,
+            size = 1,
         }
     },
     cliff_settings = {
@@ -64,6 +69,4 @@ return {
     starting_points = {
         {x = 0, y = 0}
     },
-    terrain_segmentation = 1,
-    water = 1
 }

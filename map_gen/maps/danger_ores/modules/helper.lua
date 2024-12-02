@@ -31,7 +31,7 @@ function Public.empty_map_settings(resource_list)
         MGSP.enemy_none,
         MGSP.cliff_none,
         MGSP.tree_none,
-        { terrain_segmentation = 'normal', water = 'normal' },
+        MGSP.water_normal,
         Public.ore_oil_none(resource_list)
     }
 end

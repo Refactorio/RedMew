@@ -45,10 +45,12 @@ local map_gen_settings = {
         },
         ['crude-oil'] = {
             richness = 'very-good'
+        },
+        water = {
+            frequency = 'very-low', -- 'very-high' terrain segmentation
+            size = 'very-big',
         }
     },
-    terrain_segmentation = 'very-high',
-    water = 'very-big'
 }
 RS.set_map_gen_settings({map_gen_settings})
 RS.set_map_settings({enemy_expansion = {enabled = true}})

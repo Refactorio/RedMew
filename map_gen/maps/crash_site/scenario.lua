@@ -26,10 +26,7 @@ local cutscene_force_name = 'cutscene'
 local default_map_gen_settings = {
     MGSP.grass_only,
     MGSP.enable_water,
-    {
-        terrain_segmentation = 6,
-        water = 0.25
-    },
+    MGSP.water_segmented,
     MGSP.starting_area_very_low,
     MGSP.ore_oil_none,
     MGSP.enemy_none,
