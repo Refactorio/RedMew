@@ -227,18 +227,8 @@ return {
             water = {
                 frequency = 1/6,
                 richness = 1,
-                size = 1/6
+                size = 0.25
             },
-        }
-    },
-    -- segmented water (terrain_segmentation = 6, water = 0.25)
-    water_segmented = {
-        autoplace_controls = {
-            water = {
-                frequency = 1/6,
-                richness = 1,
-                size = 0.25,
-            }
         }
     },
     water_normal = {

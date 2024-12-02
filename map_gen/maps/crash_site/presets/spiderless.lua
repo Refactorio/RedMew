@@ -7,7 +7,7 @@ local config = {
     map_gen_settings = {
         MGSP.grass_only,
         MGSP.enable_water,
-        MGSP.water_segmented,
+        MGSP.water_very_low,
         MGSP.starting_area_very_low,
         MGSP.ore_oil_none,
         MGSP.enemy_none,
