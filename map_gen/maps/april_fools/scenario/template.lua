@@ -174,19 +174,19 @@ end
 
 Template.diggy_rocks = {
   'rock-huge-volcanic',
-  'big-rock-volcanic',
+  'rock-big-volcanic',
   'rock-huge-black',
-  'big-rock-black',
+  'rock-big-black',
   'rock-huge-grey',
-  'big-rock-grey',
+  'rock-big-grey',
   'rock-huge-red',
-  'big-rock-red',
+  'rock-big-red',
   'rock-huge-white',
-  'big-rock-white',
+  'rock-big-white',
   'rock-huge-brown',
-  'big-rock-brown',
+  'rock-big-brown',
   'rock-huge-dustyrose',
-  'big-rock-dustyrose',
+  'rock-big-dustyrose',
 }
 Template.diggy_rocks_map = util.list_to_map(Template.diggy_rocks)
 
