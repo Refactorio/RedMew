@@ -415,7 +415,7 @@ function Public.control(config)
         end
 
         local radius = 5 + (radius_level * 3)
-        local count = (count_level - 2) * 5 + 3
+        local count = (count_level - 2) * 10 + 3
         local strikeCost = count * 4 -- the number of poison-capsules required in the chest as payment
 
         -- parse GPS coordinates from map ping
@@ -508,7 +508,7 @@ function Public.control(config)
         end
 
         local radius = 25 + (radius_level * 5)
-        local count = (count_level-1) * 6
+        local count = (count_level-1) * 12
         local strikeCost = count * 4
 
         -- parse GPS coordinates from map ping
