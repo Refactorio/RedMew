@@ -416,7 +416,7 @@ function Public.control(config)
 
         local radius = 5 + (radius_level * 3)
         local count = (count_level - 2) * 10 + 3
-        local strikeCost = count * 4 -- the number of poison-capsules required in the chest as payment
+        local strikeCost = count * 2 -- the number of poison-capsules required in the chest as payment
 
         -- parse GPS coordinates from map ping
         for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
@@ -509,7 +509,7 @@ function Public.control(config)
 
         local radius = 25 + (radius_level * 5)
         local count = (count_level-1) * 12
-        local strikeCost = count * 4
+        local strikeCost = count * 2
 
         -- parse GPS coordinates from map ping
         for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
@@ -602,8 +602,8 @@ function Public.control(config)
             local radius_level = airstrike_data.radius_level -- max radius of the strike area
             local count_level = airstrike_data.count_level -- the number of poison capsules launched at the enemy
             local radius = 5 + (radius_level * 3)
-            local count = (count_level - 1) * 5 + 3
-            local strikeCost = count * 4
+            local count = (count_level - 1) * 10 + 3
+            local strikeCost = count * 2
 
             local name = item.name
             local player_name = event.player.name
@@ -661,8 +661,8 @@ function Public.control(config)
             local radius_level = barrage_data.radius_level -- max radius of the strike area
             local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
             local radius = 25 + (radius_level * 5)
-            local count = count_level  * 6
-            local strikeCost = count * 4
+            local count = count_level  * 12
+            local strikeCost = count * 2
 
             local name = item.name
             local player_name = event.player.name
