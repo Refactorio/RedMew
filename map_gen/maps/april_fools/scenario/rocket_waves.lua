@@ -144,8 +144,24 @@ local function rocket_launched(event)
     return
   end
 
-  local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
-  if not inventory or not inventory.valid then
+  local pod = entity.cargo_pod
+  if not pod or not pod.valid then
+    return
+  end
+
+  local count = 0
+  local qualities = prototypes.quality
+  for k = 1, pod.get_max_inventory_index() do
+    local inventory = pod.get_inventory(k)
+    if inventory then
+      local add = inventory.get_item_count
+      for tier, _ in pairs(qualities) do
+        count = count + add({ name = 'satellite', quality = tier })
+      end
+    end
+  end
+
+  if count == 0 then
     return
   end
 
@@ -155,7 +171,7 @@ local function rocket_launched(event)
   end
 
   -- Increase enemy_evolution
-  local current_evolution = game.forces.enemy.get_evolution_factor()
+  local current_evolution = math.max(game.forces.enemy.get_evolution_factor('mines'), game.forces.enemy.get_evolution_factor('islands'))
 
   if (satellite_count % 5) == 0 and win_data.evolution_rocket_maxed == -1 then
     local message = 'Continued launching of satellites has angered the local biter population, evolution increasing...'

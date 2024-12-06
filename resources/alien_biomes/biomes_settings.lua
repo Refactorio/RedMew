@@ -60,7 +60,7 @@ return {
     max       = { water = { frequency = 0.5, richness = 1, size = 10 } },
   },
   enemy = {
-    none      = { ['enemy-base'] = { frequency = 1e-6, size = -1,  richness = -1 } },
+    none      = { ['enemy-base'] = { frequency = 0,    size = 0,   richness = 0 } },
     very_low  = { ['enemy-base'] = { frequency = 0.1,  size = 0.1, richness = 0.1 } },
     low       = { ['enemy-base'] = { frequency = 0.2,  size = 0.2, richness = 0.2 } },
     med       = { ['enemy-base'] = { frequency = 0.5,  size = 0.5, richness = 0.5 } },

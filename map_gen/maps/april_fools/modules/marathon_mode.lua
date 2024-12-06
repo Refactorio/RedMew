@@ -17,11 +17,6 @@ Global.register(_global, function(tbl) _global = tbl end)
 local function update_price_multiplier()
   local level = math.max(0, _global.level)
 
-  -- Enable expensive recipes after lvl.3
-  game.difficulty_settings.recipe_difficulty = (level > 3) and 1 or 0
-
-  -- Apply expensive tech cost above lvl.0
-  game.difficulty_settings.technology_difficulty = (level > 0) and 1 or 0
   game.difficulty_settings.technology_price_multiplier = (level + 1) * COST_STEP
 end
 

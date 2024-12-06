@@ -3,9 +3,17 @@
   2024 revamped version of "Pinguin" scenario from 2019 with several addons.
 
   Required mods:
-  - Alien Biomes v0.6.8
-  - RedMew Data  v0.2.4
+  - Alien Biomes v0.7.2
+  - RedMew Data  v1.1.0
 ]]
+
+if not script.active_mods['alien-biomes'] or not (script.active_mods['redmew-data'] and settings.startup.redmew_scenario.value == 'april-fools') then
+  error([[
+    Missing dependencies. Please check that the following mods have been correctly installed:
+    - Alien Biomes >= v0.7.2
+    - RedMew Data >= v1.1.0 & scenario setting "April Fools"
+  ]])
+end
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Double Trouble')
@@ -64,6 +72,7 @@ end
 
 local Event = require 'utils.event'
 local ABS = require 'resources.alien_biomes.biomes_settings'
+local ABT = require 'resources.alien_biomes.tile_presets'
 local Biomes = require 'resources.alien_biomes.biomes'
 local mgs = Biomes.preset_to_mgs
 
@@ -79,28 +88,35 @@ local function on_init()
 
   -- Above ground
   local islands_preset = Biomes.presets.ice
-  islands_preset.water = ABS.water.max
+  islands_preset.water = ABS.water.low
   islands_preset.enemy = ABS.enemy.high
   local islands_mgs = mgs(islands_preset)
+  islands_mgs.starting_area = 3
+  islands_mgs.autoplace_settings = ABT.cold
+  islands_mgs.autoplace_settings.tile.treat_missing_as_default = true
+  for tile, _ in pairs(ABT.default.tile.settings) do
+    islands_mgs.autoplace_settings.tile.settings[tile] = { frequency = 1, size = 0, richness = 1 }
+  end
   for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
     islands_mgs.autoplace_controls[resource] = { frequency = 1, richness = 1, size = 0 }
   end
   islands_mgs.autoplace_controls['crude-oil'] = { frequency = 1, richness = 2, size = 1.2 }
+  islands_mgs.property_expression_names.elevation = 'elevation_island'
   local islands = game.create_surface('islands', islands_mgs)
   islands.request_to_generate_chunks(spawn, 5)
   islands.force_generate_chunk_requests()
   islands.ticks_per_day = 72000
+  islands.localised_name = 'Islands'
 
   -- Under ground
   local mines_preset = Biomes.presets.volcano
   mines_preset.water = ABS.water.none
+  mines_preset.enemy = ABS.enemy.none
   local mines_mgs = mgs(mines_preset)
   mines_mgs.seed = _DEBUG and 309111855 or nil
-  mines_mgs.autoplace_settings = {
-    tile = {}
-  }
+  mines_mgs.autoplace_settings = ABT.volcano
   for _, tile in pairs({'deepwater', 'deepwater-green', 'water', 'water-green', 'water-mud', 'water-shallow'}) do
-    mines_mgs.autoplace_settings.tile[tile] = { frequency = 1, size = 0, richness = 1 }
+    mines_mgs.autoplace_settings.tile.settings[tile] = { frequency = 1, size = 0, richness = 1 }
   end
   for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
     mines_mgs.autoplace_controls[resource] = { frequency = 12.0, size = 0.5, richness = 0.08 }
@@ -115,7 +131,9 @@ local function on_init()
   mines.freeze_daytime = true
   mines.show_clouds = false
   mines.brightness_visual_weights = {1/0.85, 1/0.85, 1/0.85}
+  mines.localised_name = 'Mines'
 
+  game.forces.player.set_surface_hidden('nauvis', true)
   game.forces.player.set_spawn_position(spawn, 'islands')
   game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1.2
 end
@@ -141,7 +159,7 @@ local modules = {
   require 'map_gen.maps.april_fools.modules.auto_build',          -- Randomly selected players will have their cursor items automatically built nearby for a time, before changing targets
   require 'map_gen.maps.april_fools.modules.biter_ores',          -- Biters spawn ores on death, level determines amount
   require 'map_gen.maps.april_fools.modules.crazy_chat_colors',   -- Chance to change player's color every time they send a message in chat
-  require 'map_gen.maps.april_fools.modules.crazy_toolbar',       -- Randomly replaces quickbar slots with new items
+  require 'map_gen.maps.april_fools.modules.crazy_toolbar',       -- Randomly replaces quick-bar slots with new items
   require 'map_gen.maps.april_fools.modules.enemy_turrets',       -- Chance to change turret to enemy force, and give it ammo/fuel/power
   require 'map_gen.maps.april_fools.modules.explosion_scare',     -- Spawns random non-damaging explosions on random players as a jump-scare
   require 'map_gen.maps.april_fools.modules.floor_is_lava',       -- Does minor damage to a player when afk for a few second
@@ -149,12 +167,12 @@ local modules = {
   require 'map_gen.maps.april_fools.modules.marathon_mode',       -- Enables expensive recipes and increases technology multiplier
   require 'map_gen.maps.april_fools.modules.meteOres',            -- Meteors fall from the sky, generating ores, and biters
   require 'map_gen.maps.april_fools.modules.orphan_crafting',     -- Chance to give the player an additional single underground belt or pipe-to-ground
-  require 'map_gen.maps.april_fools.modules.permanent_factory',   -- Chance to make an entity indestructable
+  require 'map_gen.maps.april_fools.modules.permanent_factory',   -- Chance to make an entity indestructible
   require 'map_gen.maps.april_fools.modules.random_ores',         -- Chance to change an ore to a random ore when a mining drill is placed
   require 'map_gen.maps.april_fools.modules.rotate_entities',     -- Chance to randomly rotate an entity when rotated by a player
   require 'map_gen.maps.april_fools.modules.rotate_inserters',    -- Chance to randomly rotate an inserter when built
   require 'map_gen.maps.april_fools.modules.rotten_egg',          -- Randomly selected players will produce pollution for a time, before changing targets
-  require 'map_gen.maps.april_fools.modules.unorganized_recipes', -- Randomly selected players will have their recipe groups and subgroups disabled, unorganizing their crafting menu
+  require 'map_gen.maps.april_fools.modules.unorganized_recipes', -- Randomly selected players will have their recipe groups and subgroups disabled, un-organizing their crafting menu
 }
 
 -- if script.active_mods['redmew-data'] then

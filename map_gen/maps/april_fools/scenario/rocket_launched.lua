@@ -4,7 +4,7 @@ local ShareGlobals = require 'map_gen.maps.april_fools.scenario.shared_globals'
 
 ShareGlobals.data.map_won = false
 
-local win_satellite_count = 1000
+local win_satellite_count = 100
 
 _G.rocket_launched_win_data = {
   extra_rockets = win_satellite_count
@@ -55,8 +55,24 @@ local function rocket_launched(event)
     return
   end
 
-  local inventory = entity.get_inventory(defines.inventory.rocket_silo_rocket)
-  if not inventory or not inventory.valid then
+  local pod = entity.cargo_pod
+  if not pod or not pod.valid then
+    return
+  end
+
+  local count = 0
+  local qualities = prototypes.quality
+  for k = 1, pod.get_max_inventory_index() do
+    local inventory = pod.get_inventory(k)
+    if inventory then
+      local add = inventory.get_item_count
+      for tier, _ in pairs(qualities) do
+        count = count + add({ name = 'satellite', quality = tier })
+      end
+    end
+  end
+
+  if count == 0 then
     return
   end
 
