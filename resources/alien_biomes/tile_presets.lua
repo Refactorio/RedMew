@@ -27,13 +27,21 @@ local function make_default_autoplace_settings(tile_table)
       settings = {}
     }
   }
-  for _, tile_name in pairs(Table.concat_tables(tile_table)) do
+  for _, tile_name in pairs(Table.merge(tile_table)) do
     autoplace_settings.tile.settings[tile_name] = {frequency = 1, size = 1, richness = 1}
   end
   return autoplace_settings
 end
 
 return {
+  -- vanilla
+  default = make_default_autoplace_settings{{
+    'grass-1', 'grass-2', 'grass-3', 'grass-4',
+    'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7',
+    'dry-dirt',
+    'sand-1', 'sand-2', 'sand-3',
+    'red-desert-0', 'red-desert-2', 'red-desert-3', 'red-desert-4',
+  }},
   -- Color subsets
   green = make_default_autoplace_settings{
     ab_tiles['vegetation-green-grass'],
@@ -177,16 +185,16 @@ return {
     ab_tiles['mineral-violet-dirt'],
   },
   heat_blue = make_default_autoplace_settings{
-    ab_tiles['volcaninc-blue-heat'],
+    ab_tiles['volcanic-blue-heat'],
   },
   heat_green = make_default_autoplace_settings{
-    ab_tiles['volcaninc-green-heat'],
+    ab_tiles['volcanic-green-heat'],
   },
   heat_orange = make_default_autoplace_settings{
-    ab_tiles['volcaninc-orange-heat'],
+    ab_tiles['volcanic-orange-heat'],
   },
   heat_purple = make_default_autoplace_settings{
-    ab_tiles['volcaninc-purple-heat'],
+    ab_tiles['volcanic-purple-heat'],
   },
 
   -- Full biomes
@@ -194,13 +202,13 @@ return {
     ab_tiles['frozen-snow'],
     ab_tiles['mineral-white-dirt'],
     ab_tiles['mineral-white-sand'],
-    ab_tiles['volcaninc-blue-heat'],
+    ab_tiles['volcanic-blue-heat'],
   },
   hot = make_default_autoplace_settings{
     ab_tiles['mineral-red-dirt'],
     ab_tiles['mineral-red-sand'],
     ab_tiles['vegetation-red-grass'],
-    ab_tiles['volcaninc-orange-heat'],
+    ab_tiles['volcanic-orange-heat'],
   },
   pale = make_default_autoplace_settings{
     ab_tiles['mineral-beige-dirt'],
@@ -243,7 +251,7 @@ return {
     ab_tiles['mineral-red-dirt'],
     ab_tiles['mineral-red-sand'],
     ab_tiles['vegetation-red-grass'],
-    ab_tiles['volcaninc-orange-heat'],
+    ab_tiles['volcanic-orange-heat'],
   },
   mystic_purple = make_default_autoplace_settings{
     ab_tiles['mineral-aubergine-dirt'],

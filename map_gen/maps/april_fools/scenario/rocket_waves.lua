@@ -144,6 +144,11 @@ local function rocket_launched(event)
     return
   end
 
+  local pod = entity.cargo_pod
+  if not pod or not pod.valid then
+    return
+  end
+
   local count = 0
   local qualities = prototypes.quality
   for k = 1, pod.get_max_inventory_index() do
