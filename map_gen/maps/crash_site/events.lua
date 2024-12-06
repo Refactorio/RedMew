@@ -574,3 +574,10 @@ Event.add(
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )
+
+Event.add(defines.events.on_research_finished, function(event)
+    local research = event.research
+    if research.name == 'uranium-mining' then
+        research.force.technologies['uranium-processing'].researched = true
+    end
+end)
