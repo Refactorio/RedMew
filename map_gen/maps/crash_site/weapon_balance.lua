@@ -3,39 +3,39 @@ local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local player_ammo_starting_modifiers = {
-    ['artillery-shell'] = -0.75,
-    ['biological'] = -0.5,
-    ['bullet'] = -0.25,
-    ['cannon-shell'] = -0.75,
-    ['capsule'] = -0.5,
-    ['electric'] = -0.5,
-    ['flamethrower'] = -0.75,
-    ['grenade'] = -0.5,
-    ['landmine'] = -0.33,
-    ['laser'] = -0.75,
-    ['melee'] = 1,
-    ['rocket'] = -0.5,
-    ['shotgun-shell'] = -0.20
+    --['artillery-shell'] = -0.75,
+    --['biological'] = -0.5,
+    --['bullet'] = -0.25,
+    --['cannon-shell'] = -0.75,
+    --['capsule'] = -0.5,
+    --['electric'] = -0.5,
+    --['flamethrower'] = -0.75,
+    --['grenade'] = -0.5,
+    --['landmine'] = -0.33,
+    --['laser'] = -0.75,
+    --['melee'] = 1,
+    --['rocket'] = -0.5,
+    --['shotgun-shell'] = -0.20
 }
 
 local player_ammo_research_modifiers = {
-    ['artillery-shell'] = -0.75,
-    ['biological'] = -0.5,
-    ['bullet'] = -0.20,
-    ['cannon-shell'] = -0.75,
-    ['capsule'] = -0.5,
-    ['electric'] = -0.6,
-    ['flamethrower'] = -0.75,
-    ['grenade'] = -0.5,
-    ['landmine'] = -0.5,
-    ['laser'] = -0.75,
-    ['melee'] = -0.5,
-    ['rocket'] = -0.5,
-    ['shotgun-shell'] = -0.20
+    --['artillery-shell'] = -0.75,
+    --['biological'] = -0.5,
+    --['bullet'] = -0.20,
+    --['cannon-shell'] = -0.75,
+    --['capsule'] = -0.5,
+    --['electric'] = -0.6,
+    --['flamethrower'] = -0.75,
+    --['grenade'] = -0.5,
+    --['landmine'] = -0.5,
+    --['laser'] = -0.75,
+    --['melee'] = -0.5,
+    --['rocket'] = -0.5,
+    --['shotgun-shell'] = -0.20
 }
 
 local player_turrets_research_modifiers = {
-    ['gun-turret'] = -0.5,
+    --['gun-turret'] = -0.5,
     --['laser-turret'] = -0.75,
     ['flamethrower-turret'] = -0.75
 }

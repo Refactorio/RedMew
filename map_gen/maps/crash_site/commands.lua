@@ -402,6 +402,12 @@ function Public.control(config)
         }
     end
 
+    local function strike_formula(count_level)
+        local count = (count_level - 2) * 10 + 3
+        local cost = count * 2 -- the number of poison-capsules required in the chest as payment
+        return count, cost
+    end
+
     local function strike(args, player)
         local s = player.surface
         local location_string = args.location
@@ -415,8 +421,7 @@ function Public.control(config)
         end
 
         local radius = 5 + (radius_level * 3)
-        local count = (count_level - 2) * 10 + 3
-        local strikeCost = count * 2 -- the number of poison-capsules required in the chest as payment
+        local count, strikeCost = strike_formula(count_level)
 
         -- parse GPS coordinates from map ping
         for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
@@ -486,13 +491,19 @@ function Public.control(config)
 
     local spawn_rocket_callback = Token.register(function(data)
         data.s.create_entity {
-            name = "explosive-rocket",
+            name = "artillery-projectile", --"explosive-rocket",
             position = {0, 0},
             target = {data.xpos, data.ypos},
             speed = 10,
             max_range = 100000
         }
     end)
+
+    local function barrage_formula(count_level)
+        local count = (count_level-1)
+        local cost = count * 24
+        return count, cost
+    end
 
     local function barrage(args, player)
         local s = player.surface
@@ -508,8 +519,7 @@ function Public.control(config)
         end
 
         local radius = 25 + (radius_level * 5)
-        local count = (count_level-1) * 12
-        local strikeCost = count * 2
+        local count, strikeCost = barrage_formula(count_level)
 
         -- parse GPS coordinates from map ping
         for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
@@ -540,7 +550,7 @@ function Public.control(config)
             local inv = dropbox.get_inventory(defines.inventory.chest)
             local capCount = inv.get_item_count("explosive-rocket")
 
-            if capCount < count then
+            if capCount < strikeCost then
                 player.print({
                     'command_description.crash_site_barrage_insufficient_currency_error',
                     strikeCost - capCount
@@ -601,14 +611,12 @@ function Public.control(config)
         if item.type == 'airstrike' then
             local radius_level = airstrike_data.radius_level -- max radius of the strike area
             local count_level = airstrike_data.count_level -- the number of poison capsules launched at the enemy
-            local radius = 5 + (radius_level * 3)
-            local count = (count_level - 1) * 10 + 3
-            local strikeCost = count * 2
 
             local name = item.name
             local player_name = event.player.name
             if name == 'airstrike_damage' then
                 airstrike_data.count_level = airstrike_data.count_level + 1
+                local count, strikeCost = strike_formula(airstrike_data.count_level)
 
                 Toast.toast_all_players(15, {
                     'command_description.crash_site_airstrike_damage_upgrade_success',
@@ -629,6 +637,8 @@ function Public.control(config)
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
             elseif name == 'airstrike_radius' then
                 airstrike_data.radius_level = airstrike_data.radius_level + 1
+                local radius = 5 + (airstrike_data.radius_level * 3)
+
                 Toast.toast_all_players(15, {
                     'command_description.crash_site_airstrike_radius_upgrade_success',
                     player_name,
@@ -660,14 +670,12 @@ function Public.control(config)
         if item.type == 'barrage' then
             local radius_level = barrage_data.radius_level -- max radius of the strike area
             local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
-            local radius = 25 + (radius_level * 5)
-            local count = count_level  * 12
-            local strikeCost = count * 2
 
             local name = item.name
             local player_name = event.player.name
             if name == 'barrage_damage' then
                 barrage_data.count_level = barrage_data.count_level + 1
+                local count, strikeCost = barrage_formula(barrage_data.count_level)
 
                 Toast.toast_all_players(15, {
                     'command_description.crash_site_barrage_damage_upgrade_success',
@@ -688,6 +696,8 @@ function Public.control(config)
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
             elseif name == 'barrage_radius' then
                 barrage_data.radius_level = barrage_data.radius_level + 1
+                local radius = 25 + (barrage_data.radius_level * 5)
+
                 Toast.toast_all_players(15, {
                     'command_description.crash_site_barrage_radius_upgrade_success',
                     player_name,
@@ -715,6 +725,7 @@ function Public.control(config)
                 cursor_stack.entity_filters = {'big-rock'}
             end
         end
+
         if item.type == 'spidertron' and item.name=='spidertron_planner' then
                 local player = event.player
                 player.clear_cursor()
