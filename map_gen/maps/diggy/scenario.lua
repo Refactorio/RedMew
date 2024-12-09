@@ -54,6 +54,7 @@ function Scenario.register(diggy_config)
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
     redmew_config.paint.enabled = false
+    redmew_config.experience.enabled = true
 
     restart_command({scenario_name = diggy_config.scenario_name})
 

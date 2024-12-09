@@ -7,7 +7,7 @@ local CS_Rendering = require 'features.cutscene.rendering'
 local RS = require 'map_gen.shared.redmew_surface'
 local Color = require 'resources.color_presets'
 local PC = require 'features.player_create'
-local Experience = require 'map_gen.maps.diggy.feature.experience'
+local Experience = require 'features.gui.experience'
 local register_rendering = Cutscene.register_rendering
 local play_sound = Cutscene.play_sound
 local draw_text = CS_Rendering.draw_text
@@ -132,7 +132,7 @@ local function cutscene_function(player_index, waypoint_index, params)
 
         draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'This is our toolbar!'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275)
 
-        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', "Here you'll find a wide range of tools and informations about us!"}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', "Here you'll find a wide range of tools and information about us!"}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 2)
 
         draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', '', 'Hover your mouse over them for more information'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 3)
 

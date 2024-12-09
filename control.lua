@@ -176,6 +176,9 @@ end
 if config.player_shortcuts.enabled then
     require 'features.gui.shortcuts'
 end
+if config.experience.enabled then
+    require 'features.gui.experience'
+end
 if config.score.enabled then
     require 'features.gui.score'
 end
