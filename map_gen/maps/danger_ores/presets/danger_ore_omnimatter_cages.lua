@@ -22,6 +22,7 @@ Config.player_create.starting_items = {
 
 DOC.scenario_name = 'danger-ore-omnimatter-cages'
 DOC.concrete_on_landfill.refund_tile = 'omnite-refined-concrete'
+DOC.game.technology_price_multiplier = 1
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.compatibility.omnimatter.main_ores_cages'
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.omnimatter.ores_cages'
 DOC.map_config.no_resource_patch_shape = B.square_diamond(80 * 2)
