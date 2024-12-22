@@ -35,7 +35,7 @@ local function on_built_entity(event)
     return
   else
     entity.destructible = true
-    entity.minable = false
+    entity.minable_flag = false
   end
 end
 

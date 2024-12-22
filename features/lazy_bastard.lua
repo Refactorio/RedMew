@@ -127,7 +127,7 @@ Command.add('lazy-bastard-bootstrap', {
 
     for i = 1, #templates do
         local entity = create_entity(templates[i])
-        entity.minable = false
+        entity.minable_flag = false
         entity.destructible = false
     end
 
@@ -139,7 +139,7 @@ Command.add('lazy-bastard-bootstrap', {
     power_source.electric_buffer_size = 30000
     power_source.power_production = 30000
     power_source.destructible = false
-    power_source.minable = false
+    power_source.minable_flag = false
 
     -- in 7 minutes, remove the power source
     Task.set_timeout(420, clean_energy_interface, {entity = power_source})

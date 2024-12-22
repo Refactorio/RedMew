@@ -16,7 +16,7 @@ local function create_chest(player, position, radius, bounding_box)
 
     if pos ~= nil then
         local chest = surface.create_entity {name = 'steel-chest', position = pos, force = player.force}
-        chest.minable = false
+        chest.minable_flag = false
         return chest
     end
 
@@ -61,7 +61,7 @@ local function on_gui_closed(event)
     if entity == nil or not entity.valid then
         return
     end
-    if entity.name == 'steel-chest' and entity.minable == false and not entity.has_items_inside() then
+    if entity.name == 'steel-chest' and entity.minable_flag == false and not entity.has_items_inside() then
         entity.destroy()
     end
 end
@@ -71,7 +71,7 @@ local function ctrl_empty(event)
     if entity == nil or not entity.valid then
         return
     end
-    if entity.name == 'steel-chest' and not entity.minable then
+    if entity.name == 'steel-chest' and not entity.minable_flag then
         event.entity = entity
         on_gui_closed(event)
     end

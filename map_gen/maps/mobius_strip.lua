@@ -49,7 +49,7 @@ local function effect(_, _, world, tile)
 
         local e = world.surface.create_entity({name = 'rocket-silo', position = {0, 0}, force = 'player'})
         e.destructible = false
-        e.minable = false
+        e.minable_flag = false
     end
 
     --[[

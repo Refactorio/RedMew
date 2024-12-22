@@ -80,7 +80,7 @@ if Game_mode_config.king_of_the_hill then
 
     local function lock_entity(e)
         e.destructible = false
-        e.minable = false
+        e.minable_flag = false
         e.operable = false
         e.rotatable = false
     end

@@ -54,7 +54,7 @@ function Market.spawn_exchange_market(position)
     create_build_effect_smoke = true,
     move_stuck_players = true,
   }
-  market.minable = false
+  market.minable_flag = false
   market.destructible = false
 
   local offers_count = 10 + math_random(10)

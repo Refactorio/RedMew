@@ -94,7 +94,7 @@ function SpawnShop.on_game_started()
     move_stuck_players = true,
     raise_built = false,
   }
-  shop.minable = false
+  shop.minable_flag = false
   Public.get().spawn_shop = shop
   Task.set_timeout(1, SpawnShop.add_render_token)
   SpawnShop.refresh_all_prices(false)

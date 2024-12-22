@@ -215,7 +215,7 @@ local function collect_full_row_resources(tetri)
         local x = position.x + active_qchunks[1].x * 16 - 9
         local y = tetri_y + active_qchunks[1].y * 16 - 9
         local chest = InfinityChest.create_chest(tetri.surface, {x, y}, storage)
-        chest.minable = false
+        chest.minable_flag = false
         chest.destructible = false
 
         primitives.points = primitives.points + points * 100

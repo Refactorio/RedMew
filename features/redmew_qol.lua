@@ -137,7 +137,7 @@ local function preserve_bot(event)
 
     if logistic_network == nil or not logistic_network.valid then
         -- prevents an orphan bot from being unremovable
-        entity.minable = true
+        entity.minable_flag = true
         return
     end
 
@@ -147,17 +147,17 @@ local function preserve_bot(event)
 
     -- checks if construction-robot is part of a mobile logistic network
     if owner.name ~= 'character' then
-        entity.minable = true
+        entity.minable_flag = true
         return
     end
 
     -- checks if construction-robot is owned by the player that has selected it
     if owner.player.name == player.name then
-        entity.minable = true
+        entity.minable_flag = true
         return
     end
 
-    entity.minable = false
+    entity.minable_flag = false
 end
 
 -- Event registers

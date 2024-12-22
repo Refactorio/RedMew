@@ -127,7 +127,7 @@ storage.chest_selected = false
 local function linkchests()
     if game.player and game.player.admin and game.player.selected and (game.player.selected.type == 'logistic-container' or game.player.selected.type == 'container') then
         game.player.selected.destructible = false
-        game.player.selected.minable = false
+        game.player.selected.minable_flag = false
         if storage.chest_selected then
             storage.magic_chests[#storage.magic_chests].target = game.player.selected
             game.print('Link established.')

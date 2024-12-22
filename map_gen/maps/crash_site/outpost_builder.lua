@@ -1502,7 +1502,7 @@ Public.magic_item_crafting_callback =
         local outpost_id = data.outpost_id
         local callback_data = data.callback_data
 
-        entity.minable = false
+        entity.minable_flag = false
         entity.destructible = false
         entity.operable = false
 
@@ -1551,7 +1551,7 @@ Public.magic_item_crafting_callback_weighted =
         local outpost_id = data.outpost_id
         local callback_data = data.callback_data
 
-        entity.minable = false
+        entity.minable_flag = false
         entity.destructible = false
         entity.operable = false
 
@@ -1658,7 +1658,7 @@ Public.scenario_chest_callback = Token.register(function(chest)
     end
 
     chest.destructible = false
-    chest.minable = false
+    chest.minable_flag = false
 end)
 
 local function turret_died(event)

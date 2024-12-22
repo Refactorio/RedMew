@@ -307,7 +307,7 @@ local function rail_create(data)
         direction = direction
     }
     if rail and rail.valid then
-        rail.minable = false
+        rail.minable_flag = false
         rail.destructible = false
     end
 end

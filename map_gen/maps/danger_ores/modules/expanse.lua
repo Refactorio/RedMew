@@ -365,7 +365,7 @@ return function(config)
       if is_container_position_valid(position) then
         local e = surface.create_entity({ name = 'requester-chest', position = position, force = 'neutral' })
         e.destructible = false
-        e.minable = false
+        e.minable_flag = false
         table.insert(chests, e)
       end
     end

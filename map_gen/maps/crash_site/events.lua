@@ -335,7 +335,7 @@ artillery_cooldown_callback =
             return
         end
 
-        entity.minable = true
+        entity.minable_flag = true
     end
 )
 
@@ -386,7 +386,7 @@ local function do_bot_spawn(entity_name, entity, event)
         end
         for i = 1, repeat_cycle do
             if (cause.name == 'artillery-turret') then
-                cause.minable = false
+                cause.minable_flag = false
                 set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
@@ -397,7 +397,7 @@ local function do_bot_spawn(entity_name, entity, event)
                 create_entity(spawn_entity)
 
             elseif (cause.name == 'artillery-wagon') then
-                cause.minable = false
+                cause.minable_flag = false
                 set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)

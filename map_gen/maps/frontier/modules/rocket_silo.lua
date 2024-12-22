@@ -176,7 +176,7 @@ function RocketSilo.move_silo(position)
 
   if new_silo and new_silo.valid then
     new_silo.destructible = false
-    new_silo.minable = false
+    new_silo.minable_flag = false
     new_silo.active = true
     new_silo.get_output_inventory().clear()
     this.rocket_silo = new_silo
