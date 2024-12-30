@@ -216,7 +216,10 @@ storage.config = {
                 {name = 'coin', count = 20000},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
-                {name = 'selection-tool', count = 1}
+                {name = 'selection-tool', count = 1},
+                {name = 'linked-chest', count = 10},
+                {name = 'train-stop', count = 10},
+                {name = 'rail', count = 100},
             }
         }
     },
@@ -469,6 +472,10 @@ storage.config = {
             battery_charge = true,
         }
     },
+    train_station_teleport = {
+        enabled = false,
+        radius = 13,
+    },
     admin_panel = {
         enabled = true,
     },
@@ -572,6 +579,25 @@ storage.config = {
             override_sound_type = 'ambient' -- Menu > Settings > Sounds > Music
         }
     },
+    market_chest = {
+        enabled = false,
+        -- What market provides
+        offers = {
+            ['coal'] = 2,
+            ['copper-ore'] = 2,
+            ['iron-ore'] = 2,
+            ['stone'] = 2,
+            ['uranium-ore'] = 10,
+        },
+        -- What market requests
+        requests = {
+            ['coal'] = 1,
+            ['copper-ore'] = 1,
+            ['iron-ore'] = 1,
+            ['stone'] = 1,
+            ['uranium-ore'] = 5,
+        },
+    }
 }
 
 return storage.config

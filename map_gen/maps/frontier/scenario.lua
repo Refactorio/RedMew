@@ -72,6 +72,8 @@ Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_shortcuts.enabled = true
 Config.dump_offline_inventories.enabled = true
+Config.market_chest.enabled = true
+Config.train_station_teleport.enabled = true
 Config.player_create.starting_items = {
   { name = 'burner-mining-drill', count = 1 },
   { name = 'stone-furnace', count = 1 },
@@ -79,6 +81,7 @@ Config.player_create.starting_items = {
   { name = 'firearm-magazine', count = 10 },
   { name = 'wood', count = 1 },
 }
+
 
 if script.active_mods['Krastorio2'] then
   Config.paint.enabled = false

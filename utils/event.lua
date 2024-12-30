@@ -112,7 +112,7 @@ local generate_event_name = script.generate_event_name
 
 local Event = {}
 
-local handlers_added = false -- set to true after the removeable event handlers have been added.
+local handlers_added = false -- set to true after the removable event handlers have been added.
 
 local event_handlers = EventCore.get_event_handlers()
 local on_nth_tick_event_handlers = EventCore.get_on_nth_tick_event_handlers()
@@ -142,7 +142,7 @@ local function remove(tbl, handler)
         return
     end
 
-    -- the handler we are looking for is more likly to be at the back of the array.
+    -- the handler we are looking for is more likely to be at the back of the array.
     for i = #tbl, 1, -1 do
         if tbl[i] == handler then
             table_remove(tbl, i)
@@ -212,6 +212,41 @@ function Event.on_nth_tick(tick, handler)
 
     core_on_nth_tick(tick, handler)
 end
+
+local function handler_factory(event_list)
+    return function(handler)
+        for _, event_name in pairs(event_list) do
+            Event.add(event_name, handler)
+        end
+    end
+end
+
+Event.on_built = handler_factory {
+    defines.events.on_biter_base_built,
+    defines.events.on_built_entity,
+    defines.events.on_robot_built_entity,
+    defines.events.on_space_platform_built_entity,
+    defines.events.script_raised_built,
+    defines.events.script_raised_revive,
+    defines.events.on_entity_cloned,
+}
+Event.on_destroyed = handler_factory {
+    defines.events.on_entity_died,
+    defines.events.on_player_mined_entity,
+    defines.events.on_robot_mined_entity,
+    defines.events.on_space_platform_mined_entity,
+    defines.events.script_raised_destroy,
+}
+Event.on_built_tile = handler_factory {
+    defines.events.on_player_built_tile,
+    defines.events.on_robot_built_tile,
+    defines.events.on_space_platform_built_tile,
+}
+Event.on_mined_tile = handler_factory {
+    defines.events.on_player_mined_tile,
+    defines.events.on_robot_mined_tile,
+    defines.events.on_space_platform_mined_tile,
+}
 
 --- Register a token handler that can be safely added and removed at runtime.
 -- Do NOT call this method during on_load.

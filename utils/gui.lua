@@ -214,6 +214,17 @@ function Gui.add_pusher(parent, direction)
     return pusher
 end
 
+Gui.add_dragger = function(parent, target)
+    local dragger = parent.add { type = 'empty-widget', style = 'draggable_space_header' }
+    Gui.set_style(dragger, Styles.default_dragger.style)
+
+    if target then
+        dragger.drag_target = target
+    end
+
+    return dragger
+end
+
 local function handler_factory(event_id)
     local handlers
 

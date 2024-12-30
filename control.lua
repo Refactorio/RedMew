@@ -176,6 +176,12 @@ end
 if config.player_shortcuts.enabled then
     require 'features.gui.shortcuts'
 end
+if config.train_station_teleport.enabled then
+    require 'features.train_station_teleport'
+end
+if config.market_chest.enabled then
+    require 'features.market_chest'
+end
 if config.experience.enabled then
     require 'features.gui.experience'
 end

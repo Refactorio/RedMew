@@ -36,4 +36,12 @@ Public.default_pusher = {
     }
 }
 
+Public.default_dragger = {
+    style = {
+        vertically_stretchable = true,
+        horizontally_stretchable = true,
+        margin = 0
+    }
+}
+
 return Public
