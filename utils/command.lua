@@ -104,6 +104,10 @@ function Command.add(command_name, options, callback)
 
     assert_existing_options(command_name, options)
 
+    if options.log_command ~= nil and options.log_command == false then
+        log_command = false
+    end
+
     if nil == options.allowed_by_player then
         allowed_by_player = true
     end

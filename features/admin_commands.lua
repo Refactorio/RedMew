@@ -51,7 +51,7 @@ end
 
 --- Sends a message to all online admins
 local function admin_chat(args, player)
-    Utils.print_admins(args.msg, player)
+    Utils.print_admins(args.msg, player, true)
 end
 
 --- Toggles cheat mode for a player
@@ -343,7 +343,8 @@ Command.add(
         arguments = {'msg'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
-        allowed_by_server = true
+        allowed_by_server = true,
+        log_command = false
     },
     admin_chat
 )

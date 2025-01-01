@@ -52,7 +52,8 @@ end
 --- Prints a message to all online admins
 -- @param msg <string|table> table if locale is used
 -- @param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
-function Module.print_admins(msg, source)
+-- @param no_log <boolean|nil> if true, skips logging the message
+function Module.print_admins(msg, source, no_log)
     local source_name
     local chat_color
     if source then
@@ -68,7 +69,9 @@ function Module.print_admins(msg, source)
         chat_color = Color.yellow
     end
     local formatted_msg = {'utils_core.print_admins', prefix, source_name, msg}
-    log(formatted_msg)
+    if not no_log then
+        log(formatted_msg)
+    end
     for _, p in pairs(game.connected_players) do
         if p.admin then
             p.print(formatted_msg, {color = chat_color})
