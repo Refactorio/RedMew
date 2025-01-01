@@ -1,7 +1,10 @@
+-- This feature replaces placed linked-chests with buffer chests that can automatically trade items
+
 local Buckets = require 'utils.buckets'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
+local Retailer = require 'features.retailer'
 local config = require 'config'.market_chest
 
 local floor = math.floor
@@ -14,6 +17,7 @@ local register_on_object_destroyed = script.register_on_object_destroyed
 local relative_frame_name = Gui.uid_name()
 local offer_tag_name = Gui.uid_name()
 local request_tag_name = Gui.uid_name()
+local standard_market_name = 'fish_market'
 
 -- What market provides
 local DEFAULT_OFFERS = {
@@ -80,6 +84,18 @@ local function update_entity(entity)
         count = floor((o_count - inserted) / ratio),
       }
     end
+  end
+end
+
+local function update_market(enabled, price)
+  if enabled then
+    if not price then
+      local chest = Retailer.get_items(standard_market_name)['linked-chest']
+      price = chest and chest.price or 3000
+    end
+    Retailer.set_item(standard_market_name, { name = 'linked-chest', price = price })
+  else
+    Retailer.remove_item(standard_market_name, 'linked-chest')
   end
 end
 
@@ -270,6 +286,10 @@ Event.add(defines.events.on_gui_click, function(event)
   end
 end)
 
+Event.on_init(function()
+  update_market(config.market_provides_chests, 3000)
+end)
+
 local Public = {}
 
 Public.get = function(key)
@@ -278,6 +298,10 @@ end
 
 Public.set = function(key, value)
   this[key] = value
+end
+
+Public.distribute_linked_chests = function(enabled, price)
+  update_market(enabled, price)
 end
 
 Public.spread = function(ticks)

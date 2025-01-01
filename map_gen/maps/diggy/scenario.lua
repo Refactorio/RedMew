@@ -56,10 +56,17 @@ function Scenario.register(diggy_config)
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
     redmew_config.paint.enabled = false
+    redmew_config.player_shortcuts.enabled = true
+    redmew_config.train_station_teleport.enabled = true
     redmew_config.experience.enabled = true
     redmew_config.experience.sound.path = 'diggy-diggy-chorus'
     redmew_config.experience.sound.duration = 5 * 60 * 60
-    redmew_config.player_shortcuts.enabled = true
+    table.insert(redmew_config.experience.unlockables, {
+        level = 120,
+        price = 3000,
+        name = 'linked-chest'
+    })
+    redmew_config.market_chest.enabled = true
 
     restart_command({scenario_name = diggy_config.scenario_name})
 

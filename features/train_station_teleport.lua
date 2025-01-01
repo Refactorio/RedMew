@@ -1,3 +1,6 @@
+-- This feature adds teleport shortcuts in train stop's GUI to allow players to teleport between tran stations.
+-- A player must stand nearby a train station to be able to teleport, and must teleport to a physical train stop (not ghost).
+
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'

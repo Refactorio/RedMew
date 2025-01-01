@@ -133,6 +133,7 @@ local item_worths = {
   ['passive-provider-chest'] = 256,
   ['requester-chest'] = 512,
   ['storage-chest'] = 256,
+  ['linked-chest'] = 4096,
   ['logistic-robot'] = 256,
   ['logistic-science-pack'] = 16,
   ['long-handed-inserter'] = 16,
@@ -244,6 +245,18 @@ end
 
 function Public.is_unlocked(name)
   return item_unlocked[name] ~= nil
+end
+
+function Public.set_unlocked(name, unlocked, value)
+  if unlocked then
+    item_unlocked[name] = value or item_worths[name] or 64
+    if not table.contains(item_names, name) then
+      table_insert(item_names, name)
+    end
+  else
+    item_unlocked[name] = nil
+    table.remove_element(item_names, name)
+  end
 end
 
 local function get_raffle_keys()
@@ -369,7 +382,6 @@ end
 function Public.get_unlocked_item_values()
   return item_unlocked
 end
-
 
 function Public.get_items_worth()
   return item_worths

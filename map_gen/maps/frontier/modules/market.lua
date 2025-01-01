@@ -61,6 +61,10 @@ function Market.spawn_exchange_market(position)
   local max_attempts = 10
 
   local most_expensive_item = { value = 0 }
+
+  if storage.config.market_chest.enabled then
+    PriceRaffle.set_unlocked('linked-chest', true)
+  end
   local unlocked_items = PriceRaffle.get_unlocked_item_names()
   for _ = 1, offers_count do
     local inserted = false
@@ -77,7 +81,7 @@ function Market.spawn_exchange_market(position)
         if price / stack_size < 80 then
           market.add_market_item {
             offer = { type = 'give-item', item = expensive, count = 1 },
-            price = {{ name = cheap, type = 'item', amount = price }},
+            price = {{ name = cheap, type = 'item', count = price }},
           }
           if expensive_value > most_expensive_item.value then
             most_expensive_item.name = expensive
@@ -101,7 +105,7 @@ function Market.spawn_exchange_market(position)
           if price / stack_size < 50 then
             market.add_market_item {
               offer = { type = 'give-item', item = expensive, count = 1 },
-              price = {{ name = cheap, type = 'item', amount = price }},
+              price = {{ name = cheap, type = 'item', count = price }},
             }
             if expensive_value > most_expensive_item.value then
               most_expensive_item.name = expensive

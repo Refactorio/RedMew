@@ -581,6 +581,7 @@ storage.config = {
     },
     market_chest = {
         enabled = false,
+        market_provides_chests = true,
         -- What market provides
         offers = {
             ['coal'] = 2,
