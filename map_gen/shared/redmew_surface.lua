@@ -178,9 +178,19 @@ local function create_redmew_surface()
     if config.map_gen_settings then
         -- Add the user's map gen settings as the first entry in the table
         local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
+        local nauvis_as = combined_map_gen[1].autoplace_settings
         -- Take the map's settings and add them into the table
         for _, v in pairs(data.map_gen_settings_components) do
             insert(combined_map_gen, v)
+            -- Check if any preset is blacklisting other autoplace settings, and void the default one if so
+            local as = v.autoplace_settings
+            if nauvis_as and as then
+                for _, name in pairs({ 'entity', 'tile', 'decorative' }) do
+                    if nauvis_as[name] and as[name] and as[name].treat_missing_as_default == false then
+                        nauvis_as[name].settings = {}
+                    end
+                end
+            end
         end
         surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
     else
