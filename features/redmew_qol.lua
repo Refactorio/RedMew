@@ -114,7 +114,7 @@ local loaders_technology_map = {
 local loader_check_token = Token.register(function()
     for _, force in pairs(game.forces) do
         for key, recipe in pairs(loaders_technology_map) do
-            if force.technologies[key].researched then
+            if force.technologies[key] and force.technologies[key].researched then
                 force.recipes[recipe].enabled = true
             end
         end
