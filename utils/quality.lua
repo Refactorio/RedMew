@@ -25,7 +25,7 @@ end
 ---@param q1 QualityID First quality ID
 ---@param q2 QualityID Second quality ID
 ---@param comparator string Comparison operator
----@return boolean|nil Result of comparison
+---@return boolean Result of comparison
 local compare = function(q1, q2, comparator)
   if type(comparator) ~= 'string' then
     error('Invalid comparator: expected string, got ' .. type(comparator))
