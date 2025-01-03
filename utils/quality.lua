@@ -25,13 +25,21 @@ end
 ---@param q1 QualityID First quality ID
 ---@param q2 QualityID Second quality ID
 ---@param comparator string Comparison operator
----@return boolean|nil Result of comparison or nil on error
+---@return boolean|nil Result of comparison
 local compare = function(q1, q2, comparator)
+  if type(comparator) ~= 'string' then
+    error('Invalid comparator: expected string, got ' .. type(comparator))
+  end
+
+  local comparison_function = OPS[comparator]
+  if not comparison_function then
+    error('Invalid comparator: ' .. comparator)
+  end
+
   local l1 = level(q1)
   local l2 = level(q2)
 
-  local success, result = pcall(OPS[comparator], l1, l2)
-  return success and result or nil
+  return comparison_function(l1, l2)
 end
 
 -- Create a wrapper function for the given comparator operation
