@@ -58,6 +58,7 @@ return {
   rocket_launched = {
     enabled = true,
     win_satellite_count = 1000,
+    win_satellite_quality = 'normal',
   },
   terraforming = {
     enabled = true,

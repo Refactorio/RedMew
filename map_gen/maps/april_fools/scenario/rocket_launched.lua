@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Rocket = require 'utils.rocket'
 local Server = require 'features.server'
 local ShareGlobals = require 'map_gen.maps.april_fools.scenario.shared_globals'
 
@@ -55,32 +56,11 @@ local function rocket_launched(event)
     return
   end
 
-  local pod = entity.cargo_pod
-  if not pod or not pod.valid then
+  if 0 == Rocket.count_rocket_contents(entity.cargo_pod, { name = 'satellite' }) then
     return
   end
 
-  local count = 0
-  local qualities = prototypes.quality
-  for k = 1, pod.get_max_inventory_index() do
-    local inventory = pod.get_inventory(k)
-    if inventory then
-      local add = inventory.get_item_count
-      for tier, _ in pairs(qualities) do
-        count = count + add({ name = 'satellite', quality = tier })
-      end
-    end
-  end
-
-  if count == 0 then
-    return
-  end
-
-  local satellite_count = game.forces.player.get_item_launched('satellite')
-  if satellite_count == 0 then
-    return
-  end
-
+  local satellite_count = Rocket.get_item_launched({ name = 'satellite' })
   if satellite_count == win_satellite_count then
     disable_biters()
     win()

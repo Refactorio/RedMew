@@ -3,6 +3,7 @@ local Generate = require 'map_gen.shared.generate'
 local Global = require 'utils.global'
 local Queue = require 'utils.queue'
 local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
+local Rocket = require 'utils.rocket'
 local RS = require 'map_gen.shared.redmew_surface'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
@@ -18,7 +19,8 @@ return function(config)
 
     local win_data = {
         evolution_rocket_maxed = -1,
-        extra_rockets = config.extra_rockets or 100
+        extra_rockets = config.extra_rockets or 100,
+        extra_rockets_quality = config.extra_rockets_quality or 'normal'
     }
 
     ShareGlobals.data.biters_disabled = false
@@ -152,7 +154,7 @@ return function(config)
 
         Task.set_timeout_in_ticks(1, do_waves, data)
 
-        game.print('Warning incomming biter attack! Number of waves: ' .. number_of_waves)
+        game.print('Warning incoming biter attack! Number of waves: ' .. number_of_waves)
     end
 
     local function rocket_launched(event)
@@ -162,28 +164,16 @@ return function(config)
             return
         end
 
-        local pod = entity.cargo_pod
-        if not pod or not pod.valid then
+        if 0 == Rocket.count_rocket_contents(entity.cargo_pod, { name = 'satellite' }) then
             return
         end
 
-        local count = 0
-        local qualities = prototypes.quality
-        for k = 1, pod.get_max_inventory_index() do
-            local inventory = pod.get_inventory(k)
-            if inventory then
-                local add = inventory.get_item_count
-                for tier, _ in pairs(qualities) do
-                    count = count + add({ name = 'satellite', quality = tier })
-                end
-            end
-        end
-
-        if count == 0 then
-            return
-        end
-
-        local satellite_count = game.forces.player.get_item_launched('satellite')
+        local satellite_count = Rocket.get_item_launched({
+            name = 'satellite',
+            force = 'player',
+            quality = win_data.extra_rockets_quality,
+            comparator = '>='
+        })
         if satellite_count == 0 then
             return
         end

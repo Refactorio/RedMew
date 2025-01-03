@@ -1133,6 +1133,7 @@ stds.factorio_defines = {
                         'on_force_created',
                         'on_forces_merged',
                         'on_forces_merging',
+                        'on_force_reset',
                         'on_game_created_from_scenario',
                         'on_gui_checked_state_changed',
                         'on_gui_click',
