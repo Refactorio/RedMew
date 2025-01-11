@@ -20,6 +20,7 @@ DOC.scenario_name = 'danger-ore-grid-permanence'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_grid_factory'
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores_landfill'
 DOC.map_config.spawn_tile = 'red-refined-concrete'
+DOC.game.manual_mining_speed_modifier = 9
 
 local permanence = require 'map_gen.maps.danger_ores.modules.permanence'
 permanence({ multiplier = 1 })

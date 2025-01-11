@@ -84,4 +84,8 @@ return [[
   2024-12-01:
       - [DO:XCross] Added X-Cross preset
       - [DO:Permanence] Added Permanence preset
+
+  2025-01-13:
+      - [DO] Added quality settings to rocket launched goals
+      - [DO_Permanence] Increased manual mining speed to +900%
 ]]
