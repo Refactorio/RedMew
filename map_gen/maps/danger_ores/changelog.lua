@@ -87,5 +87,8 @@ return [[
 
   2025-01-13:
       - [DO] Added quality settings to rocket launched goals
-      - [DO_Permanence] Increased manual mining speed to +900%
+      - [DO:Permanence] Increased manual mining speed to +900%
+
+  2025-01-14:
+      - [DO:CoalMaze] Added Coal Maze preset
 ]]

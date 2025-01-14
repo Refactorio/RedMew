@@ -52,6 +52,12 @@ return {
     enabled = true,
     settings = H.empty_map_settings(),
   },
+  maze = {
+    enabled = false,
+    size = 50,          -- in chunks
+    wall_thickness = 1, -- in chunks
+    cell_size = 3,      -- must be an odd number
+  },
   prevent_quality_mining = {
     enabled = true,
   },

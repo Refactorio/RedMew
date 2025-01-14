@@ -45,6 +45,7 @@ local concrete_on_landfill   = require 'map_gen.maps.danger_ores.modules.concret
 local container_dump         = require 'map_gen.maps.danger_ores.modules.container_dump'.register
 local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
 local mining_productivity    = require 'map_gen.maps.danger_ores.modules.mining_productivity'.register
+local maze                   = require 'map_gen.maps.danger_ores.modules.maze'
 local restart_command        = require 'map_gen.maps.danger_ores.modules.restart_command'
 local rocket_launched        = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 local technologies           = require 'map_gen.maps.danger_ores.modules.technologies'
@@ -89,6 +90,9 @@ Public.register = function(danger_ores_config)
   end
   if _C.map_gen_settings.enabled then
     RS.set_map_gen_settings(_C.map_gen_settings.settings or {})
+  end
+  if _C.maze.enabled then
+    maze(_C.maze)
   end
   if _C.prevent_quality_mining.enabled then
     require 'map_gen.maps.danger_ores.modules.prevent_quality_mining'
