@@ -22,14 +22,14 @@ local script_on_nth_tick = script.on_nth_tick
 local call_handlers
 if _DEBUG then
     function call_handlers(handlers, event)
-        for i = 1, #handlers do
+        for i = #handlers, 1, -1 do
             local handler = handlers[i]
             handler(event)
         end
     end
 else
     function call_handlers(handlers, event)
-        for i = 1, #handlers do
+        for i = #handlers, 1, -1 do
             local handler = handlers[i]
             local success, error = pcall(handler, event)
             if not success then
@@ -89,7 +89,7 @@ function Public.add(event_name, handler)
         event_handlers[event_name] = {handler}
         script_on_event(event_name, on_event)
     else
-        table.insert(handlers, handler)
+        table.insert(handlers, 1, handler)
         if #handlers == 1 then
             script_on_event(event_name, on_event)
         end
@@ -103,7 +103,7 @@ function Public.on_init(handler)
         event_handlers[init_event_name] = {handler}
         script.on_init(on_init)
     else
-        table.insert(handlers, handler)
+        table.insert(handlers, 1, handler)
         if #handlers == 1 then
             script.on_init(on_init)
         end
@@ -117,7 +117,7 @@ function Public.on_load(handler)
         event_handlers[load_event_name] = {handler}
         script.on_load(on_load)
     else
-        table.insert(handlers, handler)
+        table.insert(handlers, 1, handler)
         if #handlers == 1 then
             script.on_load(on_load)
         end
@@ -131,7 +131,7 @@ function Public.on_configuration_changed(handler)
         event_handlers[configuration_changed_name] = {handler}
         script.on_configuration_changed(configuration_changed)
     else
-        table.insert(handlers, handler)
+        table.insert(handlers, 1, handler)
         if #handlers == 1 then
             script.on_configuration_changed(configuration_changed)
         end
@@ -145,7 +145,7 @@ function Public.on_nth_tick(tick, handler)
         on_nth_tick_event_handlers[tick] = {handler}
         script_on_nth_tick(tick, on_nth_tick_event)
     else
-        table.insert(handlers, handler)
+        table.insert(handlers, 1, handler)
         if #handlers == 1 then
             script_on_nth_tick(tick, on_nth_tick_event)
         end
