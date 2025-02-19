@@ -91,4 +91,8 @@ return [[
 
   2025-01-14:
       - [DO:CoalMaze] Added Coal Maze preset
+
+  2025-02-19:
+      - [DO:OneDirection] Fixed terraforming bounds
+      - [DO:OneDirectionWide] Fixed terraforming bounds
 ]]

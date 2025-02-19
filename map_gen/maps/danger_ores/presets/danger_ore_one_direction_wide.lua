@@ -36,7 +36,7 @@ DOC.map_config.post_map_func = function(map_shape)
   water_border = B.choose(water_bounds, water_border, B.empty_shape)
   return B.choose(map_bounds, map_shape, water_border)
 end
-DOC.terraforming.bounds = {
+DOC.terraforming = {
   enabled = true,
   start_size = 10 * 32,
   min_pollution = 450,
