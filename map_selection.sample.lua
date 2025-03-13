@@ -16,7 +16,9 @@ return require 'map_gen.maps.default'
     return require 'map_gen.maps.danger_ores.presets.danger_ore_gradient'
     return require 'map_gen.maps.crash_site.presets.normal'
     return require 'map_gen.maps.crash_site.presets.desert'
-    return require 'map_gen.maps.diggy.scenario'
+    return require 'map_gen.maps.diggy.presets.normal'
+    return require 'map_gen.maps.diggy.presets.danger_ores'
+    return require 'map_gen.maps.diggy.presets.danger_ores_BnB'
 
     You can get the full list of maps by looking in map_gen/maps/
     Names of some popular maps:
