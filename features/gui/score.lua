@@ -78,7 +78,7 @@ end
 
 local function get_score_sprite()
     if script.active_mods['Krastorio2'] then
-        return 'achievement/100000-matter'
+        return 'achievement/kr-matter-production-3'
     end
     return 'achievement/there-is-no-spoon'
 end
