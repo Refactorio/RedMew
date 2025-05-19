@@ -508,7 +508,7 @@ storage.config = {
         buffs = {
             -- define new buffs here, they are handed out for each level
             -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
-            mining_speed = { value = 5, max = 20 },
+            mining_speed = { value = 20, max = 29 },
             inventory_slot = { value = 1, max = 100 },
             health_bonus = { value = 2.5, double_level = 5, max = 500 },
         },
@@ -555,6 +555,7 @@ storage.config = {
             { level =  63, price =  250, name = 'rocket-launcher' },
             { level =  63, price =   40, name = 'rocket' },
             { level =  71, price =   80, name = 'explosive-rocket' },
+            { level =  75, price =  800, name = 'energy-shield-mk2-equipment' },
             { level =  78, price = 1000, name = 'satellite' },
             { level = 100, price = 2500, name = 'spidertron' },
         },

@@ -133,7 +133,11 @@ Event.on_built(function(event)
 end)
 
 Event.on_destroyed(function(event)
-  local id = event.useful_id or event.entity.unit_number
+  local id = event.useful_id or (event.entity and event.entity.valid and event.entity.unit_number)
+  if not id then
+    return
+  end
+
   local data = b_get(this.chests, id)
   local inv = event.buffer
   if data and inv and inv.valid and inv.get_item_count { name = 'buffer-chest' } > 0 then

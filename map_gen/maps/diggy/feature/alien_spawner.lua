@@ -150,6 +150,7 @@ local function spawn_aliens(aliens, force, surface, x, y)
                         force = force,
                         amount = amount
                     },
+                    move_stuck_players = true,
                 })
                 break
             end

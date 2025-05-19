@@ -114,8 +114,6 @@ local function diggy_hole(entity)
         local predicted = random()
         if predicted < 0.2 then
             rocks[i] = {name = 'huge-rock', position = void_position}
-        elseif predicted < 0.6 then
-            rocks[i] = {name = 'big-rock', position = void_position}
         else
             rocks[i] = {name = 'big-rock', position = void_position}
         end

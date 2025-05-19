@@ -28,7 +28,11 @@ local config = {
             starting_items = {
                 {name = 'stone-wall', count = 12},
                 {name = 'iron-gear-wheel', count = 8},
-                {name = 'iron-plate', count = 16}
+                {name = 'iron-plate', count = 16},
+                {name = 'pistol', count = 1},
+                {name = 'firearm-magazine', count = 32},
+                {name = 'burner-mining-drill', count = 3},
+                {name = 'stone-furnace', count = 5},
             },
 
             -- 0.01 bonus equals 1% in game. This value is recommended to be tweaked for single player
@@ -70,7 +74,7 @@ local config = {
             robot_damage_per_mining_prod_level = 1,
 
             -- turn this setting on if you want to bring back landfill research, default is off due to griefing
-            allow_landfill_research = false,
+            allow_landfill_research = true,
         },
         -- adds the ability to collapse caves
         diggy_cave_collapse = {
