@@ -46,6 +46,9 @@ local gui_toggled = {}
 local mining_efficiency = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
 local inventory_slots = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
 local health_bonus = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
+local character_reach = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
+local crafting_speed = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
+local running_speed = { active_modifier = 0, research_modifier = 0, level_modifier = 0 }
 
 -- Prevents table lookup thousands of times
 local rock_big_xp = config.XP['big-rock']
@@ -58,7 +61,10 @@ Global.register(
         health_bonus = health_bonus,
         force_sounds = force_sounds,
         gui_toggled = gui_toggled,
-        level_table = level_table
+        level_table = level_table,
+        character_reach = character_reach,
+        crafting_speed = crafting_speed,
+        running_speed = running_speed,
     },
     function(tbl)
         mining_efficiency = tbl.mining_efficiency
@@ -67,6 +73,9 @@ Global.register(
         force_sounds = tbl.force_sounds
         gui_toggled = tbl.gui_toggled
         level_table = tbl.level_table
+        character_reach = tbl.character_reach
+        crafting_speed = tbl.crafting_speed
+        running_speed = tbl.running_speed
     end
 )
 
@@ -187,6 +196,9 @@ local function update_modifier(params)
     if not buff or force[property] >= (buff.max or math.huge) then
         return
     end
+    if buff.level_interval and (level_up % buff.level_interval ~= 0) then
+        return
+    end
     if level_up > 0 then
         local value = formula(params)
         if buff.double_level and (level_up % buff.double_level) == 0 then
@@ -234,6 +246,9 @@ Public.update_main_frame = function(player)
     data.bonus_mining_speed.caption = '+ '..(player.force.manual_mining_speed_modifier * 100)..'%'
     data.bonus_inventory_slot.caption = '+ '..player.force.character_inventory_slots_bonus
     data.bonus_health_bonus.caption = '+ '..player.force.character_health_bonus..'%'
+    data.bonus_character_reach.caption = '+ '..(player.force.character_reach_distance_bonus)
+    data.bonus_crafting_speed.caption = '+ '..(player.force.manual_crafting_speed_modifier * 100)..'%'
+    data.bonus_running_speed.caption = '+ '..(player.force.character_running_speed_modifier * 100)..'%'
 
     for _, row in pairs(data.reward_list.children) do
         for _, item in pairs(row.children) do
@@ -295,9 +310,15 @@ Public.get_main_frame = function(player)
         data.bonus_mining_speed = label_pair(content, 'Manual mining speed', '---')
         data.bonus_inventory_slot = label_pair(content, 'Inventory slots', '---')
         data.bonus_health_bonus = label_pair(content, 'Max health', '---')
+        data.bonus_character_reach = label_pair(content, 'Character reach', '---')
+        data.bonus_crafting_speed = label_pair(content, 'Crafting speed', '---')
+        data.bonus_running_speed = label_pair(content, 'Running speed', '---')
         data.bonus_mining_speed.tooltip = { 'experience.gui_buff_mining', buffs.mining_speed.value, buffs.mining_speed.max * 100 }
         data.bonus_inventory_slot.tooltip = { 'experience.gui_buff_inv', buffs.inventory_slot.value, buffs.inventory_slot.max }
         data.bonus_health_bonus.tooltip = { 'experience.gui_buff_health', buffs.health_bonus.value, buffs.health_bonus.max }
+        data.bonus_character_reach.tooltip = { 'experience.gui_buff_character_reach', buffs.character_reach.value, buffs.character_reach.max }
+        data.bonus_crafting_speed.tooltip = { 'experience.gui_buff_crafting_speed', buffs.crafting_speed.value * 100, buffs.crafting_speed.max * 100 }
+        data.bonus_running_speed.tooltip = { 'experience.gui_buff_running_speed', buffs.running_speed.value * 100, buffs.running_speed.max * 100 }
     end
     do -- Rewards
         local toggled = gui_toggled[player.index].rewards
@@ -433,6 +454,9 @@ local function on_research_finished(event)
     Public.update_inventory_slots(force, 0)
     Public.update_mining_speed(force, 0)
     Public.update_health_bonus(force, 0)
+    Public.update_character_reach_bonus(force, 0)
+    Public.update_crafting_speed_bonus(force, 0)
+    Public.update_running_speed_bonus(force, 0)
 end
 
 ---Awards experience when a rocket has been launched based on percentage of total experience
@@ -538,6 +562,9 @@ local function on_nth_tick()
     Public.update_inventory_slots(force, 0)
     Public.update_mining_speed(force, 0)
     Public.update_health_bonus(force, 0)
+    Public.update_character_reach_bonus(force, 0)
+    Public.update_crafting_speed_bonus(force, 0)
+    Public.update_running_speed_bonus(force, 0)
 end
 
 local function on_init()
@@ -561,6 +588,9 @@ local function on_level_reached(level_reached, force)
     Public.update_inventory_slots(force, level_reached)
     Public.update_mining_speed(force, level_reached)
     Public.update_health_bonus(force, level_reached)
+    Public.update_character_reach_bonus(force, level_reached)
+    Public.update_crafting_speed_bonus(force, level_reached)
+    Public.update_running_speed_bonus(force, level_reached)
     Public.update_market_contents(force)
     play_level_up_sound(force)
 end
@@ -622,6 +652,54 @@ Public.update_health_bonus = function(force, level_up)
         level_up = level_up,
         modifier = health_bonus,
         property = 'character_health_bonus',
+    }
+end
+
+---Updates a forces reach bonus. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up? number a level if updating as part of a level up
+Public.update_character_reach_bonus = function(force, level_up)
+    update_modifier{
+        buff = config.buffs['character_reach'],
+        force = force,
+        level_up = level_up,
+        modifier = character_reach,
+        property = 'character_reach_distance_bonus',
+    }
+    for _, reach_property in pairs({
+        'character_build_distance_bonus',
+        'character_item_drop_distance_bonus',
+        'character_reach_distance_bonus',
+        'character_resource_reach_distance_bonus',
+        'character_item_pickup_distance_bonus'
+    }) do
+        force[reach_property] = force.character_reach_distance_bonus
+    end
+end
+
+---Updates a forces crafting speed bonus. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up? number a level if updating as part of a level up
+Public.update_crafting_speed_bonus = function(force, level_up)
+    update_modifier{
+        buff = config.buffs['crafting_speed'],
+        force = force,
+        level_up = level_up,
+        modifier = crafting_speed,
+        property = 'manual_crafting_speed_modifier',
+    }
+end
+
+---Updates a forces running speed bonus. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up? number a level if updating as part of a level up
+Public.update_running_speed_bonus = function(force, level_up)
+    update_modifier{
+        buff = config.buffs['running_speed'],
+        force = force,
+        level_up = level_up,
+        modifier = running_speed,
+        property = 'character_running_speed_modifier',
     }
 end
 

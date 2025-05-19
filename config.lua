@@ -507,10 +507,14 @@ storage.config = {
         },
         buffs = {
             -- define new buffs here, they are handed out for each level
-            -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
+            -- double_level (optional): the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
+            -- level interval (optional): the interval to receive the bonus. Default is 1
             mining_speed = { value = 20, max = 29 },
             inventory_slot = { value = 1, max = 100 },
             health_bonus = { value = 2.5, double_level = 5, max = 500 },
+            character_reach = { value = 1, max = 10, level_interval = 10 },
+            crafting_speed = { value = 0.1, max = 10 },
+            running_speed = { value = 0.025, max = 3 },
         },
         -- add or remove a table entry to add or remove an unlockable item from the market.
         unlockables = {
