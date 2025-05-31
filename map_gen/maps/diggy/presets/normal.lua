@@ -353,7 +353,15 @@ local config = {
         weapon_balance = {
             enabled = true,
             load = function() return require('map_gen.maps.diggy.feature.weapon_balance') end
-        }
+        },
+        flaming_pumpjack = {
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.flaming_pumpjack') end,
+        },
+        shelob = {
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.shelob') end,
+        },
     }
 }
 

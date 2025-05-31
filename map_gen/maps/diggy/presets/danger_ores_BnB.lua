@@ -372,6 +372,14 @@ local config = {
             load = function() return require 'map_gen.maps.diggy.feature.mining_productivity' end,
             replace = script.active_mods['redmew-data'] == nil, -- replace mining productivity with robot cargo capacity
         },
+        flaming_pumpjack = {
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.flaming_pumpjack') end,
+        },
+        shelob = {
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.shelob') end,
+        },
 		belts_n_bullets = {
 		    enabled = true,
 			load = function () return require('map_gen.maps.diggy.feature.belts_n_bullets') end,
