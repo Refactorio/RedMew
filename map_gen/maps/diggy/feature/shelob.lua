@@ -11,7 +11,7 @@ Public.register = function()
         if not (entity and entity.valid) then
             return
         end
-        if entity.type ~= 'spider-vehicle' and entity.type ~= 'tank' then
+        if entity.type ~= 'spider-vehicle' then
             return
         end
         local data = ForceControl.get_force_data(entity.force)
