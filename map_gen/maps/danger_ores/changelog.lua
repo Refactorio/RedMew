@@ -98,4 +98,12 @@ return [[
 
   2025-05-09:
       - [DO:Krastorio2] Updated to 2.0
+
+  2025-08-04:
+      - [DO] Fixed error when displaying total ore mined to discord
+      - [DO] Fixed an error with allowed_entities module
+      - [DO] Updated "trees" and "enemy" modules
+      - [DO] Removed ore breakdown, only total amount is displayed instead
+      - [DO] Removed custom surface from base scenario
+      - [DO:SpaceAge] Added DO/SpaceAge
 ]]

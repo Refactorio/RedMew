@@ -11,9 +11,8 @@ local perlin_noise = Perlin.noise
 local random = math.random
 
 return function(config)
-    local worm_names =
-        config.worm_names or {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret'}
-    local spawner_names = config.spawner_names or {'biter-spawner', 'spitter-spawner'}
+    local worm_names = config.worm_names or { 'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret' }
+    local spawner_names = config.spawner_names or { 'biter-spawner', 'spitter-spawner' }
     local factor = config.enemy_factor or 10 / (768 * 32)
     local max_chance = config.enemy_max_chance or 1 / 6
     local scale_factor = config.enemy_scale_factor or 32
@@ -63,13 +62,13 @@ return function(config)
                 else
                     worm_id = random(lvl)
                 end
-                return {name = worm_names[worm_id]}
+                return { name = worm_names[worm_id] }
             end
         else
             local chance = min(max_chance, d * factor)
             if random() < chance then
-                local spawner_id = random(2)
-                return {name = spawner_names[spawner_id]}
+                local spawner_id = random(#spawner_names)
+                return { name = spawner_names[spawner_id] }
             end
         end
     end

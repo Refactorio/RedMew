@@ -35,6 +35,7 @@ storage.config = {
     -- the entire module can be toggled or just individual parts
     redmew_surface = {
         enabled = true,
+        use_default = false,
         map_gen_settings = true,
         map_settings = true,
         difficulty = true

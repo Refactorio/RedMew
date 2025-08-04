@@ -136,5 +136,7 @@ return {
     main_ores_split_count = nil,
     main_ores_start_ore_offset = nil,
     main_ore_resource_patches_config = nil,
+    spawner_names = nil,
+    tree_names = nil,
   },
 }

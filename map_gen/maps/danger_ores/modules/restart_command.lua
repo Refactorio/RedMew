@@ -77,16 +77,16 @@ return function(config)
         }
 
         local awards = {
-            ['total_kills'] = {value = 0, player = ""},
-            ['units_killed'] = {value = 0, player = ""},
-            ['spawners_killed'] = {value = 0, player = ""},
-            ['worms_killed'] = {value = 0, player = ""},
-            ['player_deaths'] = {value = 0, player = ""},
-            ['time_played'] = {value = 0, player = ""},
-            ['entities_built'] = {value = 0, player = ""},
-            ['entities_crafted'] = {value = 0, player = ""},
-            ['distance_walked'] = {value = 0, player = ""},
-            ['resources_hand_mined'] = {value = 0, player = ""}
+            ['total_kills'] = {value = 0, player = ''},
+            ['units_killed'] = {value = 0, player = ''},
+            ['spawners_killed'] = {value = 0, player = ''},
+            ['worms_killed'] = {value = 0, player = ''},
+            ['player_deaths'] = {value = 0, player = ''},
+            ['time_played'] = {value = 0, player = ''},
+            ['entities_built'] = {value = 0, player = ''},
+            ['entities_crafted'] = {value = 0, player = ''},
+            ['distance_walked'] = {value = 0, player = ''},
+            ['resources_hand_mined'] = {value = 0, player = ''}
         }
 
         for _, v in pairs(statistics.player_data) do
@@ -132,7 +132,7 @@ return function(config)
             end
         end
 
-        local resource_prototypes = prototypes.get_entity_filtered({{filter = "type", type = "resource"}})
+        local resource_prototypes = prototypes.get_entity_filtered({{filter = 'type', type = 'resource'}})
         local ore_products = {}
         for _, ore_prototype in pairs(resource_prototypes) do
             local mineable_properties = ore_prototype.mineable_properties
@@ -144,35 +144,31 @@ return function(config)
         end
 
         local total_ore = 0
-        local ore_totals_message = '('
+        local surface_stats = game.forces.player.get_item_production_statistics(RS.get_surface_name())
         for ore_name in pairs(ore_products) do
-            local count = game.forces["player"].get_item_production_statistics(RS.get_surface_name()).get_input_count(ore_name)
-            total_ore = total_ore + count
-            ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
+            total_ore = total_ore + (surface_stats.get_input_count(ore_name) or 0)
         end
-        ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
-        ore_totals_message = format_number(total_ore, true).. "\\n"..ore_totals_message
 
-      local statistics_message = statistics.scenario..' completed!\\n\\n'..
-        'Statistics:\\n'..
-        'Map time: '..time_string..'\\n'..
-        'Total entities built: '..statistics.entities_built..'\\n'..
-        'Total ore mined:'..ore_totals_message..'\\n'..
-        'Total ore resources exhausted: '..statistics.resources_exhausted..'\\n'..
-        'Total ore hand mined: '..statistics.resources_hand_mined..'\\n'..
-        'Players: '..statistics.total_players..'\\n'..
-        'Enemies killed: '..statistics.biters_killed..'\\n\\n'..
-        'Awards:\\n'..
-        'Most ore hand mined:'..awards.resources_hand_mined.player..' ('..awards.resources_hand_mined.value..')\\n'..
-        'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'..
-        'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'..
-        'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'..
-        'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'..
-        'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'..
-        'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'..
-        'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'..
-        'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
-        'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
+        local statistics_message = statistics.scenario..' completed!\\n\\n'..
+            '**Statistics:**\\n'..
+            '_Map time:_ '..time_string..'\\n'..
+            '_Total entities built:_ '..statistics.entities_built..'\\n'..
+            '_Total ore mined:_ '..format_number(total_ore, true)..'\\n'..
+            '_Total ore resources exhausted:_ '..statistics.resources_exhausted..'\\n'..
+            '_Total ore hand mined:_ '..statistics.resources_hand_mined..'\\n'..
+            '_Players:_ '..statistics.total_players..'\\n'..
+            '_Enemies killed:_ '..statistics.biters_killed..'\\n\\n'..
+            '**Awards:**\\n'..
+            '_Most ore hand mined:_ '..awards.resources_hand_mined.player..' ('..awards.resources_hand_mined.value..')\\n'..
+            '_Most items crafted:_ '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'..
+            '_Most entities built:_ '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'..
+            '_Most time played:_ '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'..
+            '_Furthest walked:_ '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'..
+            '_Most deaths:_ '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'..
+            '_Most kills overall:_ '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'..
+            '_Most biters/spitters killed:_ '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'..
+            '_Most spawners killed:_ '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
+            '_Most worms killed:_ '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
 
         Server.to_discord_named_embed(map_promotion_channel, statistics_message)
         Server.to_discord_named_embed(danger_ores_channel, statistics_message)

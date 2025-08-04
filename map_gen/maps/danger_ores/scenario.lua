@@ -39,6 +39,7 @@ Config.player_rewards.enabled = false
 Config.player_shortcuts.enabled = true
 Config.player_shortcuts.shortcuts.battery_charge = false
 Config.reactor_meltdown.enabled = false
+Config.redmew_surface.use_default = true
 
 local allowed_entities       = require 'map_gen.maps.danger_ores.modules.allowed_entities'.register
 local concrete_on_landfill   = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'

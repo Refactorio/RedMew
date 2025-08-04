@@ -26,6 +26,7 @@ local mod_packs = {
     danger_ore_omnimatter = 'danger_ore_omnimatter',
     danger_ore_py_short   = 'danger_ore_py_short',
     danger_ore_scrap      = 'danger_ore_scrap',
+    danger_ore_space_age  = 'danger_ore_space_age',
 }
 
 local maps = {
@@ -58,6 +59,7 @@ local maps = {
     --{ name = 'danger-ore-poor-mans-coal-fields', display_name = 'Poor Man\'s Coal Fields (Alex Gaming\'s map)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-pyfe', display_name = 'Pyanodon Short (PyFe)', mod_pack = mod_packs.danger_ore_py_short },
     { name = 'danger-ore-scrap', display_name = 'Scrapworld (no ores, all scraps)', mod_pack = mod_packs.danger_ore_scrap },
+    { name = 'danger-ore-space-age', display_name = 'Space Age (everything on Nauvis)', mod_pack = mod_packs.danger_ore_space_age },
     { name = 'danger-ore-spiral', display_name = 'Spiral (without void)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-split', display_name = 'Split (4x sectors)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-square', display_name = 'Square (corner start)', mod_pack = mod_packs.danger_ore_normal },

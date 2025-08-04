@@ -103,7 +103,11 @@ local function handle_entity_refund(entity, event)
   end
 
   -- refund item to robot/player
-  local stack = entity.prototype.items_to_place_this[1]
+  local items_to_place_this = entity.prototype.items_to_place_this
+  if not items_to_place_this or #items_to_place_this == 0 then
+    return
+  end
+  local stack = items_to_place_this[1]
   if stack then
     stack.quality = entity.quality
     local actor = event.robot or (event.player_index and game.get_player(event.player_index))

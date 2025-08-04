@@ -192,13 +192,26 @@ local function create_redmew_surface()
                 end
             end
         end
-        surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
+        if config.use_default then
+            surface = game.surfaces[vanilla_surface_name]
+            surface.map_gen_settings = merge(combined_map_gen)
+        else
+            surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
+        end
     else
-        surface = game.create_surface(redmew_surface_name)
+        if config.use_default then
+            surface = game.surfaces[vanilla_surface_name]
+        else
+            surface = game.create_surface(redmew_surface_name)
+        end
     end
 
-    for _, force in pairs(game.forces) do
-        force.set_surface_hidden(vanilla_surface_name, true)
+    if config.use_default then
+        surface.clear(true)
+    else
+        for _, force in pairs(game.forces) do
+            force.set_surface_hidden(vanilla_surface_name, true)
+        end
     end
 
     global_data.surface = surface
@@ -289,7 +302,7 @@ end
 --- Returns the string name of the surface that the map is created on.
 -- This can safely be called at any time.
 function Public.get_surface_name()
-    if config.enabled then
+    if config.enabled and not config.use_default then
         return redmew_surface_name
     else
         return vanilla_surface_name
