@@ -18,7 +18,9 @@ function Public.ore_oil_none(resource_list)
     end
     local ore_oil_none = {}
     for _, v in pairs(resource_list) do
-        ore_oil_none[v] = { frequency = 1, richness = 1, size = 0 }
+        if prototypes.autoplace_control[v] then
+            ore_oil_none[v] = { frequency = 1, richness = 1, size = 0 }
+        end
     end
     return { autoplace_controls = ore_oil_none }
 end

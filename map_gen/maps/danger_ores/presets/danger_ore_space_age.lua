@@ -19,28 +19,21 @@ DOC.map_config.trees = require 'map_gen.maps.danger_ores.modules.trees'
 DOC.map_config.tree_names = require 'map_gen.maps.danger_ores.compatibility.space-age.tree_names'
 DOC.map_config.spawner_names = { 'biter-spawner', 'spitter-spawner', 'gleba-spawner-small', 'gleba-spawner' }
 DOC.rocket_launched.enabled = false
-
-local ores = {
+DOC.map_gen_settings.settings = H.empty_map_settings{
 	'calcite',
 	'coal',
 	'copper-ore',
 	'crude-oil',
 	'fluorine_vent',
+	'holmium-ore',
 	'iron-ore',
 	'lithium_brine',
+	'scrap',
 	'stone',
 	'sulfuric_acid_geyser',
 	'tungsten_ore',
 	'uranium-ore',
 }
-
-if script.active_mods['redmew-data'] and settings.startup['redmew_scenario'].value == 'danger-ores' then
-	table.insert(ores, 'holmium-ore')
-else
-	error('\n\nATTENTION!\n\n Missing mod "RedMew Data".\nPlease restart with the mod enabled & startup setting=DangerOres\n\n')
-end
-
-DOC.map_gen_settings.settings = H.empty_map_settings(ores)
 
 require 'map_gen.maps.danger_ores.compatibility.space-age.victory'()
 

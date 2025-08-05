@@ -55,18 +55,13 @@ local function build_liquid_patches(name, data)
     }
 end
 
-local ores = {
-    { scale = 1 / 24, threshold = 0.5, resource = build_solid_patches(iron_ratios) },
-    { scale = 1 / 24, threshold = 0.5, resource = build_solid_patches(copper_ratios) },
+return {
+    { scale = 1 / 24, threshold = 0.50, resource = build_solid_patches(iron_ratios) },
+    { scale = 1 / 24, threshold = 0.50, resource = build_solid_patches(copper_ratios) },
     { scale = 1 / 48, threshold = 0.66, resource = b.resource(b.full_shape, 'tungsten-ore', value(100, 1.5)) },
     { scale = 1 / 24, threshold = 0.66, resource = b.resource(b.full_shape, 'calcite',      value(100, 1.5)) },
+    { scale = 1 / 48, threshold = 0.66, resource = b.resource(b.full_shape, prototypes.entity['holmium-ore'] and 'holmium-ore' or 'scrap',  value(100, 1.5)) },
     build_liquid_patches('sulfuric-acid-geyser', { scale = 1/64, t = 0.70, base = 100000, mult = 2500 }),
     build_liquid_patches('lithium-brine',        { scale = 1/32, t = 0.70, base = 100000, mult = 2500 }),
     build_liquid_patches('fluorine-vent',        { scale = 1/32, t = 0.70, base = 100000, mult = 2500 }),
 }
-
-if script.active_mods['redmew-data'] and settings.startup['redmew_scenario'].value == 'danger-ores' then
-    table.insert(ores, { scale = 1 / 48, threshold = 0.66, resource = b.resource(b.full_shape, 'holmium-ore',  value(100, 1.5)) })
-end
-
-return ores

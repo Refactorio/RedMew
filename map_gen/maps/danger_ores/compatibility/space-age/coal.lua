@@ -6,8 +6,8 @@ return {
     {
         name = 'coal',
         ['tiles'] = {
-            [1] = 'lava',
-            [2] = 'lava-hot',
+            [1] = 'volcanic-soil-dark',
+            [2] = 'volcanic-soil-light',
             [3] = 'volcanic-ash-cracks',
             [4] = 'volcanic-ash-dark',
             [5] = 'volcanic-ash-flats',
@@ -23,8 +23,8 @@ return {
             [15] = 'volcanic-pumice-stones',
             [16] = 'volcanic-smooth-stone',
             [17] = 'volcanic-smooth-stone-warm',
-            [18] = 'volcanic-soil-dark',
-            [19] = 'volcanic-soil-light',
+            --[18] = 'lava',
+            --[19] = 'lava-hot',
         },
         ['start'] = start_value,
         ['weight'] = 1,
