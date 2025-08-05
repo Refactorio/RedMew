@@ -165,56 +165,79 @@ local function set_map_settings()
     end
 end
 
---- Creates a new surface with the settings provided by the map file and the player.
-local function create_redmew_surface()
-    if not config.enabled then
-        -- we still need to set the surface so Public.get_surface() will work.
-        global_data.surface = game.surfaces[vanilla_surface_name]
-        return
-    end
+local function create_surface_with_settings()
+    -- Combine default map gen settings with user components
+    local combined_map_gen = { game.surfaces.nauvis.map_gen_settings }
+    local nauvis_as = combined_map_gen[1].autoplace_settings
 
-    local surface
-
-    if config.map_gen_settings then
-        -- Add the user's map gen settings as the first entry in the table
-        local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
-        local nauvis_as = combined_map_gen[1].autoplace_settings
-        -- Take the map's settings and add them into the table
-        for _, v in pairs(data.map_gen_settings_components) do
-            insert(combined_map_gen, v)
-            -- Check if any preset is blacklisting other autoplace settings, and void the default one if so
-            local as = v.autoplace_settings
-            if nauvis_as and as then
-                for _, name in pairs({ 'entity', 'tile', 'decorative' }) do
-                    if nauvis_as[name] and as[name] and as[name].treat_missing_as_default == false then
-                        nauvis_as[name].settings = {}
-                    end
+    for _, v in pairs(data.map_gen_settings_components) do
+        table.insert(combined_map_gen, v)
+        -- Check for autoplace setting blacklisting
+        local as = v.autoplace_settings
+        if nauvis_as and as then
+            for _, name in pairs({ 'entity', 'tile', 'decorative' }) do
+                if nauvis_as[name] and as[name] and as[name].treat_missing_as_default == false then
+                    nauvis_as[name].settings = {}
                 end
             end
         end
-        if config.use_default then
-            surface = game.surfaces[vanilla_surface_name]
-            surface.map_gen_settings = merge(combined_map_gen)
-        else
-            surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
-        end
+    end
+
+    local surface
+    if config.use_default then
+        surface = game.surfaces[vanilla_surface_name]
+        surface.map_gen_settings = merge(combined_map_gen)
+    else
+        surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
+    end
+    return surface
+end
+
+local function get_or_create_surface()
+    if config.map_gen_settings then
+        return create_surface_with_settings()
     else
         if config.use_default then
-            surface = game.surfaces[vanilla_surface_name]
+            return game.surfaces[vanilla_surface_name]
         else
-            surface = game.create_surface(redmew_surface_name)
+            return game.create_surface(redmew_surface_name)
         end
+    end
+end
+
+local function initialize_surface()
+    local surface = global_data.surface
+    if not surface then
+        return
     end
 
     if config.use_default then
         surface.clear(true)
     else
+        -- Hide the vanilla surface to all forces
         for _, force in pairs(game.forces) do
             force.set_surface_hidden(vanilla_surface_name, true)
         end
     end
 
-    global_data.surface = surface
+    surface.request_to_generate_chunks({0, 0}, 4)
+    surface.force_generate_chunk_requests()
+
+    local spawn_position = global_data.spawn_position
+    if spawn_position then
+        game.forces.player.set_spawn_position(spawn_position, surface)
+    end
+end
+
+--- Creates a new surface with the settings provided by the map file and the player.
+local function create_scenario_surface()
+    if not config.enabled then
+        -- Still need to set the surface for Public.get_surface() to work
+        global_data.surface = game.surfaces[vanilla_surface_name]
+        return
+    end
+
+    global_data.surface = get_or_create_surface()
 
     if config.difficulty then
         set_difficulty_settings()
@@ -223,12 +246,7 @@ local function create_redmew_surface()
         set_map_settings()
     end
 
-    surface.request_to_generate_chunks({0, 0}, 4)
-    surface.force_generate_chunk_requests()
-    local spawn_position = global_data.spawn_position
-    if spawn_position then
-        game.forces.player.set_spawn_position(spawn_position, surface)
-    end
+    initialize_surface()
 end
 
 --- Teleport the player to the redmew surface and if there is no suitable location, create an island
@@ -328,7 +346,7 @@ function Public.set_spawn_island_tile(tile_name)
     global_data.island_tile = tile_name
 end
 
-Event.on_init(create_redmew_surface)
+Event.on_init(create_scenario_surface)
 
 if config.enabled then
     Event.add(defines.events.on_player_created, player_created)
