@@ -5,18 +5,18 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 return function()
     ShareGlobals.data.biters_disabled = false
     ShareGlobals.data.map_won = false
-    ShareGlobals.goal_notice = false
+    ShareGlobals.data.goal_notice = false
 
     local function rocket_launched()
         if ShareGlobals.data.map_won then
             return
         end
 
-        if ShareGlobals.goal_notice then
+        if ShareGlobals.data.goal_notice then
             return
         end
 
-        ShareGlobals.goal_notice = true
+        ShareGlobals.data.goal_notice = true
         local message = 'Craft a legendary Mech Armor to win the map.'
         game.print(message)
         Server.to_discord_bold(message)
