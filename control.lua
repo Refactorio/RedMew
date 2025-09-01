@@ -182,6 +182,9 @@ end
 if config.market_chest.enabled then
     require 'features.market_chest'
 end
+if config.production_hud.enabled then
+    require 'features.gui.production_hud'
+end
 if config.experience.enabled then
     require 'features.gui.experience'
 end

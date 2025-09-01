@@ -604,6 +604,10 @@ storage.config = {
             ['stone'] = 1,
             ['uranium-ore'] = 5,
         },
+    },
+    production_hud = {
+        enabled = true,
+        starting_items = { 'iron-ore', 'copper-ore', 'coal', 'stone' },
     }
 }
 

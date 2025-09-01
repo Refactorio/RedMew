@@ -1264,14 +1264,14 @@ stds.factorio_defines = {
                 },
                 flow_precision_index = {
                     fields = {
-                        'fifty_hours',
-                        'one_hour',
-                        'one_minute',
-                        'one_second',
+                        'five_seconds',	
+                        'one_minute',	
+                        'ten_minutes',	
+                        'one_hour',	
+                        'ten_hours',	
+                        'fifty_hours',	
+                        'two_hundred_fifty_hours',	
                         'one_thousand_hours',
-                        'ten_hours',
-                        'ten_minutes',
-                        'two_hundred_fifty_hours'
                     }
                 },
                 group_state = {
