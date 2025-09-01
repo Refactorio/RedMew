@@ -257,29 +257,39 @@ Gui.on_click(action_scroll_precision_index, function(event)
     local data = Gui.get_data(event.element)
     data.action_scroll_precision_index.caption = to_time[settings.precision_index]
 
-    Public.update_main_frame(game.get_player(event.player_index))
+    Public.update_main_frame(event.player)
 end)
 
 Gui.on_elem_changed(action_add_item, function(event)
+    local player = event.player
     local element = event.element
-    local items = player_settings[event.player_index].items
+    local items = player_settings[player.index].items
     local item = element.elem_value and element.elem_value.name
     element.elem_value = { name = 'shape-cross', type = 'virtual' }
 
     if not item then
+        player.print({ 'production_hud.err_invalid_item' }, { sound_path = 'utility/cannot_build' })
         return
     end
 
     if item_p[item] == nil and fluid_p[item] == nil then
+        player.print({ 'production_hud.err_invalid_item' }, { sound_path = 'utility/cannot_build' })
         return
     end
 
     if table.contains(items, item) then
+        player.print({ 'production_hud.err_item_already_present' }, { sound_path = 'utility/cannot_build' })
+        return
+    end
+
+    if #items >= config.limit then
+        player.print({ 'production_hud.err_limit_reached', config.limit }, { sound_path = 'utility/cannot_build' })
         return
     end
 
     table.insert(items, item)
-    Public.update_main_frame(game.get_player(event.player_index))
+    player.play_sound{ path = 'utility/armor_insert' }
+    Public.update_main_frame(player)
 end)
 
 Gui.on_click(action_remove_item, function(event)
@@ -288,7 +298,8 @@ Gui.on_click(action_remove_item, function(event)
     end
 
     table.remove_element(player_settings[event.player_index].items, event.element.tags.name)
-    Public.update_main_frame(game.get_player(event.player_index))
+    event.player.play_sound{ path = 'utility/armor_remove' }
+    Public.update_main_frame(event.player)
 end)
 
 -- == EVENTS ==================================================================
