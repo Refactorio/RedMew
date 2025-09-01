@@ -10,6 +10,7 @@ local Gui = require 'utils.gui'
 local math = require 'utils.math'
 local table = require 'utils.table'
 local math_abs = math.abs
+local round_sig = math.round_sig
 
 local Public = {}
 
@@ -58,7 +59,7 @@ local function format_si(value)
         return '0'
     end
 
-    local abs_value = math_abs(value)
+    local abs_value = math_abs(round_sig(value, 3))
     for i = #si_prefixes, 1, -1 do
         local suffix = si_prefixes[i]
         if abs_value >= suffix[2] then
@@ -67,7 +68,12 @@ local function format_si(value)
         end
     end
 
-    return tostring(value)
+    if value > 100 then
+        return ('%d'):format(value)
+    elseif value > 10 then
+        return ('%.1f'):format(value)
+    end
+    return ('%.2f'):format(value)
 end
 
 -- == GUI =====================================================================
@@ -231,9 +237,9 @@ Public.update_main_frame = function(player)
     for _, name in pairs(settings.items) do
         local children = tbl[name]
         local stats = ((item_p[name] ~= nil) and item_stats or fluid_stats)
-        local plus = stats.get_flow_count { name = name, category = 'output', precision_index = settings.precision_index }
-        local minus = stats.get_flow_count { name = name, category = 'input', precision_index = settings.precision_index }
-        local count = stats.get_output_count(name) - stats.get_input_count(name)
+        local minus = stats.get_flow_count { name = name, category = 'output', precision_index = settings.precision_index }
+        local plus = stats.get_flow_count { name = name, category = 'input', precision_index = settings.precision_index }
+        local count = stats.get_input_count(name) - stats.get_output_count(name)
 
         children.stats.plus.caption = format_si(plus)
         children.stats.minus.caption = format_si(minus)
