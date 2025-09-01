@@ -170,8 +170,8 @@ return function(config)
             '_Most spawners killed:_ '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
             '_Most worms killed:_ '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
 
-        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-        Server.to_discord_named_embed(danger_ores_channel, statistics_message)
+        Server.to_discord_named_embed_raw(map_promotion_channel, statistics_message)
+        Server.to_discord_named_embed_raw(danger_ores_channel, statistics_message)
 
         Server.set_data('danger_ores_data', tostring(end_epoch), statistics)
 
