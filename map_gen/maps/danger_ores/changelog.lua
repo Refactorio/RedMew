@@ -106,4 +106,7 @@ return [[
       - [DO] Removed ore breakdown, only total amount is displayed instead
       - [DO] Removed custom surface from base scenario
       - [DO:SpaceAge] Added DO/SpaceAge
+
+  2025-09-02:
+      - [DO:Collapse] Added Collapse preset
 ]]

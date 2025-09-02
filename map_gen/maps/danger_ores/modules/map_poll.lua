@@ -27,6 +27,7 @@ local mod_packs = {
     danger_ore_py_short   = 'danger_ore_py_short',
     danger_ore_scrap      = 'danger_ore_scrap',
     danger_ore_space_age  = 'danger_ore_space_age',
+    danger_ore_collapse   = 'danger_ore_collapse',
 }
 
 local maps = {
@@ -37,6 +38,7 @@ local maps = {
     { name = 'danger-ore-chessboard', display_name = 'Chessboard (random squares)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-circles', display_name = 'Circles (ore rings)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-coal-maze', display_name = 'Coal Maze (maze)', mod_pack = mod_packs.danger_ore_normal },
+    { name = 'danger-ore-collapse', display_name = 'Collapse (increasing hardness)', mod_pack = mod_packs.danger_ore_collapse },
     --{ name = 'danger-ore-exotic-industries', display_name = 'Exotic Industries (default)', mod_pack = mod_packs.danger_ore_ei },
     --{ name = 'danger-ore-exotic-industries-spiral', display_name = 'Exotic Industries Spiral (without void)', mod_pack = mod_packs.danger_ore_ei },
     --{ name = 'danger-ore-expanse', display_name = 'Expanse (feed Hungry Chests to expand)', mod_pack = mod_packs.danger_ore_normal },
