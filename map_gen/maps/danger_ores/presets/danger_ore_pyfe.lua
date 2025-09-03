@@ -60,7 +60,7 @@ tech_scaling({
     ['logistic-science-pack']   = 0.75,
     ['chemical-science-pack']   = 0.50,
     ['production-science-pack'] = 0.25,
-    ['utility-sciemce-pack']    = 0.20,
+    ['utility-science-pack']    = 0.20,
     ['space-science-pack']      = 0.10,
   },
 })
