@@ -29,4 +29,6 @@ return {
     'cuttlepop',
     'fulgurite',
     'fulgurite-small',
+    'yumako-tree',
+    'jellystem',
 }

@@ -19,6 +19,8 @@ DOC.map_config.trees = require 'map_gen.maps.danger_ores.modules.trees'
 DOC.map_config.tree_names = require 'map_gen.maps.danger_ores.compatibility.space-age.tree_names'
 DOC.map_config.spawner_names = { 'biter-spawner', 'spitter-spawner', 'gleba-spawner-small', 'gleba-spawner' }
 DOC.rocket_launched.enabled = false
+DOC.technologies.unlocks['agriculture'] = { 'jellynut', 'yumako' }
+DOC.technologies.unlocks['electromagnetic-science-pack'] = { 'lithium-processing' }
 DOC.map_gen_settings.settings = H.empty_map_settings{
 	'calcite',
 	'coal',

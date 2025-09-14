@@ -22,6 +22,12 @@ local copper_ratios = {
     { resource = b.resource(b.full_shape, 'stone',      ratio_value), weight = 10 },
 }
 
+local stone_ratios = {
+    { resource = b.resource(b.full_shape, 'iron-ore',   ratio_value), weight = 25 },
+    { resource = b.resource(b.full_shape, 'copper-ore', ratio_value), weight = 15 },
+    { resource = b.resource(b.full_shape, 'stone',      ratio_value), weight = 60 },
+}
+
 local function build_solid_patches(ratios)
     return function(x, y, world)
         local weighted = b.prepare_weighted_array(ratios)
@@ -58,6 +64,7 @@ end
 return {
     { scale = 1 / 24, threshold = 0.50, resource = build_solid_patches(iron_ratios) },
     { scale = 1 / 24, threshold = 0.50, resource = build_solid_patches(copper_ratios) },
+    { scale = 1 / 24, threshold = 0.50, resource = build_solid_patches(stone_ratios) },
     { scale = 1 / 48, threshold = 0.66, resource = b.resource(b.full_shape, 'tungsten-ore', value(100, 1.5)) },
     { scale = 1 / 24, threshold = 0.66, resource = b.resource(b.full_shape, 'calcite',      value(100, 1.5)) },
     { scale = 1 / 48, threshold = 0.66, resource = b.resource(b.full_shape, prototypes.entity['holmium-ore'] and 'holmium-ore' or 'scrap',  value(100, 1.5)) },

@@ -20,6 +20,12 @@ local copper_ratios = {
     {resource = b.resource(b.full_shape, 'stone', ratio_value), weight = 10}
 }
 
+local stone_ratios = {
+    { resource = b.resource(b.full_shape, 'iron-ore',   ratio_value), weight = 25 },
+    { resource = b.resource(b.full_shape, 'copper-ore', ratio_value), weight = 15 },
+    { resource = b.resource(b.full_shape, 'stone',      ratio_value), weight = 60 },
+}
+
 local function build_ratio_patches(ratios)
     return function(x, y, world)
         local weighted = b.prepare_weighted_array(ratios)
@@ -42,5 +48,6 @@ end
 
 return {
     {scale = 1 / 24, threshold = 0.5, resource = build_ratio_patches(iron_ratios)},
-    {scale = 1 / 24, threshold = 0.5, resource = build_ratio_patches(copper_ratios)}
+    {scale = 1 / 24, threshold = 0.5, resource = build_ratio_patches(copper_ratios)},
+    {scale = 1 / 24, threshold = 0.5, resource = build_ratio_patches(stone_ratios)},
 }

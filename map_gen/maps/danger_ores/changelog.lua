@@ -109,4 +109,11 @@ return [[
 
   2025-09-02:
       - [DO:Collapse] Added Collapse preset
+
+  2025-09-14:
+      - [DO] Added dominant stone patches to heavy coal presets
+      - [DO:SA] Fixed jellunut and yumako progression softlock
+      - [DO:SA] Removed ore-voiding recipes from recyclers
+      - [DO:K2] Fixed rare metals and yellowcake pictures scaling
+      - [DO:K2] Removed ore-voiding recipes from crushers
 ]]
