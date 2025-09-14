@@ -1,4 +1,4 @@
--- This feature adds a command "/technology-cost" that shows a small popup
+-- This feature adds a command "/calculator-technology" that shows a small popup
 -- with the breakdown cost to research target technology.
 -- made by RedRafe
 -- ======================================================= --
