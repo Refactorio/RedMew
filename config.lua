@@ -610,6 +610,10 @@ storage.config = {
         enabled = true,
         starting_items = { 'iron-ore', 'copper-ore', 'coal', 'stone' },
         limit = 40, -- limit of tracked items per-player
+    },
+    calculator = {
+        enabled = true,
+        technology = true,
     }
 }
 

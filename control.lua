@@ -191,6 +191,11 @@ end
 if config.score.enabled then
     require 'features.gui.score'
 end
+if config.calculator.enabled then
+    if config.calculator.technology then
+        require 'features.gui.calculator.technology'
+    end
+end
 
 --require 'features.snake.control'
 
