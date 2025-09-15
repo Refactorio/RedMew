@@ -139,9 +139,6 @@ local function get_research_info(force, technology_name)
         return a.name < b.name
     end)
 
-    for _, i in pairs(cost_breakdown) do
-    end
-
     return {
         research_path = research_path,
         cost_breakdown = cost_breakdown,
