@@ -36,7 +36,6 @@ local function set_history(player_index, technology_name)
     elseif prototypes.technology[technology_name] ~= nil then
         h:add(technology_name)
     end
-    history[player_index] = h
 end
 
 local function dict_to_array(dict)
@@ -421,6 +420,7 @@ end)
 Command.add('calculator-technology', {
     description = 'Computes the cost in science packs to research target technology',
     arguments = { 'technology' },
+    default_values = { technology = '' },
     allowed_by_server = false,
     required_rank = Ranks.guest,
     capture_excess_arguments = true,
