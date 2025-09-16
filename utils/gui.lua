@@ -18,6 +18,8 @@ local Gui = {}
 local data = {}
 local element_map = {}
 
+Gui.tag = '__@level-RedMew__'
+
 Gui.token =
     Global.register(
     {data = data, element_map = element_map},
@@ -234,7 +236,8 @@ local function handler_factory(event_id)
             return
         end
 
-        local handler = handlers[element.name]
+        local tag = element.tags[Gui.tag]
+        local handler = handlers[element.name] or handlers[tag]
         if not handler then
             return
         end

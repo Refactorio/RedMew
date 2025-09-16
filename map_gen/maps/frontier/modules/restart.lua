@@ -2,7 +2,6 @@ local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
 local Core = require 'utils.core'
 local Discord = require 'resources.discord'
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local PlayerStats = require 'features.player_stats'
@@ -130,13 +129,13 @@ local function show_values(parent, parent_data, params)
   local current = flow.add {
     type = 'text-box',
     style = 'short_number_textfield',
-    tags = { name = textbox_tag_name },
+    tags = { [Gui.tag] = textbox_tag_name },
     text = current_value,
   }
   local modifier = flow.add {
     type = 'text-box',
     style = 'short_number_textfield',
-    tags = { name = textbox_tag_name },
+    tags = { [Gui.tag] = textbox_tag_name },
     text = modifier_value,
   }
   local predicted = flow.add {
@@ -342,22 +341,10 @@ Gui.on_click(main_button_name, function(event)
   end
 end)
 
-Event.add(defines.events.on_gui_text_changed, function(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local tag = element.tags and element.tags.name
-  if not tag then
-    return
-  end
-
-  if tag == textbox_tag_name then
-    local data = Gui.get_data(element)
-    local current, modifier = data.current, data.modifier
-    data.predicted.text = tostring(safe_add(current.text, modifier.text))
-  end
+Gui.on_text_changed(textbox_tag_name, function(event)
+  local data = Gui.get_data(event.element)
+  local current, modifier = data.current, data.modifier
+  data.predicted.text = tostring(safe_add(current.text, modifier.text))
 end)
 
 Gui.on_click(reset_button_name, function(event)

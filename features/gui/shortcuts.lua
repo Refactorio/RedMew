@@ -84,7 +84,7 @@ local function add_shortcut_selection_row(player, parent, child)
     type = 'checkbox',
     caption = child.caption,
     state = player_data[child.name],
-    tags = { action = checkbox_action_name, name = child.name },
+    tags = { [Gui.tag] = checkbox_action_name, name = child.name },
   }
   Gui.set_style(checkbox, { minimal_width = 160, horizontally_stretchable = true })
 end
@@ -179,7 +179,7 @@ function Public.get_main_frame(player)
         sprite = s.sprite,
         hovered_sprite = s.hovered_sprite,
         tooltip = s.tooltip,
-        tags = { action = shortcut_action_name, name = button_name },
+        tags = { [Gui.tag] = shortcut_action_name, name = button_name },
       }
       Gui.set_style(button, { font_color = { 165, 165, 165 } })
       if player_data[button_name] == nil then
@@ -224,49 +224,24 @@ Gui.on_click(settings_button_name, function(event)
   Public.toggle_shortcuts_settings(event.player)
 end)
 
-Event.add(defines.events.on_gui_checked_state_changed, function(event)
+Gui.on_checked_state_changed(checkbox_action_name, function(event)
   local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local player = game.get_player(event.player_index)
-  if not (player and player.valid) then
-    return
-  end
-
-  local action_name = element.tags and element.tags.action
-  if action_name and action_name == checkbox_action_name then
-    local name = element.tags.name
-    local frame = Public.get_main_frame(player)
-    for _, button in pairs(frame.children[1].table_frame.table.children) do
-      if button.tags.name == name then
-        local player_data = get_player_preferences(player)
-        player_data[name] = element.state
-        button.visible = element.state
-      end
+  local player = event.player
+  local name = element.tags.name
+  local frame = Public.get_main_frame(player)
+  for _, button in pairs(frame.children[1].table_frame.table.children) do
+    if button.tags.name == name then
+      local player_data = get_player_preferences(player)
+      player_data[name] = element.state
+      button.visible = element.state
     end
   end
 end)
 
-Event.add(defines.events.on_gui_click, function(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local player = game.get_player(event.player_index)
-  if not (player and player.valid) then
-    return
-  end
-
-  local action_name = element.tags and element.tags.action
-  if action_name and action_name == shortcut_action_name then
-    local name = element.tags.name
-    local shortcut = shortcut_buttons[name]
-    if shortcut and shortcut.action then
-      shortcut.action(player, event)
-    end
+Gui.on_click(shortcut_action_name, function(event)
+  local shortcut = shortcut_buttons[event.element.tags.name]
+  if shortcut and shortcut.action then
+    shortcut.action(event.player, event)
   end
 end)
 
