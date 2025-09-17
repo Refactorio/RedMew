@@ -337,14 +337,8 @@ end
 
 local loader_crafter_frame_for_player_name = Gui.uid_name()
 local loader_crafter_frame_for_assembly_machine_name = Gui.uid_name()
-local player_craft_loader_1 = Gui.uid_name()
-local player_craft_loader_2 = Gui.uid_name()
-local player_craft_loader_3 = Gui.uid_name()
-local player_craft_loader_4 = Gui.uid_name()
-local machine_craft_loader_1 = Gui.uid_name()
-local machine_craft_loader_2 = Gui.uid_name()
-local machine_craft_loader_3 = Gui.uid_name()
-local machine_craft_loader_4 = Gui.uid_name()
+local player_craft_loader_btn = Gui.uid_name()
+local machine_craft_loader_btn = Gui.uid_name()
 
 local open_gui_token = Token.register(function(data)
     local player = data.player
@@ -387,9 +381,9 @@ local function draw_loader_frame_for_player(parent, player)
     if recipes['loader'] and recipes['loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = player_craft_loader_1,
             elem_type = 'recipe',
-            recipe = 'loader'
+            recipe = 'loader',
+            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'loader' },
         }
         button.locked = true
     end
@@ -397,9 +391,9 @@ local function draw_loader_frame_for_player(parent, player)
     if recipes['fast-loader'] and recipes['fast-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = player_craft_loader_2,
             elem_type = 'recipe',
-            recipe = 'fast-loader'
+            recipe = 'fast-loader',
+            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'fast-loader' },
         }
         button.locked = true
     end
@@ -407,9 +401,9 @@ local function draw_loader_frame_for_player(parent, player)
     if recipes['express-loader'] and recipes['express-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = player_craft_loader_3,
             elem_type = 'recipe',
-            recipe = 'express-loader'
+            recipe = 'express-loader',
+            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'express-loader' },
         }
         button.locked = true
     end
@@ -417,9 +411,9 @@ local function draw_loader_frame_for_player(parent, player)
     if recipes['turbo-loader'] and recipes['turbo-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = player_craft_loader_4,
             elem_type = 'recipe',
-            recipe = 'turbo-loader'
+            recipe = 'turbo-loader',
+            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'turbo-loader' },
         }
         button.locked = true
     end
@@ -454,9 +448,9 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
     if recipes['loader'] and recipes['loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = machine_craft_loader_1,
             elem_type = 'recipe',
-            recipe = 'loader'
+            recipe = 'loader',
+            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -465,9 +459,9 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
     if recipes['fast-loader'] and recipes['fast-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = machine_craft_loader_2,
             elem_type = 'recipe',
-            recipe = 'fast-loader'
+            recipe = 'fast-loader',
+            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'fast-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -476,9 +470,9 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
     if recipes['express-loader'] and recipes['express-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = machine_craft_loader_3,
             elem_type = 'recipe',
-            recipe = 'express-loader'
+            recipe = 'express-loader',
+            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'express-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -487,16 +481,17 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
     if recipes['turbo-loader'] and recipes['turbo-loader'].enabled then
         local button = frame.add {
             type = 'choose-elem-button',
-            name = machine_craft_loader_4,
             elem_type = 'recipe',
-            recipe = 'turbo-loader'
+            recipe = 'turbo-loader',
+            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'turbo-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
     end
 end
 
-local function player_craft_loaders(event, loader_name)
+local function player_craft_loaders(event)
+    local loader_name = event.tags.loader_name
     local player = event.player
     if not player.force.recipes[loader_name].enabled then
         return
@@ -520,23 +515,10 @@ local function player_craft_loaders(event, loader_name)
     player.begin_crafting {count = count, recipe = loader_name}
 end
 
-Gui.on_click(player_craft_loader_1, function(event)
-    player_craft_loaders(event, 'loader')
-end)
+Gui.on_click(player_craft_loader_btn, player_craft_loaders)
 
-Gui.on_click(player_craft_loader_2, function(event)
-    player_craft_loaders(event, 'fast-loader')
-end)
-
-Gui.on_click(player_craft_loader_3, function(event)
-    player_craft_loaders(event, 'express-loader')
-end)
-
-Gui.on_click(player_craft_loader_4, function(event)
-    player_craft_loaders(event, 'turbo-loader')
-end)
-
-local function set_assembly_machine_recipe(event, loader_name)
+local function set_assembly_machine_recipe(event)
+    local loader_name = event.tags.loader_name
     if not event.player.force.recipes[loader_name].enabled then
         return
     end
@@ -547,21 +529,7 @@ local function set_assembly_machine_recipe(event, loader_name)
     Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
 end
 
-Gui.on_click(machine_craft_loader_1, function(event)
-    set_assembly_machine_recipe(event, 'loader')
-end)
-
-Gui.on_click(machine_craft_loader_2, function(event)
-    set_assembly_machine_recipe(event, 'fast-loader')
-end)
-
-Gui.on_click(machine_craft_loader_3, function(event)
-    set_assembly_machine_recipe(event, 'express-loader')
-end)
-
-Gui.on_click(machine_craft_loader_4, function(event)
-    set_assembly_machine_recipe(event, 'turbo-loader')
-end)
+Gui.on_click(machine_craft_loader_btn, set_assembly_machine_recipe)
 
 if config.loaders then
     Event.add(defines.events.on_research_finished, function(event)

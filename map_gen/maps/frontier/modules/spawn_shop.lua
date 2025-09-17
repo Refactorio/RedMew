@@ -135,7 +135,7 @@ function SpawnShop.draw_gui(player)
 
   local this = Public.get()
 
-  frame = player.gui.screen.add { type = 'frame', name = SpawnShop.main_frame_name, direction = 'vertical' }
+  frame = player.gui.screen.add { type = 'frame', name = SpawnShop.main_frame_name, direction = 'vertical', tags = { [Gui.tag] = SpawnShop.main_frame_name } }
   Gui.set_style(frame, {
     horizontally_stretchable = true,
     natural_width = 760,
@@ -158,11 +158,11 @@ function SpawnShop.draw_gui(player)
 
     flow.add {
       type = 'sprite-button',
-      name = SpawnShop.close_button_name,
       sprite = 'utility/close',
       clicked_sprite = 'utility/close_black',
       style = 'close_button',
-      tooltip = {'gui.close-instruction'}
+      tooltip = {'gui.close-instruction'},
+      tags = { [Gui.tag] = SpawnShop.close_button_name },
     }
   end
 
@@ -221,7 +221,7 @@ function SpawnShop.draw_gui(player)
     end
     Gui.add_pusher(col_3)
     local col_3_2 = col_3.add { type = 'flow', direction = 'vertical' }
-    local upgrade_button = col_3_2.add { type = 'button', name = SpawnShop.upgrade_button_name, style = 'confirm_button', caption = 'Upgrade', tags = { name = p.name } }
+    local upgrade_button = col_3_2.add { type = 'button', style = 'confirm_button', caption = 'Upgrade', tags = { [Gui.tag] = SpawnShop.upgrade_button_name, name = p.name } }
     upgrade_button.enabled = SpawnShop.can_purchase(player, p.name)
   end
 
@@ -244,10 +244,10 @@ function SpawnShop.draw_gui(player)
   subfooter.add { type = 'label', caption = 'Refresh prices ', style = 'caption_label' }
   local refresh_button = subfooter.add {
     type = 'sprite-button',
-    name = SpawnShop.refresh_button_name,
     sprite = 'utility/refresh',
     style = 'tool_button',
-    tooltip = this.spawn_shop_funds > 0 and {'frontier.tt_shop_refresh_button'} or {'frontier.tt_shop_disabled_refresh_button'}
+    tooltip = this.spawn_shop_funds > 0 and {'frontier.tt_shop_refresh_button'} or {'frontier.tt_shop_disabled_refresh_button'},
+    tags = { [Gui.tag] = SpawnShop.refresh_button_name },
   }
   refresh_button.enabled = this.spawn_shop_funds > 0
   local tick = this.spawn_shop_cooldown[player.index]

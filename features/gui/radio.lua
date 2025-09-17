@@ -2,7 +2,6 @@ local Gui = require 'utils.gui'
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 
-local main_button_name = Gui.uid_name()
 local radio_frame = Gui.uid_name()
 local close_radio = Gui.uid_name()
 
@@ -89,7 +88,7 @@ local function draw_radio(event)
         return
     end
 
-    frame = center.add {type = 'frame', name = radio_frame, caption = frame_caption, direction = 'vertical'}
+    frame = center.add {type = 'frame', name = radio_frame, caption = frame_caption, direction = 'vertical', tags = { [Gui.tag] = radio_frame }}
     local scroll_pane =
         frame.add {
         type = 'scroll-pane',
@@ -152,8 +151,6 @@ local function draw_radio(event)
 
     player.opened = frame
 end
-
-Gui.on_click(main_button_name, draw_radio)
 
 Gui.on_click(
     close_radio,

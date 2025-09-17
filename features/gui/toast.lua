@@ -31,7 +31,6 @@ Global.register(
     'toast'
 )
 
-local toast_flow_name = Gui.uid_name()
 local toast_frame_name = Gui.uid_name()
 local toast_container_name = Gui.uid_name()
 local toast_progress_name = Gui.uid_name()
@@ -56,7 +55,7 @@ local function get_toast(element)
         return nil
     end
 
-    if element.name == toast_frame_name then
+    if element.tags[Gui.tag] == toast_frame_name then
         return element.parent
     end
 
@@ -81,18 +80,18 @@ end
 ---@param duration number in seconds
 ---@param sound string sound to play, nil to not play anything
 local function toast_to(player, duration, sound)
-    local frame_holder = Gui.add_left_element(player, { type = 'flow', name = toast_flow_name, direction = 'vertical' })
+    local frame_holder = Gui.add_left_element(player, { type = 'flow', direction = 'vertical' })
 
     local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' }
 
     local frame =
-        flow_frame.add({type = 'frame', name = toast_frame_name, direction = 'vertical' })
+        flow_frame.add({type = 'frame', direction = 'vertical', tags = { [Gui.tag] = toast_frame_name } })
     frame.style.width = 300
 
-    local container = frame.add({type = 'flow', name = toast_container_name, direction = 'horizontal'})
+    local container = frame.add({type = 'flow', direction = 'horizontal', tags = { [Gui.tag] = toast_container_name }})
     container.style.horizontally_stretchable = true
 
-    local progressbar = frame.add({type = 'progressbar', name = toast_progress_name})
+    local progressbar = frame.add({type = 'progressbar', tags = { [Gui.tag] = toast_progress_name }})
     local style = progressbar.style
     style.width = 290
     style.height = 4
@@ -225,7 +224,7 @@ function Public.toast_player(player, duration, message)
         player,
         duration,
         function(container)
-            local label = container.add({type = 'label', name = close_toast_name, caption = message})
+            local label = container.add({type = 'label', caption = message, tags = { [Gui.tag] = close_toast_name }})
             label.style.single_line = false
         end
     )

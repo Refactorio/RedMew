@@ -44,7 +44,7 @@ function Public.open_dubug(player)
 
     for i = 1, #pages do
         local page = pages[i]
-        local tab_button = tab_flow.add({type = 'flow'}).add {type = 'button', name = tab_name, caption = page.name}
+        local tab_button = tab_flow.add {type = 'button', name = tab_name, caption = page.name, tags = { [Gui.tag] = tab_name }}
         local tab_button_style = tab_button.style
 
         Gui.set_data(tab_button, {index = i, frame_data = data})
@@ -61,7 +61,7 @@ function Public.open_dubug(player)
         end
     end
 
-    frame.add {type = 'button', name = close_name, caption = 'Close'}
+    frame.add {type = 'button', caption = 'Close', tags = { [Gui.tag] = close_name }}
 end
 
 Gui.on_click(

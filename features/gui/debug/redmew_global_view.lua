@@ -11,8 +11,6 @@ local concat = table.concat
 local Public = {}
 
 local header_name = Gui.uid_name()
-local left_panel_name = Gui.uid_name()
-local right_panel_name = Gui.uid_name()
 local input_text_box_name = Gui.uid_name()
 local refresh_name = Gui.uid_name()
 
@@ -21,12 +19,12 @@ Public.name = 'Global'
 function Public.show(container)
     local main_flow = container.add {type = 'flow', direction = 'horizontal'}
 
-    local left_panel = main_flow.add {type = 'scroll-pane', name = left_panel_name}
+    local left_panel = main_flow.add {type = 'scroll-pane'}
     local left_panel_style = left_panel.style
     left_panel_style.width = 300
 
     for token_id, token_name in pairs(Global.names) do
-        local header = left_panel.add({type = 'flow'}).add {type = 'label', name = header_name, caption = token_name}
+        local header = left_panel.add({type = 'flow'}).add {type = 'label', caption = token_name, tags = { [Gui.tag] = header_name }}
         Gui.set_data(header, token_id)
     end
 
@@ -34,19 +32,19 @@ function Public.show(container)
 
     local right_top_flow = right_flow.add {type = 'flow', direction = 'horizontal'}
 
-    local input_text_box = right_top_flow.add {type = 'text-box', name = input_text_box_name}
+    local input_text_box = right_top_flow.add {type = 'text-box', tags = { [Gui.tag] = input_text_box_name }}
     local input_text_box_style = input_text_box.style
     input_text_box_style.horizontally_stretchable = true
     input_text_box_style.height = 32
     input_text_box_style.maximal_width = 1000
 
     local refresh_button =
-        right_top_flow.add {type = 'sprite-button', name = refresh_name, sprite = 'utility/reset', tooltip = 'refresh'}
+        right_top_flow.add {type = 'sprite-button', sprite = 'utility/reset', tooltip = 'refresh', tags = { [Gui.tag] = refresh_name }}
     local refresh_button_style = refresh_button.style
     refresh_button_style.width = 32
     refresh_button_style.height = 32
 
-    local right_panel = right_flow.add {type = 'text-box', name = right_panel_name}
+    local right_panel = right_flow.add {type = 'text-box'}
     right_panel.read_only = true
     right_panel.selectable = true
 

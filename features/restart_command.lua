@@ -299,7 +299,8 @@ local function draw_main_frame(player)
         type = 'frame',
         name = main_frame_name,
         caption = 'Configure Restart',
-        direction = 'vertical'
+        direction = 'vertical',
+        tags = { [Gui.tag] = main_frame_name },
     }
 
     local is_scenario = start_game_data.type == game_types.scenario
@@ -307,15 +308,15 @@ local function draw_main_frame(player)
     radio_button_flow.add {type = 'label', caption = 'Type:'}
     local scenario_radio_button = radio_button_flow.add {
         type = 'radiobutton',
-        name = scenario_radio_button_name,
         caption = 'scenario',
-        state = is_scenario
+        state = is_scenario,
+        tags = { [Gui.tag] = scenario_radio_button_name },
     }
     local save_radio_button = radio_button_flow.add {
         type = 'radiobutton',
-        name = save_radio_button_name,
         caption = 'save',
-        state = not is_scenario
+        state = not is_scenario,
+        tags = { [Gui.tag] = save_radio_button_name },
     }
 
     local radio_data = {scenario_radio_button = scenario_radio_button, save_radio_button = save_radio_button}
@@ -325,23 +326,23 @@ local function draw_main_frame(player)
 
     local name_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
     name_flow.add {type = 'label', caption = 'Name:'}
-    local name_textfield = name_flow.add {type = 'textfield', name = name_textfield_name, text = start_game_data.name}
+    local name_textfield = name_flow.add {type = 'textfield', text = start_game_data.name, tags = { [Gui.tag] = name_textfield_name }}
     name_textfield.style.horizontally_stretchable = true
     name_textfield.style.maximal_width = 600
 
     local is_set_mod_pack = start_game_data.mod_pack ~= nil
     local set_mod_pack_checkbox = main_frame.add {
         type = 'checkbox',
-        name = set_mod_pack_checkbox_name,
         caption = 'Set mod pack (uncheck to not change current)',
-        state = is_set_mod_pack
+        state = is_set_mod_pack,
+        tags = { [Gui.tag] = set_mod_pack_checkbox_name },
     }
     local mod_pack_name_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
     mod_pack_name_flow.add {type = 'label', caption = 'Mod Pack (empty to set none):'}
     local mod_pack_name_textfield = mod_pack_name_flow.add {
         type = 'textfield',
-        name = mod_pack_name_textfield_name,
-        text = memory.mod_pack_text
+        text = memory.mod_pack_text,
+        tags = { [Gui.tag] = mod_pack_name_textfield_name },
     }
     mod_pack_name_textfield.enabled = is_set_mod_pack
 
@@ -350,9 +351,9 @@ local function draw_main_frame(player)
     if memory.use_map_poll_result ~= nil then
         main_frame.add {
             type = 'checkbox',
-            name = use_map_poll_result_checkbox_name,
             caption = 'Use map poll result',
-            state = memory.use_map_poll_result
+            state = memory.use_map_poll_result,
+            tags = { [Gui.tag] = use_map_poll_result_checkbox_name },
         }
     end
 
@@ -360,7 +361,7 @@ local function draw_main_frame(player)
         for mod_pack_name, mod_pack_value in pairs(memory.known_mod_packs) do
             local mod_pack_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
             mod_pack_flow.add {type = 'label', caption = mod_pack_name .. ':'}
-            local mod_pack_textfield = mod_pack_flow.add {type = 'textfield', name = known_mod_pack_textfield_name, text = mod_pack_value}
+            local mod_pack_textfield = mod_pack_flow.add {type = 'textfield', text = mod_pack_value, tags = { [Gui.tag] = known_mod_pack_textfield_name } }
             Gui.set_data(mod_pack_textfield, mod_pack_name)
         end
     end
@@ -372,9 +373,9 @@ local function draw_main_frame(player)
 
     bottom_flow.add {
         type = 'button',
-        name = close_button_name,
         caption = {'common.close_button'},
-        style = 'back_button'
+        style = 'back_button',
+        tags = { [Gui.tag] = close_button_name },
     }
 end
 

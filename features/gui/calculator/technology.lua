@@ -173,6 +173,7 @@ local function get_main_frame(player)
         name = main_frame_name,
         direction = 'vertical',
         style = 'frame',
+        tags = { [Gui.tag] = main_frame_name },
     }
     Gui.set_style(frame, {
         horizontally_stretchable = true,
@@ -251,31 +252,31 @@ local function draw(player)
 
         local backward = history_flow.add {
             type = 'sprite-button',
-            name = history_back_button_name,
             sprite = 'utility/backward_arrow',
             clicked_sprite = 'utility/backward_arrow_black',
             style = 'close_button',
             tooltip = 'Back',
+            tags = { [Gui.tag] = history_back_button_name },
         }
         backward.enabled = h:peek_previous() ~= nil
 
         local forward = history_flow.add {
             type = 'sprite-button',
-            name = history_forward_button_name,
             sprite = 'utility/forward_arrow',
             clicked_sprite = 'utility/forward_arrow_black',
             style = 'close_button',
             tooltip = 'Forward',
+            tags = { [Gui.tag] = history_forward_button_name },
         }
         forward.enabled = h:peek_next() ~= nil
 
         local close_button = flow.add {
             type = 'sprite-button',
-            name = close_button_name,
             sprite = 'utility/close',
             clicked_sprite = 'utility/close_black',
             style = 'close_button',
             tooltip = { 'gui.close-instruction' },
+            tags = { [Gui.tag] = close_button_name },
         }
         Gui.set_data(close_button, { frame = frame })
     end
@@ -292,10 +293,10 @@ local function draw(player)
 
             local select_button = flow.add {
                 type = 'choose-elem-button',
-                name = select_button_name,
                 style = 'slot_button_in_shallow_frame',
                 elem_type = 'technology',
                 technology = technology_name,
+                tags = { [Gui.tag] = select_button_name },
             }
             data.select_button = select_button
             Gui.set_data(select_button, data)
@@ -345,8 +346,8 @@ local function draw(player)
                 type = 'label',
                 style = 'bold_label',
                 caption = toggled[player.index] and on_technologies or off_technologies,
-                name = toggle_list_button_name,
                 tooltip = 'Hide/Show technologies list',
+                tags = { [Gui.tag] = toggle_list_button_name},
             }
             data.label = label
             Gui.set_data(label, data)

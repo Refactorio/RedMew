@@ -14,7 +14,8 @@ local function show_gui_for_player(player)
     Gui.add_top_element(player, {
         type = 'button',
         name = main_button_name,
-        caption = {'snake.name'}
+        caption = {'snake.name'},
+        tags = { [Gui.tag] = main_button_name },
     })
 end
 

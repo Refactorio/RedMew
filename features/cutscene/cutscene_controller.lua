@@ -15,7 +15,6 @@ local skip_btn_name = Gui.uid_name()
 local backward_btn_name = Gui.uid_name()
 local forward_btn_name = Gui.uid_name()
 local auto_play_cutscene_checkbox_name = Gui.uid_name()
-local flow_name = Gui.uid_name()
 
 local Public = {}
 local handler
@@ -245,24 +244,24 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         final_transition_time = final_transition_time
     }
 
-    local flow = Gui.add_top_element(player, { type = 'flow', name = flow_name })
+    local flow = Gui.add_top_element(player, { type = 'flow' })
     running_cutscene.btn = flow
 
-    local btn = flow.add {type = 'sprite-button', name = skip_btn_name, caption = 'Skip cutscene', style = Styles.default_top_element.name }
+    local btn = flow.add {type = 'sprite-button', caption = 'Skip cutscene', style = Styles.default_top_element.name, tags = { [Gui.tag] = skip_btn_name } }
     btn.style.minimal_height = 36
     btn.style.maximal_height = 36
     btn.style.minimal_width = 150
     btn.style.font = 'default-large-bold'
     btn.style.font_color = {r = 255, g = 215, b = 0}
 
-    local back_btn = flow.add {type = 'sprite-button', name = backward_btn_name, caption = 'Go back', style = Styles.default_top_element.name }
+    local back_btn = flow.add {type = 'sprite-button', caption = 'Go back', style = Styles.default_top_element.name, tags = { [Gui.tag] = backward_btn_name } }
     back_btn.style.minimal_height = 36
     back_btn.style.maximal_height = 36
     back_btn.style.minimal_width = 100
     back_btn.style.font = 'default-large-bold'
     back_btn.style.font_color = {r = 255, g = 215, b = 0}
 
-    local forward_btn = flow.add {type = 'sprite-button', name = forward_btn_name, caption = 'Go forward', style = Styles.default_top_element.name }
+    local forward_btn = flow.add {type = 'sprite-button', caption = 'Go forward', style = Styles.default_top_element.name, tags = { [Gui.tag] = forward_btn_name } }
     forward_btn.style.minimal_height = 36
     forward_btn.style.maximal_height = 36
     forward_btn.style.minimal_width = 100
@@ -273,9 +272,9 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         local auto_play_cutscene_checkbox = flow.add
         {
             type = 'checkbox',
-            name = auto_play_cutscene_checkbox_name,
             caption = 'Auto play cutscene',
-            state = Settings.get(player_index, auto_play_cutscene_setting_name)
+            state = Settings.get(player_index, auto_play_cutscene_setting_name),
+            tags = { [Gui.tag] = auto_play_cutscene_checkbox_name },
         }
 
         auto_play_cutscene_checkbox.style.top_margin = 8

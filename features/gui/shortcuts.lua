@@ -99,6 +99,7 @@ function Public.on_player_created(player)
     name = main_button_name,
     sprite = 'utility/hand_black',
     tooltip = {'player_shortcuts.info_tooltip'},
+    tags = { [Gui.tag] = main_button_name },
   })
   b.style.padding = 2
 end
@@ -199,12 +200,12 @@ function Public.get_main_frame(player)
 
     right_flow.add {
       type = 'sprite-button',
-      name = settings_button_name,
       style = 'shortcut_bar_expand_button',
       sprite = 'utility/expand_dots',
       tooltip = {'player_shortcuts.settings_tooltip'},
       mouse_button_filter = { 'left' },
       auto_toggle = true,
+      tags = { [Gui.tag] = settings_button_name },
     }
 
     local widget = right_flow.add { type = 'empty-widget', style = 'draggable_space', ignored_by_interaction = true }

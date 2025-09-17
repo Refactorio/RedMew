@@ -22,40 +22,36 @@ local ignore = {
 }
 
 local file_label_name = Gui.uid_name()
-local left_panel_name = Gui.uid_name()
-local breadcrumbs_name = Gui.uid_name()
-local top_panel_name = Gui.uid_name()
 local variable_label_name = Gui.uid_name()
-local text_box_name = Gui.uid_name()
 
 Public.name = 'package'
 
 function Public.show(container)
     local main_flow = container.add {type = 'flow', direction = 'horizontal'}
 
-    local left_panel = main_flow.add {type = 'scroll-pane', name = left_panel_name}
+    local left_panel = main_flow.add {type = 'scroll-pane'}
     local left_panel_style = left_panel.style
     left_panel_style.width = 300
 
     for name, file in pairs(loaded) do
         if not ignore[name] then
             local file_label =
-                left_panel.add({type = 'flow'}).add {type = 'label', name = file_label_name, caption = name}
+                left_panel.add {type = 'label', caption = name, tags = { [Gui.tag] = file_label_name }}
             Gui.set_data(file_label, file)
         end
     end
 
     local right_flow = main_flow.add {type = 'flow', direction = 'vertical'}
 
-    local breadcrumbs = right_flow.add {type = 'label', name = breadcrumbs_name}
+    local breadcrumbs = right_flow.add {type = 'label'}
 
-    local top_panel = right_flow.add {type = 'scroll-pane', name = top_panel_name}
+    local top_panel = right_flow.add {type = 'scroll-pane'}
     local top_panel_style = top_panel.style
     top_panel_style.height = 200
     top_panel_style.maximal_width = 1000
     top_panel_style.horizontally_stretchable = true
 
-    local text_box = right_flow.add {type = 'text-box', name = text_box_name}
+    local text_box = right_flow.add {type = 'text-box'}
     text_box.read_only = true
     text_box.selectable = true
 
@@ -106,7 +102,7 @@ Gui.on_click(
         if file_type == 'table' then
             for k, v in pairs(file) do
                 local label =
-                    top_panel.add({type = 'flow'}).add {type = 'label', name = variable_label_name, caption = k}
+                    top_panel.add {type = 'label', caption = k, tags = { [Gui.tag] = variable_label_name }}
                 Gui.set_data(label, v)
             end
         else
@@ -131,7 +127,7 @@ Gui.on_click(
             Gui.clear(top_panel)
             for k, v in pairs(variable) do
                 local label =
-                    top_panel.add({type = 'flow'}).add {type = 'label', name = variable_label_name, caption = k}
+                    top_panel.add {type = 'label', caption = k, tags = { [Gui.tag] = variable_label_name }}
                 Gui.set_data(label, v)
             end
             return

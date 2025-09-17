@@ -96,6 +96,7 @@ local function player_created(event)
             sprite = get_score_sprite(),
             tooltip = {'score.tooltip'},
             auto_toggle = true,
+            tags = { [Gui.tag] = main_button_name},
         }
     )
 end

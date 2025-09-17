@@ -64,7 +64,7 @@ function Public.show_gui(event, force)
     ok_button_flow.style.horizontally_stretchable = true
     ok_button_flow.style.horizontal_align = 'center'
 
-    local ok_button = ok_button_flow.add {type = 'button', name = won_close_name, caption = snake_button_text}
+    local ok_button = ok_button_flow.add {type = 'button', caption = snake_button_text, tags = { [Gui.tag] = won_close_name }}
     Gui.set_data(ok_button, frame)
 end
 

@@ -21,8 +21,6 @@ local apply_button_name = Gui.uid_name()
 local mode_dropdown_name = Gui.uid_name()
 local abort_button_name = Gui.uid_name()
 local restart_button_name = Gui.uid_name()
-local switch_save_button_name = Gui.uid_name()
-local switch_mod_pack_button_name = Gui.uid_name()
 local load_clear_button_name = Gui.uid_name()
 local load_confirm_button_name = Gui.uid_name()
 
@@ -70,7 +68,7 @@ pages[#pages +1] = {
   type = 'sprite-button',
   sprite = 'utility/map',
   tooltip = '[font=default-bold]Scenario manager[/font]',
-  name = main_button_name,
+  tags = { [Gui.tag] = main_button_name },
   auto_toggle = true,
 }
 
@@ -205,24 +203,24 @@ local function draw_gui(player)
     Gui.add_pusher(button_flow)
     button_flow.add {
       type = 'button',
-      name = reset_button_name,
       style = 'red_back_button',
       caption = 'Reset',
       tooltip = 'Resets all values to previous configuration',
+      tags = { [Gui.tag] = reset_button_name },
     }
     local save = button_flow.add {
       type = 'button',
-      name = save_button_name,
       style = 'forward_button',
       caption = 'Save',
       tooltip = 'Save modifiers configuration for later',
+      tags = { [Gui.tag] = save_button_name },
     }
     local apply = button_flow.add {
       type = 'button',
-      name = apply_button_name,
       style = 'confirm_double_arrow_button',
       caption = 'Apply',
       tooltip = 'Apply modifiers to current configuration now',
+      tags = { [Gui.tag] = apply_button_name },
     }
     Gui.set_style(apply, { left_margin = -9 })
     Gui.set_data(save, data)
@@ -240,9 +238,9 @@ local function draw_gui(player)
     Gui.add_pusher(row_1)
     row_1.add {
       type = 'drop-down',
-      name = mode_dropdown_name,
       items = restart_mode_text,
-      selected_index = mode
+      selected_index = mode,
+      tags = { [Gui.tag] = mode_dropdown_name },
     }
 
     local row_2 = restart_settings.add { type = 'flow', direction = 'horizontal' }
@@ -253,17 +251,17 @@ local function draw_gui(player)
     Gui.add_pusher(row_2)
     row_2.add {
       type = 'button',
-      name = abort_button_name,
       style = 'red_back_button',
       caption = 'Abort',
-      tooltip = 'Abort any restart action'
+      tooltip = 'Abort any restart action',
+      tags = { [Gui.tag] = abort_button_name },
     }
     row_2.add {
       type = 'button',
-      name = restart_button_name,
       style = 'red_confirm_button',
       caption = 'Restart',
-      tooltip = 'A save of current map will be automatically\ncreated before restarting'
+      tooltip = 'A save of current map will be automatically\ncreated before restarting',
+      tags = { [Gui.tag] = restart_button_name },
     }
   end
 
@@ -289,7 +287,6 @@ local function draw_gui(player)
     }
     local t12 = table_1.add {
       type = 'textfield',
-      name = switch_save_button_name,
       text = switch_map.name or 'i.e. frontier-special.zip',
     }
     table_1.add {
@@ -298,7 +295,6 @@ local function draw_gui(player)
     }
     local t22 = table_1.add {
       type = 'textfield',
-      name = switch_mod_pack_button_name,
       text = switch_map.mod_pack or 'i.e. frontier_modpack',
     }
 
@@ -306,17 +302,17 @@ local function draw_gui(player)
     Gui.add_pusher(row_2)
     row_2.add {
       type = 'button',
-      name = load_clear_button_name,
       style = 'red_back_button',
       caption = 'Clear',
       tooltip = 'Clear load settings',
+      tags = { [Gui.tag] = load_clear_button_name },
     }
     local confirm = row_2.add {
       type = 'button',
-      name = load_confirm_button_name,
       style = 'confirm_button',
       caption = 'Confirm',
       tooltip = 'Confirm load settings',
+      tags = { [Gui.tag] = load_confirm_button_name },
     }
 
     Gui.set_data(confirm, { name = t12, mod_pack = t22 })

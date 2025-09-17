@@ -18,7 +18,7 @@ local Gui = {}
 local data = {}
 local element_map = {}
 
-Gui.tag = '__@level-RedMew__'
+Gui.tag = '__@level-RedMew__event_handler_tag__'
 
 Gui.token =
     Global.register(
@@ -237,10 +237,11 @@ local function handler_factory(event_id)
         end
 
         local tag = element.tags[Gui.tag]
-        local handler = handlers[element.name] or handlers[tag]
+        local handler = tag and handlers[tag]
         if not handler then
             return
         end
+        event.tags = element.tags
 
         local player = game.get_player(event.player_index)
         if not player or not player.valid then
@@ -364,9 +365,9 @@ Event.add(
 
         local b = Gui.add_top_element(player, {
             type = 'button',
-            name = toggle_button_name,
             caption = '<',
-            tooltip = {'gui_util.button_tooltip'}
+            tooltip = {'gui_util.button_tooltip'},
+            tags = { [Gui.tag] = toggle_button_name },
         })
 
         Gui.set_style(b, {
@@ -422,9 +423,9 @@ function Gui.make_close_button(parent, name)
     local button =
         parent.add {
         type = 'button',
-        name = name,
         caption = {'common.close_button'},
-        style = 'back_button'
+        style = 'back_button',
+        tags = { [Gui.tag] = name },
     }
 
     Styles.default_close(button.style)

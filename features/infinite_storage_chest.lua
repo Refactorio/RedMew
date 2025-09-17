@@ -214,7 +214,8 @@ local function gui_opened(event)
         type = 'frame',
         name = chest_gui_frame_name,
         caption = 'Infinite Storage Chest',
-        direction = 'vertical'
+        direction = 'vertical',
+        tags = { [Gui.tag] = chest_gui_frame_name },
     }
 
     local text =
