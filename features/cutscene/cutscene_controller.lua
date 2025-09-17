@@ -15,6 +15,7 @@ local skip_btn_name = Gui.uid_name()
 local backward_btn_name = Gui.uid_name()
 local forward_btn_name = Gui.uid_name()
 local auto_play_cutscene_checkbox_name = Gui.uid_name()
+local flow_name = Gui.uid_name()
 
 local Public = {}
 local handler
@@ -244,7 +245,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         final_transition_time = final_transition_time
     }
 
-    local flow = Gui.add_top_element(player, { type = 'flow' })
+    local flow = Gui.add_top_element(player, { type = 'flow', name = flow_name })
     running_cutscene.btn = flow
 
     local btn = flow.add {type = 'sprite-button', caption = 'Skip cutscene', style = Styles.default_top_element.name, tags = { [Gui.tag] = skip_btn_name } }

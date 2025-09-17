@@ -63,7 +63,7 @@ for _, text in pairs({
   'resource hoarding',
   'tanking server UPS',
   'toxic behavior',
-}) do table.insert(ban_items, { tags = { [Gui.tag] = Gui.uid_name() }, caption = text }) end
+}) do table.insert(ban_items, { tag = Gui.uid_name(), caption = text }) end
 
 local function get_selected_player(player)
   return this.player_selection[player.index].name or '__NIL__'
@@ -190,7 +190,7 @@ local function draw_gui(player)
   for _, item in pairs(ban_items) do
     make_checkbox(table_3, {
       caption = item.caption,
-      tags = item.tags,
+      tags = { [Gui.tag] = item.tag },
       state = Table.contains(this.player_ban_items[player.index], item.caption),
     })
   end
@@ -233,7 +233,7 @@ Gui.on_selection_state_changed(selection_dropdown_name, function(event)
 end)
 
 for _, ban_item in pairs(ban_items) do
-  Gui.on_checked_state_changed(ban_item.name, function(event)
+  Gui.on_checked_state_changed(ban_item.tag, function(event)
     local player = event.player
     local element = event.element
     if element.state then

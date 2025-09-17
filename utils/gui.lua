@@ -365,6 +365,7 @@ Event.add(
 
         local b = Gui.add_top_element(player, {
             type = 'button',
+            name = toggle_button_name,
             caption = '<',
             tooltip = {'gui_util.button_tooltip'},
             tags = { [Gui.tag] = toggle_button_name },

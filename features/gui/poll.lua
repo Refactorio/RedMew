@@ -509,7 +509,7 @@ local function redraw_create_poll_content(data)
         minimum_value = 0,
         maximum_value = duration_slider_max,
         value = math.floor(data.duration * inv_tick_duration_step),
-        tags = { [Gui.tags] = create_poll_duration_name },
+        tags = { [Gui.tag] = create_poll_duration_name },
     }
     duration_slider.style.width = 80
 
@@ -854,6 +854,7 @@ local function player_created(event)
             sprite = 'item/programmable-speaker',
             tooltip = {'poll.tooltip'},
             auto_toggle = true,
+            tags = { [Gui.tag] = main_button_name },
         }
     )
 end
