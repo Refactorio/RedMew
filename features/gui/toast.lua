@@ -55,7 +55,7 @@ local function get_toast(element)
         return nil
     end
 
-    if element.tags[Gui.tag] == toast_frame_name then
+    if element.tags[Gui.event_tag] == toast_frame_name then
         return element.parent
     end
 
@@ -85,13 +85,13 @@ local function toast_to(player, duration, sound)
     local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' }
 
     local frame =
-        flow_frame.add({type = 'frame', direction = 'vertical', tags = { [Gui.tag] = toast_frame_name } })
+        flow_frame.add({type = 'frame', direction = 'vertical', tags = { [Gui.event_tag] = toast_frame_name } })
     frame.style.width = 300
 
-    local container = frame.add({type = 'flow', direction = 'horizontal', tags = { [Gui.tag] = toast_container_name }})
+    local container = frame.add({type = 'flow', direction = 'horizontal', tags = { [Gui.event_tag] = toast_container_name }})
     container.style.horizontally_stretchable = true
 
-    local progressbar = frame.add({type = 'progressbar', tags = { [Gui.tag] = toast_progress_name }})
+    local progressbar = frame.add({type = 'progressbar', tags = { [Gui.event_tag] = toast_progress_name }})
     local style = progressbar.style
     style.width = 290
     style.height = 4
@@ -224,7 +224,7 @@ function Public.toast_player(player, duration, message)
         player,
         duration,
         function(container)
-            local label = container.add({type = 'label', caption = message, tags = { [Gui.tag] = close_toast_name }})
+            local label = container.add({type = 'label', caption = message, tags = { [Gui.event_tag] = close_toast_name }})
             label.style.single_line = false
         end
     )

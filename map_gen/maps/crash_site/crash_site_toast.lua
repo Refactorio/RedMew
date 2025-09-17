@@ -15,7 +15,7 @@ function Public.do_outpost_toast(market, message)
                 type = 'sprite-button',
                 sprite = 'utility/search_icon',
                 style = 'slot_button',
-                tags = { [Gui.tag] = find_outpost_name },
+                tags = { [Gui.event_tag] = find_outpost_name },
             }
 
             Gui.set_data(sprite, { position = market.position, surface_index = market.surface.index })
@@ -24,7 +24,7 @@ function Public.do_outpost_toast(market, message)
                 container.add {
                 type = 'label',
                 caption = message,
-                tags = { [Gui.tag] = Toast.close_toast_name },
+                tags = { [Gui.event_tag] = Toast.close_toast_name },
             }
             local label_style = label.style
             label_style.single_line = false

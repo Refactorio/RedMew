@@ -49,7 +49,7 @@ Event.add(defines.events.on_gui_opened, function(event)
   local canvas = frame.add { type = 'frame', style = 'inside_deep_frame', direction = 'vertical' }
   Gui.set_style(canvas, { padding = 4 })
 
-  local button = canvas.add { type = 'button', caption = 'Teleport' , style = 'confirm_button_without_tooltip', tags = { [Gui.tag] = teleport_button_name } }
+  local button = canvas.add { type = 'button', caption = 'Teleport' , style = 'confirm_button_without_tooltip', tags = { [Gui.event_tag] = teleport_button_name } }
   Gui.set_data(button, { entity = entity })
 
   this.relative_gui[event.player_index] = frame

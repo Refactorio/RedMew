@@ -137,7 +137,7 @@ local function draw_gui(event)
         return
     end
 
-    frame = center.add {type = 'frame', name = main_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.tag] = main_frame_name } }
+    frame = center.add {type = 'frame', name = main_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = main_frame_name } }
 
     local main_table = frame.add {type = 'table', column_count = 1}
 
@@ -164,7 +164,7 @@ local function draw_gui(event)
         type = 'radiobutton',
         caption = 'Vanilla',
         state = false,
-        tags = { [Gui.tag] = template_radio },
+        tags = { [Gui.event_tag] = template_radio },
     }
 
     Gui.set_data(radio, frame)
@@ -174,7 +174,7 @@ local function draw_gui(event)
         type = 'radiobutton',
         caption = 'Modded',
         state = false,
-        tags = { [Gui.tag] = template_radio },
+        tags = { [Gui.event_tag] = template_radio },
     }
 
     Gui.set_data(radio, frame)
@@ -194,7 +194,7 @@ local function draw_gui(event)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local generate_tag_button = left_flow.add {type = 'button', caption = 'Generate Tags', tags = { [Gui.tag] = generate_tags }}
+    local generate_tag_button = left_flow.add {type = 'button', caption = 'Generate Tags', tags = { [Gui.event_tag] = generate_tags }}
     Gui.set_data(generate_tag_button, frame)
 
     main_table.add {type = 'label', caption = 'Generated Server Tags (Reopen this gui to reset to the template)'}

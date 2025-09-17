@@ -30,7 +30,7 @@ local function draw_player_headers(player_panel, selected_index)
         local header = player_panel.add {
             type = 'label',
             caption = concat({player_index, ' - ', player_name}),
-            tags = { [Gui.tag] = player_header_name },
+            tags = { [Gui.event_tag] = player_header_name },
         }
         Gui.set_data(header, {values = values, player_index = player_index})
 
@@ -71,7 +71,7 @@ function Public.show(container)
         type = 'sprite-button',
         sprite = 'utility/reset',
         tooltip = 'refresh',
-        tags = { [Gui.tag] = refresh_name },
+        tags = { [Gui.event_tag] = refresh_name },
     }
     local refresh_button_style = refresh_button.style
     refresh_button_style.width = 32
@@ -133,7 +133,7 @@ local function draw_element_headers(element_panel, values, selected_index)
         local middle_header = element_panel.add {
             type = 'label',
             caption = concat({ei, ' - ', ele_name}),
-            tags = { [Gui.tag] = element_header_name },
+            tags = { [Gui.event_tag] = element_header_name },
         }
 
         Gui.set_data(middle_header, {stored_data = stored_data, element_index = ei})

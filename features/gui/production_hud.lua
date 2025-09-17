@@ -101,7 +101,7 @@ local function init_hud(parent, items)
                 'production_hud.item_tooltip',
                 { '?', { 'item-name.' .. name }, { 'entity-name.' .. name }, { 'fluid-name.' .. name } },
             },
-            tags = { [Gui.tag] = action_remove_item, name = name },
+            tags = { [Gui.event_tag] = action_remove_item, name = name },
         }
         Gui.set_style(flow, { padding = 2, vertical_align = 'center' })
         Gui.add_pusher(flow)
@@ -186,7 +186,7 @@ Public.get_main_frame = function(player)
             type = 'sprite-button',
             caption = to_time[settings.precision_index],
             style = 'frame_button',
-            tags = { [Gui.tag] = action_scroll_precision_index},
+            tags = { [Gui.event_tag] = action_scroll_precision_index},
         }
         data.action_scroll_precision_index = button
         Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
@@ -199,7 +199,7 @@ Public.get_main_frame = function(player)
             tooltip = { 'production_hud.new_item_tooltip' },
             elem_type = 'signal',
             signal = { type = 'virtual', name = 'shape-cross' },
-            tags = { [Gui.tag] = action_add_item },
+            tags = { [Gui.event_tag] = action_add_item },
         }
         Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
         Gui.set_data(button, data)
@@ -315,7 +315,7 @@ Event.add(defines.events.on_player_created, function(event)
         type = 'sprite-button',
         sprite = 'utility/side_menu_production_icon',
         tooltip = { 'production_hud.feature_tooltip' },
-        tags = { [Gui.tag] = main_button_name },
+        tags = { [Gui.event_tag] = main_button_name },
     })
 
     player_settings[player.index] = {

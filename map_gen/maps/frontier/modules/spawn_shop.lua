@@ -135,7 +135,7 @@ function SpawnShop.draw_gui(player)
 
   local this = Public.get()
 
-  frame = player.gui.screen.add { type = 'frame', name = SpawnShop.main_frame_name, direction = 'vertical', tags = { [Gui.tag] = SpawnShop.main_frame_name } }
+  frame = player.gui.screen.add { type = 'frame', name = SpawnShop.main_frame_name, direction = 'vertical', tags = { [Gui.event_tag] = SpawnShop.main_frame_name } }
   Gui.set_style(frame, {
     horizontally_stretchable = true,
     natural_width = 760,
@@ -162,7 +162,7 @@ function SpawnShop.draw_gui(player)
       clicked_sprite = 'utility/close_black',
       style = 'close_button',
       tooltip = {'gui.close-instruction'},
-      tags = { [Gui.tag] = SpawnShop.close_button_name },
+      tags = { [Gui.event_tag] = SpawnShop.close_button_name },
     }
   end
 
@@ -221,7 +221,7 @@ function SpawnShop.draw_gui(player)
     end
     Gui.add_pusher(col_3)
     local col_3_2 = col_3.add { type = 'flow', direction = 'vertical' }
-    local upgrade_button = col_3_2.add { type = 'button', style = 'confirm_button', caption = 'Upgrade', tags = { [Gui.tag] = SpawnShop.upgrade_button_name, name = p.name } }
+    local upgrade_button = col_3_2.add { type = 'button', style = 'confirm_button', caption = 'Upgrade', tags = { [Gui.event_tag] = SpawnShop.upgrade_button_name, name = p.name } }
     upgrade_button.enabled = SpawnShop.can_purchase(player, p.name)
   end
 
@@ -247,7 +247,7 @@ function SpawnShop.draw_gui(player)
     sprite = 'utility/refresh',
     style = 'tool_button',
     tooltip = this.spawn_shop_funds > 0 and {'frontier.tt_shop_refresh_button'} or {'frontier.tt_shop_disabled_refresh_button'},
-    tags = { [Gui.tag] = SpawnShop.refresh_button_name },
+    tags = { [Gui.event_tag] = SpawnShop.refresh_button_name },
   }
   refresh_button.enabled = this.spawn_shop_funds > 0
   local tick = this.spawn_shop_cooldown[player.index]

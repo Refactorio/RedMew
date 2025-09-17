@@ -23,7 +23,7 @@ local function player_created(event)
             name = main_button_name,
             sprite = 'item/iron-gear-wheel',
             tooltip = {'redmew_settings_gui.tooltip'},
-            tags = { [Gui.tag] = main_button_name },
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
 end
@@ -89,7 +89,7 @@ local function draw_main_frame(center, player)
             name = main_frame_name,
             direction = 'vertical',
             caption = {'redmew_settings_gui.frame_title'},
-            tags = { [Gui.tag] = main_frame_name },
+            tags = { [Gui.event_tag] = main_frame_name },
         }
     )
 
@@ -154,7 +154,7 @@ local function draw_main_frame(center, player)
     left_flow.style.horizontally_stretchable = true
 
     local close_button =
-        left_flow.add({type = 'button', caption = {'redmew_settings_gui.button_cancel'}, tags = { [Gui.tag] = main_button_name }})
+        left_flow.add({type = 'button', caption = {'redmew_settings_gui.button_cancel'}, tags = { [Gui.event_tag] = main_button_name }})
     close_button.style = 'back_button'
 
     local right_flow = bottom_flow.add({type = 'flow'})
@@ -162,7 +162,7 @@ local function draw_main_frame(center, player)
 
     local save_button =
         right_flow.add(
-        {type = 'button', caption = {'redmew_settings_gui.button_save_changes'}, tags = { [Gui.tag] = save_changes_button_name }}
+        {type = 'button', caption = {'redmew_settings_gui.button_save_changes'}, tags = { [Gui.event_tag] = save_changes_button_name }}
     )
     save_button.style = 'confirm_button'
 

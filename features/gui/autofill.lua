@@ -28,7 +28,7 @@ local function player_created(event)
         sprite = 'item/piercing-rounds-magazine',
         tooltip = {'autofill.main_button_tooltip'},
         auto_toggle = true,
-        tags = { [Gui.tag] = main_button_name },
+        tags = { [Gui.event_tag] = main_button_name },
     })
 end
 
@@ -58,7 +58,7 @@ local function toggle_main_frame(event)
             type = 'checkbox',
             caption = {'autofill.enable'},
             state = Autofill.get_enabled(player_index),
-            tags = { [Gui.tag] = enabled_checkbox_name },
+            tags = { [Gui.event_tag] = enabled_checkbox_name },
         }
 
         local ammo_count_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -67,7 +67,7 @@ local function toggle_main_frame(event)
             ammo_count_flow.add {
             type = 'textfield',
             text = tostring(Autofill.get_ammo_count(player_index)),
-            tags = { [Gui.tag] = ammo_count_name },
+            tags = { [Gui.event_tag] = ammo_count_name },
         }
 
         local enabled_ammos_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -79,7 +79,7 @@ local function toggle_main_frame(event)
                 {
                     type = 'sprite-button',
                     sprite = 'item/' .. name,
-                    tags = { [Gui.tag] = enabled_ammo_button },
+                    tags = { [Gui.event_tag] = enabled_ammo_button },
                 }
             )
             update_ammo_button(button, name, enabled)

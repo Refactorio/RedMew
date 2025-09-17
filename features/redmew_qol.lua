@@ -383,7 +383,7 @@ local function draw_loader_frame_for_player(parent, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'loader',
-            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'loader' },
+            tags = { [Gui.event_tag] = player_craft_loader_btn, loader_name = 'loader' },
         }
         button.locked = true
     end
@@ -393,7 +393,7 @@ local function draw_loader_frame_for_player(parent, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'fast-loader',
-            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'fast-loader' },
+            tags = { [Gui.event_tag] = player_craft_loader_btn, loader_name = 'fast-loader' },
         }
         button.locked = true
     end
@@ -403,7 +403,7 @@ local function draw_loader_frame_for_player(parent, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'express-loader',
-            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'express-loader' },
+            tags = { [Gui.event_tag] = player_craft_loader_btn, loader_name = 'express-loader' },
         }
         button.locked = true
     end
@@ -413,7 +413,7 @@ local function draw_loader_frame_for_player(parent, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'turbo-loader',
-            tags = { [Gui.tag] = player_craft_loader_btn, loader_name = 'turbo-loader' },
+            tags = { [Gui.event_tag] = player_craft_loader_btn, loader_name = 'turbo-loader' },
         }
         button.locked = true
     end
@@ -450,7 +450,7 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'loader',
-            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'loader' },
+            tags = { [Gui.event_tag] = machine_craft_loader_btn, loader_name = 'loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -461,7 +461,7 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'fast-loader',
-            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'fast-loader' },
+            tags = { [Gui.event_tag] = machine_craft_loader_btn, loader_name = 'fast-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -472,7 +472,7 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'express-loader',
-            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'express-loader' },
+            tags = { [Gui.event_tag] = machine_craft_loader_btn, loader_name = 'express-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)
@@ -483,7 +483,7 @@ local function draw_loader_frame_for_assembly_machine(parent, entity, player)
             type = 'choose-elem-button',
             elem_type = 'recipe',
             recipe = 'turbo-loader',
-            tags = { [Gui.tag] = machine_craft_loader_btn, loader_name = 'turbo-loader' },
+            tags = { [Gui.event_tag] = machine_craft_loader_btn, loader_name = 'turbo-loader' },
         }
         button.locked = true
         Gui.set_data(button, entity)

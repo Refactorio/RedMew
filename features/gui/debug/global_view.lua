@@ -26,7 +26,7 @@ function Public.show(container)
     for key, _ in pairs(storage) do
         if not ignore[key] then
             local header =
-                left_panel.add({type = 'flow'}).add {type = 'label', caption = tostring(key), tags = { [Gui.tag] = header_name }}
+                left_panel.add({type = 'flow'}).add {type = 'label', caption = tostring(key), tags = { [Gui.event_tag] = header_name }}
             Gui.set_data(header, key)
         end
     end
@@ -35,14 +35,14 @@ function Public.show(container)
 
     local right_top_flow = right_flow.add {type = 'flow', direction = 'horizontal'}
 
-    local input_text_box = right_top_flow.add {type = 'text-box', tags = { [Gui.tag] = input_text_box_name }}
+    local input_text_box = right_top_flow.add {type = 'text-box', tags = { [Gui.event_tag] = input_text_box_name }}
     local input_text_box_style = input_text_box.style
     input_text_box_style.horizontally_stretchable = true
     input_text_box_style.height = 32
     input_text_box_style.maximal_width = 1000
 
     local refresh_button =
-        right_top_flow.add {type = 'sprite-button', sprite = 'utility/reset', tooltip = 'refresh', tags = { [Gui.tag] = refresh_name }}
+        right_top_flow.add {type = 'sprite-button', sprite = 'utility/reset', tooltip = 'refresh', tags = { [Gui.event_tag] = refresh_name }}
     local refresh_button_style = refresh_button.style
     refresh_button_style.width = 32
     refresh_button_style.height = 32

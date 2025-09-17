@@ -173,7 +173,7 @@ local function get_main_frame(player)
         name = main_frame_name,
         direction = 'vertical',
         style = 'frame',
-        tags = { [Gui.tag] = main_frame_name },
+        tags = { [Gui.event_tag] = main_frame_name },
     }
     Gui.set_style(frame, {
         horizontally_stretchable = true,
@@ -212,7 +212,7 @@ local function shortcut_button(parent, info)
             type = 'sprite-button',
             style = 'transparent_slot',
             sprite = 'technology/' .. info.name,
-            tags = { [Gui.tag] = shortcut_button_name, name = info.name },
+            tags = { [Gui.event_tag] = shortcut_button_name, name = info.name },
             tooltip = {'', '[color=0.5,0.8,0.94][font=var]Click[/font][/color] to go to this technology\'s breakdown'}
         }
     Gui.set_style(b, { size = 32 })
@@ -256,7 +256,7 @@ local function draw(player)
             clicked_sprite = 'utility/backward_arrow_black',
             style = 'close_button',
             tooltip = 'Back',
-            tags = { [Gui.tag] = history_back_button_name },
+            tags = { [Gui.event_tag] = history_back_button_name },
         }
         backward.enabled = h:peek_previous() ~= nil
 
@@ -266,7 +266,7 @@ local function draw(player)
             clicked_sprite = 'utility/forward_arrow_black',
             style = 'close_button',
             tooltip = 'Forward',
-            tags = { [Gui.tag] = history_forward_button_name },
+            tags = { [Gui.event_tag] = history_forward_button_name },
         }
         forward.enabled = h:peek_next() ~= nil
 
@@ -276,7 +276,7 @@ local function draw(player)
             clicked_sprite = 'utility/close_black',
             style = 'close_button',
             tooltip = { 'gui.close-instruction' },
-            tags = { [Gui.tag] = close_button_name },
+            tags = { [Gui.event_tag] = close_button_name },
         }
         Gui.set_data(close_button, { frame = frame })
     end
@@ -296,7 +296,7 @@ local function draw(player)
                 style = 'slot_button_in_shallow_frame',
                 elem_type = 'technology',
                 technology = technology_name,
-                tags = { [Gui.tag] = select_button_name },
+                tags = { [Gui.event_tag] = select_button_name },
             }
             data.select_button = select_button
             Gui.set_data(select_button, data)
@@ -347,7 +347,7 @@ local function draw(player)
                 style = 'bold_label',
                 caption = toggled[player.index] and on_technologies or off_technologies,
                 tooltip = 'Hide/Show technologies list',
-                tags = { [Gui.tag] = toggle_list_button_name},
+                tags = { [Gui.event_tag] = toggle_list_button_name},
             }
             data.label = label
             Gui.set_data(label, data)

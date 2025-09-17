@@ -18,7 +18,7 @@ local Gui = {}
 local data = {}
 local element_map = {}
 
-Gui.tag = '__@level-RedMew__event_handler_tag__'
+Gui.event_tag = '__@level-RedMew__event_handler_tag__'
 
 Gui.token =
     Global.register(
@@ -236,7 +236,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local tag = element.tags[Gui.tag]
+        local tag = element.tags[Gui.event_tag]
         local handler = tag and handlers[tag]
         if not handler then
             return
@@ -368,7 +368,7 @@ Event.add(
             name = toggle_button_name,
             caption = '<',
             tooltip = {'gui_util.button_tooltip'},
-            tags = { [Gui.tag] = toggle_button_name },
+            tags = { [Gui.event_tag] = toggle_button_name },
         })
 
         Gui.set_style(b, {
@@ -426,7 +426,7 @@ function Gui.make_close_button(parent, name)
         type = 'button',
         caption = {'common.close_button'},
         style = 'back_button',
-        tags = { [Gui.tag] = name },
+        tags = { [Gui.event_tag] = name },
     }
 
     Styles.default_close(button.style)

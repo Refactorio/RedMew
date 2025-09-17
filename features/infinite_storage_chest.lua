@@ -215,7 +215,7 @@ local function gui_opened(event)
         name = chest_gui_frame_name,
         caption = 'Infinite Storage Chest',
         direction = 'vertical',
-        tags = { [Gui.tag] = chest_gui_frame_name },
+        tags = { [Gui.event_tag] = chest_gui_frame_name },
     }
 
     local text =

@@ -70,7 +70,7 @@ function Public.show(container)
     for key, value in pairs(_G) do
         if not ignore[key] then
             local header =
-                left_panel.add({type = 'flow'}).add {type = 'label', caption = tostring(key), tags = { [Gui.tag] = header_name }}
+                left_panel.add({type = 'flow'}).add {type = 'label', caption = tostring(key), tags = { [Gui.event_tag] = header_name }}
             Gui.set_data(header, value)
         end
     end

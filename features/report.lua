@@ -89,7 +89,7 @@ local function draw_report(parent, report_id)
     local jail_offender_button = parent.add {
         type = 'button',
         caption = jail_offender_button_caption,
-        tags = { [Gui.tag] = jail_offender_button_name },
+        tags = { [Gui.event_tag] = jail_offender_button_name },
     }
     jail_offender_button.style.height = 24
     jail_offender_button.style.font = 'default-small'
@@ -118,7 +118,7 @@ Module.show_reports = function(player)
         name = report_frame_name,
         direction = 'vertical',
         caption = 'User reports',
-        tags = { [Gui.tag] = report_frame_name },
+        tags = { [Gui.event_tag] = report_frame_name },
     }
     report_frame.style.maximal_width = 700
     player.opened = report_frame
@@ -135,7 +135,7 @@ Module.show_reports = function(player)
             button_cell.add {
                 type = 'button',
                 caption = game.get_player(report.reported_player_index).name,
-                tags = { [Gui.tag] = report_tab_button_name },
+                tags = { [Gui.event_tag] = report_tab_button_name },
             }
         end
     end
@@ -145,7 +145,7 @@ Module.show_reports = function(player)
         horizontal_scroll_policy = 'never',
         vertical_scroll_policy = 'never'
     }
-    report_frame.add {type = 'button', caption = 'Close', tags = { [Gui.tag] = report_close_button_name }}
+    report_frame.add {type = 'button', caption = 'Close', tags = { [Gui.event_tag] = report_close_button_name }}
 
     draw_report(report_body, #reports)
 end

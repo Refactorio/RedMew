@@ -88,7 +88,7 @@ local function draw_radio(event)
         return
     end
 
-    frame = center.add {type = 'frame', name = radio_frame, caption = frame_caption, direction = 'vertical', tags = { [Gui.tag] = radio_frame }}
+    frame = center.add {type = 'frame', name = radio_frame, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = radio_frame }}
     local scroll_pane =
         frame.add {
         type = 'scroll-pane',

@@ -84,7 +84,7 @@ local function add_shortcut_selection_row(player, parent, child)
     type = 'checkbox',
     caption = child.caption,
     state = player_data[child.name],
-    tags = { [Gui.tag] = checkbox_action_name, name = child.name },
+    tags = { [Gui.event_tag] = checkbox_action_name, name = child.name },
   }
   Gui.set_style(checkbox, { minimal_width = 160, horizontally_stretchable = true })
 end
@@ -99,7 +99,7 @@ function Public.on_player_created(player)
     name = main_button_name,
     sprite = 'utility/hand_black',
     tooltip = {'player_shortcuts.info_tooltip'},
-    tags = { [Gui.tag] = main_button_name },
+    tags = { [Gui.event_tag] = main_button_name },
   })
   b.style.padding = 2
 end
@@ -180,7 +180,7 @@ function Public.get_main_frame(player)
         sprite = s.sprite,
         hovered_sprite = s.hovered_sprite,
         tooltip = s.tooltip,
-        tags = { [Gui.tag] = shortcut_action_name, name = button_name },
+        tags = { [Gui.event_tag] = shortcut_action_name, name = button_name },
       }
       Gui.set_style(button, { font_color = { 165, 165, 165 } })
       if player_data[button_name] == nil then
@@ -205,7 +205,7 @@ function Public.get_main_frame(player)
       tooltip = {'player_shortcuts.settings_tooltip'},
       mouse_button_filter = { 'left' },
       auto_toggle = true,
-      tags = { [Gui.tag] = settings_button_name },
+      tags = { [Gui.event_tag] = settings_button_name },
     }
 
     local widget = right_flow.add { type = 'empty-widget', style = 'draggable_space', ignored_by_interaction = true }

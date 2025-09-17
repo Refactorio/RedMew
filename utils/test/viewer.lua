@@ -134,7 +134,7 @@ end
 local function draw_tests_test(container, test, depth)
     local flow = container.add {type = 'flow'}
 
-    local label = flow.add {type = 'label', caption = test.name, tags = { [Gui.tag] = test_label_name }}
+    local label = flow.add {type = 'label', caption = test.name, tags = { [Gui.event_tag] = test_label_name }}
     local label_style = label.style
 
     local is_selected = is_test_selected(test, container.player_index)
@@ -156,12 +156,12 @@ local function draw_tests_module(container, module)
         flow.add {
         type = 'label',
         caption = module.is_open and down_arrow or right_arrow,
-        tags = { [Gui.tag] = module_arrow_name }
+        tags = { [Gui.event_tag] = module_arrow_name }
     }
     arrow.style.left_margin = module.depth * 15
     Gui.set_data(arrow, {module = module, container = container})
 
-    local label = flow.add { type = 'label', caption = caption, tags = { [Gui.tag] = module_label_name }}
+    local label = flow.add { type = 'label', caption = caption, tags = { [Gui.event_tag] = module_label_name }}
 
     local label_style = label.style
     local is_selected = is_module_selected(module, container.player_index)
@@ -220,22 +220,22 @@ local function draw_error_text_box(container)
 end
 
 local function create_main_frame(center)
-    local frame = center.add {type = 'frame', name = main_frame_name, caption = 'Test Runner', direction = 'vertical', tags = { [Gui.tag] = main_frame_name } }
+    local frame = center.add {type = 'frame', name = main_frame_name, caption = 'Test Runner', direction = 'vertical', tags = { [Gui.event_tag] = main_frame_name } }
     local frame_style = frame.style
     frame_style.width = 800
     frame_style.height = 600
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    top_flow.add {type = 'button', caption = 'Run All', tags = { [Gui.tag] = run_all_button_name }}
+    top_flow.add {type = 'button', caption = 'Run All', tags = { [Gui.event_tag] = run_all_button_name }}
     top_flow.add {
         type = 'button',
         caption = 'Run Selected',
-        tags = { [Gui.tag] = run_selected_button_name },
+        tags = { [Gui.event_tag] = run_selected_button_name },
     }
     top_flow.add {
         type = 'checkbox',
         caption = 'Stop on first error',
-        tags = { [Gui.tag] = stop_on_error_checkbox_name },
+        tags = { [Gui.event_tag] = stop_on_error_checkbox_name },
         state = stop_on_first_error_by_player_index[center.player_index] or false
     }
 
@@ -244,7 +244,7 @@ local function create_main_frame(center)
     local error_text_box = draw_error_text_box(frame)
     Gui.set_data(frame, {error_text_box = error_text_box})
 
-    local close_button = frame.add {type = 'button', caption = 'Close', tags = { [Gui.tag] = close_main_frame_name }}
+    local close_button = frame.add {type = 'button', caption = 'Close', tags = { [Gui.event_tag] = close_main_frame_name }}
     Gui.set_data(close_button, frame)
 end
 

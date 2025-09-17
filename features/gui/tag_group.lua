@@ -148,7 +148,7 @@ local function player_created(event)
             caption = 'tag',
             tooltip = {'tag_group.tooltip'},
             auto_toggle = true,
-            tags = { [Gui.tag] = main_button_name },
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
 end
@@ -176,7 +176,7 @@ local function draw_main_frame_content(parent)
                 type = 'sprite-button',
                 sprite = 'utility/rename_icon',
                 tooltip = {'tag_group.edit_group'},
-                tags = { [Gui.tag] = edit_tag_button_name },
+                tags = { [Gui.event_tag] = edit_tag_button_name },
             }
             edit_button.style.top_padding = 0
             edit_button.style.bottom_padding = 0
@@ -189,13 +189,13 @@ local function draw_main_frame_content(parent)
             type = 'sprite-button',
             sprite = path,
             tooltip = tag_name,
-            tags = { [Gui.tag] = tag_button_name },
+            tags = { [Gui.event_tag] = tag_button_name },
         }
 
         tag_button.style.maximal_height = 32
         Gui.set_data(tag_button, tag_name)
 
-        local tag_label = row.add {type = 'label', caption = tag_name .. size, tags = { [Gui.tag] = tag_label_name }}
+        local tag_label = row.add {type = 'label', caption = tag_name .. size, tags = { [Gui.event_tag] = tag_label_name }}
         tag_label.style.left_padding = 4
         tag_label.style.minimal_width = 120
         Gui.set_data(tag_label, {tag_name = tag_name, path = path})
@@ -250,7 +250,7 @@ local function draw_main_frame(player)
         state = state,
         caption = {'tag_group.notify_caption'},
         tooltip = {'tag_group.notify_tooltip'},
-        tags = { [Gui.tag] = notify_checkbox_name },
+        tags = { [Gui.event_tag] = notify_checkbox_name },
     }
 
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
@@ -264,10 +264,10 @@ local function draw_main_frame(player)
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
 
-    right_flow.add {type = 'button', caption = {'tag_group.clear_tag'}, tags = { [Gui.tag] = clear_button_name }}
+    right_flow.add {type = 'button', caption = {'tag_group.clear_tag'}, tags = { [Gui.event_tag] = clear_button_name }}
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
-        right_flow.add {type = 'button', caption = {'tag_group.create_tag'}, tags = { [Gui.tag] = create_tag_button_name }}
+        right_flow.add {type = 'button', caption = {'tag_group.create_tag'}, tags = { [Gui.event_tag] = create_tag_button_name }}
     end
 
     Gui.set_data(main_frame, notify_checkbox)
@@ -368,7 +368,7 @@ local function draw_create_tag_frame(event, tag_data)
         frame.destroy()
     end
 
-    frame = center.add({type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.tag] = create_tag_frame_name }})
+    frame = center.add({type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = create_tag_frame_name }})
 
     if tag_data then
         local text = LocaleBuilder.new({'common.created_by', tag_data.created_by or '<Server>'})
@@ -397,7 +397,7 @@ local function draw_create_tag_frame(event, tag_data)
             type = 'radiobutton',
             caption = value,
             state = value == spirte_type,
-            tags = { [Gui.tag] = create_tag_icon_type_name },
+            tags = { [Gui.event_tag] = create_tag_icon_type_name },
         }
 
         if value == spirte_type then
@@ -442,11 +442,11 @@ local function draw_create_tag_frame(event, tag_data)
     right_flow.style.horizontal_align = 'right'
 
     if tag_data then
-        local delete_button = right_flow.add {type = 'button', caption = {'common.delete'}, tags = { [Gui.tag] = delete_tag_name }}
+        local delete_button = right_flow.add {type = 'button', caption = {'common.delete'}, tags = { [Gui.event_tag] = delete_tag_name }}
         Gui.set_data(delete_button, frame)
     end
 
-    local confirm_button = right_flow.add {type = 'button', caption = confirm_caption, tags = { [Gui.tag] = confirm_create_tag_name }}
+    local confirm_button = right_flow.add {type = 'button', caption = confirm_caption, tags = { [Gui.event_tag] = confirm_create_tag_name }}
     Gui.set_data(confirm_button, frame)
 
     local data = {

@@ -15,7 +15,7 @@ local function show_gui_for_player(player)
         type = 'button',
         name = main_button_name,
         caption = {'snake.name'},
-        tags = { [Gui.tag] = main_button_name },
+        tags = { [Gui.event_tag] = main_button_name },
     })
 end
 

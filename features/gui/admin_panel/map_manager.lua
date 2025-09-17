@@ -27,7 +27,7 @@ pages[#pages +1] = {
   sprite = 'utility/surface_editor_icon',
   tooltip = '[font=default-bold]Map manager[/font]',
   auto_toggle = true,
-  tags = { [Gui.tag] = main_button_name },
+  tags = { [Gui.event_tag] = main_button_name },
 }
 
 local function make_button(parent, params)
@@ -50,7 +50,7 @@ local function make_slider(parent, params)
   Gui.set_style(button, { width = 150 })
   params.slider.value = math.clamp(params.value, params.slider.minimum_value, params.slider.maximum_value)
   local slider = flow.add(params.slider)
-  slider.tags = { [Gui.tag] = slider_tag_name }
+  slider.tags = { [Gui.event_tag] = slider_tag_name }
   slider.tooltip = string.format(params.format, slider.slider_value)
   Gui.set_style(slider, { width = 250 })
   local label = flow.add { type = 'label', caption = string.format(params.format, params.value), tooltip = params.tooltip or 'Current value' }
@@ -79,7 +79,7 @@ local function draw_gui(player)
   make_slider(row_1, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_performance_speed },
+      tags = { [Gui.event_tag] = on_performance_speed },
       caption = 'Performance speed',
       tooltip = {'command_description.performance_scale_set'},
     },
@@ -95,7 +95,7 @@ local function draw_gui(player)
   make_slider(row_1, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_slow_down },
+      tags = { [Gui.event_tag] = on_slow_down },
       caption = 'Slow down'
     },
     slider = {
@@ -110,7 +110,7 @@ local function draw_gui(player)
   make_slider(row_1, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_speed_up },
+      tags = { [Gui.event_tag] = on_speed_up },
       caption = 'Speed up'
     },
     slider = {
@@ -127,7 +127,7 @@ local function draw_gui(player)
   make_slider(row_2, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_pollution_ageing },
+      tags = { [Gui.event_tag] = on_pollution_ageing },
       caption = 'Ageing'
     },
     slider = {
@@ -143,7 +143,7 @@ local function draw_gui(player)
   make_slider(row_2, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_pollution_diffusion },
+      tags = { [Gui.event_tag] = on_pollution_diffusion },
       caption = 'Diffusion ratio'
     },
     slider = {
@@ -159,7 +159,7 @@ local function draw_gui(player)
   make_slider(row_2, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_pollution_attack_modifier },
+      tags = { [Gui.event_tag] = on_pollution_attack_modifier },
       caption = 'Atk. modifier'
     },
     slider = {
@@ -177,7 +177,7 @@ local function draw_gui(player)
   make_slider(row_3, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_evolution_value },
+      tags = { [Gui.event_tag] = on_evolution_value },
       caption = 'Enemy evolution'
     },
     slider = {
@@ -193,7 +193,7 @@ local function draw_gui(player)
   make_slider(row_3, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_evolution_destroy_factor },
+      tags = { [Gui.event_tag] = on_evolution_destroy_factor },
       caption = 'Destroy factor'
     },
     slider = {
@@ -210,7 +210,7 @@ local function draw_gui(player)
   make_slider(row_3, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_evolution_time_factor },
+      tags = { [Gui.event_tag] = on_evolution_time_factor },
       caption = 'Time factor'
     },
     slider = {
@@ -228,7 +228,7 @@ local function draw_gui(player)
   make_slider(row_4, {
     button = {
       type = 'button',
-      tags = { [Gui.tag] = on_map_chart },
+      tags = { [Gui.event_tag] = on_map_chart },
       caption = 'Chart map'
     },
     slider = {
@@ -242,9 +242,9 @@ local function draw_gui(player)
   })
   local table_4 = row_4.add { type = 'table', column_count = 3 }
   for _, button in pairs({
-    { tags = { [Gui.tag] = on_map_hide }, caption = 'Hide all' },
-    { tags = { [Gui.tag] = on_map_reveal }, caption = 'Reveal all' },
-    { tags = { [Gui.tag] = on_map_rechart }, caption = 'Re-chart all' },
+    { tags = { [Gui.event_tag] = on_map_hide }, caption = 'Hide all' },
+    { tags = { [Gui.event_tag] = on_map_reveal }, caption = 'Reveal all' },
+    { tags = { [Gui.event_tag] = on_map_rechart }, caption = 'Re-chart all' },
   }) do make_button(table_4, button) end
 end
 

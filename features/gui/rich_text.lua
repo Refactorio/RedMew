@@ -32,7 +32,7 @@ local function draw_rich_text(event)
         return
     end
 
-    frame = center.add {type = 'frame', name = rich_text_frame, caption = frame_caption, direction = 'vertical', tags = { [Gui.tag] = rich_text_frame }}
+    frame = center.add {type = 'frame', name = rich_text_frame, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = rich_text_frame }}
 
     local main_table = frame.add {type = 'table', column_count = 1}
 
@@ -56,7 +56,7 @@ local function draw_rich_text(event)
             type = 'radiobutton',
             caption = value,
             state = value == sprite_type,
-            tags = { [Gui.tag] = rich_text_image_type },
+            tags = { [Gui.event_tag] = rich_text_image_type },
         }
 
         if value == sprite_type then
@@ -70,7 +70,7 @@ local function draw_rich_text(event)
         icons_flow.add {
         type = 'choose-elem-button',
         elem_type = sprite_type,
-        tags = { [Gui.tag] = rich_text_choose_image },
+        tags = { [Gui.event_tag] = rich_text_choose_image },
     }
 
     Gui.set_data(choose, frame)
@@ -126,7 +126,7 @@ Gui.on_click(
             frame_data.icons_flow.add {
             type = 'choose-elem-button',
             elem_type = radio.caption,
-            tags = { [Gui.tag] = rich_text_choose_image },
+            tags = { [Gui.event_tag] = rich_text_choose_image },
         }
         Gui.set_data(choose, frame)
 

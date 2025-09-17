@@ -55,7 +55,7 @@ function Public.get_main_frame(player)
     name = main_frame_name,
     direction = 'vertical',
     style = 'frame',
-    tags = { [Gui.tag] = main_frame_name },
+    tags = { [Gui.event_tag] = main_frame_name },
   }
   frame.auto_center = true
   player.opened = frame
@@ -87,7 +87,7 @@ function Public.get_main_frame(player)
       clicked_sprite = 'utility/close_black',
       style = 'close_button',
       tooltip = {'gui.close-instruction'},
-      tags = { [Gui.tag] = close_button_name },
+      tags = { [Gui.event_tag] = close_button_name },
     }
   end
 
@@ -138,7 +138,7 @@ function Public.update_top_button(player)
     name = main_button_name,
     sprite = 'item/power-armor-mk2',
     tooltip = {'admin_panel.info_tooltip'},
-    tags = { [Gui.tag] = main_button_name },
+    tags = { [Gui.event_tag] = main_button_name },
   })
   button.visible = player.admin
 end

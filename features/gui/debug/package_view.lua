@@ -36,7 +36,7 @@ function Public.show(container)
     for name, file in pairs(loaded) do
         if not ignore[name] then
             local file_label =
-                left_panel.add {type = 'label', caption = name, tags = { [Gui.tag] = file_label_name }}
+                left_panel.add {type = 'label', caption = name, tags = { [Gui.event_tag] = file_label_name }}
             Gui.set_data(file_label, file)
         end
     end
@@ -102,7 +102,7 @@ Gui.on_click(
         if file_type == 'table' then
             for k, v in pairs(file) do
                 local label =
-                    top_panel.add {type = 'label', caption = k, tags = { [Gui.tag] = variable_label_name }}
+                    top_panel.add {type = 'label', caption = k, tags = { [Gui.event_tag] = variable_label_name }}
                 Gui.set_data(label, v)
             end
         else
@@ -127,7 +127,7 @@ Gui.on_click(
             Gui.clear(top_panel)
             for k, v in pairs(variable) do
                 local label =
-                    top_panel.add {type = 'label', caption = k, tags = { [Gui.tag] = variable_label_name }}
+                    top_panel.add {type = 'label', caption = k, tags = { [Gui.event_tag] = variable_label_name }}
                 Gui.set_data(label, v)
             end
             return

@@ -101,7 +101,7 @@ local function redraw_event_table(gui_table, filter)
                 type = 'checkbox',
                 state = enabled[index] or false,
                 caption = event_name,
-                tags = { [Gui.tag] = checkbox_name },
+                tags = { [Gui.event_tag] = checkbox_name },
             }
         end
     end
@@ -114,8 +114,8 @@ function Public.show(container)
 
     local filter_flow = main_frame_flow.add({type = 'flow', direction = 'horizontal'})
     filter_flow.add({type = 'label', caption = 'filter'})
-    local filter_textfield = filter_flow.add({type = 'textfield', text = filter, tags = { [Gui.tag] = filter_name }})
-    local clear_button = filter_flow.add({type = 'button', caption = 'clear', tags = { [Gui.tag] = clear_filter_name }})
+    local filter_textfield = filter_flow.add({type = 'textfield', text = filter, tags = { [Gui.event_tag] = filter_name }})
+    local clear_button = filter_flow.add({type = 'button', caption = 'clear', tags = { [Gui.event_tag] = clear_filter_name }})
 
     local scroll_pane = main_frame_flow.add({type = 'scroll-pane'})
     local gui_table = scroll_pane.add({type = 'table', column_count = 3, draw_horizontal_lines = true})

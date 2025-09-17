@@ -329,7 +329,7 @@ local function redraw_market_items(data)
             sprite = item.sprite,
             number = stack_count,
             tooltip = tooltip,
-            tags = { [Gui.tag] = item_button_name },
+            tags = { [Gui.event_tag] = item_button_name },
         })
         button.style = 'slot_button'
 
@@ -363,7 +363,7 @@ local function draw_market_frame(player, group_name)
         name = market_frame_name,
         caption = Retailer.get_market_group_label(group_name),
         direction = 'vertical',
-        tags = { [Gui.tag] = market_frame_name },
+        tags = { [Gui.event_tag] = market_frame_name },
     })
 
     local scroll_pane = frame.add({type = 'scroll-pane'})
@@ -395,7 +395,7 @@ local function draw_market_frame(player, group_name)
     local count_text = bottom_grid.add({
         type = 'text-box',
         text = '1',
-        tags = { [Gui.tag] = count_text_name },
+        tags = { [Gui.event_tag] = count_text_name },
     })
 
     local count_slider = frame.add({
@@ -403,10 +403,10 @@ local function draw_market_frame(player, group_name)
         minimum_value = 1,
         maximum_value = 7,
         value = 1,
-        tags = { [Gui.tag] = count_slider_name },
+        tags = { [Gui.event_tag] = count_slider_name },
     })
 
-    frame.add({type = 'button', caption = 'Close', tags = { [Gui.tag] = market_frame_close_button_name }})
+    frame.add({type = 'button', caption = 'Close', tags = { [Gui.event_tag] = market_frame_close_button_name }})
 
     count_slider.style.width = 115
     count_text.style.width = 45

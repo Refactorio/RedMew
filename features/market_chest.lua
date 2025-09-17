@@ -221,7 +221,7 @@ Event.add(defines.events.on_gui_opened, function(event)
       sprite = 'item/'..name,
       number = value,
       tooltip = {'market_chest.item_tooltip', value},
-      tags = { [Gui.tag] = button_tag_name, name = 'request', item = name, id = entity.unit_number },
+      tags = { [Gui.event_tag] = button_tag_name, name = 'request', item = name, id = entity.unit_number },
       toggled = data.request and data.request == name,
     }
     Gui.set_data(button, tables)
@@ -238,7 +238,7 @@ Event.add(defines.events.on_gui_opened, function(event)
       sprite = 'item/'..name,
       number = value,
       tooltip = {'market_chest.item_tooltip', value},
-      tags = { [Gui.tag] = button_tag_name, name = 'offer', item = name, id = entity.unit_number },
+      tags = { [Gui.event_tag] = button_tag_name, name = 'offer', item = name, id = entity.unit_number },
       toggled = data.offer and data.offer == name,
     }
     Gui.set_data(button, tables)

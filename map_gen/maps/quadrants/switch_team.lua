@@ -102,7 +102,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            tags = { [Gui.tag] = btn_teleport, quadrant = 2 },
+            tags = { [Gui.event_tag] = btn_teleport, quadrant = 2 },
             caption = {'quadrants.switch_quadrant2', #game.forces['quadrant2'].connected_players},
             tooltip = {'quadrants.switch_quadrant2_tip'}
         }
@@ -110,7 +110,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            tags = { [Gui.tag] = btn_teleport, quadrant = 1 },
+            tags = { [Gui.event_tag] = btn_teleport, quadrant = 1 },
             caption = {'quadrants.switch_quadrant1', #game.forces['quadrant1'].connected_players},
             tooltip = {'quadrants.switch_quadrant1_tip'}
         }
@@ -124,7 +124,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            tags = { [Gui.tag] = btn_teleport, quadrant = 3 },
+            tags = { [Gui.event_tag] = btn_teleport, quadrant = 3 },
             caption = {'quadrants.switch_quadrant3', #game.forces['quadrant3'].connected_players},
             tooltip = {'quadrants.switch_quadrant3_tip'}
         }
@@ -132,7 +132,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            tags = { [Gui.tag] = btn_teleport, quadrant = 4 },
+            tags = { [Gui.event_tag] = btn_teleport, quadrant = 4 },
             caption = {'quadrants.switch_quadrant4', #game.forces['quadrant4'].connected_players},
             tooltip = {'quadrants.switch_quadrant4_tip'}
         }
@@ -148,7 +148,7 @@ local function redraw_chest_button(data, player)
         left_flow.add(
         {
             type = 'button',
-            tags = { [Gui.tag] = btn_toggle },
+            tags = { [Gui.event_tag] = btn_toggle },
             caption = {'quadrants.switch_chest', toggle_status},
             tooltip = {'quadrants.switch_chest_tip'}
         }
