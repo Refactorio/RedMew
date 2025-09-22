@@ -488,4 +488,11 @@ if _DEBUG then
     end
 end
 
+-- Mod compatibility
+Gui.allow_player_to_toggle_top_element_visibility('fp_button_toggle_interface') -- Factory Planner
+Gui.allow_player_to_toggle_top_element_visibility('informatron_overhead')       -- Informatron
+Gui.allow_player_to_toggle_top_element_visibility('py_open_wiki')               -- Pyanodon
+Gui.allow_player_to_toggle_top_element_visibility('se-overhead_explorer')       -- Space Exploration
+Gui.allow_player_to_toggle_top_element_visibility('se-overhead_interstellar')   -- Space Exploration
+
 return Gui

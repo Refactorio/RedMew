@@ -151,7 +151,7 @@ end
 
 local function item_not_sanctioned(item)
     local name = item.name
-    if name:find('capsule') or name == 'cliff-explosives' or name == 'discharge-defense-remote' then
+    if name:find('capsule') or name == 'cliff-explosives' or name == 'discharge-defense-remote' or name:find('medpack') then
         return true
     end
 
