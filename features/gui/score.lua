@@ -80,6 +80,9 @@ local function get_score_sprite()
     if script.active_mods['Krastorio2'] then
         return 'achievement/kr-matter-production-3'
     end
+    if script.active_mods['space-exploration'] then
+        return 'achievement/se-there-is-no-spoon'
+    end
     return 'achievement/there-is-no-spoon'
 end
 
