@@ -104,8 +104,8 @@ local TIERS = {
 }
 
 local SMALL_BUFFS = {
-    aura      = { desc = 'Toughness [color=173,255,47]+%.2f%%[/color]',      value =   0.01, multiplier = 100 },
-    crafting  = { desc = 'Crafting speed [color=173,255,47]+%.1f%%[/color]', value =   0.20, multiplier = 100 },
+    aura      = { desc = 'Toughness [color=173,255,47]+%.1f%%[/color]',      value =   0.01, multiplier = 100 },
+    crafting  = { desc = 'Crafting speed [color=173,255,47]+%.0f%%[/color]', value =   0.20, multiplier = 100 },
     inventory = { desc = 'Inventory [color=173,255,47]+%d[/color] slot',     value =   5   , multiplier =   1 },
     max_hp    = { desc = 'Max HP [color=173,255,47]+%d[/color]',             value =  50   , multiplier =   1 },
     mining    = { desc = 'Mining speed [color=173,255,47]+%.0f%%[/color]',   value =   0.50, multiplier = 100 },
