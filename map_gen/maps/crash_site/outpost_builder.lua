@@ -10,6 +10,7 @@ local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
+local RPG = require 'features.gui.rpg_military'
 
 local table = require 'utils.table'
 --local next = next
@@ -1014,6 +1015,7 @@ local function do_outpost_upgrade(event)
 
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
+    RPG.manager.award_xp(event.player, 5 * level)
 
     for i = 1, #outpost_magic_crafters do
         local crafter = outpost_magic_crafters[i]
@@ -1090,6 +1092,18 @@ local function do_capture_outpost(outpost_data)
     local message = 'Outpost captured: ' .. name
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
+    local nearests = RS.get_surface().find_entities_filtered{
+        position = { x = (area.bottom_right.x - area.top_left.x) / 2, y = (area.bottom_right.y - area.top_left.y) / 2 },
+        type = 'character',
+        name = 'character',
+        force = 'player',
+        limit = 1,
+        radius = 32 * 10,
+    }
+    if #nearests == 1 then
+        game.print('Awarded outpost to '..nearests[1].player.name)
+        RPG.manager.award_xp(nearests[1].player, 'outpost-capture')
+    end
 
     activate_market_upgrade(outpost_data)
 end
