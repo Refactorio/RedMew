@@ -1065,6 +1065,20 @@ function Public.activate_market_upgrade(outpost_id)
     activate_market_upgrade(outpost_data)
 end
 
+local function find_rearest_player(position)
+    if #game.connected_players == 0 then
+        return
+    end
+    local online = {}
+    for _, player in pairs(game.connected_players) do
+        local pos = player.physical_position
+        local distance = (position.x - pos.x) ^ 2 + (position.y - pos.y) ^ 2
+        table.insert(online, { player = player, distance = distance })
+    end
+    table.sort(online, function(first, second) return first.distance < second.distance end)
+    return online[1].player
+end
+
 local function do_capture_outpost(outpost_data)
     local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
     local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
@@ -1089,21 +1103,15 @@ local function do_capture_outpost(outpost_data)
         end
     end
 
-    local message = 'Outpost captured: ' .. name
+    local message = ('Outpost "%s" captured'):format(name)
+    local nearest = find_rearest_player({ x = (area.bottom_right.x - area.top_left.x) / 2, y = (area.bottom_right.y - area.top_left.y) / 2 })
+    if nearest and nearest.valid then
+        message = message .. ' by ' .. nearest.name
+        RPG.manager.award_xp(nearest, 'outpost-capture')
+    end
+
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
-    local nearests = RS.get_surface().find_entities_filtered{
-        position = { x = (area.bottom_right.x - area.top_left.x) / 2, y = (area.bottom_right.y - area.top_left.y) / 2 },
-        type = 'character',
-        name = 'character',
-        force = 'player',
-        limit = 1,
-        radius = 32 * 10,
-    }
-    if #nearests == 1 then
-        game.print('Awarded outpost to '..nearests[1].player.name)
-        RPG.manager.award_xp(nearests[1].player, 'outpost-capture')
-    end
 
     activate_market_upgrade(outpost_data)
 end
