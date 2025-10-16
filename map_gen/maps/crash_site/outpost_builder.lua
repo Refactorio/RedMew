@@ -1065,7 +1065,7 @@ function Public.activate_market_upgrade(outpost_id)
     activate_market_upgrade(outpost_data)
 end
 
-local function find_rearest_player(position)
+local function find_nearest_player(position)
     if #game.connected_players == 0 then
         return
     end
@@ -1104,7 +1104,7 @@ local function do_capture_outpost(outpost_data)
     end
 
     local message = ('Outpost "%s" captured'):format(name)
-    local nearest = find_rearest_player({ x = (area.bottom_right.x - area.top_left.x) / 2, y = (area.bottom_right.y - area.top_left.y) / 2 })
+    local nearest = find_nearest_player({ x = (area.bottom_right.x + area.top_left.x) / 2, y = (area.bottom_right.y + area.top_left.y) / 2 })
     if nearest and nearest.valid then
         message = message .. ' by ' .. nearest.name
         RPG.manager.award_xp(nearest, 'outpost-capture')
