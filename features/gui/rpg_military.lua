@@ -1,11 +1,19 @@
 local Command = require 'utils.command'
+local Color = require 'resources.color_presets'
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
+local Ranks = require 'resources.ranks'
 local Table = require 'utils.table'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Toast = require 'features.gui.toast'
+
+local math_min = math.min
+local math_max = math.max
+local math_ceil = math.ceil
+local math_floor = math.floor
 
 local Manager = {}
 local Interface = {}
@@ -17,6 +25,9 @@ local records = {}
 local regens = {}
 local regens_map = {}
 local update_map = {}
+local xp_data = {
+    pool_count = 0,
+}
 
 Global.register({
     auras = auras,
@@ -24,12 +35,14 @@ Global.register({
     regens = regens,
     regens_map = regens_map,
     update_map = update_map,
+    xp_data = xp_data,
 }, function(tbl)
     auras = tbl.auras
     records = tbl.records
     regens = tbl.regens
     regens_map = tbl.regens_map
     update_map = tbl.update_map
+    xp_data = tbl.xp_data
 end)
 
 local XP_BY_ACTION = {
@@ -58,6 +71,10 @@ local XP_BY_ACTION = {
     ['outpost-upgrade']      = { value = 100, count =     25 }, -- custom
     ['outpost-capture']      = { value = 100, count =    100 }, -- custom
 }
+
+-- Share 20% of XP gained with other players
+local XP_PUBLIC_SHARE = 0.2
+local XP_PRIVATE_SHARE = 1 - XP_PUBLIC_SHARE
 
 -- Level XP formula: fast early, slower later.
 local MAX_LEVEL = 50
@@ -103,6 +120,30 @@ local TIERS = {
     [50] = 'Eternal Marshal',
 }
 
+local get_or_create_record = function(player_index)
+    local record = records[player_index]
+    if not record then
+        record = {
+            xp = 0,
+            level = 1,
+            rank = TIERS[1],
+            buffs = {},
+            bonuses = {
+                character_crafting_speed_modifier = 0,
+                character_inventory_slots_bonus = 0,
+                character_health_bonus = 0,
+                character_mining_speed_modifier = 0,
+                character_build_distance_bonus = 0,
+                character_reach_distance_bonus = 0,
+                character_resource_reach_distance_bonus = 0,
+                character_running_speed_modifier = 0,
+            },
+        }
+        records[player_index] = record
+    end
+    return record
+end
+
 local SMALL_BUFFS = {
     aura      = { desc = 'Toughness [color=173,255,47]+%.1f%%[/color]',      value =   0.01, multiplier = 100 },
     crafting  = { desc = 'Crafting speed [color=173,255,47]+%.0f%%[/color]', value =   0.20, multiplier = 100 },
@@ -121,28 +162,51 @@ local SMALL_BUFFS_ACTION = {
         auras[player.index] = (auras[player.index] or 0) + value
     end,
     ['crafting'] = function(player, value)
-        player.character_crafting_speed_modifier = player.character_crafting_speed_modifier + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_crafting_speed_modifier = bonuses.character_crafting_speed_modifier + value
+        player.character_crafting_speed_modifier = bonuses.character_crafting_speed_modifier
     end,
     ['inventory'] = function(player, value)
-        player.character_inventory_slots_bonus = player.character_inventory_slots_bonus + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_inventory_slots_bonus = bonuses.character_inventory_slots_bonus + value
+        player.character_inventory_slots_bonus = bonuses.character_inventory_slots_bonus
     end,
     ['max_hp'] = function(player, value)
-        player.character_health_bonus = player.character_health_bonus + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_health_bonus = bonuses.character_health_bonus + value
+        player.character_health_bonus = bonuses.character_health_bonus
     end,
     ['mining'] = function(player, value)
-        player.character_mining_speed_modifier = player.character_mining_speed_modifier + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_mining_speed_modifier = bonuses.character_mining_speed_modifier + value
+        player.character_mining_speed_modifier = bonuses.character_mining_speed_modifier
     end,
     ['reach'] = function(player, value)
-        player.character_build_distance_bonus = player.character_build_distance_bonus + value
-        player.character_reach_distance_bonus = player.character_reach_distance_bonus + value
-        player.character_resource_reach_distance_bonus = player.character_resource_reach_distance_bonus + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_build_distance_bonus = bonuses.character_build_distance_bonus + value
+        bonuses.character_reach_distance_bonus = bonuses.character_reach_distance_bonus + value
+        bonuses.character_resource_reach_distance_bonus = bonuses.character_resource_reach_distance_bonus + value
+        player.character_build_distance_bonus = bonuses.character_build_distance_bonus
+        player.character_reach_distance_bonus = bonuses.character_reach_distance_bonus
+        player.character_resource_reach_distance_bonus = bonuses.character_resource_reach_distance_bonus
     end,
     ['regen'] = function(player, value)
         regens[player.index] = (regens[player.index] or 0) + value
     end,
     ['speed'] = function(player, value)
-        player.character_running_speed_modifier = player.character_running_speed_modifier + value
+        local bonuses = get_or_create_record(player.index).bonuses
+        bonuses.character_running_speed_modifier = bonuses.character_running_speed_modifier + value
+        player.character_running_speed_modifier = bonuses.character_running_speed_modifier
     end,
+}
+
+local STATS_MAP = {
+    character_crafting_speed_modifier = 'crafting',
+    character_inventory_slots_bonus = 'inventory',
+    character_health_bonus = 'max_hp',
+    character_mining_speed_modifier = 'mining',
+    character_reach_distance_bonus = 'reach',
+    character_running_speed_modifier = 'speed',
 }
 
 -- Big buffs awarded at tier unlocks
@@ -159,20 +223,6 @@ local BIG_BUFFS = {
     [50] = { type = 'aura',      value = 0.25 },
 }
 
-local get_or_create_record = function(player_index)
-    local record = records[player_index]
-    if not record then
-        record = {
-            xp = 0,
-            level = 1,
-            rank = TIERS[1],
-            buffs = {},
-        }
-        records[player_index] = record
-    end
-    return record
-end
-
 local FX = {
     aura = function(player, amount)
         local character = player.character
@@ -183,8 +233,11 @@ local FX = {
             return
         end
         character.health = character.health + amount
+        if amount < 0.5 then
+            return
+        end
         player.create_local_flying_text{
-            text = ('+[color=pink]%d[/color] [img=virtual-signal.signal-sun]'):format(math.ceil(amount)),
+            text = ('+[color=pink]%d[/color] [img=virtual-signal.signal-sun]'):format(math_ceil(amount)),
             position = { x = character.position.x, y = character.position.y - 1.4 },
             surface = character.surface,
             time_to_live = 60,
@@ -201,8 +254,11 @@ local FX = {
             return
         end
         character.health = character.health + amount
+        if amount < 0.5 then
+            return
+        end
         player.create_local_flying_text{
-            text = ('+[color=blue]%d[/color] [img=virtual-signal.signal-heart]'):format(math.ceil(amount)),
+            text = ('+[color=blue]%d[/color] [img=virtual-signal.signal-heart]'):format(math_ceil(amount)),
             position = { x = character.position.x, y = character.position.y - 1.8 },
             surface = character.surface,
             time_to_live = 120,
@@ -212,6 +268,9 @@ local FX = {
     xp = function(player, amount)
         local record = get_or_create_record(player.index)
         record.xp = record.xp + amount
+        if amount < 1 then
+            return
+        end
         update_map[player.index] = true
         local character = player.character
         if not (character and character.valid) then
@@ -276,13 +335,14 @@ Manager.award_xp = function(player, award)
     if type(award) == 'string' then
         xp = SMALL_BUFFS[award] and SMALL_BUFFS[award].value or nil
     elseif type(award) == 'number' then
-        xp = math.floor(award)
+        xp = math_floor(award)
     end
     if not (xp and type(xp) == 'number' and xp > 0) then
         return
     end
 
-    FX.xp(player, xp)
+    xp_data.pool_count = xp_data.pool_count + XP_PUBLIC_SHARE * xp
+    FX.xp(player, xp * XP_PRIVATE_SHARE)
 end
 
 Manager.pick_random_buff = function()
@@ -317,7 +377,7 @@ Manager.on_player_level_up = function(player)
     if record.level == MAX_LEVEL then
         return
     end
-    record.xp = math.max(0, record.xp - LEVEL_XP[record.level])
+    record.xp = math_max(0, record.xp - LEVEL_XP[record.level])
 
     record.level = record.level + 1
     local rank = TIERS[record.level]
@@ -335,8 +395,6 @@ Manager.on_player_level_up = function(player)
     if perk then
         Manager.apply_buff(player, perk.type, perk.value)
     end
-
-    Interface.update(player)
 end
 
 Manager.shield_with_aura = function(player_index, amount)
@@ -369,6 +427,36 @@ Manager.restore_health = function(player_index, amount)
     FX.regen(player, amount)
 end
 
+Manager.pretty_player_stats = function(player)
+    local player_index = player.index
+    local record = get_or_create_record(player_index)
+    local bonuses = record.bonuses
+    local stats = {
+        '[font=default-bold]' .. player.name .. '\' stats:[/font]',
+        string.format('Rank: [color=orange]%s[/color]', record.rank),
+        string.format('Level: [color=purple]%d / %d[/color]', record.level, MAX_LEVEL),
+        string.format('XPs: [color=purple]%d / %s[/color]', record.xp, tostring(LEVEL_XP[record.level] or 'inf')),
+        string.format(SMALL_BUFFS.aura.desc, (auras[player_index] or 0) * SMALL_BUFFS.aura.multiplier),
+        string.format(SMALL_BUFFS.regen.desc, (regens[player_index] or 0) * SMALL_BUFFS.regen.multiplier),
+    }
+    for k, v in pairs(bonuses) do
+        local id = STATS_MAP[k]
+        if id then
+            stats[#stats + 1] = string.format(SMALL_BUFFS[id].desc, v * SMALL_BUFFS[id].multiplier)
+        end
+    end
+    return table.concat(stats, '\n')
+end
+
+Manager.reset_character_bonuses = function(player)
+    if not player and player.valid then
+        return
+    end
+    for k, v in pairs(get_or_create_record(player.index).bonuses) do
+        player[k] = v
+    end
+end
+
 Event.add(defines.events.on_entity_damaged, function(event)
     local entity = event.entity
     if not (entity.valid and entity.type == 'character') then
@@ -383,7 +471,7 @@ Event.add(defines.events.on_entity_damaged, function(event)
     if auras[player_index] then
         Task.set_timeout_in_ticks(1, Manager.shield_with_aura_token, {
             player_index = player_index,
-            amount = event.final_damage_amount * (1.0 - math.min(1.0, auras[player_index]))
+            amount = event.final_damage_amount * math_min(1.0, auras[player_index])
         })
     end
 
@@ -415,6 +503,10 @@ Event.add(defines.events.on_entity_died, function(event)
     end
 
     Manager.award_xp(actor, xp.value)
+end)
+
+Event.add(defines.events.on_player_respawned, function(event)
+    Manager.reset_character_bonuses(game.get_player(event.player_index))
 end)
 
 -- == USER INTERFACE ==========================================================
@@ -499,7 +591,7 @@ Interface.update = function(player)
     data.rank.caption = '[color=255,230,191]Rank:[/color] '..record.rank
 
     if record.level < MAX_LEVEL then
-        data.progress.value = math.min(1, record.xp / LEVEL_XP[record.level])
+        data.progress.value = math_min(1, record.xp / LEVEL_XP[record.level])
         data.progress.tooltip = ('[color=green]XP[/color]: %d / %d for next level'):format(record.xp, LEVEL_XP[record.level])
     else
         data.progress.visible = false
@@ -535,19 +627,38 @@ Interface.update = function(player)
 end
 
 Event.add(defines.events.on_tick, function()
+    -- Handle Health restoration every 1sec
     if game.tick % 60 == 0 then
         for player_index in pairs(regens_map) do
             Manager.restore_health(player_index, regens[player_index])
         end
     end
 
+    -- Distribute XP pool every 3min
+    if game.tick % 10800 == 0 then
+        local online_players = {}
+        for _, player in pairs(game.connected_players) do
+            -- Only consider players active at least 60% of the time
+            if player.afk_time < 4320 then
+                online_players[#online_players + 1] = player
+            end
+        end
+        if #online_players > 0 then
+            local player_share = xp_data.pool_count / #online_players
+            xp_data.pool_count = 0
+            for _, player in pairs(online_players) do
+                FX.xp(player, player_share)
+            end
+        end
+    end
+
+    -- Check for levelups every 5sec
     if game.tick % 300 == 0 then
         for player_index in pairs(update_map) do
             local player = game.get_player(player_index)
             if player and player.valid then
-                if not Manager.check_player_level(player) then
-                    Interface.update(player)
-                end
+                Manager.check_player_level(player)
+                Interface.update(player)
             end
             update_map[player_index] = nil
         end
@@ -558,32 +669,100 @@ Gui.on_click(main_button_name, Interface.toggle_main_button)
 
 -- ============================================================================
 
-if _DEBUG then
-    Command.add(
-        'level-up',
-        {
-            description = { '+1 RPG Level' },
-            allowed_by_server = false,
-            log_command = false
-        },
-        function()
+Command.add(
+    'rpg-level-up',
+    {
+        description = '+1 RPG Level',
+        allowed_by_server = false,
+        log_command = false,
+        debug_only = true,
+        cheat_only = true,
+    },
+    function()
+        Manager.on_player_level_up(game.player)
+        Interface.update(game.player)
+    end
+)
+
+Command.add(
+    'rpg-level-up-all',
+    {
+        description = 'Sets RPG level to Max',
+        allowed_by_server = false,
+        log_command = false,
+        debug_only = true,
+        cheat_only = true,
+    },
+    function()
+        for _ = 1, MAX_LEVEL do
             Manager.on_player_level_up(game.player)
         end
-    )
-    Command.add(
-        'level-up-all',
-        {
-            description = { 'Sets RPG level to Max' },
-            allowed_by_server = false,
-            log_command = false
-        },
-        function()
-            for _ = 1, MAX_LEVEL do
-                Manager.on_player_level_up(game.player)
-            end
+        Interface.update(game.player)
+    end
+)
+
+Command.add(
+    'rpg-stats',
+    {
+        description = 'Print player stats',
+        allowed_by_server = false,
+        log_command = false,
+        arguments = { 'player' },
+        default_values = { player = '' },
+    },
+    function(args, player)
+        local target = (args.player and game.get_player(args.player)) or player
+        player.print(Manager.pretty_player_stats(target))
+    end
+)
+
+Command.add(
+    'rpg-update',
+    {
+        description = 'Updates the RPG stats and GUI for target player',
+        allowed_by_server = true,
+        log_command = true,
+        required_rank = Ranks.admin,
+        arguments = { 'player' },
+        default_values = { player = '' },
+    },
+    function(args, player)
+        local target = (args.player and game.get_player(args.player)) or player
+        if target and target.valid then
+            Game.player_print('Updating RPG module for ' .. target.name, Color.success, player)
+            Manager.check_player_level(player)
+            Manager.reset_character_bonuses(player)
+            Interface.update(player)
+        else
+            Game.player_print('Invalid player name ' .. target.name, Color.fail, player)
         end
-    )
-end
+    end
+)
+
+Command.add(
+    'rpg-leaderboard',
+    {
+        description = 'Print RPG leaderboard',
+        allowed_by_server = true,
+        log_command = false,
+    },
+    function(_, player)
+        local scores = {}
+        for player_index, record in pairs(records) do
+            local p = game.get_player(player_index)
+            table.insert(scores, { level = record.level, name = p.name })
+        end
+        table.sort(scores, function(a, b) return a.level > b.level end)
+
+        local lines = { '[font=default-bold]RPG Leaderboard:[/font]' }
+        for i, entry in ipairs(scores) do
+            table.insert(lines, string.format('%d. (L%d) [color=orange]%s[/color]', i, entry.level, entry.name))
+        end
+
+        Game.player_print(table.concat(lines, '\n'), nil, player)
+    end
+
+)
 
 return {
     manager = Manager,
