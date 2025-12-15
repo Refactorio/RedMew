@@ -152,7 +152,7 @@ local SMALL_BUFFS = {
     mining    = { desc = 'Mining speed [color=173,255,47]+%.0f%%[/color]',   value =   0.50, multiplier = 100 },
     reach     = { desc = 'Reach [color=173,255,47]+%d[/color] tile',         value =   1   , multiplier =   1 },
     regen     = { desc = 'HP regen [color=173,255,47]+%.2f/s[/color]',       value =   0.20, multiplier =   1 },
-    speed     = { desc = 'Running speed [color=173,255,47]+%.0f%%[/color]',  value =   0.10, multiplier = 100 },
+    --speed     = { desc = 'Running speed [color=173,255,47]+%.0f%%[/color]',  value =   0.10, multiplier = 100 },
 }
 
 local SMALL_BUFFS_LIST = Table.keys(SMALL_BUFFS)
