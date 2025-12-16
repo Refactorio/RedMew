@@ -246,15 +246,19 @@ local function player_died(event)
     game.print(message, {color = player.chat_color})
 end
 
-local reset_run_speed =
-    Token.register(
-    function(player)
-        if not player.valid then
-            return
-        end
-        player.character_running_speed_modifier = player.character_running_speed_modifier - 1
+local reset_run_speed = Token.register(function(data)
+    local player = data.player
+    if not player.valid then
+        return
     end
-)
+
+    -- This is checking that another module hasn't changed the player speed since.
+    -- This can happen if the rpg_miltary module is also active.
+    if player.character_running_speed_modifier == data.after_speed then
+        player.character_running_speed_modifier = data.before_speed
+        return
+    end
+end)
 
 local function player_respawned(event)
     local player = game.get_player(event.player_index)
@@ -272,8 +276,14 @@ local function player_respawned(event)
         return
     end
 
-    player.character_running_speed_modifier = player.character_running_speed_modifier + 1
-    Task.set_timeout_in_ticks(30*60, reset_run_speed, player)
+    local before_speed = player.character_running_speed_modifier
+    player.character_running_speed_modifier = before_speed + 1
+    local after_speed = player.character_running_speed_modifier
+    Task.set_timeout_in_ticks(30 * 60, reset_run_speed, {
+        player = player,
+        before_speed = before_speed,
+        after_speed = after_speed
+    })
 end
 
 --- Returns the table of donators
