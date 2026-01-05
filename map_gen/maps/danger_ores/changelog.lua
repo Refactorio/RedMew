@@ -116,4 +116,11 @@ return [[
       - [DO:SA] Removed ore-voiding recipes from recyclers
       - [DO:K2] Fixed rare metals and yellowcake pictures scaling
       - [DO:K2] Removed ore-voiding recipes from crushers
+
+  2026-01-05:
+      - [DO] Reverted ore stack size to default (50)
+      - [DO] Infinite tech cost does not scale with technology multiplier
+      - [DO:AB] Added DO/AngelBob preset
+      - [DO:AM] Added DO/Angels preset
+      - [DO:BM] Added DO/Bobs preset
 ]]

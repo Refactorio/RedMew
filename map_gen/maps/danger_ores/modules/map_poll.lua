@@ -17,8 +17,9 @@ end)
 
 local mod_packs = {
     danger_ore_normal     = 'danger_ore_normal',
-    danger_ore_bob_angel  = 'danger_ore_bob_angel',
+    danger_ore_angel      = 'danger_ore_angel',
     danger_ore_bob        = 'danger_ore_bob',
+    danger_ore_bob_angel  = 'danger_ore_bob_angel',
     danger_ore_bz         = 'danger_ore_bz',
     danger_ore_ei         = 'danger_ore_ei',
     danger_ore_ir3        = 'danger_ore_ir3',
@@ -32,8 +33,9 @@ local mod_packs = {
 
 local maps = {
     { name = 'danger-ore-3way', display_name = '3-Way (T-shape)', mod_pack = mod_packs.danger_ore_normal },
-    --{ name = 'danger-ore-bob', display_name = 'Bob\'s mods (default)', mod_pack = mod_packs.danger_ore_bob },
-    --{ name = 'danger-ore-bob-angel', display_name = 'Bob\'s Angel\'s mods (default)', mod_pack = mod_packs.danger_ore_bob_angel },
+    { name = 'danger-ore-angel', display_name = 'Angel\'s mods (default)', mod_pack = mod_packs.danger_ore_angel },
+    { name = 'danger-ore-bob', display_name = 'Bob\'s mods (default)', mod_pack = mod_packs.danger_ore_bob },
+    { name = 'danger-ore-bob-angel', display_name = 'Bob\'s + Angel\'s mods (default)', mod_pack = mod_packs.danger_ore_bob_angel },
     --{ name = 'danger-ore-bz', display_name = 'Very BZ (default)', mod_pack = mod_packs.danger_ore_bz },
     { name = 'danger-ore-chessboard', display_name = 'Chessboard (random squares)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-circles', display_name = 'Circles (ore rings)', mod_pack = mod_packs.danger_ore_normal },

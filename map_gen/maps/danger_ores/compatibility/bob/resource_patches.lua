@@ -19,6 +19,16 @@ return {
     {
         scale = 1 / 72,
         threshold = 0.66,
-        resource = b.resource(b.full_shape, 'thorium-ore', value(100, 1.5))
-    }
+        resource = b.resource(b.full_shape, 'bob-thorium-ore', value(100, 1.5))
+    },
+    {
+        scale = 1 / 64,
+        threshold = 0.6,
+        resource = b.any{b.resource(oil_shape, 'bob-ground-water', value(100000, 2500)), full_oil_shape}
+    },
+    {
+        scale = 1 / 64,
+        threshold = 0.6,
+        resource = b.any{b.resource(oil_shape, 'bob-lithia-water', value(100000, 2500)), full_oil_shape}
+    },
 }

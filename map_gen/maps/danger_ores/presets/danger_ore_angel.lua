@@ -4,12 +4,12 @@ local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ScenarioInfo.set_map_name('Danger Ores - Bob & Angel\'s')
+ScenarioInfo.set_map_name('Danger Ores - Angel\'s')
 ScenarioInfo.add_map_extra_info([[
   This map is split in 7 sectors. Each sector has a main resource.
 ]])
 
-DOC.scenario_name = 'danger-ore-bob-angel'
+DOC.scenario_name = 'danger-ore-angel'
 DOC.compatibility.redmew_data.remove_resource_patches = false
 DOC.game.technology_price_multiplier = 5
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.angel.ores'
