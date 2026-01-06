@@ -130,7 +130,7 @@ local function on_nth_tick()
             10,
             function(container)
                 container.add({type = 'sprite', sprite = sprite})
-                local text = container.add({type = 'label', caption = caption, name = Toast.close_toast_name})
+                local text = container.add({type = 'label', caption = caption, tags = { [Gui.event_tag] = Toast.close_toast_name }})
                 local text_style = text.style
                 text_style.single_line = false
                 text_style.vertical_align = 'center'

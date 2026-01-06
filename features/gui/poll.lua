@@ -60,8 +60,7 @@ local main_frame_name = Gui.uid_name()
 local create_poll_button_name = Gui.uid_name()
 local notify_checkbox_name = Gui.uid_name()
 
-local poll_view_back_name = Gui.uid_name()
-local poll_view_forward_name = Gui.uid_name()
+local poll_view_move = Gui.uid_name()
 local poll_view_vote_name = Gui.uid_name()
 local poll_view_edit_name = Gui.uid_name()
 
@@ -256,9 +255,9 @@ local function redraw_poll_viewer_content(data)
         local edit_button =
             question_flow.add {
             type = 'sprite-button',
-            name = poll_view_edit_name,
             sprite = 'utility/rename_icon',
-            tooltip = 'Edit Poll.'
+            tooltip = 'Edit Poll.',
+            tags = { [Gui.event_tag] = poll_view_edit_name },
         }
 
         local edit_button_style = edit_button.style
@@ -281,9 +280,9 @@ local function redraw_poll_viewer_content(data)
         local vote_button =
             vote_button_flow.add {
             type = 'button',
-            name = poll_view_vote_name,
             caption = a.voted_count,
-            enabled = poll_enabled
+            enabled = poll_enabled,
+            tags = { [Gui.event_tag] = poll_view_vote_name },
         }
 
         local tooltip = tooltips[a]
@@ -351,10 +350,10 @@ local function draw_main_frame(left, player)
     local poll_viewer_top_flow = frame.add {type = 'table', column_count = 5}
     poll_viewer_top_flow.style.horizontal_spacing = 0
 
-    local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = '◀'}
+    local back_button = poll_viewer_top_flow.add {type = 'button', caption = '◀', tags = { [Gui.event_tag] = poll_view_move, sign = -1 }}
     apply_direction_button_style(back_button)
 
-    local forward_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_forward_name, caption = '▶'}
+    local forward_button = poll_viewer_top_flow.add {type = 'button', caption = '▶', tags = { [Gui.event_tag] = poll_view_move, sign = 1 }}
     apply_direction_button_style(forward_button)
 
     local poll_index_label = poll_viewer_top_flow.add {type = 'label'}
@@ -391,10 +390,10 @@ local function draw_main_frame(left, player)
     local notify_checkbox =
         frame.add {
         type = 'checkbox',
-        name = notify_checkbox_name,
         state = state,
         caption = {'poll.notify_caption'},
-        tooltip = {'poll.notify_tooltip'}
+        tooltip = {'poll.notify_tooltip'},
+        tags = { [Gui.event_tag] = notify_checkbox_name },
     }
     data.notify_checkbox = notify_checkbox
 
@@ -409,7 +408,8 @@ local function draw_main_frame(left, player)
         type = 'button',
         name = main_button_name,
         caption = {'common.close_button'},
-        style = 'back_button'
+        style = 'back_button',
+        tags = { [Gui.event_tag] = main_button_name },
     }
     apply_button_style(close_button)
 
@@ -418,7 +418,7 @@ local function draw_main_frame(left, player)
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local create_poll_button =
-            right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
+            right_flow.add {type = 'button', caption = 'Create Poll', tags = { [Gui.event_tag] = create_poll_button_name }}
         apply_button_style(create_poll_button)
     else
         local create_poll_button =
@@ -506,10 +506,10 @@ local function redraw_create_poll_content(data)
     local duration_slider =
         duration_flow.add {
         type = 'slider',
-        name = create_poll_duration_name,
         minimum_value = 0,
         maximum_value = duration_slider_max,
-        value = math.floor(data.duration * inv_tick_duration_step)
+        value = math.floor(data.duration * inv_tick_duration_step),
+        tags = { [Gui.event_tag] = create_poll_duration_name },
     }
     duration_slider.style.width = 80
 
@@ -523,10 +523,10 @@ local function redraw_create_poll_content(data)
 
     grid.add {type = 'flow'}
     local question_label =
-        grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
+        grid.add {type = 'label', caption = 'Question:', tags = { [Gui.event_tag] = create_poll_label_name }}
 
     local question_textfield =
-        grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
+        grid.add {type = 'textfield', text = data.question, tags = { [Gui.event_tag] = create_poll_question_name }}
     question_textfield.style.width = 215
 
     Gui.set_data(question_label, question_textfield)
@@ -541,9 +541,9 @@ local function redraw_create_poll_content(data)
             delete_button =
                 delete_flow.add {
                 type = 'sprite-button',
-                name = create_poll_delete_answer_name,
                 sprite = 'utility/trash',
-                tooltip = 'Delete answer field.'
+                tooltip = 'Delete answer field.',
+                tags = { [Gui.event_tag] = create_poll_delete_answer_name },
             }
             delete_button.style.height = 26
             delete_button.style.width = 26
@@ -552,17 +552,13 @@ local function redraw_create_poll_content(data)
             delete_flow.style.width = 26
         end
 
-        local label_flow = grid.add {type = 'flow'}
-        local label =
-            label_flow.add {
+        local label = grid.add {
             type = 'label',
-            name = create_poll_label_name,
-            caption = table.concat {'Answer #', count, ':'}
+            caption = table.concat {'Answer #', count, ':'},
+            tags = { [Gui.event_tag] = create_poll_label_name },
         }
 
-        local textfield_flow = grid.add {type = 'flow'}
-
-        local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
+        local textfield = grid.add {type = 'textfield', text = answer.text, tags = { [Gui.event_tag] = create_poll_answer_name }}
         textfield.style.width = 215
         Gui.set_data(textfield, {answers = answers, count = count})
 
@@ -638,8 +634,8 @@ local function draw_create_poll_frame(parent, player, previous_data)
     local add_answer_button =
         scroll_pane.add {
         type = 'button',
-        name = create_poll_add_answer_name,
-        caption = 'Add Answer'
+        caption = 'Add Answer',
+        tags = { [Gui.event_tag] = create_poll_add_answer_name},
     }
     apply_button_style(add_answer_button)
     Gui.set_data(add_answer_button, data)
@@ -653,14 +649,14 @@ local function draw_create_poll_frame(parent, player, previous_data)
     local close_button =
         left_flow.add {
         type = 'button',
-        name = create_poll_close_name,
         caption = {'common.close_button'},
-        style = 'back_button'
+        style = 'back_button',
+        tags = { [Gui.event_tag] = create_poll_close_name },
     }
     apply_button_style(close_button)
     Gui.set_data(close_button, frame)
 
-    local clear_button = left_flow.add {type = 'button', name = create_poll_clear_name, caption = 'Clear'}
+    local clear_button = left_flow.add {type = 'button', caption = 'Clear', tags = { [Gui.event_tag] = create_poll_clear_name }}
     apply_button_style(clear_button)
     Gui.set_data(clear_button, data)
 
@@ -669,12 +665,12 @@ local function draw_create_poll_frame(parent, player, previous_data)
 
     if edit_mode then
         local delete_button =
-            right_flow.add {type = 'button', name = create_poll_delete_name, caption = {'common.delete'}}
+            right_flow.add {type = 'button', caption = {'common.delete'}, tags = { [Gui.event_tag] = create_poll_delete_name }}
         apply_button_style(delete_button)
         Gui.set_data(delete_button, data)
     end
 
-    local confirm_button = right_flow.add {type = 'button', name = confirm_name, caption = confirm_text}
+    local confirm_button = right_flow.add {type = 'button', caption = confirm_text, tags = { [Gui.event_tag] = confirm_name }}
     apply_button_style(confirm_button)
     Gui.set_data(confirm_button, data)
 end
@@ -858,6 +854,7 @@ local function player_created(event)
             sprite = 'item/programmable-speaker',
             tooltip = {'poll.tooltip'},
             auto_toggle = true,
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
 end
@@ -1220,7 +1217,8 @@ Gui.on_checked_state_changed(
     end
 )
 
-local function do_direction(event, sign)
+local function do_direction(event)
+    local sign = event.tags.sign
     local count
     if event.shift then
         count = #polls
@@ -1240,19 +1238,7 @@ local function do_direction(event, sign)
     update_poll_viewer(data)
 end
 
-Gui.on_click(
-    poll_view_back_name,
-    function(event)
-        do_direction(event, -1)
-    end
-)
-
-Gui.on_click(
-    poll_view_forward_name,
-    function(event)
-        do_direction(event, 1)
-    end
-)
+Gui.on_click(poll_view_move, do_direction)
 
 Gui.on_click(poll_view_vote_name, vote)
 

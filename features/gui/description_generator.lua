@@ -5,10 +5,10 @@ local Scenario_Info = require 'features.gui.info'
 
 local creators = storage.config.map_info
 
-local gui_frame = Gui.uid_name()
+local main_frame_name = Gui.uid_name()
 local generate_tags = Gui.uid_name()
 local template_radio = Gui.uid_name()
-local close_gui = Gui.uid_name()
+local close_button_name = Gui.uid_name()
 
 local function split(string, delimiter)
     if delimiter == nil then
@@ -130,14 +130,14 @@ local function draw_gui(event)
     local player = event.player
     local center = player.gui.center
 
-    local frame = center[gui_frame]
+    local frame = center[main_frame_name]
     if frame then
         Gui.remove_data_recursively(frame)
         frame.destroy()
         return
     end
 
-    frame = center.add {type = 'frame', name = gui_frame, caption = frame_caption, direction = 'vertical'}
+    frame = center.add {type = 'frame', name = main_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = main_frame_name } }
 
     local main_table = frame.add {type = 'table', column_count = 1}
 
@@ -160,21 +160,21 @@ local function draw_gui(event)
     local selection_flow = main_table.add {type = 'flow', direction = 'horizontal'}
 
     local radio =
-        selection_flow.add({type = 'flow'}).add {
+        selection_flow.add {
         type = 'radiobutton',
-        name = template_radio,
         caption = 'Vanilla',
-        state = false
+        state = false,
+        tags = { [Gui.event_tag] = template_radio },
     }
 
     Gui.set_data(radio, frame)
 
     radio =
-        selection_flow.add({type = 'flow'}).add {
+        selection_flow.add {
         type = 'radiobutton',
-        name = template_radio,
         caption = 'Modded',
-        state = false
+        state = false,
+        tags = { [Gui.event_tag] = template_radio },
     }
 
     Gui.set_data(radio, frame)
@@ -194,7 +194,7 @@ local function draw_gui(event)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local generate_tag_button = left_flow.add {type = 'button', name = generate_tags, caption = 'Generate Tags'}
+    local generate_tag_button = left_flow.add {type = 'button', caption = 'Generate Tags', tags = { [Gui.event_tag] = generate_tags }}
     Gui.set_data(generate_tag_button, frame)
 
     main_table.add {type = 'label', caption = 'Generated Server Tags (Reopen this gui to reset to the template)'}
@@ -213,7 +213,7 @@ local function draw_gui(event)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = Gui.make_close_button(left_flow, close_gui)
+    local close_button = Gui.make_close_button(left_flow, close_button_name)
     Gui.set_data(close_button, frame)
 
     local data = {
@@ -260,7 +260,7 @@ Gui.on_click(
 )
 
 Gui.on_click(
-    close_gui,
+    close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
 
@@ -270,7 +270,7 @@ Gui.on_click(
 )
 
 Gui.on_custom_close(
-    gui_frame,
+    main_frame_name,
     function(event)
         local element = event.element
         Gui.remove_data_recursively(element)

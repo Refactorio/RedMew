@@ -200,6 +200,7 @@ local function player_created(event)
             sprite = 'utility/spray_icon',
             tooltip = {'paint.tooltip'},
             auto_toggle = true,
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
     b.style.padding = 2
@@ -213,20 +214,18 @@ local function draw_filters_table(event)
     end
 
     local frame =
-        center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = {'paint.palette'}}
+        center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = {'paint.palette'}, tags = { [Gui.event_tag] = filters_table_name }}
 
     local t = frame.add {type = 'table', column_count = 6}
     t.style.horizontal_spacing = 0
     t.style.vertical_spacing = 0
 
     for tile_name, _ in pairs(valid_filters) do
-        local flow = t.add {type = 'flow'}
-        local button =
-            flow.add {
+        local button = t.add {
             type = 'sprite-button',
-            name = filter_element_name,
             sprite = 'tile/' .. tile_name,
-            tooltip = get_tile_localised_name(tile_name)
+            tooltip = get_tile_localised_name(tile_name),
+            tags = { [Gui.event_tag] = filter_element_name },
         }
         Gui.set_data(button, {frame = frame, tile_name = tile_name})
         button.style = 'slot_button'
@@ -265,9 +264,9 @@ local function toggle(event)
         local brush =
             top_flow.add({type = 'flow'}).add {
             type = 'sprite-button',
-            name = filter_button_name,
             tooltip = get_tile_localised_name(tile_name) or {'paint.select_brush'},
-            sprite = tile_name and 'tile/' .. tile_name
+            sprite = tile_name and 'tile/' .. tile_name,
+            tags = { [Gui.event_tag] = filter_button_name },
         }
         brush.style = 'slot_button'
 
@@ -282,7 +281,7 @@ local function toggle(event)
         Gui.make_close_button(buttons_flow, main_button_name)
 
         local clear_brush =
-            buttons_flow.add {type = 'button', name = filter_clear_name, caption = {'paint.clear_brush'}}
+            buttons_flow.add {type = 'button', caption = {'paint.clear_brush'}, tags = { [Gui.event_tag] = filter_clear_name }}
         Gui.set_data(clear_brush, brush)
     end
 end
@@ -319,9 +318,6 @@ Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
-        if not element or not element.valid then
-            return
-        end
 
         local data = Gui.get_data(element)
         local frame = data.frame

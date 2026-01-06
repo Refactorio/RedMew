@@ -1,6 +1,7 @@
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local DebugTerrain = require 'map_gen.maps.frontier.shared.debug_terrain'
+local Gui = require 'utils.gui'
 local math = require 'utils.math'
 local Ranks = require 'resources.ranks'
 local ScenarioInfo = require 'features.gui.info'
@@ -359,44 +360,21 @@ local function on_gui_opened(event)
 end
 Event.add(defines.events.on_gui_opened, on_gui_opened)
 
-local function on_gui_closed(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
+Gui.on_custom_close(SpawnShop.main_frame_name, function(event)
+  SpawnShop.destroy_gui(event.player)
+end)
 
-  local player = game.get_player(event.player_index)
-  if not (player and player.valid) then
-    return
-  end
+Gui.on_click(SpawnShop.close_button_name, function(event)
+  SpawnShop.destroy_gui(event.player)
+end)
 
-  if element.name == SpawnShop.main_frame_name then
-    SpawnShop.destroy_gui(player)
-  end
-end
-Event.add(defines.events.on_gui_closed, on_gui_closed)
+Gui.on_click(SpawnShop.refresh_button_name, function(event)
+  SpawnShop.on_player_refresh(event.player)
+end)
 
-local function on_gui_click(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local player = game.get_player(event.player_index)
-  if not (player and player.valid) then
-    return
-  end
-
-  local name = element.name
-  if name == SpawnShop.close_button_name then
-    SpawnShop.destroy_gui(player)
-  elseif name == SpawnShop.refresh_button_name then
-    SpawnShop.on_player_refresh(player)
-  elseif name == SpawnShop.upgrade_button_name then
-    SpawnShop.on_player_purchase(player, element.tags.name)
-  end
-end
-Event.add(defines.events.on_gui_click, on_gui_click)
+Gui.on_click(SpawnShop.upgrade_button_name, function(event)
+  SpawnShop.on_player_purchase(event.player)
+end)
 
 local function on_init()
   Lobby.on_init()

@@ -89,7 +89,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     ok_button_flow.style.horizontally_stretchable = true
     ok_button_flow.style.horizontal_align  = 'center'
 
-    local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = {'popup.confirm_btn'}}
+    local ok_button = ok_button_flow.add {type = 'button', caption = {'popup.confirm_btn'}, tags = { [Gui.event_tag] = close_name }}
     Gui.set_data(ok_button, frame)
 end
 

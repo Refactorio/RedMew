@@ -195,7 +195,7 @@ local function player_joined(event)
         return
     end
 
-    Gui.add_top_element(player, { name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon' })
+    Gui.add_top_element(player, { name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon', tags = { [Gui.event_tag] = main_button_name } })
     toggle(player)
 end
 

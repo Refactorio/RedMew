@@ -267,7 +267,7 @@ Public.get_main_frame = function(player)
     end
 
     local data = {}
-    frame = Gui.add_left_element(player, { name = main_frame_name, type = 'frame', direction = 'vertical' })
+    frame = Gui.add_left_element(player, { name = main_frame_name, type = 'frame', direction = 'vertical', tags = { [Gui.event_tag] = main_frame_name } })
     Gui.set_style(frame, { maximal_width = 360 })
 
     local canvas = frame
@@ -295,7 +295,7 @@ Public.get_main_frame = function(player)
     end
     do -- Bonuses
         local toggled = gui_toggled[player.index].bonuses
-        local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_bonuses or off_bonuses, name = bonuses_button_name, tooltip = 'Hide/Show bonuses' }
+        local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_bonuses or off_bonuses, tooltip = 'Hide/Show bonuses', tags = { [Gui.event_tag] = bonuses_button_name } }
         local deep = sp.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
         Gui.set_style(deep, { padding = 0, minimal_height = 4 })
 
@@ -322,7 +322,7 @@ Public.get_main_frame = function(player)
     end
     do -- Rewards
         local toggled = gui_toggled[player.index].rewards
-        local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_rewards or off_rewards, name = rewards_list_button_name, tooltip = 'Hide/Show rewards' }
+        local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_rewards or off_rewards, tooltip = 'Hide/Show rewards', tags = { [Gui.event_tag] = rewards_list_button_name } }
         local deep = sp.add { type = 'frame', style = 'deep_frame_in_shallow_frame_for_description', direction = 'vertical' }
         Gui.set_style(deep, { padding = 0, minimal_height = 4 })
 
@@ -544,6 +544,7 @@ local function on_player_created(event)
         type = 'sprite-button',
         sprite = 'entity/market',
         tooltip = { 'experience.gui_experience_button_tip' },
+        tags = { [Gui.event_tag] = main_button_name },
     })
     gui_toggled[player.index] = {
         bonuses = true,

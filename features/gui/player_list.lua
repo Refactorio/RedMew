@@ -142,7 +142,7 @@ local column_builders = {
             return a < b
         end,
         draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = sprite_heading_name, caption = ' '}
+            local label = parent.add {type = 'label', caption = ' ', tags = { [Gui.event_tag] = sprite_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 32
@@ -172,7 +172,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.name_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = player_name_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = player_name_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 150
@@ -207,7 +207,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.time_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = time_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = time_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 125
@@ -242,7 +242,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.rank_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = rank_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = rank_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = rank_column_width
@@ -285,7 +285,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.distance_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = distance_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = distance_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 70
@@ -324,9 +324,9 @@ local column_builders = {
             local label =
                 parent.add {
                 type = 'label',
-                name = coin_heading_name,
                 caption = caption,
-                tooltip = 'Coins earned / spent.'
+                tooltip = 'Coins earned / spent.',
+                tags = { [Gui.event_tag] = coin_heading_name },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -355,7 +355,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.kills_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = kills_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = kills_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 80
@@ -384,7 +384,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.deaths_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = deaths_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = deaths_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 60
@@ -436,7 +436,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol, data)
             local caption = {'player_list.poke_caption', sort_symbol}
-            local label = parent.add {type = 'label', name = poke_name_heading_name, caption = caption}
+            local label = parent.add {type = 'label', caption = caption, tags = { [Gui.event_tag] = poke_name_heading_name }}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 60
@@ -452,7 +452,7 @@ local column_builders = {
             parent_style.width = 64
             parent_style.horizontal_align = 'center'
 
-            local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data.poke_count}
+            local label = parent.add {type = 'button', caption = cell_data.poke_count, tags = { [Gui.event_tag] = poke_cell_name }}
             local label_style = label.style
             label_style.horizontal_align = 'center'
             label_style.minimal_width = 32
@@ -482,9 +482,9 @@ local column_builders = {
             local label =
                 parent.add {
                 type = 'label',
-                name = report_heading_name,
                 caption = caption,
-                tooltip = {'player_list.report_tooltip'}
+                tooltip = {'player_list.report_tooltip'},
+                tags = { [Gui.event_tag] = report_heading_name },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -500,9 +500,9 @@ local column_builders = {
             local label =
                 parent.add {
                 type = 'sprite-button',
-                name = report_cell_name,
                 sprite = 'utility/force_editor_icon',
-                tooltip = {'player_list.report_button_tooltip', cell_data.name}
+                tooltip = {'player_list.report_button_tooltip', cell_data.name},
+                tags = { [Gui.event_tag] = report_cell_name },
             }
             local label_style = label.style
             label_style.horizontal_align = 'center'
@@ -636,10 +636,10 @@ local function draw_main_frame(left, player)
     local notify_checkbox =
         frame.add {
         type = 'checkbox',
-        name = notify_checkbox_name,
         state = state,
         caption = {'player_list.poke_notify_caption'},
-        tooltip = {'player_list.poke_notify_tooltip'}
+        tooltip = {'player_list.poke_notify_tooltip'},
+        tags = { [Gui.event_tag] = notify_checkbox_name },
     }
 
     Gui.make_close_button(frame, main_button_name)
@@ -705,6 +705,7 @@ local function player_created(event)
             sprite = 'entity/character',
             tooltip = {'player_list.tooltip'},
             auto_toggle = true,
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
 end

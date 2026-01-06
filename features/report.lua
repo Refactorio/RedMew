@@ -88,8 +88,8 @@ local function draw_report(parent, report_id)
     local msg_label = msg_label_pane.add {type = 'label', caption = 'Message: ' .. message}
     local jail_offender_button = parent.add {
         type = 'button',
-        name = jail_offender_button_name,
-        caption = jail_offender_button_caption
+        caption = jail_offender_button_caption,
+        tags = { [Gui.event_tag] = jail_offender_button_name },
     }
     jail_offender_button.style.height = 24
     jail_offender_button.style.font = 'default-small'
@@ -117,7 +117,8 @@ Module.show_reports = function(player)
         type = 'frame',
         name = report_frame_name,
         direction = 'vertical',
-        caption = 'User reports'
+        caption = 'User reports',
+        tags = { [Gui.event_tag] = report_frame_name },
     }
     report_frame.style.maximal_width = 700
     player.opened = report_frame
@@ -133,8 +134,8 @@ Module.show_reports = function(player)
             local button_cell = tab_flow.add {type = 'flow', caption = 'reportuid' .. k}
             button_cell.add {
                 type = 'button',
-                name = report_tab_button_name,
-                caption = game.get_player(report.reported_player_index).name
+                caption = game.get_player(report.reported_player_index).name,
+                tags = { [Gui.event_tag] = report_tab_button_name },
             }
         end
     end
@@ -144,7 +145,7 @@ Module.show_reports = function(player)
         horizontal_scroll_policy = 'never',
         vertical_scroll_policy = 'never'
     }
-    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
+    report_frame.add {type = 'button', caption = 'Close', tags = { [Gui.event_tag] = report_close_button_name }}
 
     draw_report(report_body, #reports)
 end

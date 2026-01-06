@@ -6,7 +6,6 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local config = require 'config'.train_station_teleport
 
-local relative_frame_name = Gui.uid_name()
 local teleport_button_name = Gui.uid_name()
 
 local this = {
@@ -39,7 +38,6 @@ Event.add(defines.events.on_gui_opened, function(event)
   local player = game.get_player(event.player_index)
   local frame = player.gui.relative.add {
     type = 'frame',
-    name = relative_frame_name,
     direction = 'vertical',
     anchor = {
       gui = defines.relative_gui_type.train_stop_gui,
@@ -51,7 +49,7 @@ Event.add(defines.events.on_gui_opened, function(event)
   local canvas = frame.add { type = 'frame', style = 'inside_deep_frame', direction = 'vertical' }
   Gui.set_style(canvas, { padding = 4 })
 
-  local button = canvas.add { type = 'button', name = teleport_button_name, caption = 'Teleport' , style = 'confirm_button_without_tooltip' }
+  local button = canvas.add { type = 'button', caption = 'Teleport' , style = 'confirm_button_without_tooltip', tags = { [Gui.event_tag] = teleport_button_name } }
   Gui.set_data(button, { entity = entity })
 
   this.relative_gui[event.player_index] = frame

@@ -172,7 +172,7 @@ end
 local pages = {
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Welcome'}
+            local button = parent.add {type = 'button', tags = { [Gui.event_tag] = tab_button_name }, caption = 'Welcome'}
             return button
         end,
         content = function(parent)
@@ -255,7 +255,7 @@ local pages = {
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Rules'}
+            local button = parent.add {type = 'button', tags = { [Gui.event_tag] = tab_button_name }, caption = 'Rules'}
             return button
         end,
         content = function(parent)
@@ -289,7 +289,7 @@ local pages = {
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.map_info_button'}}
+            local button = parent.add {type = 'button', tags = { [Gui.event_tag] = tab_button_name }, caption = {'info.map_info_button'}}
             return button
         end,
         content = function(parent, player)
@@ -316,8 +316,8 @@ local pages = {
             grid.add {type = 'label', caption = {'info.map_name_label'}}
             local map_name_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
-                name = editable_textbox_name,
-                text = editable_info[map_name_key]
+                text = editable_info[map_name_key],
+                tags = { [Gui.event_tag] = editable_textbox_name },
             }
             map_name_textbox.read_only = read_only
 
@@ -330,8 +330,8 @@ local pages = {
             grid.add {type = 'label', caption = {'info.map_desc_label'}}
             local map_description_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
-                name = editable_textbox_name,
-                text = editable_info[map_description_key]
+                text = editable_info[map_description_key],
+                tags = { [Gui.event_tag] = editable_textbox_name },
             }
             map_description_textbox.read_only = read_only
             map_description_textbox.word_wrap = true
@@ -347,8 +347,8 @@ local pages = {
             grid.add {type = 'label', caption = {'info.map_extra_info_label'}}
             local map_extra_info_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
-                name = editable_textbox_name,
-                text = editable_info[map_extra_info_key]
+                text = editable_info[map_extra_info_key],
+                tags = { [Gui.event_tag] = editable_textbox_name },
             }
             map_extra_info_textbox.read_only = read_only
             map_extra_info_textbox.word_wrap = true
@@ -362,7 +362,7 @@ local pages = {
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.softmods_button'}}
+            local button = parent.add {type = 'button', tags = { [Gui.event_tag] = tab_button_name }, caption = {'info.softmods_button'}}
             return button
         end,
         content = function(parent, player)
@@ -470,7 +470,7 @@ local pages = {
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.whats_new_button'}}
+            local button = parent.add {type = 'button', tags = { [Gui.event_tag] = tab_button_name }, caption = {'info.whats_new_button'}}
             return button
         end,
         content = function(parent, player)
@@ -488,8 +488,8 @@ local pages = {
 
             local new_info_textbox = new_info_flow.add {
                 type = 'text-box',
-                name = editable_textbox_name,
-                text = editable_info[new_info_key]
+                text = editable_info[new_info_key],
+                tags = { [Gui.event_tag] = editable_textbox_name },
             }
             new_info_textbox.read_only = read_only
 
@@ -504,7 +504,7 @@ local pages = {
 }
 
 local function draw_main_frame(center, player)
-    local frame = center.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
+    local frame = center.add {type = 'frame', name = main_frame_name, direction = 'vertical', tags = { [Gui.event_tag] = main_frame_name }}
     local frame_style = frame.style
     frame_style.height = 600
     frame_style.width = 650
@@ -646,6 +646,7 @@ local function player_created(event)
         sprite = 'virtual-signal/signal-info',
         tooltip = {'info.tooltip'},
         auto_toggle = true,
+        tags = { [Gui.event_tag] = main_button_name },
     })
 
     rewarded_players[player.index] = 0

@@ -81,13 +81,13 @@ function Public.show_gui(event)
     label.style.single_line = false
     label.style.font = 'default'
 
-    local join_usa_button = usa_button_flow.add {type = 'button', name = join_USA, caption = 'Join United Factory Workers'}
+    local join_usa_button = usa_button_flow.add {type = 'button', caption = 'Join United Factory Workers', tags = { [Gui.event_tag] = join_USA }}
 
     label = ussr_button_flow.add {type = 'label', caption = ussr_connected .. ' online / ' .. ussr_players .. ' total'}
     label.style.horizontal_align = 'center'
     label.style.single_line = false
     label.style.font = 'default'
-    local join_ussr_button = ussr_button_flow.add {type = 'button', name = join_USSR, caption = 'Join Union of Factory Employees'}
+    local join_ussr_button = ussr_button_flow.add {type = 'button', caption = 'Join Union of Factory Employees', tags = { [Gui.event_tag] = join_USSR }}
 
     Gui.set_data(join_usa_button, frame)
     Gui.set_data(join_ussr_button, frame)

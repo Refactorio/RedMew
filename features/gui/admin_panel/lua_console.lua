@@ -19,8 +19,8 @@ pages[#pages +1] = {
   type = 'sprite-button',
   sprite = 'utility/scripting_editor_icon',
   tooltip = '[font=default-bold]Lua console[/font]',
-  name = main_button_name,
   auto_toggle = true,
+  tags = { [Gui.event_tag] = main_button_name },
 }
 
 local function draw_gui(player)
@@ -54,9 +54,9 @@ local function draw_gui(player)
 
   local button_flow = canvas.add { type = 'flow', direction = 'horizontal' }
   Gui.add_pusher(button_flow)
-  button_flow.add { type = 'button', name = clear_button_name, style = 'red_back_button', caption = 'Clear' }
-  local dry_run = button_flow.add { type = 'button', name = dry_run_button_name, style = 'forward_button', caption = 'Dry run' }
-  local confirm = button_flow.add { type = 'button', name = confirm_button_name, style = 'confirm_double_arrow_button', caption = 'Confirm', tooltip = 'Run input code' }
+  button_flow.add { type = 'button', style = 'red_back_button', caption = 'Clear', tags = { [Gui.event_tag] = clear_button_name } }
+  local dry_run = button_flow.add { type = 'button', tags = { [Gui.event_tag] = dry_run_button_name }, style = 'forward_button', caption = 'Dry run' }
+  local confirm = button_flow.add { type = 'button', tags = { [Gui.event_tag] = confirm_button_name }, style = 'confirm_double_arrow_button', caption = 'Confirm', tooltip = 'Run input code' }
   Gui.set_style(confirm, { left_margin = -9 })
 
   Gui.set_data(dry_run, { input = input, output = output })

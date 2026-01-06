@@ -2,7 +2,6 @@ local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
 local Core = require 'utils.core'
 local Discord = require 'resources.discord'
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local PlayerStats = require 'features.player_stats'
@@ -22,8 +21,6 @@ local apply_button_name = Gui.uid_name()
 local mode_dropdown_name = Gui.uid_name()
 local abort_button_name = Gui.uid_name()
 local restart_button_name = Gui.uid_name()
-local switch_save_button_name = Gui.uid_name()
-local switch_mod_pack_button_name = Gui.uid_name()
 local load_clear_button_name = Gui.uid_name()
 local load_confirm_button_name = Gui.uid_name()
 
@@ -71,7 +68,7 @@ pages[#pages +1] = {
   type = 'sprite-button',
   sprite = 'utility/map',
   tooltip = '[font=default-bold]Scenario manager[/font]',
-  name = main_button_name,
+  tags = { [Gui.event_tag] = main_button_name },
   auto_toggle = true,
 }
 
@@ -130,13 +127,13 @@ local function show_values(parent, parent_data, params)
   local current = flow.add {
     type = 'text-box',
     style = 'short_number_textfield',
-    tags = { name = textbox_tag_name },
+    tags = { [Gui.event_tag] = textbox_tag_name },
     text = current_value,
   }
   local modifier = flow.add {
     type = 'text-box',
     style = 'short_number_textfield',
-    tags = { name = textbox_tag_name },
+    tags = { [Gui.event_tag] = textbox_tag_name },
     text = modifier_value,
   }
   local predicted = flow.add {
@@ -206,24 +203,24 @@ local function draw_gui(player)
     Gui.add_pusher(button_flow)
     button_flow.add {
       type = 'button',
-      name = reset_button_name,
       style = 'red_back_button',
       caption = 'Reset',
       tooltip = 'Resets all values to previous configuration',
+      tags = { [Gui.event_tag] = reset_button_name },
     }
     local save = button_flow.add {
       type = 'button',
-      name = save_button_name,
       style = 'forward_button',
       caption = 'Save',
       tooltip = 'Save modifiers configuration for later',
+      tags = { [Gui.event_tag] = save_button_name },
     }
     local apply = button_flow.add {
       type = 'button',
-      name = apply_button_name,
       style = 'confirm_double_arrow_button',
       caption = 'Apply',
       tooltip = 'Apply modifiers to current configuration now',
+      tags = { [Gui.event_tag] = apply_button_name },
     }
     Gui.set_style(apply, { left_margin = -9 })
     Gui.set_data(save, data)
@@ -241,9 +238,9 @@ local function draw_gui(player)
     Gui.add_pusher(row_1)
     row_1.add {
       type = 'drop-down',
-      name = mode_dropdown_name,
       items = restart_mode_text,
-      selected_index = mode
+      selected_index = mode,
+      tags = { [Gui.event_tag] = mode_dropdown_name },
     }
 
     local row_2 = restart_settings.add { type = 'flow', direction = 'horizontal' }
@@ -254,17 +251,17 @@ local function draw_gui(player)
     Gui.add_pusher(row_2)
     row_2.add {
       type = 'button',
-      name = abort_button_name,
       style = 'red_back_button',
       caption = 'Abort',
-      tooltip = 'Abort any restart action'
+      tooltip = 'Abort any restart action',
+      tags = { [Gui.event_tag] = abort_button_name },
     }
     row_2.add {
       type = 'button',
-      name = restart_button_name,
       style = 'red_confirm_button',
       caption = 'Restart',
-      tooltip = 'A save of current map will be automatically\ncreated before restarting'
+      tooltip = 'A save of current map will be automatically\ncreated before restarting',
+      tags = { [Gui.event_tag] = restart_button_name },
     }
   end
 
@@ -290,7 +287,6 @@ local function draw_gui(player)
     }
     local t12 = table_1.add {
       type = 'textfield',
-      name = switch_save_button_name,
       text = switch_map.name or 'i.e. frontier-special.zip',
     }
     table_1.add {
@@ -299,7 +295,6 @@ local function draw_gui(player)
     }
     local t22 = table_1.add {
       type = 'textfield',
-      name = switch_mod_pack_button_name,
       text = switch_map.mod_pack or 'i.e. frontier_modpack',
     }
 
@@ -307,17 +302,17 @@ local function draw_gui(player)
     Gui.add_pusher(row_2)
     row_2.add {
       type = 'button',
-      name = load_clear_button_name,
       style = 'red_back_button',
       caption = 'Clear',
       tooltip = 'Clear load settings',
+      tags = { [Gui.event_tag] = load_clear_button_name },
     }
     local confirm = row_2.add {
       type = 'button',
-      name = load_confirm_button_name,
       style = 'confirm_button',
       caption = 'Confirm',
       tooltip = 'Confirm load settings',
+      tags = { [Gui.event_tag] = load_confirm_button_name },
     }
 
     Gui.set_data(confirm, { name = t12, mod_pack = t22 })
@@ -342,22 +337,10 @@ Gui.on_click(main_button_name, function(event)
   end
 end)
 
-Event.add(defines.events.on_gui_text_changed, function(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local tag = element.tags and element.tags.name
-  if not tag then
-    return
-  end
-
-  if tag == textbox_tag_name then
-    local data = Gui.get_data(element)
-    local current, modifier = data.current, data.modifier
-    data.predicted.text = tostring(safe_add(current.text, modifier.text))
-  end
+Gui.on_text_changed(textbox_tag_name, function(event)
+  local data = Gui.get_data(event.element)
+  local current, modifier = data.current, data.modifier
+  data.predicted.text = tostring(safe_add(current.text, modifier.text))
 end)
 
 Gui.on_click(reset_button_name, function(event)

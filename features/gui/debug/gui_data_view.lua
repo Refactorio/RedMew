@@ -10,11 +10,8 @@ local Public = {}
 
 local player_header_name = Gui.uid_name()
 local element_header_name = Gui.uid_name()
-local player_panel_name = Gui.uid_name()
-local element_panel_name = Gui.uid_name()
 local input_text_box_name = Gui.uid_name()
 local refresh_name = Gui.uid_name()
-local data_panel_name = Gui.uid_name()
 
 Public.name = 'Gui Data'
 
@@ -30,11 +27,10 @@ local function draw_player_headers(player_panel, selected_index)
             player_name = player.name
         end
 
-        local header =
-            player_panel.add({type = 'flow'}).add {
+        local header = player_panel.add {
             type = 'label',
-            name = player_header_name,
-            caption = concat({player_index, ' - ', player_name})
+            caption = concat({player_index, ' - ', player_name}),
+            tags = { [Gui.event_tag] = player_header_name },
         }
         Gui.set_data(header, {values = values, player_index = player_index})
 
@@ -49,7 +45,7 @@ end
 function Public.show(container)
     local main_flow = container.add {type = 'flow', direction = 'horizontal'}
 
-    local player_panel = main_flow.add {type = 'scroll-pane', name = player_panel_name}
+    local player_panel = main_flow.add {type = 'scroll-pane'}
     local player_panel_style = player_panel.style
     player_panel_style.width = 200
 
@@ -57,14 +53,14 @@ function Public.show(container)
 
     local right_flow = main_flow.add {type = 'flow', direction = 'vertical'}
 
-    local element_panel = right_flow.add {type = 'scroll-pane', name = element_panel_name}
+    local element_panel = right_flow.add {type = 'scroll-pane'}
     local element_panel_style = element_panel.style
     element_panel_style.horizontally_stretchable = true
     element_panel_style.height = 200
 
     local right_middle_flow = right_flow.add {type = 'flow', direction = 'horizontal'}
 
-    local input_text_box = right_middle_flow.add {type = 'text-box', name = input_text_box_name}
+    local input_text_box = right_middle_flow.add {type = 'text-box'}
     local input_text_box_style = input_text_box.style
     input_text_box_style.horizontally_stretchable = true
     input_text_box_style.height = 32
@@ -73,15 +69,15 @@ function Public.show(container)
     local refresh_button =
         right_middle_flow.add {
         type = 'sprite-button',
-        name = refresh_name,
         sprite = 'utility/reset',
-        tooltip = 'refresh'
+        tooltip = 'refresh',
+        tags = { [Gui.event_tag] = refresh_name },
     }
     local refresh_button_style = refresh_button.style
     refresh_button_style.width = 32
     refresh_button_style.height = 32
 
-    local data_panel = right_flow.add {type = 'text-box', name = data_panel_name}
+    local data_panel = right_flow.add {type = 'text-box'}
     data_panel.read_only = true
     data_panel.selectable = true
 
@@ -134,11 +130,10 @@ local function draw_element_headers(element_panel, values, selected_index)
             goto continue
         end
 
-        local middle_header =
-            element_panel.add({type = 'flow'}).add {
+        local middle_header = element_panel.add {
             type = 'label',
-            name = element_header_name,
-            caption = concat({ei, ' - ', ele_name})
+            caption = concat({ei, ' - ', ele_name}),
+            tags = { [Gui.event_tag] = element_header_name },
         }
 
         Gui.set_data(middle_header, {stored_data = stored_data, element_index = ei})

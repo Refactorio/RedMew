@@ -15,8 +15,7 @@ local b_bucket = Buckets.get_bucket
 local register_on_object_destroyed = script.register_on_object_destroyed
 
 local relative_frame_name = Gui.uid_name()
-local offer_tag_name = Gui.uid_name()
-local request_tag_name = Gui.uid_name()
+local button_tag_name = Gui.uid_name()
 local standard_market_name = 'fish_market'
 
 -- What market provides
@@ -222,7 +221,7 @@ Event.add(defines.events.on_gui_opened, function(event)
       sprite = 'item/'..name,
       number = value,
       tooltip = {'market_chest.item_tooltip', value},
-      tags = { name = request_tag_name, item = name, id = entity.unit_number },
+      tags = { [Gui.event_tag] = button_tag_name, name = 'request', item = name, id = entity.unit_number },
       toggled = data.request and data.request == name,
     }
     Gui.set_data(button, tables)
@@ -239,7 +238,7 @@ Event.add(defines.events.on_gui_opened, function(event)
       sprite = 'item/'..name,
       number = value,
       tooltip = {'market_chest.item_tooltip', value},
-      tags = { name = offer_tag_name, item = name, id = entity.unit_number },
+      tags = { [Gui.event_tag] = button_tag_name, name = 'offer', item = name, id = entity.unit_number },
       toggled = data.offer and data.offer == name,
     }
     Gui.set_data(button, tables)
@@ -248,17 +247,8 @@ Event.add(defines.events.on_gui_opened, function(event)
   this.relative_gui[event.player_index] = frame
 end)
 
-Event.add(defines.events.on_gui_click, function(event)
+Gui.on_click(button_tag_name, function(event)
   local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local tag = element.tags and element.tags.name
-  if not tag or not (tag == request_tag_name or tag == offer_tag_name) then
-    return
-  end
-
   local toggled = not element.toggled
   for _, button in pairs(element.parent.children) do
     button.toggled = false
@@ -268,9 +258,9 @@ Event.add(defines.events.on_gui_click, function(event)
   local item_name = element.tags.item
   local data = b_get(this.chests, element.tags.id)
 
-  if tag == request_tag_name then
+  if element.tags.name == 'request' then
     data.request = toggled and item_name or nil
-  elseif tag == offer_tag_name then
+  elseif element.tags.name == 'offer' then
     data.offer = toggled and item_name or nil
   end
 

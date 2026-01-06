@@ -253,50 +253,49 @@ local function redraw_tasks(data, enabled)
 
     for task_index, task in ipairs(tasks) do
         local delete_button =
-            parent.add({type = 'flow'}).add {
+            parent.add {
             type = 'sprite-button',
-            name = delete_task_button_name,
             sprite = 'utility/trash',
-            tooltip = delete_button_tooltip
+            tooltip = delete_button_tooltip,
+            tags = { [Gui.event_tag] = delete_task_button_name },
         }
         delete_button.enabled = enabled
         apply_button_style(delete_button)
         Gui.set_data(delete_button, task_index)
 
         local edit_button =
-            parent.add({type = 'flow'}).add {
+            parent.add {
             type = 'sprite-button',
-            name = edit_task_button_name,
             sprite = 'utility/rename_icon',
-            tooltip = edit_button_tooltip
+            tooltip = edit_button_tooltip,
+            tags = { [Gui.event_tag] = edit_task_button_name },
         }
         edit_button.enabled = enabled
         apply_button_style(edit_button)
         Gui.set_data(edit_button, task)
 
         local up_button =
-            parent.add({type = 'flow'}).add {
+            parent.add {
             type = 'button',
-            name = move_task_up_button_name,
             caption = '▲',
-            tooltip = up_button_tooltip
+            tooltip = up_button_tooltip,
+            tags = { [Gui.event_tag] = move_task_up_button_name },
         }
         up_button.enabled = enabled and task_index ~= 1
         apply_direction_button_style(up_button)
         Gui.set_data(up_button, task_index)
         local down_button =
-            parent.add({type = 'flow'}).add {
+            parent.add {
             type = 'button',
-            name = move_task_down_button_name,
             caption = '▼',
-            tooltip = down_button_tooltip
+            tooltip = down_button_tooltip,
+            tags = { [Gui.event_tag] = move_task_down_button_name },
         }
         down_button.enabled = enabled and task_index ~= task_count
         apply_direction_button_style(down_button)
         Gui.set_data(down_button, task_index)
 
-        local volunteer_button_flow = parent.add {type = 'flow'}
-        local volunteer_button = volunteer_button_flow.add {type = 'button', name = volunteer_task_button_name}
+        local volunteer_button = parent.add {type = 'button', tags = { [Gui.event_tag] = volunteer_task_button_name }}
         local volunteer_button_style = volunteer_button.style
         volunteer_button_style.font = 'default-small'
         volunteer_button_style.height = 26
@@ -345,9 +344,9 @@ local function draw_main_frame(left, player)
     local edit_announcements_button =
         announcements_header_flow.add {
         type = 'sprite-button',
-        name = announcements_edit_button_name,
         sprite = 'utility/rename_icon',
-        tooltip = edit_announcements_button_tooltip
+        tooltip = edit_announcements_button_tooltip,
+        tags = { [Gui.event_tag] = announcements_edit_button_name },
     }
     edit_announcements_button.enabled = enabled
     apply_button_style(edit_announcements_button)
@@ -378,9 +377,9 @@ local function draw_main_frame(left, player)
     local add_task_button =
         tasks_header_flow.add {
         type = 'sprite-button',
-        name = add_task_button_name,
         sprite = 'utility/add',
-        tooltip = add_task_button_tooltip
+        tooltip = add_task_button_tooltip,
+        tags = { [Gui.event_tag] = add_task_button_name },
     }
     add_task_button.enabled = enabled
     apply_button_style(add_task_button)
@@ -414,10 +413,10 @@ local function draw_main_frame(left, player)
     local notify_checkbox =
         frame.add {
         type = 'checkbox',
-        name = notify_checkbox_name,
         state = state,
         caption = {'tasklist.notify_caption'},
-        tooltip = {'tasklist.notify_tooltip'}
+        tooltip = {'tasklist.notify_tooltip'},
+        tags = { [Gui.event_tag] = notify_checkbox_name },
     }
     data.notify_checkbox = notify_checkbox
 
@@ -588,7 +587,7 @@ local function draw_create_task_frame(left, previous_task)
     end
 
     local frame =
-        left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
+        left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical', tags = { [Gui.event_tag] = create_task_frame_name}}
     frame.style.width = 470
 
     local textbox = frame.add {type = 'textfield', text = text}
@@ -600,13 +599,13 @@ local function draw_create_task_frame(left, previous_task)
     local close_button = Gui.make_close_button(bottom_flow, create_task_close_button_name)
     Gui.set_data(close_button, frame)
 
-    local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
+    local clear_button = bottom_flow.add {type = 'button', caption = 'Clear', tags = { [Gui.event_tag] = create_task_clear_button_name }}
     Gui.set_data(clear_button, textbox)
 
     bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
 
     local confirm_button =
-        bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
+        bottom_flow.add {type = 'button', caption = confirm_button_caption, tags = { [Gui.event_tag] = confirm_button_name }}
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
@@ -624,6 +623,7 @@ local function player_created(event)
             tooltip = {'tasklist.tooltip'},
             number = #tasks or 0,
             auto_toggle = true,
+            tags = { [Gui.event_tag] = main_button_name },
         }
     )
 end
@@ -731,7 +731,7 @@ Gui.on_click(
         local editing_players_label = top_flow.add {type = 'label'}
 
         local textbox =
-            frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
+            frame.add {type = 'text-box', text = announcements.edit_text, tags = { [Gui.event_tag] = edit_announcements_textbox_name }}
         --textbox.word_wrap = true
         local textbox_style = textbox.style
         textbox_style.width = 450
@@ -742,10 +742,10 @@ Gui.on_click(
         local bottom_flow = frame.add {type = 'flow'}
 
         local close_button = Gui.make_close_button(bottom_flow, edit_close_button_name)
-        local clear_button = bottom_flow.add {type = 'button', name = edit_clear_button_name, caption = 'Clear'}
-        local reset_button = bottom_flow.add {type = 'button', name = edit_reset_button_name, caption = 'Reset'}
+        local clear_button = bottom_flow.add {type = 'button', caption = 'Clear', tags = { [Gui.event_tag] = edit_clear_button_name }}
+        local reset_button = bottom_flow.add {type = 'button', caption = 'Reset', tags = { [Gui.event_tag] = edit_reset_button_name }}
         bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
-        local confirm_button = bottom_flow.add {type = 'button', name = edit_confirm_button_name, caption = 'Confirm'}
+        local confirm_button = bottom_flow.add {type = 'button', caption = 'Confirm', tags = { [Gui.event_tag] = edit_confirm_button_name }}
 
         Gui.set_data(close_button, frame)
         Gui.set_data(clear_button, textbox)
