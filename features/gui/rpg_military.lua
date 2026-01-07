@@ -704,7 +704,7 @@ Command.add(
 Command.add(
     'rpg-stats',
     {
-        description = 'Print player stats',
+        description = {'command_description.rpg_stats'},
         allowed_by_server = false,
         log_command = false,
         arguments = { 'player' },
@@ -719,10 +719,10 @@ Command.add(
 Command.add(
     'rpg-update',
     {
-        description = 'Updates the RPG stats and GUI for target player',
+        description = {'command_description.rpg_update'},
         allowed_by_server = true,
         log_command = true,
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         arguments = { 'player' },
         default_values = { player = '' },
     },
@@ -742,7 +742,7 @@ Command.add(
 Command.add(
     'rpg-leaderboard',
     {
-        description = 'Print RPG leaderboard',
+        description = {'command_description.rpg_leaderboard'},
         allowed_by_server = true,
         log_command = false,
     },

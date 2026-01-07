@@ -408,7 +408,7 @@ Event.on_init(on_init)
 
 Command.add('ping-silo',
   {
-    description = 'Pings the silo\'s position on map',
+    description = {'command_description.frontier_ping_silo'},
     allowed_by_server = true
   },
   function(_, player)
@@ -428,7 +428,7 @@ Command.add('ping-silo',
 
 Command.add('toggle-debug-ai',
   {
-    description = 'Toggle ON/OFF AI debug mode',
+    description = {'command_description.frontier_toggle_debug_ai'},
     allowed_by_server = true,
     required_rank = Ranks.admin,
   },
@@ -440,7 +440,7 @@ Command.add('toggle-debug-ai',
 
 Command.add('toggle-debug-shop',
   {
-    description = 'Toggle ON/OFF Shop debug mode',
+    description = {'command_description.frontier_toggle_debug_shop'},
     allowed_by_server = true,
     required_rank = Ranks.admin,
   },
@@ -452,7 +452,7 @@ Command.add('toggle-debug-shop',
 
 Command.add('print-global',
   {
-    description = 'Prints the global table',
+    description = {'command_description.frontier_print_global'},
     allowed_by_server = false,
     required_rank = Ranks.admin,
   },
@@ -463,7 +463,7 @@ Command.add('print-global',
 
 Command.add('log-global',
   {
-    description = 'Logs the global table',
+    description = {'command_description.frontier_log_global'},
     allowed_by_server = true,
     required_rank = Ranks.admin,
   },

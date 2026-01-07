@@ -2,6 +2,8 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Config = require 'config'.admin_panel
+local Rank = require 'features.rank_system'
+local Ranks = require 'resources.ranks'
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
@@ -34,7 +36,11 @@ local pages = {
 
 Global.register(pages, function(tbl) pages = tbl end)
 
-local Public = {}
+local Public = {
+  events = {
+    on_admin_gui_closed = Event.generate_event_name('on_admin_gui_closed')
+  }
+}
 
 function Public.get_pages()
   return pages
@@ -106,7 +112,10 @@ function Public.get_main_frame(player)
     })
 
     for _, page in pairs(pages) do
-      left.add(page)
+      local element = left.add(page)
+      if page.tags and page.tags.admin_only then
+        Public.admin_only(element)
+      end
     end
     data.left = left
   end
@@ -125,6 +134,17 @@ function Public.get_main_frame(player)
   end
 
   Gui.set_data(frame, data)
+end
+
+function Public.get_main_frame_location(player)
+  local frame = player.gui.screen[main_frame_name]
+  if frame and frame.valid then
+    return {
+      x = frame.location.x + 500,
+      y = frame.location.y - 100
+    }
+  end
+  return nil
 end
 
 function Public.update_top_button(player)
@@ -163,6 +183,11 @@ function Public.close_all_pages(player)
   end
 end
 
+function Public.admin_only(element)
+  local player = game.get_player(element.player_index)
+  element.visible = Rank.equal_or_greater_than(player.name, Ranks.admin)
+end
+
 Event.add(defines.events.on_player_created, function(event)
   local player = game.get_player(event.player_index)
   if not (player and player.valid) then
@@ -183,20 +208,9 @@ Event.add(defines.events.on_player_joined_game, function(event)
   end
 end)
 
-Event.add(defines.events.on_gui_closed, function(event)
-  local element = event.element
-  if not (element and element.valid) then
-    return
-  end
-
-  local player = game.get_player(event.player_index)
-  if not (player and player.valid) then
-    return
-  end
-
-  if element.name == main_frame_name then
-    Public.toggle_main_button(player)
-  end
+Gui.on_custom_close(main_frame_name, function(event)
+  Public.toggle_main_button(event.player)
+  script.raise_event(Public.events.on_admin_gui_closed, event)
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)

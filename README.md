@@ -18,7 +18,7 @@ modded servers. All of the games hosted are available to the public and our comm
 levels and experience. You can find out servers by searching for "RedMew" in the multiplayer lobby.
 
 ## The Community
-You can join the RedMew community on Discord by visiting http://redmew.com/discord
+You can join the RedMew community on Discord by visiting [refactorio.de/discord](http://refactorio.de/discord)
 
 To join a RedMew Factorio server, follow the following steps in Factorio:
  - From the main menu, press "Play"
@@ -35,7 +35,7 @@ Are you a Content Creator looking to play a RedMew scenario? [Visit the Content 
 
 ## Contributing
 If you wish to contribute, don't hesitate to make a Pull Request or open an issue. When in doubt, you can always ask
-on [Discord](http://redmew.com/discord).
+on [Discord](http://refactorio.de/discord).
 
 ## License
 The RedMew codebase is licensed under the [GPL3 License](LICENSE).

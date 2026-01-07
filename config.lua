@@ -185,7 +185,7 @@ storage.config = {
         show_info_at_start = true,
         -- prints messages when the player joins
         join_messages = {
-            'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
+            'Welcome to this map created by the RedMew team. You can join our discord at: refactorio.de/discord',
             'Click the infomation icon in the top left corner for server information and map details.'
         },
         cutscene = false,

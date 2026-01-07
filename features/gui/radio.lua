@@ -184,7 +184,7 @@ end
 Command.add(
     'radio',
     {
-        description = 'Opens radio gui',
+        description = {'command_description.radio'} ,
         capture_excess_arguments = false,
         allowed_by_server = false
     },

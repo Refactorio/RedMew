@@ -43,7 +43,7 @@ local function know_player_or_rerun(player_name, actor, command_name)
 end
 
 local function console_command(event)
-    local actor = Utils.get_admin_or_server_actor(event.player_index)
+    local actor = Utils.get_player_or_server_actor(event.player_index)
     if actor then
         players_last_command[actor] = {command = event.command, parameters = event.parameters}
     end
@@ -61,10 +61,10 @@ local function toggle_cheat_mode(_, player)
 end
 
 --- Promote someone to regular
-local function add_regular(args, player)
+local function regular_add(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = args.actor or Utils.get_actor()
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular') then
         return
@@ -86,11 +86,59 @@ local function add_regular(args, player)
     end
 end
 
+--- Promote everyone online to regular
+local function regular_add_all(args, player)
+    local success_list, fail_list = {}, {}
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
+
+    if (#game.connected_players == 1) then
+        Game.player_print({'admin_commands.regular_add_all_null'}, Color.fail, player)
+        return
+    end
+
+    for _, target in pairs(game.connected_players) do
+        local target_name = target.name
+
+        if target_name == actor then
+            goto continue
+        end
+
+        if Rank.less_than(target_name, Ranks.guest) then
+            table.insert(fail_list, {'', target_name, ': ', {'admin_commands.regular_add_fail_probation'}})
+            goto continue
+        end
+
+        local success = Rank.increase_player_rank_to(target_name, Ranks.regular)
+        if success then
+            table.insert(success_list, {'admin_commands.regular_add_success', actor, target_name})
+            target.print({'admin_commands.regular_add_notify_target'}, {color = Color.warning})
+        else
+            table.insert(fail_list, {'', target_name, ': ', {'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}})
+        end
+
+        ::continue::
+    end
+
+    if (#success_list == 0) and (#fail_list == 0) then
+        Game.player_print({'admin_commands.regular_add_all_fail'}, Color.fail, player)
+        return
+    end
+
+    local message = {
+        {'admin_commands.regular_add_all_count', 'green', 'Promoted', #success_list},
+        table.concat(success_list, '\n'),
+        {'admin_commands.regular_add_all_count', 'red', 'Fail', #fail_list},
+        table.concat(fail_list, '\n'),
+    }
+
+    Game.player_print(serpent.block(table.concat(message, '\n')), Color.success, player)
+end
+
 --- Demote someone from regular
-local function remove_regular(args, player)
+local function regular_remove(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = args.actor or Utils.get_actor()
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular-remove') then
         return
@@ -112,7 +160,7 @@ end
 local function probation_add(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = args.actor or Utils.get_actor()
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation') then
         return
@@ -141,7 +189,7 @@ end
 local function probation_remove(args, player)
     local target_name = args.player
     local maybe_target_player = game.get_player(target_name)
-    local actor = args.actor or Utils.get_actor()
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
 
     if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation-remove') then
         return
@@ -156,6 +204,95 @@ local function probation_remove(args, player)
     else
         Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail, player)
     end
+end
+
+--- Promote someone to moderator
+local function moderator_add(args, player)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
+
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'moderator') then
+        return
+    end
+
+    -- Prevent promoting anyone who is below regular (guest/probation)
+    if Rank.less_than(target_name, Ranks.regular) then
+        Game.player_print({'admin_commands.moderator_add_fail_low_rank'}, Color.fail, player)
+        return
+    end
+
+    local success = Rank.increase_player_rank_to(target_name, Ranks.moderator)
+    if success then
+        game.print({'admin_commands.moderator_add_success', actor, target_name}, {color = Color.info})
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.moderator_add_notify_target'}, {color = Color.warning})
+        end
+    else
+        Game.player_print({'admin_commands.moderator_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail, player)
+    end
+end
+
+--- Demote someone from moderator
+local function moderator_remove(args, player)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = args.actor or Utils.get_player_or_server_actor(player and player.index)
+
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'moderator-remove') then
+        return
+    end
+
+    if Rank.equal(target_name, Ranks.moderator) then
+        local _, new_rank = Rank.decrease_player_rank_to(target_name, Rank.regular)
+        game.print({'admin_commands.moderator_remove_success', actor, target_name, new_rank}, {color = Color.info})
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.moderator_remove_notify_target'}, {color = Color.warning})
+        end
+    else
+        local rank_name = Rank.get_player_rank_name(target_name)
+        Game.player_print({'admin_commands.moderator_remove_fail', target_name, rank_name}, Color.fail, player)
+    end
+end
+
+--- Mute someone, prevents the player from saying anything in chat
+local function mute_add(args, player)
+    local target_ident = args.player
+    local target = Utils.validate_player(target_ident)
+
+    if not target then
+        print_no_target(target_ident, player)
+        return
+    end
+
+    game.mute_player(target)
+end
+
+--- Unmute someone
+local function mute_remove(args, player)
+    local target_ident = args.player
+    local target = Utils.validate_player(target_ident)
+
+    if not target then
+        print_no_target(target_ident, player)
+        return
+    end
+
+    game.unmute_player(target.index)
+end
+
+--- Purge the given player's messages from the game
+local function purge_player(args, player)
+    local target_ident = args.player
+    local target = Utils.validate_player(target_ident)
+
+    if not target then
+        print_no_target(target_ident, player)
+        return
+    end
+
+    game.purge_player(target)
+    Game.player_print({'admin_commands.purge_player_success', player.name}, Color.success, player)
 end
 
 --- Displays reported players
@@ -363,10 +500,10 @@ Command.add(
     {
         description = {'command_description.regular'},
         arguments = {'player'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
-    add_regular
+    regular_add
 )
 
 Command.add(
@@ -374,10 +511,42 @@ Command.add(
     {
         description = {'command_description.regular_remove'},
         arguments = {'player'},
+        required_rank = Ranks.moderator,
+        allowed_by_server = true
+    },
+    regular_remove
+)
+
+Command.add(
+    'regular-all',
+    {
+        description = {'command_description.regular-all'},
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
-    remove_regular
+    regular_add_all
+)
+
+Command.add(
+    'moderator',
+    {
+        description = {'command_description.moderator'},
+        arguments = {'player'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    moderator_add
+)
+
+Command.add(
+    'moderator-remove',
+    {
+        description = {'command_description.moderator_remove'},
+        arguments = {'player'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    moderator_remove
 )
 
 Command.add(
@@ -385,7 +554,7 @@ Command.add(
     {
         description = {'command_description.probation'},
         arguments = {'player'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     probation_add
@@ -396,14 +565,14 @@ Command.add(
     {
         description = {'command_description.probation_remove'},
         arguments = {'player'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     probation_remove
 )
 
 Command.add(
-    'showreports',
+    'show-reports',
     {
         description = {'command_description.showreports'},
         required_rank = Ranks.admin
@@ -416,7 +585,7 @@ Command.add(
     {
         description = {'command_description.jail'},
         arguments = {'player'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     jail_player
@@ -427,7 +596,7 @@ Command.add(
     {
         description = {'command_description.unjail'},
         arguments = {'player'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     unjail_player
@@ -447,7 +616,7 @@ Command.add(
     {
         description = {'command_description.invoke'},
         arguments = {'player'},
-        required_rank = Ranks.admin
+        required_rank = Ranks.moderator
     },
     invoke
 )
@@ -470,7 +639,7 @@ Command.add(
         description = {'command_description.revive_ghosts'},
         arguments = {'radius'},
         default_values = {radius = 10},
-        required_rank = Ranks.admin
+        required_rank = Ranks.moderator
     },
     revive_ghosts
 )
@@ -491,11 +660,17 @@ return {
     jail_player = jail_player,
     probation_add = probation_add,
     probation_remove = probation_remove,
-    regular_add = add_regular,
-    regular_remove = remove_regular,
+    regular_add = regular_add,
+    regular_remove = regular_remove,
+    regular_add_all = regular_add_all,
+    moderator_add = moderator_add,
+    moderator_remove = moderator_remove,
+    mute_add = mute_add,
+    mute_remove = mute_remove,
     revive_ghosts = revive_ghosts,
     show_reports = show_reports,
     teleport_command = teleport_command,
     toggle_cheat_mode = toggle_cheat_mode,
     unjail_player = unjail_player,
+    purge_player = purge_player,
 }

@@ -357,10 +357,10 @@ local function draw_main_frame(player)
     end
 
     if memory.known_mod_packs ~= nil then
+        local grid = main_frame.add { type = 'table', style = 'player_input_table', column_count = 2 }
         for mod_pack_name, mod_pack_value in pairs(memory.known_mod_packs) do
-            local mod_pack_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
-            mod_pack_flow.add {type = 'label', caption = mod_pack_name .. ':'}
-            local mod_pack_textfield = mod_pack_flow.add {type = 'textfield', name = known_mod_pack_textfield_name, text = mod_pack_value}
+            grid.add {type = 'label', caption = mod_pack_name}
+            local mod_pack_textfield = grid.add {type = 'textfield', name = known_mod_pack_textfield_name, text = mod_pack_value}
             Gui.set_data(mod_pack_textfield, mod_pack_name)
         end
     end

@@ -68,7 +68,7 @@ Command.add(
     {
         description = {'command_description.performance_scale_set'},
         arguments = {'scale'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     function(arguments, player)

@@ -65,8 +65,8 @@ local desc_info = [[
 
 local desc_community_info = [[
 [entity=programmable-speaker]│[font=default-large-bold] Communities[/font]
-[virtual-signal=signal-dot]│ Join our discord at [color=blue]redmew.com/discord[/color]
-[virtual-signal=signal-dot]│ Download saves at [color=blue]redmew.com/saves[/color]
+[virtual-signal=signal-dot]│ Join our discord at [color=blue]refactorio.de/discord[/color]
+[virtual-signal=signal-dot]│ Download saves at [color=blue]refactorio.de/saves[/color]
 ]]
 
 local desc_modded_info = [[
@@ -117,7 +117,7 @@ local desc_contribute_info =
 [virtual-signal=signal-dot]│Want to contribute to the source code?
 [virtual-signal=signal-dot]│Visit our github at [color=blue]github.com/Refactorio/RedMew[/color]
 [virtual-signal=signal-dot]│You are free to setup your own map.
-[virtual-signal=signal-dot]│Go to [color=blue]redmew.com/guide[/color] for more information]]
+[virtual-signal=signal-dot]│Go to [color=blue]refactorio.de/guide[/color] for more information]]
 
 local server_prefix = '[color=1][R][/color] '
 
@@ -284,7 +284,7 @@ local function generate_desc_command(_, player)
 end
 
 Command.add(
-    'generate_desc',
+    'generate-desc',
     {
         description = 'Generates server name, description and tags to be pasted into the /config gui',
         capture_excess_arguments = false,

@@ -29,6 +29,7 @@ pages[#pages +1] = {
   tooltip = '[font=default-bold]Map manager[/font]',
   name = main_button_name,
   auto_toggle = true,
+  tags = { admin_only = false },
 }
 
 local function make_button(parent, params)

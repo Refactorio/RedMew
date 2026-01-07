@@ -174,7 +174,7 @@ local Color = require 'resources.color_presets'
 Command.add(
   'af-reset',
   {
-    description = [[Reset all features]],
+    description = {'command_description.af_reset'},
     arguments = {},
     required_rank = Ranks.admin,
     allowed_by_server = true
@@ -193,7 +193,7 @@ Command.add(
 Command.add(
   'af-debug',
   {
-    description = [[Prints all features's current levels]],
+    description = {'command_description.af_debug'},
     arguments = {},
     required_rank = Ranks.admin,
     allowed_by_server = true
@@ -220,7 +220,7 @@ Command.add(
 Command.add(
   'af-max',
   {
-    description = [[Sets all features to according max level]],
+    description = {'command_description.af_max'},
     arguments = {},
     required_rank = Ranks.admin,
     allowed_by_server = true

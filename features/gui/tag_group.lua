@@ -142,15 +142,16 @@ local function player_created(event)
         return
     end
 
-    Gui.add_top_element(player,
+    local b = Gui.add_top_element(player,
         {
             name = main_button_name,
             type = 'sprite-button',
-            caption = 'tag',
+            sprite = 'utility/bookmark',
             tooltip = {'tag_group.tooltip'},
             auto_toggle = true,
         }
     )
+    b.style.padding = 2
 end
 
 local function draw_main_frame_content(parent)
@@ -803,7 +804,7 @@ Command.add(
     {
         description = {'command_description.tag'},
         arguments = {'player', 'tag'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

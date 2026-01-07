@@ -260,7 +260,7 @@ Command.add(
         description = {'command_description.toast'},
         arguments = {'msg'},
         capture_excess_arguments = true,
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     function(args)
@@ -275,7 +275,7 @@ Command.add(
         description = {'command_description.toast_player'},
         arguments = {'player', 'msg'},
         capture_excess_arguments = true,
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         allowed_by_server = true
     },
     function(args)

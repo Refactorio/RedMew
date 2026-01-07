@@ -6,12 +6,14 @@ return {
     guest = {r = 255, g = 255, b = 255},
     auto_trusted = {r = 192, g = 192, b = 192},
     regular = {r = 0.155, g = 0.540, b = 0.898},
+    moderator = {r = 0.980, g = 0.850, b = 0.200},
     admin = {r = 0.093, g = 0.768, b = 0.172},
     donator = {r = 172.6, g = 70.2, b = 215.8},
     [-10] = {r = 255, g = 255, b = 255}, -- probation
     [0] = {r = 255, g = 255, b = 255}, -- guest
     [10] = {r = 192, g = 192, b = 192}, -- auto_trusted
     [20] = {r = 0.155, g = 0.540, b = 0.898}, -- regular
+    [25] = {r = 0.980, g = 0.850, b = 0.200}, -- moderator
     [30] = {r = 0.093, g = 0.768, b = 0.172}, -- admin
     success = {r = 0, g = 255, b = 0},
     warning = {r = 255, g = 255, b = 0},

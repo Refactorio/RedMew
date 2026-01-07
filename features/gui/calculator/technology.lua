@@ -415,7 +415,7 @@ end)
 -- == COMMANDS ================================================================
 
 Command.add('calculator-technology', {
-    description = 'Computes the cost in science packs to research target technology',
+    description = {'command_description.calculator_tech'},
     arguments = { 'technology' },
     default_values = { technology = '' },
     allowed_by_server = false,
@@ -427,10 +427,10 @@ Command.add('calculator-technology', {
 end)
 
 Command.add('calculator-technology-for-player', {
-    description = 'Computes the cost in science packs to research target technology for target player',
+    description = {'command_description.calculator_tech_player'},
     arguments = { 'technology', 'player' },
     allowed_by_server = false,
-    required_rank = Ranks.admin,
+    required_rank = Ranks.moderator,
     capture_excess_arguments = true,
 }, function(arguments, player, _)
     local target_player = game.get_player(arguments.player)

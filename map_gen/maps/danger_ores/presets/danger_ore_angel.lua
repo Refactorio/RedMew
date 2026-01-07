@@ -6,7 +6,7 @@ local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Danger Ores - Angel\'s')
 ScenarioInfo.add_map_extra_info([[
-  This map is split in 7 sectors. Each sector has a main resource.
+    This map is split in 7 sectors. Each sector has a main resource.
 ]])
 
 DOC.scenario_name = 'danger-ore-angel'
@@ -18,25 +18,25 @@ DOC.map_config.spawn_shape = B.circle(80)
 DOC.map_config.start_ore_shape = B.circle(86)
 DOC.rocket_launched.enabled = false
 DOC.map_gen_settings.settings = H.empty_map_settings{
-  'angels-ore1', -- Saphirite
-  'angels-ore2', -- Jivolite
-  'angels-ore3', -- stiratite
-  'angels-ore4', -- Crotinium
-  'angels-ore5', -- rubyte
-  'angels-ore6', -- bobmonium
-  'angels-fissure',
-  'angels-natural-gas', -- gas well
-  'coal',
-  'crude-oil',
+    'angels-ore1', -- Saphirite
+    'angels-ore2', -- Jivolite
+    'angels-ore3', -- stiratite
+    'angels-ore4', -- Crotinium
+    'angels-ore5', -- rubyte
+    'angels-ore6', -- bobmonium
+    'angels-fissure',
+    'angels-natural-gas', -- gas well
+    'coal',
+    'crude-oil',
 }
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched'
 rocket_launched{
-  recent_chunks_max = 10,
-  ticks_between_waves = 60 * 30,
-  enemy_factor = 5,
-  max_enemies_per_wave_per_chunk = 60,
-  extra_rockets = 100,
+    recent_chunks_max = 10,
+    ticks_between_waves = 60 * 30,
+    enemy_factor = 5,
+    max_enemies_per_wave_per_chunk = 60,
+    extra_rockets = 100,
 }
 
 return Scenario.register(DOC)

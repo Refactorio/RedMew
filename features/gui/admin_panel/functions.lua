@@ -72,6 +72,18 @@ function Actions.ban_player(target_name, reason, admin)
   Report.ban_player(player, reason, admin)
 end
 
+---@param target_name string
+---@param reason? string
+---@param admin? LuaPlayer
+function Actions.kick_player(target_name, reason, admin)
+  local player = game.get_player(target_name)
+  if not (player and player.valid) then
+    Game.player_print('Could not kick player: ' .. target_name, Color.fail, admin)
+    return
+  end
+  Report.kick_player(player, reason, admin)
+end
+
 ---@param target_player string
 ---@param source_player LuaPlayer
 function Actions.spank(target_name, source_player)

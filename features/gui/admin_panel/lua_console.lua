@@ -21,6 +21,7 @@ pages[#pages +1] = {
   tooltip = '[font=default-bold]Lua console[/font]',
   name = main_button_name,
   auto_toggle = true,
+  tags = { admin_only = true },
 }
 
 local function draw_gui(player)

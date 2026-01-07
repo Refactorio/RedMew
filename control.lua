@@ -136,6 +136,7 @@ if config.map_info.enabled then
     require 'features.gui.description_generator'
 end
 if config.admin_panel.enabled then
+    require 'features.gui.admin_panel.moderation_guide'
     require 'features.gui.admin_panel.player_manager'
     require 'features.gui.admin_panel.map_manager'
     require 'features.gui.admin_panel.lua_console'
@@ -146,14 +147,14 @@ end
 if config.redmew_settings.enabled then
     require 'features.gui.redmew_settings'
 end
+if config.poll.enabled then
+    require 'features.gui.poll'
+end
 if config.autofill.enabled then
     require 'features.gui.autofill'
 end
 if config.evolution_progress.enabled then
     require 'features.gui.evolution_progress'
-end
-if config.poll.enabled then
-    require 'features.gui.poll'
 end
 if config.tag_group.enabled then
     require 'features.gui.tag_group'

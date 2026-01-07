@@ -4,5 +4,6 @@ return {
     guest = 0,
     auto_trusted = 10,
     regular = 20,
+    moderator = 25,
     admin = 30,
 }

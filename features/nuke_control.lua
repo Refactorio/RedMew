@@ -256,7 +256,7 @@ local function on_capsule_used(event)
     if players_warned[event.player_index] then
         if nuke_control.enable_autoban then
             local reason = format(
-                'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
+                'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit refactorio.de/discord',
                 list_damaged_entities(item_name, entities),
                 item_name
             )

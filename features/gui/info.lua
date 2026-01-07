@@ -169,6 +169,22 @@ local function header_label(parent, string)
     return label
 end
 
+local function softmod_sprite(parent, sprite)
+    local img = parent.add { type = 'sprite', sprite = sprite }
+    Gui.set_style(img, { width = 32, height = 32, stretch_image_to_widget_size = true })
+    return img
+end
+
+local function get_score_sprite()
+    if script.active_mods['Krastorio2'] then
+        return 'achievement/kr-matter-production-3'
+    end
+    if script.active_mods['space-exploration'] then
+        return 'achievement/se-there-is-no-spoon'
+    end
+    return 'achievement/there-is-no-spoon'
+end
+
 local pages = {
     {
         tab_button = function(parent)
@@ -212,7 +228,7 @@ local pages = {
             discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://redmew.com/discord '}
+            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://refactorio.de/discord '}
             discord_textbox.read_only = true
             discord_textbox.style.width = 235
             discord_textbox.style.height = 28
@@ -232,7 +248,7 @@ local pages = {
             save_textbox_flow_style.horizontal_align = 'center'
             save_textbox_flow_style.horizontally_stretchable = true
             save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
-            local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://redmew.com/saves/ '}
+            local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://refactorio.de/saves/ '}
             save_textbox.read_only = true
             save_textbox.style.width = 235
             save_textbox.style.height = 28
@@ -390,9 +406,9 @@ local pages = {
             grid_style.top_padding = 8
             grid_style.bottom_padding = 16
 
-            grid.add {type = 'label'}
-            local ranks = grid.add {type = 'label', caption = 'Ranks'}
-            ranks.style.font = 'default-listbox'
+            softmod_sprite(grid, 'utility/any_quality')
+            local ranks = grid.add {type = 'label', caption = 'Ranks', style = 'heading_2_label'}
+            ranks.style.font = 'var'
             local ranks_flow = grid.add {type = 'flow', direction = 'vertical'}
             local ranks_label = ranks_flow.add {type = 'label', caption = {'info.softmods_rank_text'}}
             local ranks_label_style = ranks_label.style
@@ -410,59 +426,100 @@ local pages = {
                 donator_label.style.font_color = Color.donator
             end
 
-            grid.add {type = 'sprite', sprite = 'entity/market'}
-            local market = grid.add {type = 'label', caption = {'info.softmods_market_label'}}
-            market.style.font = 'default-listbox'
-            local market_label = grid.add {type = 'label', caption = {'info.softmods_market_text'}}
-            market_label.style.single_line = false
+            if config.market.enabled then
+                softmod_sprite(grid, 'entity/market')
+                local market = grid.add {type = 'label', caption = {'info.softmods_market_label'}, style = 'heading_2_label'}
+                market.style.font = 'var'
+                local market_label = grid.add {type = 'label', caption = {'info.softmods_market_text'}}
+                market_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'item/simple-entity-with-owner'}
-            local train_savior = grid.add {type = 'label', caption = {'info.softmods_saviour_label'}}
-            local train_savior_style = train_savior.style
-            train_savior_style.font = 'default-listbox'
-            train_savior_style.single_line = false
-            local train_savior_label = grid.add {type = 'label', caption = {'info.softmods_saviour_text'}}
-            train_savior_label.style.single_line = false
+                softmod_sprite(grid, 'item/simple-entity-with-owner')
+                local train_savior = grid.add {type = 'label', caption = {'info.softmods_saviour_label'}, style = 'heading_2_label'}
+                local train_savior_style = train_savior.style
+                train_savior_style.font = 'var'
+                train_savior_style.single_line = false
+                local train_savior_label = grid.add {type = 'label', caption = {'info.softmods_saviour_text'}}
+                train_savior_label.style.single_line = false
+            end
 
             if config.player_list.enabled then
-                grid.add {type = 'sprite', sprite = 'entity/character'}
-                local player_list = grid.add {type = 'label', caption = {'info.softmods_plist_label'}}
-                player_list.style.font = 'default-listbox'
+                softmod_sprite(grid, 'entity/character')
+                local player_list = grid.add {type = 'label', caption = {'info.softmods_plist_label'}, style = 'heading_2_label'}
+                player_list.style.font = 'var'
                 player_list.style.single_line = false
                 local player_list_label = grid.add {type = 'label', caption = {'info.softmods_plist_text'}}
                 player_list_label.style.single_line = false
             end
+
             if config.poll.enabled then
-                grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-                local poll = grid.add {type = 'label', caption = {'info.softmods_polls_label'}}
-                poll.style.font = 'default-listbox'
+                softmod_sprite(grid, 'item/programmable-speaker')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_polls_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
                 local poll_label = grid.add {type = 'label', caption = {'info.softmods_polls_text'}}
                 poll_label.style.single_line = false
             end
 
+            if config.autofill.enabled then
+                softmod_sprite(grid, 'item/piercing-rounds-magazine')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_autofill_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_autofill_text'}}
+                poll_label.style.single_line = false
+            end
+
             if config.tag_group.enabled then
-                local tag_button = grid.add {type = 'label', caption = 'tag'}
-                local tag_button_style = tag_button.style
-                tag_button_style.font = 'default-listbox'
-                tag_button_style.font_color = Color.black
-                local tag = grid.add {type = 'label', caption = {'info.softmods_tags_label'}}
-                tag.style.font = 'default-listbox'
+                softmod_sprite(grid, 'utility/bookmark')
+                local tag = grid.add {type = 'label', caption = {'info.softmods_tags_label'}, style = 'heading_2_label'}
+                tag.style.font = 'var'
                 local tag_label = grid.add {type = 'label', caption = {'info.softmods_tags_text'}}
                 tag_label.style.single_line = false
             end
 
             if config.tasklist.enabled then
-                grid.add {type = 'sprite', sprite = 'item/repair-pack'}
-                local task = grid.add {type = 'label', caption = {'info.softmods_tasks_label'}}
-                task.style.font = 'default-listbox'
+                softmod_sprite(grid, 'item/repair-pack')
+                local task = grid.add {type = 'label', caption = {'info.softmods_tasks_label'}, style = 'heading_2_label'}
+                task.style.font = 'var'
                 local task_label = grid.add {type = 'label', caption = {'info.softmods_tasks_text'}}
                 task_label.style.single_line = false
             end
 
+            if config.player_shortcuts.enabled then
+                softmod_sprite(grid, 'utility/hand_black')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_shortcuts_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_shortcuts_text'}}
+                poll_label.style.single_line = false
+            end
+
+            if config.paint.enabled then
+                softmod_sprite(grid, 'utility/spray_icon')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_paint_brush_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_paint_brush_text'}}
+                poll_label.style.single_line = false
+            end
+
+            if config.production_hud.enabled then
+                softmod_sprite(grid, 'utility/side_menu_production_icon')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_production_hud_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
+                poll.style.single_line = false
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_production_hud_text'}}
+                poll_label.style.single_line = false
+            end
+
+            if config.train_station_teleport.enabled then
+                softmod_sprite(grid, 'item/train-stop')
+                local poll = grid.add {type = 'label', caption = {'info.softmods_train_station_teleport_label'}, style = 'heading_2_label'}
+                poll.style.font = 'var'
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_train_station_teleport_text'}}
+                poll_label.style.single_line = false
+            end
+
             if config.score.enabled then
-                grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
-                local score = grid.add {type = 'label', caption = {'info.softmods_score_label'}}
-                score.style.font = 'default-listbox'
+                softmod_sprite(grid, get_score_sprite())
+                local score = grid.add {type = 'label', caption = {'info.softmods_score_label'}, style = 'heading_2_label'}
+                score.style.font = 'var'
                 local score_label = grid.add {type = 'label', caption = {'info.softmods_score_text'}}
                 score_label.style.single_line = false
             end

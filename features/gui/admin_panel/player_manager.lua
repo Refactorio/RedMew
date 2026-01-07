@@ -19,19 +19,24 @@ local on_remove_biters = Gui.uid_name()
 local on_remove_enemies = Gui.uid_name()
 local on_add_regular = Gui.uid_name()
 local on_add_probation = Gui.uid_name()
+local on_add_moderator = Gui.uid_name()
 local on_jail_player = Gui.uid_name()
 local on_remove_regular = Gui.uid_name()
 local on_remove_probation = Gui.uid_name()
+local on_remove_moderator = Gui.uid_name()
 local on_unjail_player = Gui.uid_name()
+local on_trust_all = Gui.uid_name()
+local on_mute_player = Gui.uid_name()
+local on_unmute_player = Gui.uid_name()
+local on_purge_player = Gui.uid_name()
 local on_invoke_player = Gui.uid_name()
 local on_goto_player = Gui.uid_name()
 local on_spank_player = Gui.uid_name()
 local on_ban_player = Gui.uid_name()
+local on_kick_player = Gui.uid_name()
 local on_create_oil_field = Gui.uid_name()
 local on_toggle_blueprints = Gui.uid_name()
 local on_create_pollution = Gui.uid_name()
--- local on_teleport = Gui.uid_name()
--- local on_destroy_selected = Gui.uid_name()
 
 local this = {
   ---@type table<number, table< index: number, name: string >>
@@ -51,9 +56,10 @@ pages[#pages +1] = {
   tooltip = '[font=default-bold]Player manager[/font]',
   name = main_button_name,
   auto_toggle = true,
+  tags = { admin_only = false },
 }
 
-local ban_items = {}
+local BAN_ITEMS = {}
 for _, text in pairs({
   'damaging base',
   'griefing',
@@ -63,7 +69,40 @@ for _, text in pairs({
   'resource hoarding',
   'tanking server UPS',
   'toxic behavior',
-}) do table.insert(ban_items, { name = Gui.uid_name(), caption = text }) end
+}) do table.insert(BAN_ITEMS, { name = Gui.uid_name(), caption = text }) end
+
+local GENERAL_ACTION_ITEMS = {
+  { name = on_cheat_mode,        caption = 'Cheat mode',        admin_only = true,  style = 'button',       tooltip = { 'cmd_tooltip.cheat_mode' } },
+  { name = on_show_reports,      caption = 'Show reports',      admin_only = true,  style = 'button',       tooltip = { 'cmd_tooltip.show_reports' } },
+  { name = on_toggle_blueprints, caption = 'Blueprints ON/OFF', admin_only = true,  style = 'button',       tooltip = { 'cmd_tooltip.toggle_blueprints' } },
+  { name = on_create_pool,       caption = 'Create pool',       admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.create_pool' } },
+  { name = on_create_oil_field,  caption = 'Create oil field',  admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.create_oil_field' } },
+  { name = on_create_pollution,  caption = 'Spawn pollution',   admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.spawn_pollution' } },
+  { name = on_save_game,         caption = 'Save game',         admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.save_game' } },
+  { name = on_revive_ghosts,     caption = 'Revive ghosts',     admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.revive_ghosts' } },
+  { name = on_remove_biters,     caption = 'Kill biter units',  admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.kill_units' } },
+  { name = on_destroy_speakers,  caption = 'Destroy speakers',  admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.destroy_speakers' } },
+  { name = on_delete_blueprints, caption = 'Destroy ghosts',    admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.destroy_ghosts' } },
+  { name = on_remove_enemies,    caption = 'Kill all enemies',  admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.kill_enemies' } },
+}
+
+local PLAYER_MANAGEMENT_ITEMS = {
+  { name = on_add_probation,    caption = 'Add probation',    admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.add_probation' } },
+  { name = on_add_regular,      caption = 'Add regular',      admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.add_regular' } },
+  { name = on_jail_player,      caption = 'Jail player',      admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.jail_player' } },
+  { name = on_remove_probation, caption = 'Remove probation', admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.remove_probation' } },
+  { name = on_remove_regular,   caption = 'Remove regular',   admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.remove_regular' } },
+  { name = on_unjail_player,    caption = 'Unjail player',    admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.unjail_player' } },
+  { name = on_mute_player,      caption = 'Mute player',      admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.mute_player' } },
+  { name = on_unmute_player,    caption = 'Unmute player',    admin_only = false, style = 'green_button', tooltip = { 'cmd_tooltip.unmute_player' } },
+  { name = on_purge_player,     caption = 'Purge player',     admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.purge_player' } },
+  { name = on_add_moderator,    caption = 'Add moderator',    admin_only = true,  style = 'green_button', tooltip = { 'cmd_tooltip.add_moderator' } },
+  { name = on_remove_moderator, caption = 'Remove moderator', admin_only = true,  style = 'red_button',   tooltip = { 'cmd_tooltip.remove_moderator' } },
+  { name = on_trust_all,        caption = 'Trust all',        admin_only = true,  style = 'green_button', tooltip = { 'cmd_tooltip.trust_all' } },
+  { name = on_invoke_player,    caption = 'Invoke player',    admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.invoke_player' } },
+  { name = on_goto_player,      caption = 'Goto player',      admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.goto_player' } },
+  { name = on_spank_player,     caption = 'Spank player',     admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.spank_player' } },
+}
 
 local function get_selected_player(player)
   return this.player_selection[player.index].name or '__NIL__'
@@ -92,7 +131,7 @@ end
 
 local function generate_ban_text(player)
   local items = this.player_ban_items[player.index]
-  return table.concat(items, ', ') .. '. To appeal ban visit redmew.com/discord #helpdesk.'
+  return table.concat(items, ', ') .. '. To appeal ban visit refactorio.de/discord #helpdesk.'
 end
 
 local function make_button(parent, params)
@@ -101,6 +140,7 @@ local function make_button(parent, params)
     caption = params.caption,
     name = params.name,
     tooltip = params.tooltip,
+    style = params.style or 'button'
   }
   Gui.set_style(button, {
     horizontally_stretchable = true,
@@ -153,41 +193,26 @@ local function draw_gui(player)
 
   local row_1 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'General actions' }
   local table_1 = row_1.add { type = 'table', column_count = 3 }
-  for _, button in pairs({
-    { name = on_cheat_mode, caption = 'Cheat mode' },
-    { name = on_show_reports, caption = 'Show reports' },
-    { name = on_toggle_blueprints, caption = 'Blueprints ON/OFF' },
-    { name = on_create_pool, caption = 'Create pool' },
-    { name = on_create_oil_field, caption = 'Create oil field' },
-    { name = on_create_pollution, caption = 'Spawn pollution' },
-    { name = on_revive_ghosts, caption = 'Revive ghosts' },
-    { name = on_save_game, caption = 'Save game' },
-    { name = on_delete_blueprints, caption = 'Destroy ghost entities' },
-    { name = on_destroy_speakers, caption = 'Destroy speakers' },
-    { name = on_remove_biters, caption = 'Remove biters' },
-    { name = on_remove_enemies, caption = 'Remove all enemies' },
-    -- { name = on_teleport, caption = 'Teleport' },
-    -- { name = on_destroy_selected, caption = 'Destroy selected' }
-  }) do make_button(table_1, button) end
+  for _, button in pairs(GENERAL_ACTION_ITEMS) do
+    local element = make_button(table_1, button)
+    if button.admin_only then
+      AdminPanel.admin_only(element)
+    end
+  end
 
   local row_2 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Players management' }
   local table_2 = row_2.add { type = 'table', column_count = 3 }
-  for _, button in pairs({
-    { name = on_add_regular, caption = 'Add regular' },
-    { name = on_add_probation, caption = 'Add probation' },
-    { name = on_jail_player, caption = 'Jail player' },
-    { name = on_remove_regular, caption = 'Remove regular' },
-    { name = on_remove_probation, caption = 'Remove probation' },
-    { name = on_unjail_player, caption = 'Unjail player' },
-    { name = on_invoke_player, caption = 'Invoke player' },
-    { name = on_goto_player, caption = 'Goto player' },
-    { name = on_spank_player, caption = 'Spank player' },
-  }) do make_button(table_2, button) end
+  for _, button in pairs(PLAYER_MANAGEMENT_ITEMS) do
+    local element = make_button(table_2, button)
+    if button.admin_only then
+      AdminPanel.admin_only(element)
+    end
+  end
   make_player_dropdown(row_2)
 
-  local row_3 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Players ban' }
+  local row_3 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Players kick & ban' }
   local table_3 = row_3.add { type = 'table', column_count = 2 }
-  for _, item in pairs(ban_items) do
+  for _, item in pairs(BAN_ITEMS) do
     make_checkbox(table_3, {
       caption = item.caption,
       name = item.name,
@@ -202,8 +227,11 @@ local function draw_gui(player)
 
   local flow_3 = row_3.add { type = 'flow', direction = 'horizontal' }
   Gui.add_pusher(flow_3)
-  local ban_button = flow_3.add { type = 'button', name = on_ban_player, style = 'confirm_button', caption = 'Ban player' }
+  local kick_button = flow_3.add { type = 'button', name = on_kick_player, style = 'red_back_button', caption = 'Kick player', tooltip = { 'cmd_tooltip.kick_player' } }
+  Gui.set_data(kick_button, { textbox = textbox })
+  local ban_button = flow_3.add { type = 'button', name = on_ban_player, style = 'red_confirm_button', caption = 'Ban player', tooltip = { 'cmd_tooltip.ban_player' } }
   Gui.set_data(ban_button, { textbox = textbox })
+  AdminPanel.admin_only(ban_button)
 end
 
 Gui.on_click(main_button_name, function(event)
@@ -232,7 +260,7 @@ Gui.on_selection_state_changed(selection_dropdown_name, function(event)
   draw_gui(player)
 end)
 
-for _, ban_item in pairs(ban_items) do
+for _, ban_item in pairs(BAN_ITEMS) do
   Gui.on_checked_state_changed(ban_item.name, function(event)
     local player = event.player
     local element = event.element
@@ -249,6 +277,12 @@ Gui.on_click(on_ban_player, function(event)
   local data = Gui.get_data(event.element)
   local target_name = get_selected_player(event.player)
   Actions.ban_player(target_name, data.textbox.text, event.player)
+end)
+
+Gui.on_click(on_kick_player, function(event)
+  local data = Gui.get_data(event.element)
+  local target_name = get_selected_player(event.player)
+  Actions.kick_player(target_name, data.textbox.text, event.player)
 end)
 
 Gui.on_click(on_cheat_mode, function(event)
@@ -337,4 +371,33 @@ end)
 Gui.on_click(on_invoke_player, function(event)
   local target_name = get_selected_player(event.player)
   Actions.invoke_player({ player = target_name }, event.player)
+end)
+
+Gui.on_click(on_add_moderator, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.moderator_add({ player = target_name }, event.player)
+end)
+
+Gui.on_click(on_remove_moderator, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.moderator_remove({ player = target_name }, event.player)
+end)
+
+Gui.on_click(on_trust_all, function(event)
+  Actions.regular_add_all({}, event.player)
+end)
+
+Gui.on_click(on_mute_player, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.mute_add({ player = target_name }, event.player)
+end)
+
+Gui.on_click(on_unmute_player, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.mute_remove({ player = target_name }, event.player)
+end)
+
+Gui.on_click(on_purge_player, function(event)
+  local target_name = get_selected_player(event.player)
+  Actions.purge_player({ player = target_name }, event.player)
 end)

@@ -29,6 +29,7 @@ return function(config)
 
     Global.register_init({chunk_list = chunk_list, pollution_data = pollution_data}, function(tbl)
         tbl.surface = RS.get_surface()
+        game.map_settings.pollution.enabled = true
     end, function(tbl)
         chunk_list = tbl.chunk_list
         pollution_data = tbl.pollution_data

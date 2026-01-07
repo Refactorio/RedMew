@@ -87,6 +87,20 @@ function Module.get_actor()
     return '<server>'
 end
 
+--- Returns a valid string with the name of the actor for a player_index or the server.
+function Module.get_player_or_server_actor(player_index)
+    if not player_index then
+        return '<server>'
+    end
+
+    local player = game.get_player(player_index)
+    if player.valid then
+        return player.name
+    end
+
+    return nil
+end
+
 --- Returns a valid string with the name of the actor for a player_index if they are an admin or the server.
 function Module.get_admin_or_server_actor(player_index)
     if not player_index then

@@ -159,7 +159,7 @@ Command.add(
     {
         description = {'command_description.popup_update'},
         arguments = {'version'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -171,7 +171,7 @@ Command.add(
     {
         description = {'command_description.popup_player'},
         arguments = {'player', 'message'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.moderator,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
