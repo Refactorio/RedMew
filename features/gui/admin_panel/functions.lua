@@ -5,7 +5,7 @@ local Report = require 'features.report'
 
 -- == ACTIONS =================================================================
 
-local Actions = require 'features.admin_commands'
+local Actions = table.deepcopy(require 'features.admin_commands')
 
 ---@param filename? string
 ---@param player? LuaPlayer
