@@ -1,7 +1,9 @@
 local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
+local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
+local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 
 local string_match = string.match
@@ -196,148 +198,99 @@ end
 local search_field_name = Gui.uid_name()
 
 local base_commands = {
-    { command = 'admin', help = 'Opens the player management GUI.', rank = 'Admin' },
+    { command = 'admin', help = 'Opens the player management GUI.', rank = Ranks.admin },
     { command = 'admins', help = 'Prints a list of game admins (parameter online/o prints only admins that are online.)' },
     { command = 'alerts <enable/disable/mute/unmute> <alert>', help = 'Enables, disables, mutes, or unmutes the given alert type.' },
-    { command = 'ban <player> <reason>', help = 'Bans the specified player.', rank = 'Admin' },
-    { command = 'banlist <add/remove/get/clear> <player>', help = 'Adds or removes a player from the banlist. Same as /ban or /unban.', rank = 'Admin' },
+    { command = 'ban <player> <reason>', help = 'Bans the specified player.', rank = Ranks.admin },
+    { command = 'banlist <add/remove/get/clear> <player>', help = 'Adds or removes a player from the banlist. Same as /ban or /unban.', rank = Ranks.admin },
     { command = 'bans', help = 'Prints a list of banned players.' },
-    { command = 'cheat <all>', help = 'Researches all technologies and enables cheat mode. Using the <all> option also gives the player some additional items.\n <planet-name> - moves the player to the specified planet.\n <platform-name> - moves the player to the specified platform.\n <off> - turns the cheat mode off.', rank = 'Admin' },
+    { command = 'cheat <all>', help = 'Researches all technologies and enables cheat mode. Using the <all> option also gives the player some additional items.\n <planet-name> - moves the player to the specified planet.\n <platform-name> - moves the player to the specified platform.\n <off> - turns the cheat mode off.', rank = Ranks.admin },
     { command = 'clear', help = 'Clears the console.' },
     { command = 'color <color>', help = 'Changes your color. Can either be one of the predefined colors or RGBA values in the format of "# # # #".' },
-    { command = 'command <command>', help = '/c executes a Lua command.', rank = 'Admin' },
-    { command = 'config', help = 'Opens the server configuration GUI.', rank = 'Admin' },
-    { command = 'delete-blueprint-library <player>', help = 'Deletes the blueprint library storage for the given offline player from the save file. Enter "everybody confirm" to delete the storage of all offline players.', rank = 'Admin' },
-    { command = 'demote <player> ', help = 'Demotes the player from admin.', rank = 'Admin' },
-    { command = 'editor', help = 'Toggles the map editor.', rank = 'Admin' },
+    { command = 'command <command>', help = '/c executes a Lua command.', rank = Ranks.admin },
+    { command = 'config', help = 'Opens the server configuration GUI.', rank = Ranks.admin },
+    { command = 'delete-blueprint-library <player>', help = 'Deletes the blueprint library storage for the given offline player from the save file. Enter "everybody confirm" to delete the storage of all offline players.', rank = Ranks.admin },
+    { command = 'demote <player> ', help = 'Demotes the player from admin.', rank = Ranks.admin },
+    { command = 'editor', help = 'Toggles the map editor.', rank = Ranks.admin },
     { command = 'evolution <surface>', help = 'Prints info about the alien evolution factor.' },
     { command = 'help-description', help = 'Type /h <command> to get details of it.' },
     { command = 'help-list', help = 'Available commands are:' },
     { command = 'help <command>', help = 'Prints a list of available commands. The optional argument can specify the command that should be described.' },
     { command = 'ignore <player> ', help = 'Prevents the chat from showing messages from this player. Admin messages are still shown.' },
     { command = 'ignores', help = 'Prints a list of ignored players.' },
-    { command = 'kick <player> <reason>', help = 'Kicks the specified player.', rank = 'Admin' },
-    { command = 'large-blueprint-size <set/get> <number>', help = 'Sets or reads the threshold for what is a "large" blueprint (in bytes). Copying large blueprints will use the "large" version of the input action which can be optionally allowed/disabled through the permissions system.', rank = 'Admin' },
-    { command = 'measured-command <command>', help = '/mc executes a Lua command and measures time it took.', rank = 'Admin' },
+    { command = 'kick <player> <reason>', help = 'Kicks the specified player.', rank = Ranks.admin },
+    { command = 'large-blueprint-size <set/get> <number>', help = 'Sets or reads the threshold for what is a "large" blueprint (in bytes). Copying large blueprints will use the "large" version of the input action which can be optionally allowed/disabled through the permissions system.', rank = Ranks.admin },
+    { command = 'measured-command <command>', help = '/mc executes a Lua command and measures time it took.', rank = Ranks.admin },
     { command = 'mute-programmable-speaker <mute/unmute> <local/everyone>', help = 'Mutes or unmutes global and surface sounds created by the Programmable Speaker. Use "local" to mute just the local client. Admins can use "everyone" to mute the sounds for everyone on the server.' },
-    { command = 'mute <player>', help = 'Prevents the player from saying anything in chat.', rank = 'Admin' },
+    { command = 'mute <player>', help = 'Prevents the player from saying anything in chat.', rank = Ranks.admin },
     { command = 'mutes', help = 'Prints a list of all players that are muted (cannot talk in chat).' },
-    { command = 'open <player>', help = '/o opens another player\'s inventory.', rank = 'Admin' },
+    { command = 'open <player>', help = '/o opens another player\'s inventory.', rank = Ranks.admin },
     { command = 'perf-avg-frames', help = 'Number of ticks/updates used to average performance counters. The default is 100. A value of 5-10 is recommended for fast convergence, but numbers will jitter more rapidly.' },
-    { command = 'permissions', help = 'Opens the permissions GUI.', rank = 'Admin' },
+    { command = 'permissions', help = 'Opens the permissions GUI.', rank = Ranks.admin },
     { command = 'players', help = 'Prints a list of players in the game. (parameter online/o prints only players that are online. count/c prints only count)' },
-    { command = 'promote <player>', help = 'Promotes the player to admin.', rank = 'Admin' },
-    { command = 'purge <player> ', help = 'Clears all the messages from this player from the chat log.', rank = 'Admin' },
+    { command = 'promote <player>', help = 'Promotes the player to admin.', rank = Ranks.admin },
+    { command = 'purge <player> ', help = 'Clears all the messages from this player from the chat log.', rank = Ranks.admin },
     { command = 'reply <message> ', help = '/r replies to the last player that whispered to you.' },
     { command = 'reset-tips', help = 'Resets the state of the tips and tricks as if the game was just started for the first time.' },
     { command = 'screenshot <x resolution> <y resolution> <zoom>', help = 'Takes a screenshot with your current view settings, or with the specified resolution. Zoom is optional and defaults to 1.' },
     { command = 'seed', help = 'Prints the starting map seed.' },
     { command = 'server-commands', help = 'Server console commands.' },
-    { command = 'server-save', help = 'Saves the game on the server in a multiplayer game.', rank = 'Admin' },
+    { command = 'server-save', help = 'Saves the game on the server in a multiplayer game.', rank = Ranks.admin },
     { command = 'shout <message>', help = 'Sends a message to all players including other forces.' },
-    { command = 'silent-command <command>', help = '/sc executes a Lua command without printing it to the console.', rank = 'Admin' },
-    { command = 'space-platform-delete-time <number>', help = 'Sets the number of ticks between requesting a space platform be deleted and it actually being deleted.', rank = 'Admin' },
-    { command = 'swap-players <player> <player>', help = 'Swaps characters between the specified players. If not given, the second player is yourself.', rank = 'Admin' },
+    { command = 'silent-command <command>', help = '/sc executes a Lua command without printing it to the console.', rank = Ranks.admin },
+    { command = 'space-platform-delete-time <number>', help = 'Sets the number of ticks between requesting a space platform be deleted and it actually being deleted.', rank = Ranks.admin },
+    { command = 'swap-players <player> <player>', help = 'Swaps characters between the specified players. If not given, the second player is yourself.', rank = Ranks.admin },
     { command = 'time', help = 'Prints info about how old the map is.' },
-    { command = 'toggle-action-logging', help = 'Toggles logging of all input actions performed by the game. This value doesn\'t persist following game restarts and only effects your local game in multiplayer sessions.', rank = 'Admin' },
-    { command = 'toggle-heavy-mode', help = 'This command is to be used with caution as it will make the game multiplayer unplayable once set. The game starts to save and compare the game with itself every tick to search for inconsistencies in the determinism. This command is advised to be used when there is a desync loop when a new player joins the server. The heavy mode will run until it outputs something. Please provide it to us so we can investigate and fix the problem.', rank = 'Admin' },
-    { command = 'unban <player>', help = 'Unbans the specified player.', rank = 'Admin' },
+    { command = 'toggle-action-logging', help = 'Toggles logging of all input actions performed by the game. This value doesn\'t persist following game restarts and only effects your local game in multiplayer sessions.', rank = Ranks.admin },
+    { command = 'toggle-heavy-mode', help = 'This command is to be used with caution as it will make the game multiplayer unplayable once set. The game starts to save and compare the game with itself every tick to search for inconsistencies in the determinism. This command is advised to be used when there is a desync loop when a new player joins the server. The heavy mode will run until it outputs something. Please provide it to us so we can investigate and fix the problem.', rank = Ranks.admin },
+    { command = 'unban <player>', help = 'Unbans the specified player.', rank = Ranks.admin },
     { command = 'unignore <player>', help = 'Allows the chat to show messages from this player.' },
     { command = 'unlock-shortcut-bar', help = 'Unlocks all shortcut bar items.' },
     { command = 'unlock-tips', help = 'Unlocks all tips and trick entries.' },
-    { command = 'unmute <player>', help = 'Allows the player to talk in chat again.', rank = 'Admin' },
+    { command = 'unmute <player>', help = 'Allows the player to talk in chat again.', rank = Ranks.admin },
     { command = 'version', help = 'Prints the current game version.' },
     { command = 'whisper <player> <message>', help = '/w sends a message to the specified player only.' },
     { command = 'whitelist <enable/disable/add/remove/get/clear> <player>', help = 'Enables, disables, adds or removes a player from the whitelist, where only whitelisted players can join the game. Enter nothing for \'player\' when using \'get\' to print a list of all whitelisted players.' },
 }
 
-local redmew_commands = {
-    { command = 'a <message>', help = {'command_description.a'}, rank = 'Admin' },
-    { command = 'abort', help = {'command_description.abort'}, rank = 'Admin' },
-    { command = 'af-debug', help = {'command_description.af_debug'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'af-max', help = {'command_description.af_max'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'af-reset', help = {'command_description.af_reset'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'afk', help = {'command_description.afk'} },
-    { command = 'apocalypse', help = {'command_description.apocalypse'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'barrage <location>', help = {'command_description.crash_site_barrage'}, rank = 'Guest', info = {'command_custom_help.module_only'} },
-    { command = 'calculator-technology <technology>', help = {'command_description.calculator_tech'}, rank = 'Guest', info = {'command_custom_help.module_only'} },
-    { command = 'calculator-technology-for-player <technology> <player>', help = {'command_description.calculator_tech_player'}, rank = 'Moderator', info = {'command_custom_help.module_only'} },
-    { command = 'config-restart', help = {'command_description.config_restart'}, rank = 'Admin' },
-    { command = 'corpses <surface>', help = {'command_description.clear_corpses'}, rank = 'Regular' },
-    { command = 'dataset-copy <dataset> <destination>', help = {'command_description.dataset_copy'}, rank = 'Admin' },
-    { command = 'dataset-delete <dataset>', help = {'command_description.dataset_delete'}, rank = 'Admin' },
-    { command = 'dataset-move <dataset> <destination>', help = {'command_description.dataset_move'}, rank = 'Admin' },
-    { command = 'debug-reveal <radius>', help = {'command_description.reveal'}, rank = 'Admin' },
-    { command = 'destroy', help = {'command_description.destroy'}, rank = 'Admin' },
-    { command = 'donator-death-message <add|delete|list> <value>', help = {'command_description.donator_death_message'}, info = 'Donators only' },
-    { command = 'donator-welcome-message <add|delete|list> <value>', help = {'command_description.donator_welcome_message'}, info = 'Donators only' },
-    { command = 'find <player>', help = {'command_description.find'} },
-    { command = 'generate-desc', help = {'command_description.generate_desc'}, rank = 'Admin' },
-    { command = 'get-pollution-multiplier', help = {'command_description.get_pollution_multiplier'}, rank = 'Guest', info = {'command_custom_help.module_only'} },
-    { command = 'hax', help = {'command_description.hax'}, rank = 'Admin' },
-    { command = 'invoke <player>', help = {'command_description.invoke'}, rank = 'Moderator' },
-    { command = 'jail <player>', help = {'command_description.jail'}, rank = 'Moderator' },
-    { command = 'kill <player>', help = {'command_description.kill'}, rank = 'Admin' },
-    { command = 'lazy-bastard-bootstrap', help = {'command_description.lazy_bastard_bootstrap'}, rank = 'Admin' },
-    { command = 'market <removeall>', help = {'command_description.market'}, rank = 'Admin' },
-    { command = 'meltdown-get', help = {'command_description.meltdown_get'}, info = {'command_custom_help.module_only'} },
-    { command = 'meltdown-set <on/off>', help = {'command_description.meltdown_set'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'moderator <player>', help = {'command_description.moderator'}, rank = 'Admin' },
-    { command = 'moderator-remove <player>', help = {'command_description.moderator_remove'}, rank = 'Admin' },
-    { command = 'particle-scale <fraction>', help = {'command_description.particle_scale'}, rank = 'Admin' },
-    { command = 'performance-scale-get', help = {'command_description.performance_scale_get'} },
-    { command = 'performance-scale-set <scale>', help = {'command_description.performance_scale_set'}, rank = 'Moderator' },
-    { command = 'perks', help = {'command_description.perks'} },
-    { command = 'permissions-reset', help = {'command_description.permissions_reset'}, rank = 'Admin' },
-    { command = 'permissions-set-scenario', help = {'command_description.permissions_set_scenario'}, rank = 'Admin' },
-    { command = 'ping-silo', help = {'command_description.frontier_ping_silo'}, info = {'command_custom_help.module_only'} },
-    { command = 'poll <poll>', help = {'command_description.poll'}, rank = 'Admin', info = {'command_custom_help.poll'} },
-    { command = 'poll-result <poll>', help = {'command_description.poll_result'} },
-    { command = 'pool', help = {'command_description.pool'}, rank = 'Moderator' },
-    { command = 'popup <message>', help = {'command_description.popup'}, rank = 'Moderator' },
-    { command = 'popup-player <player> <message>', help = {'command_description.popup_player'}, rank = 'Moderator' },
-    { command = 'popup-update <version>', help = {'command_description.popup_update'}, rank = 'Admin' },
-    { command = 'probation <player>', help = {'command_description.probation'}, rank = 'Moderator' },
-    { command = 'probation-remove <player>', help = {'command_description.probation_remove'}, rank = 'Moderator' },
-    { command = 'quick-bar-delete', help = {'command_description.quick_bar_delete'}, rank = 'Regular' },
-    { command = 'quick-bar-load', help = {'command_description.quick_bar_load'}, rank = 'Regular' },
-    { command = 'quick-bar-save', help = {'command_description.quick_bar_save'}, rank = 'Regular' },
-    { command = 'radio', help = {'command_description.radio'}, info = {'command_custom_help.module_only'} },
-    { command = 'redmew-version', help = {'command_description.redmew_version'} },
-    { command = 'regular <player>', help = {'command_description.regular'}, rank = 'Moderator' },
-    { command = 'regular-all', help = {'command_description.regular-all'}, rank = 'Admin' },
-    { command = 'regular-remove <player>', help = {'command_description.regular_remove'}, rank = 'Moderator' },
-    { command = 'replay', help = {'cutscene_controller.replay'}, info = {'command_custom_help.module_only'} },
-    { command = 'report <player> <reason>', help = {'command_description.report'} },
-    { command = 'restart <str>', help = {'command_description.restart'}, rank = 'Guest' },
-    { command = 'revive-ghosts <radius>', help = {'command_description.revive_ghosts'}, rank = 'Moderator' },
-    { command = 'reward <target> <quantity> <reason>', help = {'command_description.reward'}, rank = 'Admin' },
-    { command = 'rich-text', help = {'command_description.rich_text'} },
-    { command = 'rpg-leaderboard', help = {'command_description.rpg_leaderboard'}, info = {'command_custom_help.module_only'} },
-    { command = 'rpg-stats <player>', help = {'command_description.rpg_stats'}, info = {'command_custom_help.module_only'} },
-    { command = 'rpg-update', help = {'command_description.rpg_update'}, rank = 'Moderator', info = {'command_custom_help.module_only'} },
-    { command = 'seeds', help = {'command_description.seeds'} },
-    { command = 'server-time', help = {'command_description.server_time'} },
-    { command = 'set-pollution-multiplier <multiplier>', help ={'command_description.set_pollution_multiplier'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'show-rail-block', help = {'command_description.show_rail_block'} },
-    { command = 'show-reports', help = {'command_description.showreports'}, rank = 'Admin' },
-    { command = 'skip', help = {'cutscene_controller.skip'}, info = {'command_custom_help.module_only'} },
-    { command = 'spy <location>', help = {'command_description.crash_site_spy'}, rank = 'Guest', info = {'command_custom_help.module_only'} },
-    { command = 'strike <location>', help = {'command_description.crash_site_airstrike'}, rank = 'Guest', info = {'command_custom_help.module_only'} },
-    { command = 'tag <player> <tag>', help = {'command_description.tag'}, rank = 'Moderator' },
-    { command = 'task <task:sentence>', help = {'command_description.task'}, rank = 'Regular' },
-    { command = 'toast <message>', help = {'command_description.toast'}, rank = 'Moderator' },
-    { command = 'toast-player <player< <message>', help = {'command_description.toast_player'}, rank = 'Moderator' },
-    { command = 'toggle-debug-ai', help = {'command_description.frontier_toggle_debug_ai'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'toggle-debug-shop', help = {'command_description.frontier_toggle_debug_shop'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'toggle-log-global', help = {'command_description.frontier_log_global'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'toggle-print-global', help = {'command_description.frontier_print_global'}, rank = 'Admin', info = {'command_custom_help.module_only'} },
-    { command = 'tp <mode/player>', help = {'command_description.tp'}, rank = 'Admin', info = {'command_custom_help.tp'} },
-    { command = 'unjail <player>', help = {'command_description.unjail'}, rank = 'Moderator' },
-    { command = 'watch <target>', help = {'command_description.watch'} },
-    { command = 'whois <player> <inventory>', help = {'command_description.whois'} },
-    { command = 'zoom <zoom>', help = {'command_description.zoom'}, rank = 'Admin' },
-}
+local redmew_commands = {}
+do -- Populate RedMew command list from command module
+    for _, cmd in pairs(Command.list) do
+        local name = cmd.name or ''
+        if cmd.argument_list then
+            name = name .. ' ' .. tostring(cmd.argument_list)
+        end
+
+        local help = nil
+        if cmd.help and (#cmd.help >= 3) then
+            help = cmd.help[3]
+        end
+        if help == '' then
+            help = nil
+        end
+
+        local extra = cmd.extra or {''}
+        -- Remove required rank (displayed separatedly)
+        if extra[1] == 'command.required_rank' then
+            extra = {''}
+        end
+        -- Append second help string if it's a table (remove string arguments displayed with name)
+        if type(cmd.help) == 'table' and type(cmd.help[2]) == 'table' then
+            table.insert(extra, cmd.help[2])
+        end
+        -- Set extra to nil if it contains only an empty string
+        if (#extra == 1 and extra[1] == '') then
+            extra = nil
+        end
+
+        table.insert(redmew_commands, {
+            command = name,
+            help = help,
+            rank = cmd.rank,
+            extra = extra,
+        })
+    end
+end
 
 local commands_list = {}
 do
@@ -374,19 +327,19 @@ ModerationPages.commands.draw = function(parent)
         local command = bold(grid, '/' .. cmd.command, Color.light_cyan)
         Gui.set_style(command, { maximal_width = 420, single_line = false })
 
-        if cmd.rank then
+        do -- rank
             font(grid, '[img=quality_info]')
-            font(grid, cmd.rank, Color.khaki)
+            font(grid, Rank.get_rank_name(cmd.rank or Ranks.guest), Color.khaki)
         end
         if cmd.help then
             font(grid, '[img=info]')
             local help = font(grid, cmd.help)
             Gui.set_style(help, { maximal_width = 420, single_line = false })
         end
-        if cmd.info then
+        if cmd.extra then
             font(grid, '[img=warning-white]')
-            local info = font(grid, cmd.info)
-            Gui.set_style(info, { maximal_width = 420, single_line = false })
+            local extra = font(grid, cmd.extra)
+            Gui.set_style(extra, { maximal_width = 420, single_line = false })
         end
     end
 end
