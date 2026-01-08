@@ -17,10 +17,6 @@ local ModerationPages = {
 
 -- == UTILS ===================================================================
 
-local PALETTE = {
-    title = { 238, 232, 170 }
-}
-
 local function font(parent, caption, color)
     local label = parent.add { type = 'label', caption = caption }
     if color then
@@ -84,14 +80,14 @@ ModerationPages.ranks.draw = function(parent)
         grid.style.column_alignments[i] = 'center'
     end
     -- Title
-    bold(grid, 'Rank',  PALETTE.title)
-    bold(grid, 'Value', PALETTE.title).tooltip = 'Internal value assigned to this role'
-    bold(grid, 'Chat',  PALETTE.title).tooltip = 'Can: \n- chat in console'
-    bold(grid, 'Move',  PALETTE.title).tooltip = 'Can: \n- move character around \n- interact with the world \n- do inventory transfers \n- rotate, access, open entities'
-    bold(grid, 'GUIs',  PALETTE.title).tooltip = 'Can: \n- use GUIs'
-    bold(grid, 'BPs',   PALETTE.title).tooltip = 'Can: \n- use BPs ([img=item.deconstruction-planner], [img=item.blueprint]) \n- use game commands \n- create tasks \n- use nukes'
-    bold(grid, 'Mod',   PALETTE.title).tooltip = 'Can: \n- moderate the map \n- promote/demote \n- jail/unjail \n- mute/unmute \n- kick/invoke/spank \n- change surface settings \n- use announcements \n- manage toasts, tags \n- access Admin panel (limited)'
-    bold(grid, 'Admin', PALETTE.title).tooltip = 'Can: \n- use editor \n- use lua console/commands \n- manage permissions \n- manage mod reports \n- ban players across RedMew servers \n- manage server settings \n- access servers web interface \n- start/stop/pause/rollback servers \n- access Admin panel (fully)'
+    bold(grid, 'Rank',  Color.pale_golden_rod)
+    bold(grid, 'Value', Color.pale_golden_rod).tooltip = 'Internal value assigned to this role'
+    bold(grid, 'Chat',  Color.pale_golden_rod).tooltip = 'Can: \n- chat in console'
+    bold(grid, 'Move',  Color.pale_golden_rod).tooltip = 'Can: \n- move character around \n- interact with the world \n- do inventory transfers \n- rotate, access, open entities'
+    bold(grid, 'GUIs',  Color.pale_golden_rod).tooltip = 'Can: \n- use GUIs'
+    bold(grid, 'BPs',   Color.pale_golden_rod).tooltip = 'Can: \n- use BPs ([img=item.deconstruction-planner], [img=item.blueprint]) \n- use game commands \n- create tasks \n- use nukes'
+    bold(grid, 'Mod',   Color.pale_golden_rod).tooltip = 'Can: \n- moderate the map \n- promote/demote \n- jail/unjail \n- mute/unmute \n- kick/invoke/spank \n- change surface settings \n- use announcements \n- manage toasts, tags \n- access Admin panel (limited)'
+    bold(grid, 'Admin', Color.pale_golden_rod).tooltip = 'Can: \n- use editor \n- use lua console/commands \n- manage permissions \n- manage mod reports \n- ban players across RedMew servers \n- manage server settings \n- access servers web interface \n- start/stop/pause/rollback servers \n- access Admin panel (fully)'
 
     do -- admin
         bold(grid, 'Admin', Color.admin)
@@ -436,7 +432,7 @@ ModerationPages.resources.draw = function(parent)
 
     line(parent)
 
-    bold(parent, 'RedMew\'s mission statement', PALETTE.title)
+    bold(parent, 'RedMew\'s mission statement', Color.pale_golden_rod)
     font(parent, text{
         '  RedMew aims to provide entertaining maps for players on our servers.',
         'We want to foster an inclusive atmosphere where nobody feels',
