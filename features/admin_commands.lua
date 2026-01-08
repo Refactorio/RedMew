@@ -216,8 +216,8 @@ local function moderator_add(args, player)
         return
     end
 
-    -- Prevent promoting anyone who is below regular (guest/probation)
-    if Rank.less_than(target_name, Ranks.regular) then
+    -- Prevent promoting anyone who is below guest (probation)
+    if Rank.less_than(target_name, Ranks.guest) then
         Game.player_print({'admin_commands.moderator_add_fail_low_rank'}, Color.fail, player)
         return
     end
