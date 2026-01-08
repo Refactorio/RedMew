@@ -2,6 +2,7 @@ local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
 local Command = require 'utils.command'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
@@ -16,6 +17,9 @@ local ModerationPages = {
     server     = { name = Gui.uid_name(), caption = 'Server',     tooltip = 'Impacting the world/server state',    size = { 400, 400 } },
     resources  = { name = Gui.uid_name(), caption = 'Resources',  tooltip = 'How to act fairly and safely',        size = { 400, 400 } },
 }
+
+local commands_list = {}
+Global.register(commands_list, function(tbl) commands_list = tbl end)
 
 -- == UTILS ===================================================================
 
@@ -253,47 +257,47 @@ local base_commands = {
     { command = 'whitelist <enable/disable/add/remove/get/clear> <player>', help = 'Enables, disables, adds or removes a player from the whitelist, where only whitelisted players can join the game. Enter nothing for \'player\' when using \'get\' to print a list of all whitelisted players.' },
 }
 
-local redmew_commands = {}
-do -- Populate RedMew command list from command module
-    for _, cmd in pairs(Command.list()) do
-        local name = cmd.name or ''
-        if cmd.argument_list then
-            name = name .. ' ' .. cmd.argument_list
-        end
+local function build_command_list()
+    local redmew_commands = {}
+    -- Populate RedMew command list from command module
+    do
+        for _, cmd in pairs(Command.list()) do
+            local name = cmd.name or ''
+            if cmd.argument_list then
+                name = name .. ' ' .. cmd.argument_list
+            end
 
-        local help = nil
-        if cmd.help and (#cmd.help >= 3) then
-            help = cmd.help[3]
-        end
-        if help == '' then
-            help = nil
-        end
+            local help = nil
+            if cmd.help and (#cmd.help >= 3) then
+                help = cmd.help[3]
+            end
+            if help == '' then
+                help = nil
+            end
 
-        local extra = cmd.extra or {''}
-        -- Remove required rank (displayed separatedly)
-        if extra[1] == 'command.required_rank' then
-            extra = {''}
-        end
-        -- Append second help string if it's a table (remove string arguments displayed with name)
-        if type(cmd.help) == 'table' and type(cmd.help[2]) == 'table' then
-            table.insert(extra, cmd.help[2])
-        end
-        -- Set extra to nil if it contains only an empty string
-        if (#extra == 1 and extra[1] == '') then
-            extra = nil
-        end
+            local extra = cmd.extra or {''}
+            -- Remove required rank (displayed separatedly)
+            if extra[1] == 'command.required_rank' then
+                extra = {''}
+            end
+            -- Append second help string if it's a table (remove string arguments displayed with name)
+            if type(cmd.help) == 'table' and type(cmd.help[2]) == 'table' then
+                table.insert(extra, cmd.help[2])
+            end
+            -- Set extra to nil if it contains only an empty string
+            if (#extra == 1 and extra[1] == '') then
+                extra = nil
+            end
 
-        table.insert(redmew_commands, {
-            command = name,
-            help = help,
-            rank = cmd.rank,
-            extra = extra,
-        })
+            table.insert(redmew_commands, {
+                command = name,
+                help = help,
+                rank = cmd.rank,
+                extra = extra,
+            })
+        end
     end
-end
 
-local commands_list = {}
-do
     for _, list in pairs{ base_commands, redmew_commands } do
         for _, e in pairs(list) do
             table.insert(commands_list, e)
@@ -303,6 +307,10 @@ do
 end
 
 ModerationPages.commands.draw = function(parent)
+    if #commands_list == 0 then
+        build_command_list()
+    end
+
     local flow = inline(parent)
     bold(flow, 'Search: ')
     local search_field = flow.add { type = 'text-box', name = search_field_name, text = '', style = 'search_popup_textfield' }
