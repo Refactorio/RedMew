@@ -17,9 +17,9 @@ local get_rank_name = Rank.get_rank_name
 local pairs = pairs
 local pcall = pcall
 
-local Command = {
-    list = {}
-}
+local Command = {}
+
+local command_list = {}
 
 local deprecated_command_alternatives = {
     ['dc'] = 'sc',
@@ -274,7 +274,7 @@ function Command.add(command_name, options, callback)
         end
     )
 
-    Command.list[command_name] = {
+    command_list[command_name] = {
         name = command_name,
         allowed_by_player = allowed_by_player,
         allowed_by_server = allowed_by_server,
@@ -288,6 +288,15 @@ function Command.add(command_name, options, callback)
         log_command = log_command,
         rank = required_rank,
     }
+end
+
+function Command.list()
+    return table.deepcopy(command_list)
+end
+
+function Command.get(command_name)
+    local cmd = command_list[command_name]
+    return cmd and table.deepcopy(cmd)
 end
 
 --- Trigger messages on deprecated or defined commands, ignores the server

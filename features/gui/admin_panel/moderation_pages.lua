@@ -255,10 +255,10 @@ local base_commands = {
 
 local redmew_commands = {}
 do -- Populate RedMew command list from command module
-    for _, cmd in pairs(Command.list) do
+    for _, cmd in pairs(Command.list()) do
         local name = cmd.name or ''
         if cmd.argument_list then
-            name = name .. ' ' .. tostring(cmd.argument_list)
+            name = name .. ' ' .. cmd.argument_list
         end
 
         local help = nil
