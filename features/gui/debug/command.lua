@@ -10,7 +10,7 @@ local log = log
 Command.add(
     'debug',
     {
-        description = {'command_descriptiondebuger'},
+        description = {'command_description.debug'},
         debug_only = true
     },
     function(_, player)

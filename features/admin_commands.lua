@@ -520,7 +520,7 @@ Command.add(
 Command.add(
     'regular-all',
     {
-        description = {'command_description.regular-all'},
+        description = {'command_description.regular_all'},
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
