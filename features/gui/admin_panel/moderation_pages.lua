@@ -18,9 +18,6 @@ local ModerationPages = {
     resources  = { name = Gui.uid_name(), caption = 'Resources',  tooltip = 'How to act fairly and safely',        size = { 400, 400 } },
 }
 
-local commands_list = {}
-Global.register(commands_list, function(tbl) commands_list = tbl end)
-
 -- == UTILS ===================================================================
 
 local function font(parent, caption, color)
@@ -47,7 +44,7 @@ local function text(tbl)
     return table.concat(tbl, '\n')
 end
 
-local function textbox(parent, caption)
+local function textbox(parent, caption, width)
     local tbox = parent.add {
         type = 'text-box',
         style = 'console_input_textfield',
@@ -55,7 +52,18 @@ local function textbox(parent, caption)
         horizontal_scroll_policy = 'never',
         text = caption,
     }
-    Gui.set_style(tbox, { width = 456, natural_width = 456, height = 32, font = 'default-small' })
+    tbox.read_only = true
+    tbox.word_wrap = true
+    width = width or 420
+    Gui.set_style(tbox, {
+        width = width,
+        natural_width = width,
+        minimal_height = 32,
+        font = 'default-small',
+        rich_text_setting = defines.rich_text_setting.disabled,
+        vertically_stretchable = true,
+        horizontally_stretchable = false,
+    })
     return tbox
 end
 
@@ -199,9 +207,19 @@ end
 
 -- == COMMANDS ================================================================
 
-local search_field_name = Gui.uid_name()
+---@type ModCommand
+---@field command string|LocalisedString
+---@field help? string|LocalisedString
+---@field rank? number
+---@field extra? string|localisedString
 
-local function build_command_list()
+---@type table<ModCommand>
+local mod_commands = {}
+Global.register(mod_commands, function(tbl) mod_commands = tbl end)
+
+local mod_commands_search_name = Gui.uid_name()
+
+local function build_mod_commands()
     -- Base commands generated from Wiki and localisation files
     local base_commands = {
         { command = 'admin', help = 'Opens the player management GUI.', rank = Ranks.admin },
@@ -301,29 +319,29 @@ local function build_command_list()
 
     for _, list in pairs{ base_commands, redmew_commands } do
         for _, e in pairs(list) do
-            table.insert(commands_list, e)
+            table.insert(mod_commands, e)
         end
     end
-    table.sort(commands_list, function(a, b) return a.command < b.command end)
+    table.sort(mod_commands, function(a, b) return a.command < b.command end)
 end
 
 ModerationPages.commands.draw = function(parent)
-    if #commands_list == 0 then
-        build_command_list()
+    if #mod_commands == 0 then
+        build_mod_commands()
     end
 
     local flow = inline(parent)
     bold(flow, 'Search: ')
-    local search_field = flow.add { type = 'text-box', name = search_field_name, text = '', style = 'search_popup_textfield' }
+    local search_field = flow.add { type = 'text-box', name = mod_commands_search_name, text = '', style = 'search_popup_textfield' }
     Gui.set_style(search_field, { width = 456 - 48 - 4 - 34 - 4 + 2 + 12 })
 
-    local result_count = flow.add { type = 'sprite-button', style = 'button', caption = #commands_list, tooltip = 'Results count' }
+    local result_count = flow.add { type = 'sprite-button', style = 'button', caption = #mod_commands, tooltip = 'Results count' }
     Gui.set_style(result_count, { height = 26, width = 34, padding = 0 })
 
     local command_table = parent.add { type = 'table', style = 'finished_game_table', column_count = 1 }
     Gui.set_data(search_field, { command_table = command_table, result_count = result_count })
 
-    for i, cmd in pairs(commands_list) do
+    for i, cmd in pairs(mod_commands) do
         local grid = command_table.add { type = 'table', style = 'player_input_table', column_count = 2 }
 
         grid.style.column_alignments[1] = 'top-center'
@@ -353,11 +371,15 @@ ModerationPages.commands.draw = function(parent)
     end
 end
 
-local function match_pattern(grid, pattern)
+local function match_command_pattern(grid, pattern)
     local labels = grid.children
     for i = 2, 8, 2 do
-        if labels[i] and (labels[i].caption ~= nil and type(labels[i].caption) == 'string') and string_match(string_lower(labels[i].caption), pattern) then
-            return true
+        local obj = labels[i]
+        if obj and obj.valid then
+            local content = obj.caption
+            if (content ~= nil) and (type(content) == 'string') and string_match(string_lower(content), pattern) then
+                return true
+            end
         end
     end
     return false
@@ -366,14 +388,14 @@ end
 local function filter_commands(command_table, pattern)
     local count = 0
     for _, child in pairs(command_table.children) do
-        local visible = match_pattern(child, pattern)
+        local visible = match_command_pattern(child, pattern)
         child.visible = visible
         count = count + (visible and 1 or 0)
     end
     return count
 end
 
-Gui.on_text_changed(search_field_name, function(event)
+Gui.on_text_changed(mod_commands_search_name, function(event)
     local element = event.element
     local data = Gui.get_data(element)
     local pattern = string_lower(element.text):gsub('([%^%$%(%)%%%.%[%]%*%+%-%?])', '%%%1') -- escape magic chars
@@ -382,15 +404,138 @@ end)
 
 -- == SERVER ==================================================================
 
+local server_commands_search_name = Gui.uid_name()
+
+--[[
+    Tags collection:
+    - Script: requires console command
+    - Error: server related
+    - Bug: scenario related
+    - Moderation: player/map related
+]]
+
+local maps = {
+    af = 'April Fools',
+    cs = 'Crash Site',
+    ds = 'Danger Ores',
+    dy = 'Diggy',
+    ex = 'Expanse',
+    fr = 'Frontier',
+    va = 'Vanilla',
+}
+
+---@type ServerCommand
+---@field command string|LocalisedString
+---@field help? string|LocalisedString
+---@field snippet? string
+---@field tags? table<string|LocalisedString>
+
+---@type table<ServerCommand>
+local server_commands = {
+    { command = 'Auto stash into furnaces', help = 'Enable auto stashing directly into furnaces from auto-stash module (default: OFF)', snippet = '/sc _G.package.loaded[\'__level__/features/auto_stash.lua\']\n.insert_into_furnace(true)', tags = { 'Script' } },
+    { command = 'Cleanup items on ground', help = 'Clears all items dropped on ground (poop, chestplosion, coins) causing UPS lag', snippet = '/sc for _, corpse in pairs(game.player.surface.find_entities_filtered{ name = \'item-on-ground\' }) do corpse.destroy() end ', tags = { 'Script', 'Moderation' } },
+    { command = 'Error: transport line groups are not consistent', help = 'If when trying to join/load a game this error pops up, this is how to fix it: \n- Download the map from web interface \n- Load the map in single player by pressing "ALT + SHIFT" when hitting "Load" \n- Save the map with fixed transport groups \n- Replace save on the server', tags = { 'Error' } },
+    { command = 'Find and ping enemies', help = 'Useful to locate last enemies standing in Crash Site', snippet = '/sc for _, e in pairs(game.player.surface.find_entities_filtered{ force = \'enemy\', name = { \'gun-turret\', \'small-worm-turret\' }}) do local p = entity.position game.print(\'[gps=\'..p.x..\',\'..p.y..\',game.player.surface.name]\') end', tags = { maps.cs, 'Script' } },
+    { command = 'Market::add item', help = 'Adds a new item to the spawn Market', snippet = '/sc local r = package.loaded[\'__level__/features.retailer\'] r.set_item(\'fish_market\', { price = 20, name = \'logistic-robot\'} )', tags = { 'Script' } },
+    { command = 'Market::remove item', help = 'Removes an item from the spawn Market', snippet = '/sc local r = package.loaded[\'__level__/features.retailer\'] r.add_item(\'fish_market\', \'logistic-robo\')', tags = { 'Script' } },
+    { command = 'Recreate the endless rock in expanse', help = 'Sometimes the endless rock bugs, needs to be restored via command', snippet = '/sc game.player.surface.create_entity{name = \'huge-rock\', position = {0,8}, move_stuck_players = true}', tags = { 'Script', 'Bug', maps.ex } },
+    { command = 'Require runtime file', help = 'Correct syntax for requiring files in console at runtime', snippet = '/sc _G.package.loaded[\'__level__/map_gen/shared/entity_placement_restriction.lua\'].add_allowed({\'pipe\', \'pumpjack\', })', tags = { 'Script'} },
+    { command = 'Reset progression', help = 'Reset recipes, bonuses, technologies and whatnot to default', snippet = '/sc game.forces.player.reset_technology_effects()', tags = { 'Script' } },
+    { command = 'Technology multiplier', help = 'Change the technology cost multiplier at runtime', snippet = '/sc game.difficulty_settings.technology_price_multiplier = 25', tags = { 'Script'} },
+    { command = 'Unlock nearby chunks', help = 'Spawn more pollution when players are deadlocked in terraforming module. Works with remote view too.', snippet = '/sc game.player.surface.pollute(game.player.position, 1e6)', tags = { 'Moderation', maps.ds } },
+}
+
 ModerationPages.server.draw = function(parent)
-    parent.add { type = 'label', caption = 'TODO:'}
+    local flow = inline(parent)
+    bold(flow, 'Search: ')
+    local search_field = flow.add { type = 'text-box', name = server_commands_search_name, text = '', style = 'search_popup_textfield' }
+    Gui.set_style(search_field, { width = 456 - 48 - 4 - 34 - 4 + 2 + 12 })
+
+    local result_count = flow.add { type = 'sprite-button', style = 'button', caption = #server_commands, tooltip = 'Results count' }
+    Gui.set_style(result_count, { height = 26, width = 34, padding = 0 })
+
+    local command_table = parent.add { type = 'table', style = 'finished_game_table', column_count = 1 }
+    Gui.set_data(search_field, { command_table = command_table, result_count = result_count })
+
+    for i, cmd in pairs(server_commands) do
+        local grid = command_table.add { type = 'table', style = 'player_input_table', column_count = 2 }
+
+        grid.style.column_alignments[1] = 'top-center'
+        grid.style.column_alignments[2] = 'top-left'
+        Gui.set_style(grid, { vertical_spacing = 4 })
+
+        -- Title
+        local icon = font(grid, '[img=developer]')
+        Gui.set_style(icon, { minimal_width = 20, left_padding = 6 })
+
+        local command = bold(grid, cmd.command, Color.light_cyan)
+        Gui.set_style(command, { maximal_width = 420, single_line = false })
+
+        -- Tags
+        if cmd.tags and (#cmd.tags > 0) then
+            font(grid, '[img=quality_info]')
+            font(grid, table.concat(cmd.tags, ', '), Color.khaki)
+        end
+
+        -- Help
+        if cmd.help then
+            font(grid, '[img=info]')
+            local desc = font(grid, cmd.help)
+            Gui.set_style(desc, {
+                single_line = false,
+                maximal_width = 420,
+            })
+        end
+
+        -- Snippet
+        if cmd.snippet then
+            empty(grid)
+            textbox(grid, cmd.snippet, 420)
+        end
+    end
 end
+
+local function match_server_pattern(grid, pattern)
+    local labels = grid.children
+    for i = 2, 8, 2 do
+        local obj = labels[i]
+        local content
+        if obj and obj.valid then
+            if obj.type == 'label' then
+                content = obj.caption
+            elseif (obj.type == 'textfield') or (obj.type == 'text-box') then
+                content = obj.text
+            end
+            if (content ~= nil) and (type(content) == 'string') and string_match(string_lower(content), pattern) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function filter_server(server_table, pattern)
+    local count = 0
+    for _, child in pairs(server_table.children) do
+        local visible = match_server_pattern(child, pattern)
+        child.visible = visible
+        count = count + (visible and 1 or 0)
+    end
+    return count
+end
+
+Gui.on_text_changed(server_commands_search_name, function(event)
+    local element = event.element
+    local data = Gui.get_data(element)
+    local pattern = string_lower(element.text):gsub('([%^%$%(%)%%%.%[%]%*%+%-%?])', '%%%1') -- escape magic chars
+    data.result_count.caption = filter_server(data.command_table, pattern)
+end)
 
 -- == RESOURCES ===============================================================
 
 ModerationPages.resources.draw = function(parent)
     font(parent, 'Admins and Moderators onboarding URL: ')
-    textbox(parent, 'github.com/Refactorio/RedMew/wiki/Moderator-and-Admin-Guide')
+    textbox(parent, 'github.com/Refactorio/RedMew/wiki/Moderator-and-Admin-Guide', 456)
 
     line(parent)
 

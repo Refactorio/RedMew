@@ -1644,6 +1644,14 @@ stds.factorio_defines = {
                         'front'
                     }
                 },
+                rich_text_setting = {
+                    other_fields = false,
+                    fields = {
+                        'disabled',
+                        'enabled',
+                        'highlight',
+                    },
+                },
                 riding = {
                     fields = {
                         acceleration = {

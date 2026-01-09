@@ -58,7 +58,7 @@ local function draw_gui(player)
     Gui.clear(canvas)
 
     local sp = canvas.add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto-and-reserve-space' }
-    Gui.set_style(sp, { maximal_height = 700 })
+    Gui.set_style(sp, { maximal_height = 700, right_padding = 4 })
 
     local flow = sp.add { type = 'flow', direction = 'horizontal' }
     Gui.add_pusher(flow)
