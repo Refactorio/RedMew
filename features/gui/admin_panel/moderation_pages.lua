@@ -185,7 +185,7 @@ end
 
 local guide_listbox_name = Gui.uid_name()
 
---TODO: implement subpages info in locale & add the entries here 
+--TODO: implement subpages info in locale & add the entries here
 local wiki = {
     {
         name = '[img=item/power-armor-mk2] Admin panel',
