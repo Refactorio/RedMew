@@ -183,27 +183,174 @@ end
 
 -- == MODERATION ==============================================================
 
-local known_paths = {
-    admin = '[img=item/power-armor-mk2] Admin panel',
-    guide = '[img=utility/custom_tag_icon] Moderation guide',
-    player = '[img=entity/character] Player manager',
-    map = '[img=utility/surface_editor_icon] Map manager',
-    lua = '[img=utility/scripting_editor_icon] Lua console',
+local guide_listbox_name = Gui.uid_name()
+
+--TODO: implement subpages info in locale & add the entries here 
+local wiki = {
+    {
+        name = '[img=item/power-armor-mk2] Admin panel',
+        pages = {
+            {
+                name = '[img=utility/custom_tag_icon] Moderation guide',
+                pages = {
+                    { name = 'Ranks', contents = {{ 'redmew_wiki.guide_ranks' }} },
+                    { name = 'Moderation', contents = {{ 'redmew_wiki.guide_moderation' }} },
+                    { name = 'Commands', contents = {{ 'redmew_wiki.guide_commands' }} },
+                    { name = 'Server', contents = {{ 'redmew_wiki.guide_server' }} },
+                    { name = 'Resources', contents = {{ 'redmew_wiki.guide_resources' }} },
+                },
+                contents = {{ 'redmew_wiki.moderation_guide' }}
+            },
+            {
+                name = '[img=entity/character] Player manager',
+                pages = {
+                    { name = 'General actions', pages = {}, contents = {{ 'redmew_wiki.player_general_actions' }} },
+                    { name = 'Players management', pages = {}, contents = {{ 'redmew_wiki.player_management' }} },
+                    { name = 'Players kick & ban', pages = {}, contents = {{ 'redmew_wiki.player_kick_and_ban' }} },
+                },
+                contents = {{ 'redmew_wiki.player_manager' }}
+            },
+            {
+                name = '[img=utility/surface_editor_icon] Map manager',
+                pages = {
+                    { name = 'Game speed', pages = {}, contents = {{ 'redmew_wiki.map_game_speed' }} },
+                    { name = 'Pollution', pages = {}, contents = {{ 'redmew_wiki.map_pollution' }} },
+                    { name = 'Evolution', pages = {}, contents = {{ 'redmew_wiki.map_evolution' }} },
+                    { name = 'Exploration', pages = {}, contents = {{ 'redmew_wiki.map_expansion' }} },
+                },
+                contents = {{ 'redmew_wiki.map_manager' }}
+            },
+            {
+                name = '[img=utility/scripting_editor_icon] Lua console',
+                pages = {
+                    { name = 'Description', contents = {{ 'redmew_wiki.lua_description' }} },
+                    { name = 'Input', contents = {{ 'redmew_wiki.lua_input' }} },
+                    { name = 'Output', contents = {{ 'redmew_wiki.lua_output' }} },
+                },
+                contents = {{ 'redmew_wiki.lua_console' }}
+            }
+        },
+        contents = {{ 'redmew_wiki.admin_panel' }}
+    }
 }
 
-local function path(parent, paths)
-    local caption = known_paths.admin
-    for _, p in pairs(paths) do
-        caption = caption .. ' / ' .. (known_paths[p] or p)
+local function build_entries(tree)
+    local entries = {}
+
+    local function walk(nodes, path, depth)
+        for _, node in ipairs(nodes) do
+            local newPath = { table.unpack(path) }
+            table.insert(newPath, node.name)
+
+            table.insert(entries, {
+                node  = node,
+                path  = newPath,
+                depth = depth,
+            })
+
+            if node.pages and #node.pages > 0 then
+                walk(node.pages, newPath, depth + 1)
+            end
+        end
     end
-    return parent.add { type = 'label', style = 'semibold_caption_label', caption = caption }
+
+    walk(tree, {}, 0)
+    return entries
+end
+
+local function get_indented_name(entry)
+    local indent = string.rep(' ', entry.depth * 4)
+    local name   = entry.path[#entry.path]
+    return indent .. name
+end
+
+local function get_full_path(entry)
+    return table.concat(entry.path, ' / ')
+end
+
+local function build_display_data(tree)
+    local entries = build_entries(tree)
+
+    -- items     : { 'Indented Name', ... }
+    -- full_paths: { 'A / B / C', ... }
+    -- contents  : { {...}, ... }
+
+    local items      = {}
+    local full_paths = {}
+    local contents   = {}
+
+    for i, entry in pairs(entries) do
+        items[i]      = get_indented_name(entry)
+        full_paths[i] = get_full_path(entry)
+        contents[i]   = entry.node.contents or {}
+    end
+
+    return items, full_paths, contents
 end
 
 ModerationPages.moderation.draw = function(parent)
-    path(parent, {'guide', 'General actions', 'Cheat mode'})
-    path(parent, {'guide', 'General actions', 'Show reports'})
-    path(parent, {'guide', 'General actions', 'Blueprints ON/OFF'})
+    local items, full_paths, contents = build_display_data(wiki)
+    local data = {
+        selected_index = 0,
+        full_paths = full_paths,
+        contents = contents,
+    }
+
+    local frame = parent.add { type = 'frame', style = 'slot_window_frame', direction = 'horizontal' }
+    local listbox = frame.add { type = 'list-box', items = items, name = guide_listbox_name }
+    local display = frame.add { type = 'frame', style = 'inside_deep_frame', direction = 'vertical' }
+
+    Gui.set_style(display, { natural_width = 450 })
+
+    local content = display.add { type = 'flow', direction = 'vertical' }
+    Gui.set_style(content, { vertically_stretchable = true, padding = 0 })
+
+    do -- subheader
+        local subheader = content.add { type = 'frame', style = 'subheader_frame' }
+        Gui.set_style(subheader, { use_header_filler = true, horizontally_stretchable = true })
+
+        local flow = subheader.add{ type = 'flow', style = 'horizontal_flow', direction = 'horizontal' }
+        Gui.set_style(flow, { padding = 4 })
+
+        data.title = flow.add { type = 'label', style = 'subheader_caption_label' }
+    end
+
+    do -- canvas
+        data.canvas = content.add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto-and-reserve-space' }
+        Gui.set_style(data.canvas, { maximal_height = 700, right_padding = 12, left_padding = 12, maximal_width = 450 })
+
+        data.canvas.add { type = 'label', caption = { 'redmew_wiki.empty_entry' } }
+    end
+
+    Gui.set_data(listbox, data)
 end
+
+Gui.on_selection_state_changed(guide_listbox_name, function(event)
+    local listbox = event.element
+    local idx = listbox.selected_index
+    local data = Gui.get_data(listbox)
+    local canvas = data.canvas
+    canvas.clear()
+
+    if data.selected_index == idx then
+        idx = 0
+        listbox.selected_index = idx
+        canvas.add { type = 'label', caption = { 'redmew_wiki.empty_entry' } }
+    end
+
+    data.selected_index = idx
+    data.title.caption = data.full_paths[idx] or ''
+
+    local contents = data.contents[idx] or {}
+    for i, content in pairs(contents) do
+        local label = canvas.add { type = 'label', caption = content }
+        label.style.single_line = false
+
+        if i < #contents then
+            canvas.add { type = 'line', direction = 'horizontal' }
+        end
+    end
+end)
 
 -- == COMMANDS ================================================================
 
