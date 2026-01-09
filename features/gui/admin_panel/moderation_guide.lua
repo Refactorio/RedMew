@@ -1,9 +1,11 @@
 local AdminPanel = require 'features.gui.admin_panel.core'
+local Event = require 'utils.event'
 local ModerationPages = require 'features.gui.admin_panel.moderation_pages'
 local Gui = require 'utils.gui'
 
 local main_button_name = Gui.uid_name()
 local toggle_button_name = Gui.uid_name()
+local secondary_window_close_name = Gui.uid_name()
 
 local pages = AdminPanel.get_pages()
 pages[#pages + 1] = {
@@ -28,8 +30,8 @@ local function make_section(parent, page)
         style = 'shortcut_bar_expand_button',
         sprite = 'utility/expand_dots',
         mouse_button_filter = { 'left' },
-        auto_toggle = true,
-        tooltip = 'Read'
+        tooltip = 'Open/close ' .. page.index .. ' window',
+        tags = { index = page.index },
     }
     Gui.set_style(button, { height = 20 })
 
@@ -37,20 +39,7 @@ local function make_section(parent, page)
     Gui.set_style(label, { minimal_width = 80 })
     flow.add { type = 'label', style = 'semibold_label', caption = page.tooltip }
 
-    local frame = flow.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
-    Gui.set_style(frame, { horizontal_align = 'left', padding = 8, horizontally_stretchable = true })
-
-    frame.add { type = 'label', style = 'tooltip_heading_label_category', caption = '[img=tooltip-category-debug] ' .. page.caption }
-    frame.visible = false
-
-    local line = frame.add { type = 'line', style = 'tooltip_category_line' }
-    Gui.set_style(line, { left_margin = -11, right_margin = -11, horizontally_stretchable = true })
-
-    if page.draw then
-        page.draw(frame)
-    end
-
-    return frame
+    return flow
 end
 
 local function draw_gui(player)
@@ -99,13 +88,93 @@ Gui.on_click(main_button_name, function(event)
     end
 end)
 
+local function get_page_position(key)
+    local i = 1
+    for k, _ in pairs(ModerationPages) do
+        if k == key then
+            return i
+        end
+        i = i + 1
+    end
+    return nil -- key not found
+end
+
+local function create_closable_frame(player, page)
+    local frame = player.gui.screen[page.name]
+    if frame and frame.valid then
+        Gui.destroy(frame)
+    end
+
+    frame = player.gui.screen.add { type = 'frame', name = page.name, direction = 'vertical', style = 'frame' }
+    frame.location = AdminPanel.get_main_frame_location(player, {
+        x = get_page_position(page.index) *  64,
+        y = get_page_position(page.index) * -32
+    })
+    Gui.set_style(frame, {
+        horizontally_stretchable = true,
+        vertically_stretchable = true,
+        maximal_width = page.size[1],
+        maximal_height = page.size[2],
+        top_padding = 8,
+        bottom_padding = 8,
+    })
+
+    do -- title
+        local title_flow = frame.add { type = 'flow', direction = 'horizontal' }
+        Gui.set_style(title_flow, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
+
+        local label = title_flow.add { type = 'label', caption = page.caption, style = 'frame_title' }
+        label.drag_target = frame
+
+        local dragger = title_flow.add { type = 'empty-widget', style = 'draggable_space_header' }
+        dragger.drag_target = frame
+        Gui.set_style(dragger,  {
+            height = 24,
+            vertically_stretchable = false,
+            horizontally_stretchable = true,
+        })
+
+        local close_button = title_flow.add {
+            type = 'sprite-button',
+            name = secondary_window_close_name,
+            sprite = 'utility/close',
+            clicked_sprite = 'utility/close_black',
+            style = 'close_button',
+            tooltip = 'Close',
+        }
+        Gui.set_data(close_button, { frame = frame })
+    end
+
+    if page.draw then
+        page.draw(frame)
+    end
+
+    return frame
+end
+
+Gui.on_click(secondary_window_close_name, function(event)
+    local elem_data = Gui.get_data(event.element)
+    Gui.destroy(elem_data.frame)
+end)
+
 Gui.on_click(toggle_button_name, function(event)
-    local element = event.element
-    element.tooltip = element.toggled and 'Close' or 'Read'
-    local title = element.parent.children[element.get_index_in_parent() + 1]
-    title.visible = not element.toggled
-    local tooltip = element.parent.children[element.get_index_in_parent() + 2]
-    tooltip.visible = not element.toggled
-    local content = element.parent.children[element.get_index_in_parent() + 3]
-    content.visible = element.toggled
+    local player = event.player
+    local page = ModerationPages[event.element.tags.index]
+    local frame = player.gui.screen[page.name]
+
+    if frame then
+        Gui.destroy(frame)
+    else
+        create_closable_frame(player, page)
+    end
+end)
+
+Event.add(AdminPanel.events.on_admin_gui_closed, function(event)
+    local screen = event.player.gui.screen
+    for _, page in pairs(ModerationPages) do
+        local window = screen[page.name]
+        if window then
+            Gui.destroy(window)
+        end
+    end
 end)

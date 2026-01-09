@@ -136,12 +136,15 @@ function Public.get_main_frame(player)
   Gui.set_data(frame, data)
 end
 
-function Public.get_main_frame_location(player)
+function Public.get_main_frame_location(player, offset)
+  if not offset then
+    offset = { x = 500, y = -100 }
+  end
   local frame = player.gui.screen[main_frame_name]
   if frame and frame.valid then
     return {
-      x = frame.location.x + 500,
-      y = frame.location.y - 100
+      x = frame.location.x + 500 + offset.x,
+      y = frame.location.y + offset.y
     }
   end
   return nil
@@ -210,7 +213,9 @@ end)
 
 Gui.on_custom_close(main_frame_name, function(event)
   Public.toggle_main_button(event.player)
-  script.raise_event(Public.events.on_admin_gui_closed, event)
+  script.raise_event(Public.events.on_admin_gui_closed, {
+    player = event.player,
+  })
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)

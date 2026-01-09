@@ -1,7 +1,5 @@
-local AdminPanel = require 'features.gui.admin_panel.core'
 local Color = require 'resources.color_presets'
 local Command = require 'utils.command'
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Rank = require 'features.rank_system'
@@ -11,11 +9,11 @@ local string_match = string.match
 local string_lower = string.lower
 
 local ModerationPages = {
-    ranks      = { name = Gui.uid_name(), caption = 'Ranks',      tooltip = 'The rank system and its permissions', size = { 400, 400 } },
-    moderation = { name = Gui.uid_name(), caption = 'Moderation', tooltip = 'Moderation 101 for Admins & Mods',    size = { 400, 400 } },
-    commands   = { name = Gui.uid_name(), caption = 'Commands',   tooltip = 'Raw list of chat commands',           size = { 400, 400 } },
-    server     = { name = Gui.uid_name(), caption = 'Server',     tooltip = 'Impacting the world/server state',    size = { 400, 400 } },
-    resources  = { name = Gui.uid_name(), caption = 'Resources',  tooltip = 'How to act fairly and safely',        size = { 400, 400 } },
+    ranks      = { name = Gui.uid_name(), index = 'ranks',      caption = 'Ranks',      tooltip = 'The rank system and its permissions', size = { 600, 600 } },
+    moderation = { name = Gui.uid_name(), index = 'moderation', caption = 'Moderation', tooltip = 'Moderation 101 for Admins & Mods',    size = { 700, 700 } },
+    commands   = { name = Gui.uid_name(), index = 'commands',   caption = 'Commands',   tooltip = 'Raw list of chat commands',           size = { 600, 600 } },
+    server     = { name = Gui.uid_name(), index = 'server',     caption = 'Server',     tooltip = 'Impacting the world/server state',    size = { 600, 600 } },
+    resources  = { name = Gui.uid_name(), index = 'resources',  caption = 'Resources',  tooltip = 'How to act fairly and safely',        size = { 500, 600 } },
 }
 
 -- == UTILS ===================================================================
@@ -82,14 +80,19 @@ end
 -- == RANKS ===================================================================
 
 ModerationPages.ranks.draw = function(parent)
-    font(parent, text{
+    local window = parent
+        .add { type = 'frame', style = 'inside_shallow_frame_with_padding' }
+        .add { type = 'flow', direction = 'vertical' }
+    Gui.set_style(window, { vertical_spacing = 6 })
+
+    font(window, text{
         'Ranks are a simple system to help preventing griefing and manage servers.',
         'Lower ranks cannot outrule/demote higher ranks, but it is always possible',
         'for an higher rank to promote/demote below.',
         'Tooltips in the table headers will show which perks each rank comes with.',
     }).style.single_line = false
 
-    local grid = parent.add { type = 'table', style = 'finished_game_table', column_count = 8 }
+    local grid = window.add { type = 'table', style = 'finished_game_table', column_count = 8 }
     for i = 2, 8 do
         grid.style.column_alignments[i] = 'center'
     end
@@ -296,9 +299,10 @@ ModerationPages.moderation.draw = function(parent)
         contents = contents,
     }
 
-    local frame = parent.add { type = 'frame', style = 'slot_window_frame', direction = 'horizontal' }
-    local listbox = frame.add { type = 'list-box', items = items, name = guide_listbox_name }
-    local display = frame.add { type = 'frame', style = 'inside_deep_frame', direction = 'vertical' }
+    local grid = parent.add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(grid, { horizontal_spacing = 12 })
+    local listbox = grid.add { type = 'list-box', items = items, name = guide_listbox_name }
+    local display = grid.add { type = 'frame', style = 'inside_deep_frame', direction = 'vertical' }
 
     Gui.set_style(display, { natural_width = 450 })
 
@@ -477,7 +481,12 @@ ModerationPages.commands.draw = function(parent)
         build_mod_commands()
     end
 
-    local flow = inline(parent)
+    local window = parent
+        .add { type = 'frame', style = 'inside_shallow_frame_with_padding' }
+        .add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto-and-reserve-space' }
+    Gui.set_style(window, { maximal_height = 700, right_padding = 4 })
+
+    local flow = inline(window)
     bold(flow, 'Search: ')
     local search_field = flow.add { type = 'text-box', name = mod_commands_search_name, text = '', style = 'search_popup_textfield' }
     Gui.set_style(search_field, { width = 456 - 48 - 4 - 34 - 4 + 2 + 12 })
@@ -485,7 +494,7 @@ ModerationPages.commands.draw = function(parent)
     local result_count = flow.add { type = 'sprite-button', style = 'button', caption = #mod_commands, tooltip = 'Results count' }
     Gui.set_style(result_count, { height = 26, width = 34, padding = 0 })
 
-    local command_table = parent.add { type = 'table', style = 'finished_game_table', column_count = 1 }
+    local command_table = window.add { type = 'table', style = 'finished_game_table', column_count = 1 }
     Gui.set_data(search_field, { command_table = command_table, result_count = result_count })
 
     for i, cmd in pairs(mod_commands) do
@@ -593,7 +602,12 @@ local server_commands = {
 }
 
 ModerationPages.server.draw = function(parent)
-    local flow = inline(parent)
+    local window = parent
+        .add { type = 'frame', style = 'inside_shallow_frame_with_padding' }
+        .add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto-and-reserve-space' }
+    Gui.set_style(window, { maximal_height = 700, right_padding = 4 })
+
+    local flow = inline(window)
     bold(flow, 'Search: ')
     local search_field = flow.add { type = 'text-box', name = server_commands_search_name, text = '', style = 'search_popup_textfield' }
     Gui.set_style(search_field, { width = 456 - 48 - 4 - 34 - 4 + 2 + 12 })
@@ -601,7 +615,7 @@ ModerationPages.server.draw = function(parent)
     local result_count = flow.add { type = 'sprite-button', style = 'button', caption = #server_commands, tooltip = 'Results count' }
     Gui.set_style(result_count, { height = 26, width = 34, padding = 0 })
 
-    local command_table = parent.add { type = 'table', style = 'finished_game_table', column_count = 1 }
+    local command_table = window.add { type = 'table', style = 'finished_game_table', column_count = 1 }
     Gui.set_data(search_field, { command_table = command_table, result_count = result_count })
 
     for i, cmd in pairs(server_commands) do
@@ -681,13 +695,18 @@ end)
 -- == RESOURCES ===============================================================
 
 ModerationPages.resources.draw = function(parent)
-    font(parent, 'Admins and Moderators onboarding URL: ')
-    textbox(parent, 'github.com/Refactorio/RedMew/wiki/Moderator-and-Admin-Guide', 456)
+    local window = parent
+        .add { type = 'frame', style = 'inside_shallow_frame_with_padding' }
+        .add { type = 'flow', direction = 'vertical' }
+    Gui.set_style(window, { vertical_spacing = 6 })
 
-    line(parent)
+    font(window, 'Admins and Moderators onboarding URL: ')
+    textbox(window, 'github.com/Refactorio/RedMew/wiki/Moderator-and-Admin-Guide', 456)
 
-    bold(parent, 'RedMew\'s mission statement', Color.pale_golden_rod)
-    font(parent, text{
+    line(window)
+
+    bold(window, 'RedMew\'s mission statement', Color.pale_golden_rod)
+    font(window, text{
         '  RedMew aims to provide entertaining maps for players on our servers.',
         'We want to foster an inclusive atmosphere where nobody feels',
         'harassed or persecuted. Within those boundaries, players should feel',
@@ -709,15 +728,5 @@ ModerationPages.resources.draw = function(parent)
 end
 
 -- ============================================================================
-
-Event.add(AdminPanel.events.on_admin_gui_closed, function(event)
-    local screen = event.player.gui.screen
-    for _, page in pairs(ModerationPages) do
-        local window = screen[page.name]
-        if window then
-            Gui.destroy(window)
-        end
-    end
-end)
 
 return ModerationPages
