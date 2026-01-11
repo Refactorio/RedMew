@@ -38,6 +38,12 @@ local function notify_players(message)
     end
 end
 
+local function compare_tag(player, tag_name)
+    local old_tag = player.tag
+    local new_tag = '[' .. tag_name .. ']'
+    return (old_tag == new_tag) or (old_tag == tag_name)
+end
+
 local function change_player_tag(player, tag_name, silent)
     local old_tag = player.tag
     if tag_name == '' and old_tag == '' then
@@ -461,12 +467,20 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(
     tag_button_name,
     function(event)
+        local player = event.player
         local tag_name = Gui.get_data(event.element)
         local path = event.element.sprite
 
-        if change_player_tag(event.player, tag_name) then
+        if compare_tag(player, tag_name) then
+            if change_player_tag(player, '') then
+                redraw_main_frame()
+            end
+            return
+        end
+
+        if change_player_tag(player, tag_name) then
             redraw_main_frame()
-            redraw_main_button(event.player, path)
+            redraw_main_button(player, path)
         end
     end
 )
