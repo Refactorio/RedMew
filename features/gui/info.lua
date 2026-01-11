@@ -86,7 +86,9 @@ end
 
 --- Tries to download the latest changelog
 local function download_changelog()
-    Server.try_get_data('misc', 'changelog', changelog_callback)
+    if editable_info[new_info_key] == config_mapinfo.new_info_key then
+        Server.try_get_data('misc', 'changelog', changelog_callback)
+    end
 end
 
 local function prepare_title()

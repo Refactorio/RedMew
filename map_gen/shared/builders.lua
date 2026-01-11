@@ -65,6 +65,14 @@ local function add_decorative(tile, decorative)
     return tile
 end
 
+local function get_prototypes_by_type(type_name)
+    local names = {}
+    for name in pairs(prototypes.get_entity_filtered{{ filter = 'type', type = type_name }}) do
+        table.insert(names, name)
+    end
+    return names
+end
+
 --- Docs: MISSING
 function Builders.add_entity(tile, entity)
     return add_entity(tile, entity)
@@ -2127,17 +2135,20 @@ local water_tiles = {
 
 Builders.water_tiles = water_tiles
 
+--- Returns any of the fishes prototypes that have been added to the game
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersfish
 function Builders.fish(shape, spawn_rate)
+    local fishes = get_prototypes_by_type('fish')
+
     return function(x, y, world)
         local function handle_tile(tile)
             if type(tile) == 'string' then
                 if water_tiles[tile] and spawn_rate >= random() then
-                    return {name = 'fish'}
+                    return {name = fishes[random(#fishes)]}
                 end
             elseif tile then
                 if world.surface.get_tile(world.x, world.y).collides_with('water_tile') and spawn_rate >= random() then
-                    return {name = 'fish'}
+                    return {name = fishes[random(#fishes)]}
                 end
             end
         end

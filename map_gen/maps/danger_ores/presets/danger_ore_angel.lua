@@ -12,10 +12,13 @@ ScenarioInfo.add_map_extra_info([[
 DOC.scenario_name = 'danger-ore-angel'
 DOC.compatibility.redmew_data.remove_resource_patches = false
 DOC.game.technology_price_multiplier = 5
+DOC.map_config.main_ore_resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.angel.resource_patches'
+DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_patches'
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.angel.ores'
-DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.angel.resource_patches'
+DOC.map_config.resource_patches = nil
 DOC.map_config.spawn_shape = B.circle(80)
 DOC.map_config.start_ore_shape = B.circle(86)
+DOC.map_config.fish_spawn_rate = 0.075
 DOC.rocket_launched.enabled = false
 DOC.map_gen_settings.settings = H.empty_map_settings{
     'angels-ore1', -- Saphirite
@@ -24,7 +27,7 @@ DOC.map_gen_settings.settings = H.empty_map_settings{
     'angels-ore4', -- Crotinium
     'angels-ore5', -- rubyte
     'angels-ore6', -- bobmonium
-    'angels-fissure',
+    'angels-fissure',     -- fissure
     'angels-natural-gas', -- gas well
     'coal',
     'crude-oil',
