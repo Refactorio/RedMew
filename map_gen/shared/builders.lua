@@ -2135,45 +2135,9 @@ local water_tiles = {
 
 Builders.water_tiles = water_tiles
 
---- Returns fish only
+--- Returns any of the fishes prototypes that have been added to the game
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersfish
 function Builders.fish(shape, spawn_rate)
-    return function(x, y, world)
-        local function handle_tile(tile)
-            if type(tile) == 'string' then
-                if water_tiles[tile] and spawn_rate >= random() then
-                    return {name = 'fish'}
-                end
-            elseif tile then
-                if world.surface.get_tile(world.x, world.y).collides_with('water_tile') and spawn_rate >= random() then
-                    return {name = 'fish'}
-                end
-            end
-        end
-
-        local tile = shape(x, y, world)
-
-        if type(tile) == 'table' then
-            local entity = handle_tile(tile.tile)
-            if entity then
-                add_entity(tile, entity)
-            end
-        else
-            local entity = handle_tile(tile)
-            if entity then
-                tile = {
-                    tile = tile,
-                    entities = {entity}
-                }
-            end
-        end
-
-        return tile
-    end
-end
-
---- Returns any of the fishes prototypes that have been added to the game
-function Builders.fishes(shape, spawn_rate)
     local fishes = get_prototypes_by_type('fish')
 
     return function(x, y, world)

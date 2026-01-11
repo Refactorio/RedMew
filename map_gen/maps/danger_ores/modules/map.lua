@@ -89,7 +89,7 @@ return function(config)
         end
 
         if fish_spawn_rate then
-            map = b.fishes(map, fish_spawn_rate)
+            map = b.fish(map, fish_spawn_rate)
         end
     end)
 
