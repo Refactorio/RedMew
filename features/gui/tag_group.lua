@@ -98,7 +98,7 @@ local function get_size(players, show_offline)
     local size = 0
 
     if not players then
-        return ''
+        return size
     end
 
     if show_offline then
@@ -112,11 +112,7 @@ local function get_size(players, show_offline)
         end
     end
 
-    if size == 0 then
-        return ''
-    else
-        return ' (' .. size .. ')'
-    end
+    return size
 end
 
 local main_button_name = Gui.uid_name()
@@ -191,11 +187,12 @@ local function draw_main_frame_content(parent)
             sprite = path,
             tooltip = tag_name,
             style = 'slot_button_in_shallow_frame',
+            number = (size > 0) and size or nil,
         }
         Gui.set_style(tag_button, { size = 32 })
         Gui.set_data(tag_button, tag_name)
 
-        local tag_label = row.add { type = 'label', name = tag_label_name, caption = tag_name .. size, style = 'semibold_caption_label' }
+        local tag_label = row.add { type = 'label', name = tag_label_name, caption = tag_name, style = 'semibold_caption_label' }
         Gui.set_style(tag_label, { left_padding = 4, minimal_width = 120 })
         Gui.set_data(tag_label, { tag_name = tag_name, path = path })
 
