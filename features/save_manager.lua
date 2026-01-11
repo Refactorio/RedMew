@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local config = require 'config'.save_manager
 
-local DEFAULT_INACTIVE_INTERVAL = 60 * 60 * 60 * 24 * 7 -- a week
+local DEFAULT_INACTIVE_INTERVAL = 60 * 60 * 60 * 24 * 30 -- a month
 
 local function remove_player_data(event)
     local player = game.get_player(event.player_index)
