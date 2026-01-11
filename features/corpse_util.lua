@@ -85,24 +85,14 @@ local function mined_entity(event)
     end
 
     local player = game.get_player(player_index)
-    local corpse_owner = game.get_player(corpse_owner_index)
+    if player.controller ~= defines.controllers.character then
+        return
+    end
 
+    local corpse_owner = game.get_player(corpse_owner_index)
     if player and corpse_owner then
         local position = entity.position
-        local message = table.concat {
-            player.name,
-            ' has looted ',
-            corpse_owner.name,
-            "'s corpse.",
-            ' [gps=',
-            string.format('%.1f', position.x),
-            ',',
-            string.format('%.1f', position.y),
-            ',',
-            entity.surface.name,
-            ']'
-        }
-        Utils.action_warning('[Corpse]', message)
+        Utils.action_warning('[Corpse]', { 'corpse.looted', player.name, corpse_owner.name, position.x, position.y, entity.surface.name })
     end
 end
 
@@ -126,24 +116,14 @@ local function on_gui_opened(event)
     end
 
     local player = game.get_player(player_index)
-    local corpse_owner = game.get_player(corpse_owner_index)
+        if player.controller ~= defines.controllers.character then
+        return
+    end
 
+    local corpse_owner = game.get_player(corpse_owner_index)
     if player and corpse_owner then
         local position = entity.position
-        local message = table.concat {
-            player.name,
-            ' is looting ',
-            corpse_owner.name,
-            "'s corpse.",
-            ' [gps=',
-            string.format('%.1f', position.x),
-            ',',
-            string.format('%.1f', position.y),
-            ',',
-            entity.surface.name,
-            ']'
-        }
-        Utils.action_warning('[Corpse]', message)
+        Utils.action_warning('[Corpse]', { 'corpse.looting', player.name, corpse_owner.name, position.x, position.y, entity.surface.name })
     end
 end
 
