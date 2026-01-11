@@ -61,5 +61,10 @@ return {
         path = 'entity/medium-biter',
         join_message = '{tag} has woofed with {player}',
         leave_message = '{player} has left the {tag} squad'
+    },
+    ['AFK'] = {
+        path = 'entity/entity-ghost',
+        join_message = '{player} has gone {tag} to get some pizza for everyone',
+        leave_message = 'Welcome back from {tag} {player}, hope you brought some pizza for us'
     }
 }
