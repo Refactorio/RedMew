@@ -13,7 +13,6 @@ local function remove_player_data(event)
     game.remove_offline_players({ player.index })
 end
 
-Event.add(defines.events.on_player_kicked, remove_player_data)
 Event.add(defines.events.on_player_banned, remove_player_data)
 
 Event.on_nth_tick(config.inactive_interval or DEFAULT_INACTIVE_INTERVAL, function()
