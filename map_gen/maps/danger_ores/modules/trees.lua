@@ -5,31 +5,26 @@ local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
 local perlin_noise = Perlin.noise
 local random = math.random
 
-local default_trees_config = {
-    'tree-01',
-    'tree-02',
-    'tree-02-red',
-    'tree-03',
-    'tree-04',
-    'tree-05',
-    'tree-06',
-    'tree-06-brown',
-    'tree-07',
-    'tree-08',
-    'tree-08-brown',
-    'tree-08-red',
-    'tree-09',
-    'tree-09-brown',
-    'tree-09-red'
-}
+local function get_tree_names()
+    local tree_names = {}
+    for name in pairs(prototypes.get_entity_filtered{{ filter = 'type', type = 'tree' }}) do
+        table.insert(tree_names, name)
+    end
+    return tree_names
+end
 
 return function(config)
-    local trees = config.tree_names or default_trees_config
+    local trees = config.tree_names or get_tree_names()
     local scale = config.trees_scale or 1 / 64
     local threshold = config.trees_threshold or -0.25
     local chance = config.trees_chance or 0.125
     local seed = config.trees_seed or seed_provider()
     local trees_count = #trees
+
+    if trees_count == 0 then
+        return function()
+        end
+    end
 
     return function(x, y)
         local tree_noise = perlin_noise(x * scale, y * scale, seed)
