@@ -178,6 +178,15 @@ local function on_tick()
     end
 end
 
+local function on_player_removed(event)
+    camera_users[event.player_index] = nil
+    for actor_index, target_index in pairs(camera_users) do
+        if target_index == event.player_index then
+            destroy_camera{ player = game.get_player(actor_index) }
+        end
+    end
+end
+
 Command.add(
     'watch',
     {
@@ -189,3 +198,4 @@ Command.add(
 )
 Event.on_nth_tick(120, on_tick)
 Gui.on_click(main_button_name, destroy_camera)
+Event.add(defines.events.on_pre_player_removed, on_player_removed)

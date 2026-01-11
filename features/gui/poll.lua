@@ -875,6 +875,16 @@ local function player_joined(event)
     end
 end
 
+local function player_removed(event)
+    no_notify_players[event.player_index] = nil
+    player_poll_index[event.player_index] = nil
+    player_create_poll_data[event.player_index] = nil
+    for _, poll in pairs(polls) do
+        poll.voters[event.player_index] = nil
+        -- the next vote will hopefully update the poll counts, tooltips, etc...
+    end
+end
+
 local function tick()
     for _, p in pairs(game.connected_players) do
         local frame = Gui.get_left_element(p, main_frame_name)
@@ -910,6 +920,7 @@ local function tick()
 end
 
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.on_nth_tick(60, tick)
 

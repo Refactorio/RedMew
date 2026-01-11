@@ -126,6 +126,9 @@ end
 if config.popup_chat.enabled then
     require 'features.popup_chat'
 end
+if config.save_manager.enabled then
+    require 'features.save_manager'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.

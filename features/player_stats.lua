@@ -121,6 +121,11 @@ local function player_created(event)
     change_for_global(player_count_name, 1)
 end
 
+local function player_removed(event)
+    player_last_position[event.player_index] = nil
+    player_death_causes[event.player_index] = nil
+end
+
 local function get_cause_name(cause)
     if cause then
         local name = cause.name
@@ -342,6 +347,7 @@ local function tick()
 end
 
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 Event.add(defines.events.on_player_died, player_died)
 Event.add(defines.events.on_picked_up_item, picked_up_item)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)

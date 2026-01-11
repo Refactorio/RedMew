@@ -17,6 +17,10 @@ Global.register({
     memory_global = tbl.memory_global
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    memory_players[event.player_index] = nil
+end)
+
 local Public = {}
 
 Public.events = {

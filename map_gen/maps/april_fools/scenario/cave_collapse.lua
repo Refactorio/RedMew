@@ -622,6 +622,10 @@ if config.onboarding then
   end)
 end
 
+Event.add(defines.events.on_player_removed, function(event)
+  show_deconstruction_alert_message[event.player_index] = nil
+end)
+
 -- ADD
 -- -- tile
 Event.add(defines.events.on_robot_built_tile, function(event)

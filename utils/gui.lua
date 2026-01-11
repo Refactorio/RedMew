@@ -348,35 +348,36 @@ end
 
 local toggle_button_name = Gui.uid_name()
 
-Event.add(
-    defines.events.on_player_created,
-    function(event)
-        local player = game.get_player(event.player_index)
+Event.add(defines.events.on_player_created, function(event)
+    local player = game.get_player(event.player_index)
 
-        if not player or not player.valid then
-            return
-        end
-
-        Gui.init_gui_style(player)
-
-        local b = Gui.add_top_element(player, {
-            type = 'button',
-            name = toggle_button_name,
-            caption = '<',
-            tooltip = {'gui_util.button_tooltip'}
-        })
-
-        Gui.set_style(b, {
-            width = 18,
-            height = Styles.default_top_element.style.minimal_height,
-            left_padding = 0,
-            top_padding = 0,
-            right_padding = 0,
-            bottom_padding = 0,
-            font = 'default-small-bold',
-        })
+    if not player or not player.valid then
+        return
     end
-)
+
+    Gui.init_gui_style(player)
+
+    local b = Gui.add_top_element(player, {
+        type = 'button',
+        name = toggle_button_name,
+        caption = '<',
+        tooltip = {'gui_util.button_tooltip'}
+    })
+
+    Gui.set_style(b, {
+        width = 18,
+        height = Styles.default_top_element.style.minimal_height,
+        left_padding = 0,
+        top_padding = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        font = 'default-small-bold',
+    })
+end)
+
+Event.add(defines.events.on_player_removed, function(event)
+    data[event.player_index] = nil
+end)
 
 Gui.on_click(
     toggle_button_name,

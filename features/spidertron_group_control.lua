@@ -118,3 +118,10 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
         }
     end
 end)
+
+Event.add(defines.events.on_pre_player_removed, function(event)
+    local player = game.get_player(event.player_index)
+    if player then
+        spider_army[player.name] = nil
+    end
+end)

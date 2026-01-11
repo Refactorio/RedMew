@@ -142,6 +142,14 @@ local function on_player_joined(event)
     end
 end
 
+local function on_player_removed(event)
+    guests[event.player.index] = nil
+    local player = game.get_player(event.player_index)
+    if player then
+        player_ranks[player.name] = nil
+    end
+end
+
 -- Exposed functions
 
 function Public.know_player(player_name)
@@ -367,6 +375,8 @@ end
 -- Events
 
 Event.add(defines.events.on_player_joined_game, on_player_joined)
+
+Event.add(defines.events.on_pre_player_removed, on_player_removed)
 
 Event.add(Server.events.on_server_started, Public.sync_ranks)
 

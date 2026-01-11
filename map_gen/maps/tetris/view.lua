@@ -315,4 +315,10 @@ end
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
+Event.add(defines.events.on_player_removed, function(event)
+    for _, button_data in pairs(vote_players) do
+        button_data[event.player_index] = nil
+    end
+end)
+
 return Module

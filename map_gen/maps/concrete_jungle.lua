@@ -449,12 +449,12 @@ Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.add(defines.events.on_player_built_tile, player_built_tile)
 Event.add(defines.events.on_robot_built_tile, player_built_tile)
-Event.add(
-    defines.events.on_player_created,
-    function(event)
-        Task.set_timeout_in_ticks(900, first_time, {event = event})
-    end
-)
+Event.add(defines.events.on_player_created, function(event)
+    Task.set_timeout_in_ticks(900, first_time, {event = event})
+end)
+Event.add(defines.events.on_player_removed, function(event)
+    times_spilled[event.player_index] = nil
+end)
 Event.on_init(on_init)
 
 --- Creating the starting circle (Map_gen)

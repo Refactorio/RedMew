@@ -1,6 +1,7 @@
 -- auto-builds the item in a random players cursor if possible
 -- WIP
 
+local Event = require 'utils.event'
 local Global = require 'utils.global'
 
 local BASE_TARGETS = 1 -- how many targets per level
@@ -14,6 +15,18 @@ local _global = {
 }
 
 Global.register(_global, function(tbl) _global = tbl end)
+
+Event.add(defines.events.on_pre_player_removed, function(event)
+  local player = game.get_player(event.player_index)
+  if not player then
+    return
+  end
+  for i, target_player in pairs(_global.rand_targets) do
+    if target_player == player then
+      _global.rand_targets[i] = nil
+    end
+  end
+end)
 
 -- ============================================================================
 

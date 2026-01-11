@@ -709,6 +709,10 @@ local function player_created(event)
     reward_player(player, info_tab_flags[1])
 end
 
+local function player_removed(event)
+    rewarded_players[event.player_index] = nil
+end
+
 --- Sets editable_info[map_extra_info_key] outright or adds info to it.
 -- Forbids map_extra_info being explicitly set twice
 local function create_map_extra_info(value, set)
@@ -728,6 +732,8 @@ local function create_map_extra_info(value, set)
 end
 
 Event.add(defines.events.on_player_created, player_created)
+
+Event.add(defines.events.on_player_removed, player_removed)
 
 Event.add(Server.events.on_server_started, download_changelog)
 

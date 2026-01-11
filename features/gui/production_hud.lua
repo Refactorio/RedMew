@@ -323,6 +323,10 @@ Event.add(defines.events.on_player_created, function(event)
     }
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    player_settings[event.player_index] = nil
+end)
+
 Event.on_nth_tick(307, function()
     for _, p in pairs(game.connected_players) do
         Public.update_main_frame(p)

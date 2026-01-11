@@ -57,6 +57,10 @@ Event.add(defines.events.on_gui_opened, function(event)
   this.relative_gui[event.player_index] = frame
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+  this.relative_gui[event.player_index] = nil
+end)
+
 Gui.on_click(teleport_button_name, function(event)
   local player = event.player
   if player.physical_surface.count_entities_filtered({

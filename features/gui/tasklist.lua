@@ -678,6 +678,12 @@ local function player_left(event)
     end
 end
 
+local function player_removed(event)
+    announcements.editing_players[event.player_index] = nil
+    player_tasks[event.player_index] = nil
+    no_notify_players[event.player_index] = nil
+end
+
 local function on_tick()
     for _, p in ipairs(game.connected_players) do
         local frame = Gui.get_left_element(p, main_frame_name)
@@ -700,6 +706,7 @@ end
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
+Event.add(defines.events.on_player_removed, player_removed)
 Event.on_nth_tick(60*59, on_tick)
 
 Gui.on_click(main_button_name, toggle)

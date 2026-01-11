@@ -709,6 +709,13 @@ local function player_created(event)
     )
 end
 
+local function player_removed(event)
+    player_poke_cooldown[event.player_index] = nil
+    player_pokes[event.player_index] = nil
+    player_settings[event.player_index] = nil
+    no_notify_players[event.player_index] = nil
+end
+
 local function update_player_list()
     for _, p in ipairs(game.connected_players) do
         local frame = Gui.get_left_element(p, main_frame_name)
@@ -723,6 +730,7 @@ end
 
 Event.on_nth_tick(1800, tick)
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 Event.add(defines.events.on_player_joined_game, update_player_list)
 Event.add(defines.events.on_player_left_game, update_player_list)
 

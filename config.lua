@@ -614,6 +614,10 @@ storage.config = {
     calculator = {
         enabled = true,
         technology = true,
+    },
+    save_manager = {
+        enabled = true,
+        inactive_interval = 60 * 60 * 60 * 24 * 7 -- a week
     }
 }
 

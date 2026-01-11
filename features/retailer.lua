@@ -762,4 +762,13 @@ Event.add(Retailer.events.on_market_purchase, function (event)
     end
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    memory.players_in_market_view[event.player_index] = nil
+    for _, mg in pairs(memory.limited_items) do
+        for _, item in pairs(mg) do
+            item[event.player_index] = nil
+        end
+    end
+end)
+
 return Retailer

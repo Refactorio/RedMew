@@ -28,9 +28,6 @@ local ceil = math.ceil
 local DiggyHole = {}
 local config
 
--- keeps track of the amount of times per player when they mined with a full inventory in a row
-local full_inventory_mining_cache = {}
-
 -- keeps track of the buffs for the bot mining mining_efficiency
 local robot_mining = {
     damage = 0,
@@ -58,10 +55,8 @@ local metered_bot_mining = Token.register(function(params)
 end)
 
 Global.register({
-    full_inventory_mining_cache = full_inventory_mining_cache,
     bot_mining_damage = robot_mining,
 }, function (tbl)
-    full_inventory_mining_cache = tbl.full_inventory_mining_cache
     robot_mining = tbl.bot_mining_damage
 end)
 

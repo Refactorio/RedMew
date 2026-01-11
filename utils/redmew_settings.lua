@@ -11,6 +11,10 @@ local memory = {}
 
 Global.register(memory, function (tbl) memory = tbl end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    memory[event.player_index] = nil
+end)
+
 local Public = {}
 
 Public.events = {

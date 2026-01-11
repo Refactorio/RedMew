@@ -663,6 +663,11 @@ Event.add(defines.events.on_player_joined_game, function(event)
     end
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    jail_data[event.player_index] = nil
+    non_character_unjailed_players[event.player_index] = nil
+end)
+
 Command.add('report', {
     description = {'command_description.report'},
     arguments = {'player', 'message'},

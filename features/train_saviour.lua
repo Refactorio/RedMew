@@ -118,5 +118,10 @@ local function built_entity(event)
     Task.set_timeout_in_ticks(1, delay_clear_cursor, {player = player})
 end
 
+local function on_player_removed(event)
+    saved_players[event.player_index] = nil
+end
+
 Event.add(defines.events.on_pre_player_died, on_pre_death)
 Event.add(defines.events.on_built_entity, built_entity)
+Event.add(defines.events.on_player_removed, on_player_removed)

@@ -37,7 +37,7 @@ local memory = {
 Global.register(memory, function (tbl) memory = tbl end)
 
 local do_sync_settings_to_server = Token.register(function(params)
-    local player_index = params.player_index;
+    local player_index = params.player_index
     local player = game.get_player(player_index)
     if not player or not player.valid then
         -- The player doesn't exist or got removed, ensure it's reset so it doesn't
@@ -119,7 +119,15 @@ local function player_joined(event)
     Server.try_get_data_timeout('player_settings', player.name, on_player_settings_get, 30)
 end
 
-Event.add(Settings.events.on_setting_set, setting_set);
+local function player_removed(event)
+    local callback = Token.get(do_sync_settings_to_server)
+    callback({
+        player_index = event.player_index
+    })
+end
+
+Event.add(Settings.events.on_setting_set, setting_set)
 Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_pre_player_removed, player_removed)
 
 return Public

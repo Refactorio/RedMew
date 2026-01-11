@@ -1,5 +1,6 @@
 local Actions = require 'features.gui.admin_panel.functions'.actions
 local AdminPanel = require 'features.gui.admin_panel.core'
+local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Table = require 'utils.table'
@@ -400,4 +401,10 @@ end)
 Gui.on_click(on_purge_player, function(event)
   local target_name = get_selected_player(event.player)
   Actions.purge_player({ player = target_name }, event.player)
+end)
+
+Event.add(defines.events.on_player_removed, function(event)
+  this.player_selection[event.player_index] = nil
+  this.selection_switch[event.player_index] = nil
+  this.player_ban_items[event.player_index] = nil
 end)

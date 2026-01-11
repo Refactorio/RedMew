@@ -1,16 +1,7 @@
-local Global = require 'utils.global'
 local Color = require 'resources.color_presets'
 local print = print
 
 local Game = {}
-
-local bad_name_players = {}
-Global.register(
-    bad_name_players,
-    function(tbl)
-        bad_name_players = tbl
-    end
-)
 
 --- Returns a valid LuaPlayer if given a number, string, or LuaPlayer. Returns nil otherwise.
 ---@param obj <number|string|LuaPlayer>

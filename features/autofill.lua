@@ -115,6 +115,9 @@ local function entity_built(event)
 end
 
 Event.add(defines.events.on_built_entity, entity_built)
+Event.add(defines.events.on_player_removed, function(event)
+    player_ammos[event.player_index] = nil
+end)
 
 function Public.get_enabled(player_index)
     return settings_get(player_index, enable_autofill_name)

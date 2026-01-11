@@ -470,6 +470,12 @@ end
 
 Event.add(defines.events.on_built_entity, built_entity)
 Event.add(defines.events.on_console_command, console_command)
+Event.add(defines.events.on_pre_player_removed, function(event)
+    tp_players[event.player_index] = nil
+
+    local player = game.get_player(event.player_index)
+    players_last_command[player.name] = nil
+end)
 
 -- Command registrations
 

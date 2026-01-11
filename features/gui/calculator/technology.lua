@@ -4,6 +4,7 @@
 -- ======================================================= --
 
 local Command = require 'utils.command'
+local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Ranks = require 'resources.ranks'
 local Global = require 'utils.global'
@@ -450,4 +451,9 @@ Command.add('calculator-technology-for-player', {
         set_history(target_player.index, arguments.technology)
         draw(target_player)
     end
+end)
+
+Event.add(defines.events.on_player_removed, function(event)
+    history[event.player_index] = nil
+    toggled[event.player_index] = nil
 end)

@@ -53,4 +53,9 @@ Event.add(CaveCollapse.events.on_collapse, function(event)
     end
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    player_collapses[event.player_index] = nil
+    jailed_players[event.player_index] = nil
+end)
+
 return Antigrief

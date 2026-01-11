@@ -114,6 +114,10 @@ Event.add(defines.events.on_player_mined_entity, function(event)
   check_fullness(player, position)
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+  this.warned[event.player_index] = nil
+end)
+
 -- ============================================================================
 
 return Public

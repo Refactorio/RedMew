@@ -207,9 +207,16 @@ local function on_lua_shortcut(event)
   end
 end
 
+local function on_pre_player_removed(event)
+  camera_users[event.player_index] = nil
+  destroy_camera({ player = game.get_player(event.player_index) })
+end
+
 Event.on_nth_tick(61, on_tick)
 Gui.on_click(main_button_name, destroy_camera)
 
 Event.add(defines.events.on_lua_shortcut, on_lua_shortcut)
+Event.add(defines.events.on_pre_player_removed, on_pre_player_removed)
+
 -- luacheck: ignore script
 script.on_event(camera_prototype, on_lua_shortcut)

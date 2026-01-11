@@ -294,6 +294,10 @@ Event.on_init(function()
   update_market(config.market_provides_chests, 3000)
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+  this.relative_gui[event.player_index] = nil
+end)
+
 local Public = {}
 
 Public.get = function(key)

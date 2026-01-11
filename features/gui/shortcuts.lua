@@ -279,4 +279,11 @@ Event.add(defines.events.on_player_created, function(event)
   Public.on_player_created(player)
 end)
 
+Event.add(defines.events.on_pre_player_removed, function(event)
+  local player = game.get_player(event.player_index)
+  if player then
+    player_preferences[player.name] = nil
+  end
+end)
+
 return Public

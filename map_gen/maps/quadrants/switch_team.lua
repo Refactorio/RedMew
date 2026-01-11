@@ -300,11 +300,16 @@ local function on_player_created(event)
     toggle(event)
 end
 
+local function on_player_removed(event)
+    toggle_chest_status[event.player_index] = nil
+end
+
 local function changed_force()
     update_gui(true)
 end
 
 Event.add(defines.events.on_player_created, on_player_created)
+Event.add(defines.events.on_player_removed, on_player_removed)
 Event.on_nth_tick(61, update_gui)
 Event.add(defines.events.on_player_changed_force, changed_force)
 

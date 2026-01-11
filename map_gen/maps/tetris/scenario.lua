@@ -67,7 +67,6 @@ local options = {
 
 local machine = StateMachine.new(states.voting)
 
-local player_zoom = {}
 local player_force = nil
 local play_surface = nil
 Global.register(
@@ -75,14 +74,12 @@ Global.register(
         tetriminos = tetriminos,
         primitives = primitives,
         player_votes = player_votes,
-        player_zoom = player_zoom,
         machine = machine
     },
     function(tbl)
         tetriminos = tbl.tetriminos
         primitives = tbl.primitives
         player_votes = tbl.player_votes
-        player_zoom = tbl.player_zoom
         machine = tbl.machine
     end
 )
@@ -325,17 +322,14 @@ Event.on_init(
     end
 )
 
-Event.add(
-    defines.events.on_tick,
-    function()
-        if StateMachine.in_state(machine, states.voting) then
-            local progress = (primitives.next_vote_finished - game.tick + 1) / storage.vote_delay / tetris_tick_duration
-            if progress >= 0 and progress <= 1 then
-                View.set_progress(progress)
-            end
+Event.add(defines.events.on_tick, function()
+    if StateMachine.in_state(machine, states.voting) then
+        local progress = (primitives.next_vote_finished - game.tick + 1) / storage.vote_delay / tetris_tick_duration
+        if progress >= 0 and progress <= 1 then
+            View.set_progress(progress)
         end
     end
-)
+end)
 
 local function execute_down_tick()
     local down_state = primitives.down_substate
@@ -414,18 +408,16 @@ StateMachine.register_transition_callback(
     end
 )
 
-Event.on_nth_tick(
-    tetris_tick_duration,
-    function()
-        StateMachine.machine_tick(machine)
-    end
-)
+Event.on_nth_tick(tetris_tick_duration, function()
+    StateMachine.machine_tick(machine)
+end)
 
-Event.add(
-    defines.events.on_player_left_game,
-    function(event)
-        player_votes[event.player_index] = nil
-    end
-)
+Event.add(defines.events.on_player_left_game, function(event)
+    player_votes[event.player_index] = nil
+end)
+
+Event.add(defines.events.on_player_removed, function(event)
+    player_votes[event.player_index] = nil
+end)
 
 return Map.get_map()

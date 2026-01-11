@@ -1,6 +1,7 @@
 -- Spawns biters of a level scaling with _global.level on every player that has alt_mode toggled ON
 -- Complete
 
+local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 
@@ -27,6 +28,10 @@ local ENEMY_GROUPS = {
   { 'behemoth-biter', 'behemoth-spitter', 'behemoth-worm-turret', 'biter-spawner' },
   { 'behemoth-biter', 'behemoth-spitter', 'behemoth-worm-turret', 'biter-spawner', 'spitter-spawner' },
 }
+
+Event.add(defines.events.on_player_removed, function(event)
+  _global.alt_biters_players[event.player_index] = nil
+end)
 
 -- ============================================================================
 

@@ -524,6 +524,9 @@ end
 Event.add(defines.events.on_cutscene_waypoint_reached, handler)
 Event.add(defines.events.on_pre_player_left_game, restore)
 Event.add(defines.events.on_player_joined_game, restore)
+Event.add(defines.events.on_player_removed, function(event)
+    running_cutscenes[event.player_index] = nil
+end)
 
 local replay_cutscene =
     Token.register(

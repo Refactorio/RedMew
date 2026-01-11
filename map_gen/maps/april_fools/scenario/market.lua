@@ -293,11 +293,17 @@ local function player_created(event)
   player.insert { name = currency, count = count }
 end
 
+local function player_removed(event)
+  speed_records[event.player_index] = nil
+  mining_records[event.player_index] = nil
+end
+
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 
 if market_config.create_standard_market then
   local delay = market_config.delay or 30

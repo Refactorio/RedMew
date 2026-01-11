@@ -1,5 +1,6 @@
 -- Spawns random non-damaging explosions on random players as a jump-scare
 -- WIP
+local Event = require 'utils.event'
 local Global = require 'utils.global'
 
 local BASE_TARGETS = 1 -- how many targets per level
@@ -27,6 +28,19 @@ local EXPLOSION_GROUPS = {
   { 'massive-explosion', 'big-artillery-explosion' },
   { 'massive-explosion', 'big-artillery-explosion', 'nuke-explosion' },
 }
+
+Event.add(defines.events.on_pre_player_removed, function(event)
+  local player = game.get_player(event.player_index)
+  if not player then
+    return
+  end
+  for i, target_player in pairs(_global.rand_target) do
+    if target_player == player then
+      _global.rand_target[i] = nil
+    end
+  end
+end)
+
 -- ============================================================================
 
 local function clear_targets()

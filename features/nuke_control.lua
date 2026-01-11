@@ -342,7 +342,12 @@ local function on_entity_died(event)
     end
 end
 
+local function on_player_removed(event)
+    players_warned[event.player_index] = nil
+end
+
 Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
 Event.add(defines.events.on_player_used_capsule, on_capsule_used)
 Event.add(defines.events.on_entity_died, on_entity_died)
+Event.add(defines.events.on_player_removed, on_player_removed)

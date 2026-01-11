@@ -73,4 +73,9 @@ local function on_console_chat(event)
   })
 end
 
+local function on_player_removed(event)
+  data.popup_chat[event.player_index] = nil
+end
+
 Event.add(defines.events.on_console_chat, on_console_chat)
+Event.add(defines.events.on_player_removed, on_player_removed)

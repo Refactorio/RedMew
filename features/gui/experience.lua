@@ -551,6 +551,10 @@ local function on_player_created(event)
     }
 end
 
+local function on_player_removed(event)
+    gui_toggled[event.player_index] = nil
+end
+
 ---Updates the experience progress gui for every player that has it open
 local function on_nth_tick()
     for _, player in pairs(game.connected_players) do
@@ -712,6 +716,7 @@ Event.add(defines.events.on_rocket_launched, on_rocket_launched)
 Event.add(defines.events.on_player_respawned, on_player_respawned)
 Event.add(defines.events.on_entity_died, on_entity_died)
 Event.add(defines.events.on_player_created, on_player_created)
+Event.add(defines.events.on_player_removed, on_player_removed)
 Event.on_nth_tick(61, on_nth_tick)
 
 local ForceControlBuilder = ForceControl.register(level_up_formula)

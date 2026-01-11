@@ -168,3 +168,12 @@ Event.add(defines.events.on_player_banned, function(event)
 
     spawn_player_corpse(player, true, 0)
 end)
+
+Event.add(defines.events.on_pre_player_removed, function(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    spawn_player_corpse(player, false, 0)
+end)

@@ -1,3 +1,4 @@
+local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local AdminPanel = require 'features.gui.admin_panel.core'
@@ -115,4 +116,10 @@ Gui.on_click(clear_button_name, function(event)
   this.last_lua_input[player.index] = ''
   this.last_lua_output[player.index] = ''
   draw_gui(player)
+end)
+
+Event.add(defines.events.on_player_removed, function(event)
+  local player_index = event.player_index
+  this.last_lua_input[player_index] = nil
+  this.last_lua_output[player_index] = nil
 end)

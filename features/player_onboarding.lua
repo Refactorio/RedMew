@@ -81,6 +81,10 @@ local function on_player_created(event)
     end
 end
 
+local function on_player_removed(event)
+    player_chatted[event.player_index] = nil
+end
+
 --- Log all players who have chatted or used commands this map.
 -- This will also gives us a measure of how many players engage in chat in a map.
 local function on_player_chat(event)
@@ -108,5 +112,6 @@ end
 Event.add(defines.events.on_player_created, on_player_created)
 Event.add(defines.events.on_console_chat, on_player_chat)
 Event.add(defines.events.on_console_command, on_player_chat)
+Event.add(defines.events.on_player_removed, on_player_removed)
 
 return Public

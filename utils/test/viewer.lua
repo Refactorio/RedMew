@@ -410,6 +410,11 @@ Event.add(
     end
 )
 
+Event.add(defines.events.on_player_removed, function(event)
+    selected_test_info_by_player_index[event.player_index] = nil
+    stop_on_first_error_by_player_index[event.player_index] = nil
+end)
+
 function Public.open(player)
     local center = player.gui.center
     local frame = center[main_frame_name]

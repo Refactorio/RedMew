@@ -391,18 +391,15 @@ function DiggyCaveCollapse.register(cfg)
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
-    Event.add(
-        defines.events.on_robot_built_tile,
-        function(event)
-            on_built_tile(event.robot.surface, event.item, event.tiles)
-        end
-    )
-    Event.add(
-        defines.events.on_player_built_tile,
-        function(event)
-            on_built_tile(game.surfaces[event.surface_index], event.tile, event.tiles)
-        end
-    )
+
+    Event.add(defines.events.on_robot_built_tile, function(event)
+        on_built_tile(event.robot.surface, event.item, event.tiles)
+    end)
+
+    Event.add(defines.events.on_player_built_tile, function(event)
+        on_built_tile(game.surfaces[event.surface_index], event.tile, event.tiles)
+    end)
+
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
     Event.add(defines.events.on_built_entity, on_built_entity)
@@ -413,45 +410,37 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
-    Event.add(
-        defines.events.on_marked_for_deconstruction,
-        function(event)
-            local entity = event.entity
-            local name = entity.name
-            if is_diggy_rock(name) then
-                return
-            end
-
-            if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-                entity.cancel_deconstruction(game.get_player(event.player_index).force)
-            end
+    Event.add(defines.events.on_marked_for_deconstruction, function(event)
+        local entity = event.entity
+        local name = entity.name
+        if is_diggy_rock(name) then
+            return
         end
-    )
 
-    Event.add(
-        defines.events.on_player_created,
-        function(event)
-            show_deconstruction_alert_message[event.player_index] = true
+        if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
+            entity.cancel_deconstruction(game.get_player(event.player_index).force)
         end
-    )
+    end)
 
-    Event.add(
-        defines.events.on_pre_player_mined_item,
-        function(event)
-            local player_index = event.player_index
-            if not show_deconstruction_alert_message[player_index] then
-                return
-            end
+    Event.add(defines.events.on_player_created, function(event)
+        show_deconstruction_alert_message[event.player_index] = true
+    end)
 
-            if (nil ~= support_beam_entities[event.entity.name]) then
-                Popup.player(
-                    game.get_player(player_index),
-{'diggy.cave_collapse_warning'}
-                )
-                show_deconstruction_alert_message[player_index] = nil
-            end
+    Event.add(defines.events.on_player_removed, function(event)
+        show_deconstruction_alert_message[event.player_index] = nil
+    end)
+
+    Event.add(defines.events.on_pre_player_mined_item, function(event)
+        local player_index = event.player_index
+        if not show_deconstruction_alert_message[player_index] then
+            return
         end
-    )
+
+        if (nil ~= support_beam_entities[event.entity.name]) then
+            Popup.player(game.get_player(player_index), {'diggy.cave_collapse_warning'})
+            show_deconstruction_alert_message[player_index] = nil
+        end
+    end)
 
     enable_stress_grid = config.enable_stress_grid
 

@@ -665,6 +665,14 @@ Event.add(defines.events.on_tick, function()
     end
 end)
 
+Event.add(defines.events.on_player_removed, function(event)
+    auras[event.player_index] = nil
+    records[event.player_index] = nil
+    regens[event.player_index] = nil
+    regens_map[event.player_index] = nil
+    update_map[event.player_index] = nil
+end)
+
 Gui.on_click(main_button_name, Interface.toggle_main_button)
 
 -- ============================================================================

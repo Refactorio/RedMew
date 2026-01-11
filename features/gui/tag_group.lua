@@ -154,6 +154,13 @@ local function player_created(event)
     b.style.padding = 2
 end
 
+local function player_removed(event)
+    no_notify_players[event.player_index] = nil
+    for _, list in pairs(player_tags) do
+        list[event.player_index] = nil
+    end
+end
+
 local function draw_main_frame_content(parent)
     local player = parent.gui.player
     local grid = parent.add {type = 'table', column_count = 1}
@@ -775,6 +782,7 @@ Event.add(
 )
 
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 
 local function tag_command(args)
     local target_player = game.get_player(args.player)

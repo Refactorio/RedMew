@@ -79,5 +79,10 @@ local function player_joined_game(event)
     player.print("Welcome to RedMew's Rail Grids Map. Rails can only be built on green tiles.", {color = {r = 0, g = 1, b = 0, a = 1}})
 end
 
+local function player_removed(event)
+    players_popuped[event.player_index] = nil
+end
+
 Event.add(RestrictEntities.events.on_restricted_entity_destroyed, restricted_entity_destroyed)
 Event.add(defines.events.on_player_joined_game, player_joined_game)
+Event.add(defines.events.on_player_removed, player_removed)

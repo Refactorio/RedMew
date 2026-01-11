@@ -435,4 +435,8 @@ function Public.is_running()
     return board.is_running
 end
 
+Event.add(defines.events.on_player_removed, function(event)
+    snakes[event.player_index] = nil
+end)
+
 return Public

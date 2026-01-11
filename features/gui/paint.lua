@@ -205,6 +205,10 @@ local function player_created(event)
     b.style.padding = 2
 end
 
+local function player_removed(event)
+    paint_brushes_by_player[event.player_index] = nil
+end
+
 local function draw_filters_table(event)
     local center = event.player.gui.center
 
@@ -355,5 +359,6 @@ Gui.on_custom_close(
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_removed, player_removed)
 Event.add(defines.events.on_player_built_tile, player_build_tile)
 Event.add(defines.events.on_robot_built_tile, robot_built_tile)
