@@ -143,7 +143,7 @@ local function on_player_joined(event)
 end
 
 local function on_player_removed(event)
-    guests[event.player.index] = nil
+    guests[event.player_index] = nil
     local player = game.get_player(event.player_index)
     if player then
         player_ranks[player.name] = nil

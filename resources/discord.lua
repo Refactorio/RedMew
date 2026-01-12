@@ -5,7 +5,7 @@ return {
     channel_names = {
         bot_playground = 'bot-playground',
         map_promotion = 'map-promotion',
-        moderation_log = 'moderation-log',
+        moderation_log = 'mod-log',
         helpdesk = 'helpdesk',
         danger_ores = 'danger-ores',
         crash_site = 'crash-site',
