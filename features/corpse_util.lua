@@ -85,7 +85,7 @@ local function mined_entity(event)
     end
 
     local player = game.get_player(player_index)
-    if player.controller ~= defines.controllers.character then
+    if player.controller_type ~= defines.controllers.character then
         return
     end
 
@@ -116,7 +116,7 @@ local function on_gui_opened(event)
     end
 
     local player = game.get_player(player_index)
-        if player.controller ~= defines.controllers.character then
+        if player.controller_type ~= defines.controllers.character then
         return
     end
 
