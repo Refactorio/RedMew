@@ -157,6 +157,17 @@ return function(config)
         game.print('Warning incoming biter attack! Number of waves: ' .. number_of_waves)
     end
 
+    local function win()
+        if ShareGlobals.data.map_won then
+            return
+        end
+
+        ShareGlobals.data.map_won = true
+        local message = 'Congratulations! The map has been won. Restart the map with /restart'
+        game.print({'danger_ores.win'})
+        Server.to_discord_bold(message)
+    end
+
     local function rocket_launched(event)
         local entity = event.rocket
 
@@ -216,7 +227,7 @@ return function(config)
             return
         end
 
-        local win_message = 'Congratulations! Biters have been wiped from the map!'
+        local win_message = 'Biters have been wiped from the map!'
         game.print(win_message)
         Server.to_discord_bold(win_message)
 
@@ -226,6 +237,8 @@ return function(config)
         for _, enemy_entity in pairs(RS.get_surface().find_entities_filtered({force = 'enemy'})) do
             enemy_entity.destroy()
         end
+
+        win()
     end
 
     local bad_tiles = {'deepwater-green', 'deepwater', 'out-of-map', 'water-green', 'water'}
