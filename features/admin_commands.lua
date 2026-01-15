@@ -1,12 +1,14 @@
+local Color = require 'resources.color_presets'
+local Command = require 'utils.command'
+local DiscordChannels = require 'resources.discord'.channel_names
+local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Rank = require 'features.rank_system'
-local Report = require 'features.report'
-local Utils = require 'utils.core'
-local Game = require 'utils.game'
-local Event = require 'utils.event'
-local Command = require 'utils.command'
-local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
+local Report = require 'features.report'
+local Server = require 'features.server'
+local Utils = require 'utils.core'
 
 --- A table of players with tpmode turned on
 local tp_players = {}
@@ -225,6 +227,7 @@ local function moderator_add(args, player)
     local success = Rank.increase_player_rank_to(target_name, Ranks.moderator)
     if success then
         game.print({'admin_commands.moderator_add_success', actor, target_name}, {color = Color.info})
+        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, {'admin_commands.moderator_add_success', actor, target_name})
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.moderator_add_notify_target'}, {color = Color.warning})
         end
@@ -246,6 +249,7 @@ local function moderator_remove(args, player)
     if Rank.equal(target_name, Ranks.moderator) then
         local _, new_rank = Rank.decrease_player_rank_to(target_name, Rank.regular)
         game.print({'admin_commands.moderator_remove_success', actor, target_name, new_rank}, {color = Color.info})
+        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, {'admin_commands.moderator_remove_success', actor, target_name, new_rank})
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.moderator_remove_notify_target'}, {color = Color.warning})
         end
