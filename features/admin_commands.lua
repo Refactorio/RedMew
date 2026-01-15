@@ -249,7 +249,7 @@ local function moderator_remove(args, player)
     if Rank.equal(target_name, Ranks.moderator) then
         local _, new_rank = Rank.decrease_player_rank_to(target_name, Ranks.regular)
         game.print({'admin_commands.moderator_remove_success', actor, target_name, new_rank}, {color = Color.info})
-        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, ('%s demoted %s from Moderator to Admin'):format(actor, target_name))
+        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, ('%s demoted %s from Moderator to Regular'):format(actor, target_name))
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.moderator_remove_notify_target'}, {color = Color.warning})
         end
