@@ -227,7 +227,7 @@ local function moderator_add(args, player)
     local success = Rank.increase_player_rank_to(target_name, Ranks.moderator)
     if success then
         game.print({'admin_commands.moderator_add_success', actor, target_name}, {color = Color.info})
-        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, {'admin_commands.moderator_add_success', actor, target_name})
+        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, ('%s promoted %s to Moderator'):format(actor, target_name))
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.moderator_add_notify_target'}, {color = Color.warning})
         end
@@ -247,9 +247,9 @@ local function moderator_remove(args, player)
     end
 
     if Rank.equal(target_name, Ranks.moderator) then
-        local _, new_rank = Rank.decrease_player_rank_to(target_name, Rank.regular)
+        local _, new_rank = Rank.decrease_player_rank_to(target_name, Ranks.regular)
         game.print({'admin_commands.moderator_remove_success', actor, target_name, new_rank}, {color = Color.info})
-        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, {'admin_commands.moderator_remove_success', actor, target_name, 'Regular'})
+        Server.to_discord_named_embed_raw(DiscordChannels.moderation_log, ('%s demoted %s from Moderator to Admin'):format(actor, target_name))
         if maybe_target_player then
             maybe_target_player.print({'admin_commands.moderator_remove_notify_target'}, {color = Color.warning})
         end
