@@ -38,7 +38,7 @@ end
 Public.add_filters = function(logistic_point, filters, group)
   local section = logistic_point.add_section(group)
   for index, filter in pairs(filters) do
-    section.set_slot(parse_item_stack(filter), index)
+    section.set_slot(index, parse_item_stack(filter))
   end
 end
 
