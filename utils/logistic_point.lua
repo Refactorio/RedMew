@@ -3,18 +3,35 @@ local Public = {}
 ---@param item_stack LuaItemStack|SignalFilter
 ---@return SignalFilter
 local function parse_item_stack(item_stack)
-  return {
-    value = {
-      type = item_stack.type or 'item',
-      name = item_stack.name,
-      quality = item_stack.quality,
-      comparator = item_stack.comparator,
-    },
-    min = item_stack.min or item_stack.count,
-    max = item_stack.max or item_stack.count,
-    minimum_delivery_count = item_stack.minimum_delivery_count,
-    import_from = item_stack.import_from,
-  }
+  if item_stack.name and item_stack.type then
+    return {
+      value = {
+        type = item_stack.type or 'item',
+        name = item_stack.name,
+        quality = item_stack.quality,
+        comparator = item_stack.comparator,
+      },
+      min = item_stack.min or item_stack.count,
+      max = item_stack.max or item_stack.count,
+      minimum_delivery_count = item_stack.minimum_delivery_count,
+      import_from = (type(item_stack.import_from) == 'table' and item_stack.import_from.name) or item_stack.import_from,
+    }
+  elseif item_stack.value then
+    return {
+      value = {
+        type = item_stack.value.type or 'item',
+        name = item_stack.value.name,
+        quality = item_stack.value.quality,
+        comparator = item_stack.value.comparator,
+      },
+      min = item_stack.min or item_stack.min,
+      max = item_stack.max or item_stack.max,
+      minimum_delivery_count = item_stack.minimum_delivery_count,
+      import_from = (type(item_stack.import_from) == 'table' and item_stack.import_from.name) or item_stack.import_from,
+    }
+  else
+    return nil
+  end
 end
 Public.parse_item_stack = parse_item_stack
 
@@ -38,7 +55,7 @@ end
 Public.add_filters = function(logistic_point, filters, group)
   local section = logistic_point.add_section(group)
   for index, filter in pairs(filters) do
-    section.set_slot(parse_item_stack(filter), index)
+    section.set_slot(index, parse_item_stack(filter))
   end
 end
 
