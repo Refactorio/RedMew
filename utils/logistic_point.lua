@@ -34,8 +34,9 @@ end
 
 ---@param logistic_point LuaLogisticPoint
 ---@param filters table<LuaItemStack|SignalFilter>
-Public.add_filters = function(logistic_point, filters)
-  local section = logistic_point.add_section()
+---@param group? string
+Public.add_filters = function(logistic_point, filters, group)
+  local section = logistic_point.add_section(group)
   for index, filter in pairs(filters) do
     section.set_slot(parse_item_stack(filter), index)
   end

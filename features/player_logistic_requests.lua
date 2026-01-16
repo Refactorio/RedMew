@@ -1,20 +1,19 @@
 -- This module saves players' logistic requests slots between maps
 -- Dependencies
 
---TODO: Rewrite, feature deprecated for 2.0
---[[
+local Color = require 'resources.color_presets'
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local LogisticPoint = require 'utils.logistic_point'
+local Ranks = require 'resources.ranks'
 local Server = require 'features.server'
 local Token = require 'utils.token'
-local Color = require 'resources.color_presets'
-local Ranks = require 'resources.ranks'
 
 -- Constants
 local data_set_name = 'player_logistic_requests'
-local logistic_slots = 100
+local logistic_slots_limit = 100
 
 -- Localized globals
 local primitives = {
@@ -39,42 +38,42 @@ Global.register(
 --- Scans all player's logistic request slots into a table, then saves that table server-side
 local function save_bars(_, player)
     if not primitives.server_available then
-        Game.player_print({'common.server_unavailable'}, Color.fail)
+        Game.player_print({'common.server_unavailable'}, Color.fail, player)
         return
     end
 
     -- Player's force doesn't have logistics
     local force = player.force
     if not (force and force.character_logistic_requests) then
-        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail)
+        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail, player)
         return
     end
 
-    local bars = {}
+    -- Validate player's LuaLogisticPoint
+    local requester_point = player.get_requester_point()
+    if not (requester_point and requester_point.valid) then
+        Game.player_print({'player_logistic_requests.invalid_logistic_point'}, Color.fail, player)
+        return
+    end
 
-    for i = 1, logistic_slots do
-        local item_prot = player.get_personal_logistic_slot(i)
-        if item_prot and item_prot.name then
-            bars[i] = item_prot
+    -- Trim saved slots to limit
+    local bars = LogisticPoint.get_filters(requester_point)
+    if #bars > logistic_slots_limit then
+        for i = #bars, (logistic_slots_limit + 1), -1  do
+            bars[i] = nil
         end
     end
 
+    -- Save data to db
     Server.set_data(data_set_name, player.name, bars)
-    Game.player_print({'player_logistic_requests.save_bars'}, Color.success)
+    Game.player_print({'player_logistic_requests.save_bars'}, Color.success, player)
 end
 
---- Returns a valid entity prototype string name or nil.
--- For invalid items, a message will be printed to the player.
-local function validate_entry(item, proto_table, player)
-    if not (item and item.name) then
-        return
+local function get_player_group(player)
+    if not (player and player.valid and player.name) then
+        return ''
     end
-
-    if proto_table[item.name] then
-        return item
-    end
-
-    player.print({'player_logistic_requests.incompatible_item', item.name}, {color = Color.warning})
+    return 'RedMew::'..player.name
 end
 
 --- Sets the logistic request slots of a player.
@@ -93,15 +92,28 @@ local set_bars_callback =
             return
         end
 
-        local item_prototypes = prototypes.item
-        local item
-        for i = 1, logistic_slots do
-            item = validate_entry(bars[i], item_prototypes, player)
-            if item then
-                player.set_personal_logistic_slot(i, item) -- false if personal logistics are not researched yet.
+        -- Validate player's LuaLogisticPoint
+        local requester_point = player.get_requester_point()
+        if not (requester_point and requester_point.valid) then
+            Game.player_print({'player_logistic_requests.invalid_logistic_point'}, Color.fail, player)
+            return
+        end
+
+        -- Validate entries
+        for i = #bars, 1, -1 do
+            local name = (bars[i].value and bars[i].value.name)
+            if (name == nil) or (type(name) ~= 'string') then
+                bars[i] = nil
+            else
+                if not prototypes.item[name] then
+                    Game.player_print({'player_logistic_requests.incompatible_item', name}, Color.warning, player)
+                    bars[i] = nil
+                end
             end
         end
 
+        LogisticPoint.add_filters(requester_point, bars, get_player_group(player))
+        Game.player_print({'player_logistic_requests.load_bars_success'}, Color.success, player)
         initialized_players[player.name] = true
     end
 )
@@ -109,19 +121,19 @@ local set_bars_callback =
 --- Calls data from the server and sends it to the set_bars_callback
 local function load_bars(_, player)
     if not primitives.server_available then
-        Game.player_print({'common.server_unavailable'}, Color.fail)
+        Game.player_print({'common.server_unavailable'}, Color.fail, player)
         return
     end
 
     -- Player's force doesn't have logistics
     local force = player.force
     if not (force and force.character_logistic_requests) then
-        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail)
+        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail, player)
         return
     end
 
     Server.try_get_data(data_set_name, player.name, set_bars_callback)
-    Game.player_print({'player_logistic_requests.load_bars'})
+    Game.player_print({'player_logistic_requests.load_bars'}, Color.success, player)
 end
 
 -- Auto loads all logistic requests for players joining after logistics has been researched
@@ -189,12 +201,12 @@ end
 --- Erases server-side data stored for this player's logistic requests slots
 local function delete_bars(_, player)
     if not primitives.server_available then
-        Game.player_print({'common.server_unavailable'}, Color.fail)
+        Game.player_print({'common.server_unavailable'}, Color.fail, player)
         return
     end
 
     Server.set_data(data_set_name, player.name, nil)
-    Game.player_print({'player_logistic_requests.delete_bars'}, Color.success)
+    Game.player_print({'player_logistic_requests.delete_bars'}, Color.success, player)
 end
 
 -- Events
@@ -228,4 +240,3 @@ Command.add(
     },
     delete_bars
 )
-]]
