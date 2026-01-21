@@ -7,6 +7,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
+local Popup = require 'features.gui.popup'
 
 -- this
 local NightTime = {}
@@ -19,7 +20,7 @@ local function on_built_entity(event)
     local player = game.get_player(event.player_index)
     local entity = event.entity
     if (entity.name == 'solar-panel') then
-        require 'features.gui.popup'.player(
+        Popup.player(
             player, {'diggy.night_time_warning'}
         )
     end
