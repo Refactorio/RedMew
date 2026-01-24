@@ -64,6 +64,13 @@ local function save_bars(_, player)
         end
     end
 
+    -- Remove LuaPrototypes
+    for _, request in pairs(bars) do
+        if request.import_from and type(request.import_from) ~= 'string' then
+            request.import_from = request.import_from.name
+        end
+    end
+
     -- Save data to db
     Server.set_data(data_set_name, player.name, bars)
     Game.player_print({'player_logistic_requests.save_bars'}, Color.success, player)
@@ -132,8 +139,8 @@ local function load_bars(_, player)
         return
     end
 
-    Server.try_get_data(data_set_name, player.name, set_bars_callback)
     Game.player_print({'player_logistic_requests.load_bars'}, Color.success, player)
+    Server.try_get_data(data_set_name, player.name, set_bars_callback)
 end
 
 -- Auto loads all logistic requests for players joining after logistics has been researched
