@@ -1,8 +1,8 @@
-local Gui = require 'utils.gui'
-local Event = require 'utils.event'
-local Toast = require 'features.gui.toast'
-local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
+local Event = require 'utils.event'
+local Gui = require 'utils.gui'
+local Settings = require 'utils.redmew_settings'
+local Toast = require 'features.gui.toast'
 local pairs = pairs
 
 local main_button_name = Gui.uid_name()
@@ -17,14 +17,12 @@ local function player_created(event)
         return
     end
 
-    Gui.add_top_element(player,
-        {
-            type = 'sprite-button',
-            name = main_button_name,
-            sprite = 'item/iron-gear-wheel',
-            tooltip = {'redmew_settings_gui.tooltip'}
-        }
-    )
+    Gui.add_top_element(player, {
+        type = 'sprite-button',
+        name = main_button_name,
+        sprite = 'item/iron-gear-wheel',
+        tooltip = { 'redmew_settings_gui.tooltip' },
+    })
 end
 
 local function player_joined(event)
@@ -67,103 +65,82 @@ local function set_element_value(element, value)
     end
 end
 
-local function create_input_element(frame, type, value)
-    if type == 'fraction' then
-        return frame.add({type = 'slider', value = value, minimum_value = 0, maximum_value = 1})
+local function create_input_element(frame, _type, value)
+    if _type == 'fraction' then
+        return frame.add { type = 'slider', value = value, minimum_value = 0, maximum_value = 1 }
     end
-    if type == 'boolean' then
-        return frame.add({type = 'checkbox', state = value})
+    if _type == 'boolean' then
+        return frame.add { type = 'checkbox', state = value }
     end
 
     -- ensure something is always added to prevent errors
-    return frame.add({type = 'text-box', text = tostring(value)})
+    return frame.add { type = 'text-box', text = tostring(value) }
 end
 
 local function draw_main_frame(center, player)
     local settings = Settings.get_setting_metadata()
-    local settings_frame =
-        center.add(
-        {
-            type = 'frame',
-            name = main_frame_name,
-            direction = 'vertical',
-            caption = {'redmew_settings_gui.frame_title'},
-            style = 'non_draggable_frame',
-        }
-    )
+    local settings_frame = center.add({
+        type = 'frame',
+        name = main_frame_name,
+        direction = 'vertical',
+        caption = { 'redmew_settings_gui.frame_title' },
+        style = 'non_draggable_frame',
+    })
+    Gui.set_style(settings_frame, { width = 500 })
 
-    local settings_frame_style = settings_frame.style
-    settings_frame_style.width = 500
+    local inner = settings_frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
 
-    local info_text = settings_frame.add({type = 'label', caption = {'redmew_settings_gui.setting_info'}})
-    local info_text_style = info_text.style
-    info_text_style.single_line = false
-    info_text_style.bottom_padding = 5
-    info_text_style.left_padding = 5
-    info_text_style.right_padding = 5
-    info_text_style.top_padding = 5
-    info_text_style.width = 370
+    local header = inner
+        .add { type = 'frame', style = 'subheader_frame' }
+        .add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(header.parent, { height = 56, natural_height = 56, padding = 5 })
+    Gui.set_style(header, { horizontally_stretchable = true })
 
-    local scroll_pane = settings_frame.add({type = 'scroll-pane'})
-    local scroll_style = scroll_pane.style
-    scroll_style.vertically_squashable = true
-    scroll_style.maximal_height = 800
-    scroll_style.bottom_padding = 5
-    scroll_style.left_padding = 5
-    scroll_style.right_padding = 5
-    scroll_style.top_padding = 5
+    local info_text = header.add { type = 'label', caption = { 'redmew_settings_gui.setting_info' } }
+    Gui.set_style(info_text, {
+        single_line = false,
+        padding = 5,
+        width = 370,
+    })
 
-    local setting_grid = scroll_pane.add({type = 'table', column_count = 2})
+    local scroll_pane = inner.add { type = 'scroll-pane' }
+    Gui.set_style(scroll_pane, {
+        vertically_squashable = true,
+        maximal_height = 800,
+        padding = 8,
+    })
+
+    local setting_grid = scroll_pane.add { type = 'table', column_count = 2 }
     local player_index = player.index
 
     local data = {}
 
     for name, setting in pairs(settings) do
-        local label =
-            setting_grid.add(
-            {
-                type = 'label',
-                caption = setting.locale_string
-            }
-        )
-
-        local label_style = label.style
-        label_style.horizontally_stretchable = true
-        label_style.height = 35
-        label_style.vertical_align = 'center'
+        local label = setting_grid.add { type = 'label', caption = setting.locale_string }
+        Gui.set_style(label, { horizontally_stretchable = true, height = 35, vertical_align = 'center' })
 
         local value = Settings.toScalar(name, Settings.get(player_index, name))
-        local input_container = setting_grid.add({type = 'flow'})
-        local input_container_style = input_container.style
-        input_container_style.height = 35
-        input_container_style.vertical_align = 'center'
+        local input_container = setting_grid.add { type = 'flow' }
+        Gui.set_style(input_container, { height = 35, vertical_align = 'center' })
         local input = create_input_element(input_container, setting.type, value)
 
         data[name] = {
             label = label,
             input = input,
-            previous_value = value
+            previous_value = value,
         }
     end
 
-    local bottom_flow = settings_frame.add({type = 'flow', direction = 'horizontal'})
+    local bottom_flow = settings_frame.add { type = 'flow', direction = 'horizontal' }
 
-    local left_flow = bottom_flow.add({type = 'flow'})
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
+    local left_flow = bottom_flow.add { type = 'flow' }
+    Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
 
-    local close_button =
-        left_flow.add({type = 'button', name = main_button_name, caption = {'redmew_settings_gui.button_cancel'}})
-    close_button.style = 'back_button'
+    left_flow.add { type = 'button', name = main_button_name, caption = { 'redmew_settings_gui.button_cancel' }, style = 'back_button' }
 
-    local right_flow = bottom_flow.add({type = 'flow'})
-    right_flow.style.horizontal_align = 'right'
-
-    local save_button =
-        right_flow.add(
-        {type = 'button', name = save_changes_button_name, caption = {'redmew_settings_gui.button_save_changes'}}
-    )
-    save_button.style = 'confirm_button'
+    local right_flow = bottom_flow.add { type = 'flow' }
+    Gui.set_style(right_flow, { horizontal_align = 'right' })
+    local save_button = right_flow.add { type = 'button', name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' }, style = 'confirm_button' }
 
     Gui.set_data(save_button, data)
     Gui.set_data(settings_frame, data)
@@ -177,7 +154,6 @@ local function toggle(event)
     local center = gui.center
     local main_frame = center[main_frame_name]
     local main_button = Gui.get_top_element(player, main_button_name)
-
 
     if main_frame then
         main_button.toggled = false
@@ -227,7 +203,7 @@ local function save_changes(event)
         Settings.set(player_index, name, value)
     end
 
-    Toast.toast_player(player, 5, {'redmew_settings_gui.save_success_toast_message'})
+    Toast.toast_player(player, 5, { 'redmew_settings_gui.save_success_toast_message' })
 
     local main_frame = player.gui.center[main_frame_name]
 
