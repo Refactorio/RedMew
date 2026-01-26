@@ -540,7 +540,7 @@ local function create_new_tasks(task_name, player)
 
     local message = table.concat {
         player.name,
-        ' has create a new task #',
+        ' has create a new [color=orange]task[/color] #',
         task_id,
         ' - ',
         task_name,
@@ -819,7 +819,7 @@ Gui.on_click(delete_task_button_name, function(event)
 
     local message = table.concat {
         event.player.name,
-        ' has deleted task #',
+        ' has deleted [color=orange]task[/color] #',
         task.task_id,
         ' - ',
         task.name,
@@ -1031,7 +1031,7 @@ Gui.on_click(create_task_edit_button_name, function(event)
 
     local message = table.concat {
         event.player.name,
-        ' has edited task #',
+        ' has edited [color=orange]task[/color] #',
         task.task_id,
         ' - ',
         name,
