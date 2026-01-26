@@ -216,8 +216,13 @@ local function draw_filters_table(event)
         return
     end
 
-    local frame = center
-        .add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = {'paint.palette'}}
+    local frame = center.add {
+        type = 'frame',
+        name = filters_table_name,
+        direction = 'vertical',
+        caption = {'paint.palette'},
+        style = 'non_draggable_frame'
+    }
 
     local inner = frame
         .add { type = 'frame', style = 'inside_deep_frame' }
@@ -267,6 +272,7 @@ local function toggle(event)
             direction = 'vertical',
             caption = {'paint.frame_name'}
         })
+        Gui.set_style(main_frame, { width = 370 })
 
         local inner_frame = main_frame.add { type = 'frame', style = 'inside_shallow_frame', name = 'inner' }
         Gui.set_style(inner_frame, { padding = 8 })

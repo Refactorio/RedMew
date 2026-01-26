@@ -87,7 +87,8 @@ local function draw_main_frame(center, player)
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
-            caption = {'redmew_settings_gui.frame_title'}
+            caption = {'redmew_settings_gui.frame_title'},
+            style = 'non_draggable_frame',
         }
     )
 

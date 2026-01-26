@@ -51,6 +51,7 @@ local function toggle_main_frame(event)
         main_button.toggled = false
     else
         frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical' })
+        Gui.set_style(frame, { width = 376 })
 
         local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
         Gui.set_style(inner, { padding = 8 })

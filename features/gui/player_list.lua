@@ -625,7 +625,7 @@ end
 
 local function draw_main_frame(left, player)
     local player_index = player.index
-    local frame = left.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
+    local frame = left.add {type = 'frame', name = main_frame_name, direction = 'vertical', style = 'non_draggable_frame'}
 
     local heading_table_flow = frame.add {type = 'flow'}
 
