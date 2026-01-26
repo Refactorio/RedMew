@@ -216,12 +216,18 @@ local function draw_filters_table(event)
         return
     end
 
-    local frame =
-        center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = {'paint.palette'}}
+    local frame = center
+        .add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = {'paint.palette'}}
 
-    local t = frame.add {type = 'table', column_count = 6}
-    t.style.horizontal_spacing = 0
-    t.style.vertical_spacing = 0
+    local inner = frame
+        .add { type = 'frame', style = 'inside_deep_frame' }
+        .add { type = 'frame', style = 'filter_frame' }
+        .add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
+
+    Gui.set_style(inner.parent, { natural_height = 0 })
+
+    local t = inner.add {type = 'table', column_count = 6, style = 'filter_slot_table'}
+    Gui.set_style(t, { bottom_padding = 8 })
 
     for tile_name, _ in pairs(valid_filters) do
         local flow = t.add {type = 'flow'}
@@ -262,18 +268,21 @@ local function toggle(event)
             caption = {'paint.frame_name'}
         })
 
-        local top_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
+        local inner_frame = main_frame.add { type = 'frame', style = 'inside_shallow_frame', name = 'inner' }
+        Gui.set_style(inner_frame, { padding = 8 })
+
+        local top_flow = inner_frame.add {type = 'flow', direction = 'horizontal'}
 
         local tile_name = paint_brushes_by_player[event.player_index]
 
         local brush =
             top_flow.add({type = 'flow'}).add {
             type = 'sprite-button',
+            style = 'slot_button_in_shallow_frame',
             name = filter_button_name,
             tooltip = get_tile_localised_name(tile_name) or {'paint.select_brush'},
             sprite = tile_name and 'tile/' .. tile_name
         }
-        brush.style = 'slot_button'
 
         local label = top_flow.add {type = 'label', caption = {'paint.instructions'}}
         local label_style = label.style
@@ -281,7 +290,7 @@ local function toggle(event)
         label_style.single_line = false
         label_style.left_padding = 10
 
-        local buttons_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
+        local buttons_flow = main_frame.add { type = 'flow', direction = 'horizontal' }
 
         Gui.make_close_button(buttons_flow, main_button_name)
 
