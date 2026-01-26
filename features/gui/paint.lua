@@ -7,21 +7,21 @@ local default_fallback_hidden_tile = 'dirt-6'
 
 local brush_tools = {
     ['refined-concrete'] = true,
-    ['refined-hazard-concrete'] = true
+    ['refined-hazard-concrete'] = true,
 }
 
 local valid_filters = {
-    ['acid-refined-concrete'] = true,
-    ['black-refined-concrete'] = true,
-    ['blue-refined-concrete'] = true,
-    ['brown-refined-concrete'] = true,
-    ['cyan-refined-concrete'] = true,
-    ['green-refined-concrete'] = true,
+    ['acid-refined-concrete']   = true,
+    ['black-refined-concrete']  = true,
+    ['blue-refined-concrete']   = true,
+    ['brown-refined-concrete']  = true,
+    ['cyan-refined-concrete']   = true,
+    ['green-refined-concrete']  = true,
     ['orange-refined-concrete'] = true,
-    ['pink-refined-concrete'] = true,
+    ['pink-refined-concrete']   = true,
     ['purple-refined-concrete'] = true,
-    ['red-refined-concrete'] = true,
-    ['yellow-refined-concrete'] = true
+    ['red-refined-concrete']    = true,
+    ['yellow-refined-concrete'] = true,
 }
 
 local main_button_name = Gui.uid_name()
@@ -35,14 +35,11 @@ local filter_table_close_button_name = Gui.uid_name()
 
 local paint_brushes_by_player = {}
 
-Global.register(
-    {
-        paint_brushes_by_player = paint_brushes_by_player
-    },
-    function(tbl)
-        paint_brushes_by_player = tbl.paint_brushes_by_player
-    end
-)
+Global.register({
+    paint_brushes_by_player = paint_brushes_by_player,
+}, function(tbl)
+    paint_brushes_by_player = tbl.paint_brushes_by_player
+end)
 
 local function refund_tiles(player, tiles)
     local count = 0
@@ -57,7 +54,7 @@ local function refund_tiles(player, tiles)
     end
 
     if count > 0 then
-        player.insert {name = 'refined-concrete', count = count}
+        player.insert { name = 'refined-concrete', count = count }
     end
 end
 
@@ -119,7 +116,7 @@ local function player_build_tile(event)
         end
 
         if valid_filters[hidden_tile] then
-            hidden_tiles[#hidden_tiles + 1] = {position = tile_data.position, name = fallback_tile}
+            hidden_tiles[#hidden_tiles + 1] = { position = tile_data.position, name = fallback_tile }
         end
 
         ::continue::
@@ -134,11 +131,11 @@ local function player_build_tile(event)
     end
 
     if count > 0 then
-        player.insert {name = item_name, count = count}
+        player.insert { name = item_name, count = count }
     end
 
     if print_no_landfill_message then
-        player.print({'paint.no_place_landfill'})
+        player.print({ 'paint.no_place_landfill' })
     end
 end
 
@@ -166,7 +163,7 @@ local function robot_built_tile(event)
         local hidden_tile = surface.get_hidden_tile(tile_data.position)
 
         if valid_filters[hidden_tile] then
-            hidden_tiles[#hidden_tiles + 1] = {position = tile_data.position, name = fallback_tile}
+            hidden_tiles[#hidden_tiles + 1] = { position = tile_data.position, name = fallback_tile }
         end
     end
 
@@ -193,15 +190,13 @@ local function player_created(event)
         return
     end
 
-    local b = Gui.add_top_element(player,
-        {
-            name = main_button_name,
-            type = 'sprite-button',
-            sprite = 'utility/spray_icon',
-            tooltip = {'paint.tooltip'},
-            auto_toggle = true,
-        }
-    )
+    local b = Gui.add_top_element(player, {
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'utility/spray_icon',
+        tooltip = { 'paint.tooltip' },
+        auto_toggle = true,
+    })
     b.style.padding = 2
 end
 
@@ -220,34 +215,30 @@ local function draw_filters_table(event)
         type = 'frame',
         name = filters_table_name,
         direction = 'vertical',
-        caption = {'paint.palette'},
-        style = 'non_draggable_frame'
+        caption = { 'paint.palette' },
+        style = 'non_draggable_frame',
     }
 
-    local inner = frame
-        .add { type = 'frame', style = 'inside_deep_frame' }
-        .add { type = 'frame', style = 'filter_frame' }
-        .add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
+    local inner = frame.add { type = 'frame', style = 'inside_deep_frame' }.add { type = 'frame', style = 'filter_frame' }.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
 
     Gui.set_style(inner.parent, { natural_height = 0 })
 
-    local t = inner.add {type = 'table', column_count = 6, style = 'filter_slot_table'}
+    local t = inner.add { type = 'table', column_count = 6, style = 'filter_slot_table' }
     Gui.set_style(t, { bottom_padding = 8 })
 
     for tile_name, _ in pairs(valid_filters) do
-        local flow = t.add {type = 'flow'}
-        local button =
-            flow.add {
+        local flow = t.add { type = 'flow' }
+        local button = flow.add {
             type = 'sprite-button',
             name = filter_element_name,
             sprite = 'tile/' .. tile_name,
-            tooltip = get_tile_localised_name(tile_name)
+            tooltip = get_tile_localised_name(tile_name),
         }
-        Gui.set_data(button, {frame = frame, tile_name = tile_name})
+        Gui.set_data(button, { frame = frame, tile_name = tile_name })
         button.style = 'slot_button'
     end
 
-    local flow = frame.add {type = 'flow'}
+    local flow = frame.add { type = 'flow' }
 
     local close_button = Gui.make_close_button(flow, filter_table_close_button_name)
     Gui.set_data(close_button, frame)
@@ -266,110 +257,90 @@ local function toggle(event)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        main_frame = Gui.add_left_element(player,  {
+        main_frame = Gui.add_left_element(player, {
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
-            caption = {'paint.frame_name'}
+            caption = { 'paint.frame_name' },
         })
         Gui.set_style(main_frame, { width = 370 })
 
         local inner_frame = main_frame.add { type = 'frame', style = 'inside_shallow_frame', name = 'inner' }
         Gui.set_style(inner_frame, { padding = 8 })
 
-        local top_flow = inner_frame.add {type = 'flow', direction = 'horizontal'}
+        local top_flow = inner_frame.add { type = 'flow', direction = 'horizontal' }
 
         local tile_name = paint_brushes_by_player[event.player_index]
 
-        local brush =
-            top_flow.add({type = 'flow'}).add {
+        local brush = top_flow.add({ type = 'flow' }).add {
             type = 'sprite-button',
             style = 'slot_button_in_shallow_frame',
             name = filter_button_name,
-            tooltip = get_tile_localised_name(tile_name) or {'paint.select_brush'},
-            sprite = tile_name and 'tile/' .. tile_name
+            tooltip = get_tile_localised_name(tile_name) or { 'paint.select_brush' },
+            sprite = tile_name and 'tile/' .. tile_name,
         }
 
-        local label = top_flow.add {type = 'label', caption = {'paint.instructions'}}
-        local label_style = label.style
-        label_style.font = 'default-bold'
-        label_style.single_line = false
-        label_style.left_padding = 10
+        local label = top_flow.add { type = 'label', caption = { 'paint.instructions' } }
+        Gui.set_style(label, { font = 'default-bold', single_line = false, left_padding = 10 })
 
         local buttons_flow = main_frame.add { type = 'flow', direction = 'horizontal' }
 
         Gui.make_close_button(buttons_flow, main_button_name)
 
-        local clear_brush =
-            buttons_flow.add {type = 'button', name = filter_clear_name, caption = {'paint.clear_brush'}}
+        local clear_brush = buttons_flow.add { type = 'button', name = filter_clear_name, caption = { 'paint.clear_brush' } }
         Gui.set_data(clear_brush, brush)
     end
 end
 
 Gui.on_click(main_button_name, toggle)
 
-Gui.on_click(
-    filter_button_name,
-    function(event)
-        if event.button == defines.mouse_button_type.right then
-            paint_brushes_by_player[event.player_index] = nil
-            local element = event.element
-            element.sprite = 'utility/pump_cannot_connect_icon'
-            element.tooltip = {'paint.select_brush'}
-        else
-            draw_filters_table(event)
-        end
-    end
-)
-
-Gui.on_click(
-    filter_clear_name,
-    function(event)
-        local brush = Gui.get_data(event.element)
-
-        brush.sprite = 'utility/pump_cannot_connect_icon'
-        brush.tooltip = {'paint.select_brush'}
-
+Gui.on_click(filter_button_name, function(event)
+    if event.button == defines.mouse_button_type.right then
         paint_brushes_by_player[event.player_index] = nil
-    end
-)
-
-Gui.on_click(
-    filter_element_name,
-    function(event)
         local element = event.element
-        if not element or not element.valid then
-            return
-        end
-
-        local data = Gui.get_data(element)
-        local frame = data.frame
-        local tile_name = data.tile_name
-        local filter_button = Gui.get_data(frame)
-
-        paint_brushes_by_player[event.player_index] = tile_name
-        filter_button.sprite = element.sprite
-        filter_button.tooltip = element.tooltip
-
-        Gui.destroy(frame)
+        element.sprite = 'utility/pump_cannot_connect_icon'
+        element.tooltip = { 'paint.select_brush' }
+    else
+        draw_filters_table(event)
     end
-)
+end)
 
-Gui.on_click(
-    filter_table_close_button_name,
-    function(event)
-        local frame = Gui.get_data(event.element)
-        Gui.destroy(frame)
-    end
-)
+Gui.on_click(filter_clear_name, function(event)
+    local brush = Gui.get_data(event.element)
 
-Gui.on_custom_close(
-    filters_table_name,
-    function(event)
-        local element = event.element
-        Gui.destroy(element)
+    brush.sprite = 'utility/pump_cannot_connect_icon'
+    brush.tooltip = { 'paint.select_brush' }
+
+    paint_brushes_by_player[event.player_index] = nil
+end)
+
+Gui.on_click(filter_element_name, function(event)
+    local element = event.element
+    if not element or not element.valid then
+        return
     end
-)
+
+    local data = Gui.get_data(element)
+    local frame = data.frame
+    local tile_name = data.tile_name
+    local filter_button = Gui.get_data(frame)
+
+    paint_brushes_by_player[event.player_index] = tile_name
+    filter_button.sprite = element.sprite
+    filter_button.tooltip = element.tooltip
+
+    Gui.destroy(frame)
+end)
+
+Gui.on_click(filter_table_close_button_name, function(event)
+    local frame = Gui.get_data(event.element)
+    Gui.destroy(frame)
+end)
+
+Gui.on_custom_close(filters_table_name, function(event)
+    local element = event.element
+    Gui.destroy(element)
+end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 

@@ -7,8 +7,8 @@ local Color = require 'resources.color_presets'
 local enabled_style = 'working_weapon_button'
 local disabled_style = 'not_working_weapon_button'
 
-local style_map = {[true] = enabled_style, [false] = disabled_style}
-local enabled_locale_map = {[true] = {'common.enabled'}, [false] = {'common.disabled'}}
+local style_map = { [true] = enabled_style, [false] = disabled_style }
+local enabled_locale_map = { [true] = { 'common.enabled' }, [false] = { 'common.disabled' } }
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
@@ -26,7 +26,7 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/piercing-rounds-magazine',
-        tooltip = {'autofill.main_button_tooltip'},
+        tooltip = { 'autofill.main_button_tooltip' },
         auto_toggle = true,
     })
 end
@@ -34,7 +34,7 @@ end
 local function update_ammo_button(button, name, enabled)
     local locale_name = Autofill.ammo_locales[name]
     local style = style_map[enabled]
-    local tooltip = {'', locale_name, ' ', enabled_locale_map[enabled]}
+    local tooltip = { '', locale_name, ' ', enabled_locale_map[enabled] }
 
     button.style = style
     button.tooltip = tooltip
@@ -50,25 +50,23 @@ local function toggle_main_frame(event)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical' })
+        frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = { 'autofill.frame_name' }, direction = 'vertical' })
         Gui.set_style(frame, { width = 376 })
 
         local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
         Gui.set_style(inner, { padding = 8 })
 
-        local enabled_checkbox =
-            inner.add {
+        local enabled_checkbox = inner.add {
             type = 'checkbox',
             name = enabled_checkbox_name,
-            caption = {'autofill.enable'},
-            state = Autofill.get_enabled(player_index)
+            caption = { 'autofill.enable' },
+            state = Autofill.get_enabled(player_index),
         }
 
-        local ammo_count_flow = inner.add {type = 'flow', direction = 'horizontal'}
-        local ammo_count_label = ammo_count_flow.add {type = 'label', caption = {'autofill.ammo_count'}}
+        local ammo_count_flow = inner.add { type = 'flow', direction = 'horizontal' }
+        local ammo_count_label = ammo_count_flow.add { type = 'label', caption = { 'autofill.ammo_count' } }
         Gui.set_style(ammo_count_label, { minimal_width = 140 })
-        local ammo_count_textfield =
-            ammo_count_flow.add {
+        local ammo_count_textfield = ammo_count_flow.add {
             type = 'textfield',
             name = ammo_count_name,
             text = tostring(Autofill.get_ammo_count(player_index)),
@@ -77,23 +75,18 @@ local function toggle_main_frame(event)
             allow_negative = false,
         }
 
-        local enabled_ammos_flow = inner.add {type = 'flow', direction = 'horizontal'}
-        local enabled_ammos_label = enabled_ammos_flow.add {type = 'label', caption = {'autofill.enabled_ammos'}}
+        local enabled_ammos_flow = inner.add { type = 'flow', direction = 'horizontal' }
+        local enabled_ammos_label = enabled_ammos_flow.add { type = 'label', caption = { 'autofill.enabled_ammos' } }
         Gui.set_style(enabled_ammos_label, { minimal_width = 140 })
 
-        local grid = enabled_ammos_flow
-            .add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
-            .add { type = 'table', column_count = 5, style = 'filter_slot_table' }
+        local grid = enabled_ammos_flow.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }.add { type = 'table', column_count = 5, style = 'filter_slot_table' }
 
         for name, enabled in pairs(Autofill.get_player_ammos(player_index)) do
-            local button =
-                grid.add({type = 'flow'}).add(
-                {
-                    type = 'sprite-button',
-                    name = enabled_ammo_button,
-                    sprite = 'item/' .. name,
-                }
-            )
+            local button = grid.add({ type = 'flow' }).add({
+                type = 'sprite-button',
+                name = enabled_ammo_button,
+                sprite = 'item/' .. name,
+            })
             update_ammo_button(button, name, enabled)
 
             Gui.set_data(button, name)
@@ -104,7 +97,7 @@ local function toggle_main_frame(event)
         local data = {
             enabled_checkbox = enabled_checkbox,
             ammo_count_label = ammo_count_label,
-            ammo_count_textfield = ammo_count_textfield
+            ammo_count_textfield = ammo_count_textfield,
         }
 
         Gui.set_data(frame, data)
@@ -125,7 +118,7 @@ local function set_ammo_count_elements_validation(textfield, label, valid)
     else
         color = Color.red
         label_color = Color.red
-        tooltip = {'autofill.invalid_ammo_count'}
+        tooltip = { 'autofill.invalid_ammo_count' }
     end
 
     textfield.style.font_color = color
