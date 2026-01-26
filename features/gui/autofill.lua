@@ -52,33 +52,45 @@ local function toggle_main_frame(event)
     else
         frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical' })
 
+        local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
+        Gui.set_style(inner, { padding = 8 })
+
         local enabled_checkbox =
-            frame.add {
+            inner.add {
             type = 'checkbox',
             name = enabled_checkbox_name,
             caption = {'autofill.enable'},
             state = Autofill.get_enabled(player_index)
         }
 
-        local ammo_count_flow = frame.add {type = 'flow', direction = 'horizontal'}
+        local ammo_count_flow = inner.add {type = 'flow', direction = 'horizontal'}
         local ammo_count_label = ammo_count_flow.add {type = 'label', caption = {'autofill.ammo_count'}}
+        Gui.set_style(ammo_count_label, { minimal_width = 140 })
         local ammo_count_textfield =
             ammo_count_flow.add {
             type = 'textfield',
             name = ammo_count_name,
-            text = tostring(Autofill.get_ammo_count(player_index))
+            text = tostring(Autofill.get_ammo_count(player_index)),
+            numeric = true,
+            allow_decimal = false,
+            allow_negative = false,
         }
 
-        local enabled_ammos_flow = frame.add {type = 'flow', direction = 'horizontal'}
-        enabled_ammos_flow.add {type = 'label', caption = {'autofill.enabled_ammos'}}
+        local enabled_ammos_flow = inner.add {type = 'flow', direction = 'horizontal'}
+        local enabled_ammos_label = enabled_ammos_flow.add {type = 'label', caption = {'autofill.enabled_ammos'}}
+        Gui.set_style(enabled_ammos_label, { minimal_width = 140 })
+
+        local grid = enabled_ammos_flow
+            .add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
+            .add {type = 'table', column_count = 5, style = 'filter_slot_table'}
 
         for name, enabled in pairs(Autofill.get_player_ammos(player_index)) do
             local button =
-                enabled_ammos_flow.add({type = 'flow'}).add(
+                grid.add({type = 'flow'}).add(
                 {
                     type = 'sprite-button',
                     name = enabled_ammo_button,
-                    sprite = 'item/' .. name
+                    sprite = 'item/' .. name,
                 }
             )
             update_ammo_button(button, name, enabled)
