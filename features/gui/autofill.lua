@@ -82,7 +82,7 @@ local function toggle_main_frame(event)
 
         local grid = enabled_ammos_flow
             .add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
-            .add {type = 'table', column_count = 5, style = 'filter_slot_table'}
+            .add { type = 'table', column_count = 5, style = 'filter_slot_table' }
 
         for name, enabled in pairs(Autofill.get_player_ammos(player_index)) do
             local button =
