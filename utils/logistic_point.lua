@@ -21,11 +21,11 @@ local function parse_item_stack(item_stack)
       value = {
         type = item_stack.value.type or 'item',
         name = item_stack.value.name,
-        quality = item_stack.value.quality,
+        quality = item_stack.value.quality or 'normal',
         comparator = item_stack.value.comparator,
       },
-      min = item_stack.min or item_stack.min,
-      max = item_stack.max or item_stack.max,
+      min = item_stack.min,
+      max = item_stack.max,
       minimum_delivery_count = item_stack.minimum_delivery_count,
       import_from = (type(item_stack.import_from) == 'table' and item_stack.import_from.name) or item_stack.import_from,
     }
