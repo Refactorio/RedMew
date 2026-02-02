@@ -29,6 +29,7 @@ local mod_packs = {
     danger_ore_scrap      = 'danger_ore_scrap',
     danger_ore_space_age  = 'danger_ore_space_age',
     danger_ore_collapse   = 'danger_ore_collapse',
+    danger_ore_gridlocked = 'danger_ore_gridlocked',
 }
 
 local maps = {
@@ -47,6 +48,7 @@ local maps = {
     { name = 'danger-ore-for-the-swarm', display_name = 'Honeycomb-gradient (smooth ore ratios)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-gradient', display_name = 'Gradient (smooth ore ratios)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-grid-factory', display_name = 'Grid Factory (squares)', mod_pack = mod_packs.danger_ore_normal },
+    { name = 'danger-ore-gridlocked', display_name = 'Gridlocked (buy chunks)', mod_pack = mod_packs.danger_ore_gridlocked },
     { name = 'danger-ore-hub-spiral', display_name = 'Hub-spiral (with void)', mod_pack = mod_packs.danger_ore_normal },
     --{ name = 'danger-ore-industrial-revolution-3', display_name = 'Industrial Revolution 3 (default)', mod_pack = mod_packs.danger_ore_ir3 },
     --{ name = 'danger-ore-industrial-revolution-3-grid-factory', display_name = 'Industrial Revolution 3 Grid Factory (squares)', mod_pack = mod_packs.danger_ore_ir3 },

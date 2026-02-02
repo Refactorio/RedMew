@@ -1,5 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local gear_pic = b.decompress(require 'map_gen.data.presets.gear_64by64')
+
 return function(config)
     local main_ores = config.main_ores
     local shuffle_order = config.main_ores_shuffle_order
@@ -11,7 +12,7 @@ return function(config)
         for _, ore_data in pairs(main_ores) do
             local ore_name = ore_data.name
             local tiles = {
-                [1] = 'concrete'
+                [1] = 'concrete',
             }
             local land = tile_builder(tiles)
 
@@ -22,7 +23,9 @@ return function(config)
             local ore = ore_builder(ore_name, amount, ratios, weighted)
 
             local shape = b.apply_entity(land, ore)
-            shapes[#shapes + 1] = shape
+            for i = 1, (ore_data.weight or 1) do
+                shapes[#shapes + 1] = shape
+            end
         end
 
         local count = #shapes
@@ -72,7 +75,7 @@ return function(config)
 
         local cc_gear_shadow = b.choose(b.circle((grid_tile_size / 2) - 1), b.tile('concrete'), b.empty_shape)
         local spawn_cc_rect = b.choose(b.rectangle(grid_tile_size), concrete_ores, ores) --overlay ores
-        spawn_cc_rect =  b.any({spawn_shape, gear_shape, cc_gear_shadow, spawn_cc_rect})
+        spawn_cc_rect = b.any({ spawn_shape, gear_shape, cc_gear_shadow, spawn_cc_rect })
 
         -- walkways::
         local left_tile = b.tile('refined-hazard-concrete-left')
@@ -81,7 +84,7 @@ return function(config)
             [1] = b.tile('water'),
             [2] = b.tile('deepwater'),
             [3] = b.tile('water-shallow'),
-            [4] = b.tile('water-wube')
+            [4] = b.tile('water-wube'),
         }
         local water_tile = water_tiles[random_gen(#water_tiles)]
         local walk_pattern = {}
@@ -96,26 +99,26 @@ return function(config)
                     walk_pattern[i][j] = water_tile
                 end
             end
-          end
+        end
         -- middle x
         -- top
-        walk_pattern[ 1][32] = right_tile -- b.tile('red-refined-concrete')
-        walk_pattern[ 1][33] = left_tile  -- b.tile('green-refined-concrete')
+        walk_pattern[1][32] = right_tile -- b.tile('red-refined-concrete')
+        walk_pattern[1][33] = left_tile -- b.tile('green-refined-concrete')
         -- bottom
-        walk_pattern[64][32] = left_tile  -- b.tile('blue-refined-concrete')
+        walk_pattern[64][32] = left_tile -- b.tile('blue-refined-concrete')
         walk_pattern[64][33] = right_tile -- b.tile('yellow-refined-concrete')
         -- middle y
         -- left
-        walk_pattern[32][ 1] = right_tile -- b.tile('orange-refined-concrete')
-        walk_pattern[33][ 1] = left_tile  -- b.tile('pink-refined-concrete')
+        walk_pattern[32][1] = right_tile -- b.tile('orange-refined-concrete')
+        walk_pattern[33][1] = left_tile -- b.tile('pink-refined-concrete')
         -- right
-        walk_pattern[32][64] = left_tile  -- b.tile('purple-refined-concrete')
+        walk_pattern[32][64] = left_tile -- b.tile('purple-refined-concrete')
         walk_pattern[33][64] = right_tile -- b.tile('cyan-refined-concrete')
 
-        local hazard_grid =  b.grid_pattern_no_offset(walk_pattern, 64, 64, 1, 1)
+        local hazard_grid = b.grid_pattern_no_offset(walk_pattern, 64, 64, 1, 1)
         hazard_grid = b.translate(hazard_grid, 33, 33)
 
-        local map = b.any {hazard_grid, spawn_cc_rect, ores}
+        local map = b.any { hazard_grid, spawn_cc_rect, ores }
         return b.set_hidden_tile(map, 'sand-1') -- tile below concrete
     end
 end
