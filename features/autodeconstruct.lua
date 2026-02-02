@@ -138,7 +138,7 @@ local function on_resource_depleted(event)
     for i = 1, #drills do
         local drill = drills[i]
         if is_depleted(drill, entity) then
-            Task.set_timeout_in_ticks(5, callback, drill)
+            Task.set_timeout(5, callback, drill)
         end
     end
 end
