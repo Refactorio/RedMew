@@ -123,4 +123,10 @@ return [[
       - [DO:AB] Added DO/AngelBob preset
       - [DO:AM] Added DO/Angels preset
       - [DO:BM] Added DO/Bobs preset
+
+  2026-02-05:
+      - [DO] Fixed grid factory presets starting area not rendering correctly
+      - [DO] Fixed autodeconstruct not waiting for mining drills to output last ores
+      - [DO:Gridlocked] Added DO/Gridlocked preset
+      - [DO:Expanse] Updated DO/Expanse to 2.0
 ]]
