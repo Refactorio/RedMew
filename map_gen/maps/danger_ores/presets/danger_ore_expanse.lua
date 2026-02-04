@@ -47,6 +47,7 @@ Config.player_create.starting_items = {
 DOC.scenario_name = 'danger-ore-expanse'
 DOC.game.technology_price_multiplier = 5
 DOC.rocket_launched.win_satellite_count = 100
+DOC.terraforming.enabled = false
 
 local expanse = require 'map_gen.maps.danger_ores.modules.expanse'
 expanse({ start_size = 8 * 32 }) -- 8x32
