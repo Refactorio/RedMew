@@ -1,3 +1,4 @@
+local B = require 'map_gen.shared.builders'
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Config = require 'config'
@@ -32,6 +33,9 @@ DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.mai
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.ores_grid_factory'
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.industrial_revolution_3.resource_patches'
 DOC.map_config.spawn_tile = 'tarmac'
+DOC.map_config.spawn_shape = B.circle(20)
+DOC.map_config.start_ore_shape = B.circle(40)
+DOC.map_config.no_resource_patch_shape = B.circle(80)
 DOC.map_gen_settings.settings = H.empty_map_settings{
   -- point patches
   'crude-oil',

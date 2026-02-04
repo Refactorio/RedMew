@@ -1,3 +1,4 @@
+local B = require 'map_gen.shared.builders'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
@@ -12,5 +13,8 @@ DOC.scenario_name = 'danger-ore-grid-factory'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_grid_factory'
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores_landfill'
 DOC.map_config.spawn_tile = 'orange-refined-concrete'
+DOC.map_config.spawn_shape = B.circle(20)
+DOC.map_config.start_ore_shape = B.circle(40)
+DOC.map_config.no_resource_patch_shape = B.circle(80)
 
 return Scenario.register(DOC)
