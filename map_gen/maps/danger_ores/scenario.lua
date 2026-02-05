@@ -129,7 +129,9 @@ Public.register = function(danger_ores_config)
     end
   end)
 
-  return map_builder(_C.map_config)
+  if _C.map_config.enabled then
+    return map_builder(_C.map_config)
+  end
 end
 
 return Public

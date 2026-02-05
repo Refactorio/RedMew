@@ -158,9 +158,6 @@ local function on_built(event)
   entity.destroy{ raise_destroy = true }
 end
 
-Event.add(defines.events.on_built_entity, on_built)
-Event.add(defines.events.on_robot_built_entity, on_built)
-
 local function merge_dictionary(src, dst, call)
   if not src or not dst then
     return
@@ -221,6 +218,9 @@ Public.register = function(config)
     primitives.message = config.message
   end
   build_message()
+
+  Event.add(defines.events.on_built_entity, on_built)
+  Event.add(defines.events.on_robot_built_entity, on_built)
 end
 
 return Public
