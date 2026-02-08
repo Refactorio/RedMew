@@ -95,6 +95,7 @@ return {
     on_init = nil,
   },
   map_config = {
+    enabled = true,
     -- Start area
     spawn_shape = B.circle(64),
     start_ore_shape = B.circle(68),

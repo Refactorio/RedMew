@@ -46,6 +46,7 @@ return [[
       - [DO:PYFE] Added PyFE preset
 
   2024-02-24:
+      - [DO:Safety] Added Safety Ores preset
       - [Do:Scrap] Added Scrap preset
 
   2024-04-08:
@@ -129,4 +130,5 @@ return [[
       - [DO] Fixed autodeconstruct not waiting for mining drills to output last ores
       - [DO:Gridlocked] Added DO/Gridlocked preset
       - [DO:Expanse] Updated DO/Expanse to 2.0
+      - [DO:Safety] Updated DO/Safety to 2.0
 ]]
