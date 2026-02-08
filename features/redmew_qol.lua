@@ -201,7 +201,7 @@ local function preserve_bot(event)
         return
     end
     local entity = player.selected
-    if not (entity and entity.valid and entity.name == 'construction-robot')then
+    if not (entity and entity.valid and entity.name == 'construction-robot') then
         return
     end
     local logistic_network = entity.logistic_network
@@ -393,7 +393,11 @@ end
 -- Module's public setters/getters
 for _, f in pairs(features) do
     Public['set_' .. f.name] = function(enable)
-        return enable and register_feature(f) or unregister_feature(f)
+        if enable then
+            return register_feature(f)
+        else
+            return unregister_feature(f)
+        end
     end
     Public['get_' .. f.name] = function()
         return enabled[f.name] or false
