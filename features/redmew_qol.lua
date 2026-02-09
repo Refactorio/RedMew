@@ -1,106 +1,68 @@
--- Assorted quality of life improvements that are restricted in scope. Similar to redmew_commands but event-based rather than command-based.
--- Dependencies
-local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Utils = require 'utils.core'
 local Global = require 'utils.global'
+local Gui = require 'utils.gui'
+local Rank = require 'features.rank_system'
 local table = require 'utils.table'
 local Task = require 'utils.task'
-local Rank = require 'features.rank_system'
-local Gui = require 'utils.gui'
+local Token = require 'utils.token'
+local Utils = require 'utils.core'
 
-local config = storage.config.redmew_qol
-
--- Localized functions
+local config = require 'config'.redmew_qol
 local random = math.random
-
--- Local vars
 local Public = {}
+local enabled = {}
 
--- Global registers
-local enabled = {random_train_color = nil, restrict_chest = nil, change_backer_name = nil, set_alt_on_create = nil, inserter_drops_pickup = nil}
-
-Global.register({enabled = enabled}, function(tbl)
+Global.register({ enabled = enabled }, function(tbl)
     enabled = tbl.enabled
 end)
 
--- Local functions
+-- == Helpers =================================================================
 
---- When placed, locomotives will get a random color
-local random_train_color = Token.register(function(event)
-    local entity = event.entity
-    if entity and entity.valid and entity.type == 'locomotive' then
-        entity.color = Utils.random_RGB()
-    end
-end)
-
---- If a newly placed entity is a provider or non-logi chest, set it to only have 1 slot available.
--- If placed from a bp and the bp has restrictions on the chest, it takes priority.
-local restrict_chest = Token.register(function(event)
-    local entity = event.entity
-    if entity and entity.valid and (entity.name == 'passive-provider-chest' or entity.type == 'container') then
-        local chest_inventory = entity.get_inventory(defines.inventory.chest)
-        if #chest_inventory + 1 == chest_inventory.getbar() then
-            chest_inventory.setbar(2)
-        end
-    end
-end)
-
---- Selects a name from the entity backer name, game.players, and regulars
-local function pick_name()
-    -- Create a weight table comprised of the backer name, a player's name, and a regular's name
-    local random_player = game.get_player(random(#game.players))
-    if not random_player then
-        return
-    end
-
-    local regulars = Rank.get_player_table()
-    local reg
-    if table.size(regulars) == 0 then
-        reg = nil
-    else
-        reg = {table.get_random_dictionary_entry(regulars, true), 1}
-    end
-    local name_table = {{false, 8}, {random_player.name, 1}, reg}
-    return table.get_random_weighted(name_table)
+local function safe_get_player(player_index)
+    local p = game.get_player(player_index)
+    return p and p.valid and p or nil
 end
 
---- Changes the backer name on an entity that supports having a backer name.
-local change_backer_name = Token.register(function(event)
-    local entity = event.entity
-    if entity and entity.valid and entity.backer_name then
-        entity.backer_name = pick_name() or entity.backer_name
-    end
-end)
-
---- Changes the backer name on an entity that supports having a backer name.
-local set_alt_on_create = Token.register(function(event)
-    local player = game.get_player(event.player_index)
-    if not player then
+local function pick_name()
+    local p = game.get_player(random(#game.players))
+    if not p then
         return
     end
-    player.game_view_settings.show_entity_info = true
-end)
+    local regs = Rank.get_player_table()
+    local reg = table.size(regs) > 0 and { table.get_random_dictionary_entry(regs, true), 1 } or nil
+    return table.get_random_weighted({ { false, 8 }, { p.name, 1 }, reg })
+end
 
-local controllers_with_inventory = {
-    [defines.controllers.character] = true,
-    [defines.controllers.god] = true,
-    [defines.controllers.editor] = true,
+local loader_frame_name = Gui.uid_name()
+local loader_button_player = Gui.uid_name()
+local loader_button_machine = Gui.uid_name()
+
+local loaders = {
+    ['loader'] = true,
+    ['fast-loader'] = true,
+    ['express-loader'] = true,
+    ['turbo-loader'] = true,
 }
 
---- Pickup the item an inserter put on the ground when the inserter is mined
-local inserter_drops_pickup = Token.register(function(event)
-    local inserter = event.entity
-    if (not inserter.valid) or (inserter.type ~= 'inserter') or inserter.drop_target then return end
-
-    local item_entity = inserter.surface.find_entity('item-on-ground', inserter.drop_position)
-    if item_entity then
-        local player = game.get_player(event.player_index)
-        if controllers_with_inventory[player.controller_type] then
-            player.mine_entity(item_entity)
-        end
-    end
-end)
+local container_types = {
+    'assembling-machine',
+    'beacon',
+    'boiler',
+    'burner-generator',
+    'container',
+    'curved-rail',
+    'furnace',
+    'infinity-container',
+    'lab',
+    'linked-container',
+    'logistic-container',
+    'mining-drill',
+    'proxy-container',
+    'rail',
+    'reactor',
+    'rocket-silo',
+    'straight-rail',
+}
 
 local loaders_technology_map = {
     ['logistics'] = 'loader',
@@ -109,36 +71,142 @@ local loaders_technology_map = {
     ['turbo-transport-belt'] = 'turbo-loader',
 }
 
---- After init, checks if any of the loader techs have been researched
--- and enables loaders if appropriate.
-local loader_check_token = Token.register(function()
-    for _, force in pairs(game.forces) do
-        for key, recipe in pairs(loaders_technology_map) do
-            if force.technologies[key] and force.technologies[key].researched then
-                force.recipes[recipe].enabled = true
+local loader_offsets = {
+    [defines.direction.north] = { x =  0.0, y = -1.5 },
+    [defines.direction.east]  = { x =  1.5, y =  0.0 },
+    [defines.direction.south] = { x =  0.0, y =  1.5 },
+    [defines.direction.west]  = { x = -1.5, y =  0.0 },
+}
+
+local function any_loader_enabled(recipes)
+    if prototypes.entity['redmew-loader'] then
+        return false
+    end
+    for name in pairs(loaders) do
+        local recipe = recipes[name]
+        if recipe and recipe.enabled then
+            return true
+        end
+    end
+    return false
+end
+
+local function draw_loader_frame(parent, entity)
+    local frame = parent[loader_frame_name]
+    local player = entity or safe_get_player(parent.player_index)
+    local recipes = player.force.recipes
+    if not player or not any_loader_enabled(recipes) then
+        if frame and frame.valid then
+            Gui.destroy(frame)
+        end
+        return
+    end
+
+    if frame and frame.valid then
+        Gui.clear(frame)
+    else
+        frame = parent.add {
+            type = 'frame',
+            name = loader_frame_name,
+            anchor = {
+                gui = defines.relative_gui_type[entity and 'assembling_machine_select_recipe_gui' or 'controller_gui'],
+                position = defines.relative_gui_position.right
+            },
+            direction = 'vertical',
+        }
+    end
+
+    local container = frame
+        .add { type = 'frame', style = 'inside_deep_frame' }
+        .add { type = 'table', column_count = 1, style = 'filter_slot_table' }
+    for recipe in pairs(loaders) do
+        if recipes[recipe] and recipes[recipe].enabled then
+            local button = container.add({type = 'flow'}).add {
+                type = 'choose-elem-button',
+                name = entity and loader_button_machine or loader_button_player,
+                elem_type = 'recipe',
+                recipe = recipe,
+            }
+            button.locked = true
+            if entity then
+                Gui.set_data(button, entity)
             end
         end
     end
-end)
+end
 
---- Sets construction robots that are not part of a roboport to unminabe
--- if the player selecting them are not the owner of them.
-local function preserve_bot(event)
-    local player = game.get_player(event.player_index)
-    local entity = player.selected
+local function opposite_direction(direction)
+    return (direction + 8) % 16
+end
 
-    if entity == nil or not entity.valid then
+-- Merge entities and ghost entities
+local function find_entities(surface, position, force, types)
+    local entities = surface.find_entities_filtered({
+        force = force,
+        position = position,
+        type = types,
+    })
+    local ghosts = surface.find_entities_filtered({
+        force = force,
+        ghost_type = types,
+        position = position,
+    })
+    for i = 1, #ghosts do
+        entities[#entities + 1] = ghosts[i]
+    end
+    return entities
+end
+
+local function snap_to_container(entity)
+    local dir = entity.direction
+    if entity.loader_type == 'input' then
+        dir = opposite_direction(dir)
+    end
+
+    local pos = entity.position
+    local offset = loader_offsets[dir]
+    local target_pos = { x = pos.x + offset.x, y = pos.y + offset.y }
+
+    local container = find_entities(entity.surface, target_pos, entity.force, container_types)[1]
+    if not container then
         return
     end
 
-    if entity.name ~= 'construction-robot' then
+    -- flip input/output + direction
+    entity.direction = opposite_direction(dir)
+    entity.loader_type = entity.loader_type == 'output' and 'input' or 'output'
+end
+
+local function snap_loader(event)
+    local entity = event.entity or event.destination
+    if not (entity and entity.valid and loaders[entity.name] and not entity.loader_container) then
+        return
+    end
+
+    entity.update_connections()
+    if not entity.loader_container then
+        snap_to_container(entity)
+    end
+end
+
+local valid_controllers = {
+    [defines.controllers.character] = true,
+    [defines.controllers.god] = true,
+    [defines.controllers.editor] = true,
+}
+
+local function preserve_bot(event)
+    local player = safe_get_player(event.player_index)
+    if not player then
+        return
+    end
+    local entity = player.selected
+    if not (entity and entity.valid and entity.name == 'construction-robot') then
         return
     end
     local logistic_network = entity.logistic_network
-
-    if logistic_network == nil or not logistic_network.valid then
-        -- prevents an orphan bot from being unremovable
-        entity.minable_flag = true
+    if not (logistic_network and logistic_network.valid) then
+        entity.minable_flag = true -- prevents an orphan bot from being unremovable
         return
     end
 
@@ -161,592 +229,240 @@ local function preserve_bot(event)
     entity.minable_flag = false
 end
 
--- Event registers
+-- == Features definition =====================================================
 
-local function register_random_train_color()
-    if enabled.random_train_color then
-        return false -- already registered
+local features = {
+    {
+        name = 'random_train_color',
+        events = {
+            [defines.events.on_built_entity] = 'on_built'
+        },
+        handlers = {
+            on_built = Token.register(function(e)
+                local en = e.entity
+                if en and en.valid and en.type == 'locomotive' then
+                    en.color = Utils.random_RGB()
+                end
+            end),
+        }
+    },
+    {
+        name = 'restrict_chest',
+        events = {
+            [defines.events.on_built_entity] = 'on_built',
+            [defines.events.on_robot_built_entity] = 'on_built'
+        },
+        handlers = {
+            on_built = Token.register(function(e)
+                local en = e.entity
+                if en and en.valid and (en.name == 'passive-provider-chest' or en.type == 'container') then
+                    local inv = en.get_inventory(defines.inventory.chest)
+                    if inv and #inv + 1 == inv.get_bar() then
+                        inv.set_bar(2)
+                    end
+                end
+            end),
+        }
+    },
+    {
+        name = 'backer_name',
+        events = {
+            [defines.events.on_built_entity] = 'on_built',
+            [defines.events.on_robot_built_entity] = 'on_built'
+        },
+        handlers = {
+            on_built = Token.register(function(e)
+                local en = e.entity
+                if en and en.valid and en.backer_name then
+                    en.backer_name = pick_name() or en.backer_name
+                end
+            end),
+        }
+    },
+    {
+        name = 'set_alt_on_create',
+        events = { [defines.events.on_player_created] = 'on_player_created' },
+        handlers = {
+            on_player_created = Token.register(function(e)
+                local p = safe_get_player(e.player_index)
+                if not p then
+                    return
+                end
+                p.game_view_settings.show_entity_info = true
+            end),
+        }
+    },
+    {
+        name = 'inserter_drops_pickup',
+        events = { [defines.events.on_player_mined_entity] = 'on_player_mined_entity' },
+        handlers = {
+            on_player_mined_entity = Token.register(function(e)
+                local en = e.entity
+                local p = safe_get_player(e.player_index)
+                if not (en and en.valid and en.type == 'inserter' and not en.drop_target) then
+                    return
+                end
+                local item = en.surface.find_entity('item-on-ground', en.drop_position)
+                if item and p and valid_controllers[p.controller_type] then
+                    p.mine_entity(item)
+                end
+            end),
+        }
+    },
+    {
+        name = 'loaders',
+        events = {
+            [defines.events.on_built_entity] = 'on_built',
+            [defines.events.on_entity_cloned] = 'on_built',
+            [defines.events.on_robot_built_entity] = 'on_built',
+            [defines.events.script_raised_built] = 'on_built',
+            [defines.events.script_raised_revive] = 'on_built',
+            [defines.events.on_space_platform_built_entity] = 'on_built',
+            [defines.events.on_research_finished] = 'on_research_finished',
+            [defines.events.on_gui_opened] = 'on_gui_opened',
+            [defines.events.on_gui_closed] = 'on_gui_closed',
+        },
+        handlers = {
+            on_built = Token.register(snap_loader),
+            on_research_finished = Token.register(function(e)
+                local recipe = loaders_technology_map[e.research.name]
+                if not recipe then
+                    return
+                end
+                e.research.force.recipes[recipe].enabled = true
+                for _, p in pairs(game.players) do
+                    if p.opened_gui_type == defines.gui_type.controller then
+                        draw_loader_frame(p.gui.relative)
+                    end
+                end
+            end),
+            on_gui_opened = Token.register(function(e)
+                local p = safe_get_player(e.player_index)
+                if not p then
+                    return
+                end
+                local parent, en = p.gui.relative, e.entity
+                if en and en.valid and en.type == 'assembling-machine' then
+                    draw_loader_frame(parent, en)
+                elseif e.gui_type == defines.gui_type.controller then
+                    draw_loader_frame(parent)
+                end
+            end),
+            on_gui_closed = Token.register(function(e)
+                local p = safe_get_player(e.player_index)
+                if not p then
+                    return
+                end
+                local frame = p.gui.relative[loader_frame_name]
+                if frame and frame.valid then
+                    Gui.destroy(frame)
+                end
+            end)
+        }
+    },
+    {
+        name = 'save_bots',
+        events = {
+            [defines.events.on_selected_entity_changed] = 'on_selected_entity_changed',
+        },
+        handlers = {
+            on_selected_entity_changed = Token.register(preserve_bot),
+        }
+    }
+}
+
+local function register_feature(feature)
+    if enabled[feature.name] then
+        return false
     end
-    enabled.random_train_color = true
-    Event.add_removable(defines.events.on_built_entity, random_train_color)
+    enabled[feature.name] = true
+    for event_id, handler_id in pairs(feature.events) do
+        Event.add_removable(event_id, feature.handlers[handler_id])
+    end
     return true
 end
 
-local function register_restrict_chest()
-    if enabled.restrict_chest then
-        return false -- already registered
+local function unregister_feature(feature)
+    for event_id, handler_id in pairs(feature.events) do
+        Event.remove_removable(event_id, feature.handlers[handler_id])
     end
-    enabled.restrict_chest = true
-    Event.add_removable(defines.events.on_built_entity, restrict_chest)
-    Event.add_removable(defines.events.on_robot_built_entity, restrict_chest)
+    enabled[feature.name] = false
     return true
 end
 
-local function register_change_backer_name()
-    if enabled.change_backer_name then
-        return false -- already registered
-    end
-    enabled.change_backer_name = true
-    Event.add_removable(defines.events.on_built_entity, change_backer_name)
-    Event.add_removable(defines.events.on_robot_built_entity, change_backer_name)
-    return true
-end
-
-local function register_set_alt_on_create()
-    if enabled.set_alt_on_create then
-        return false -- already registered
-    end
-    enabled.set_alt_on_create = true
-    Event.add_removable(defines.events.on_player_created, set_alt_on_create)
-    return true
-end
-
-local function register_inserter_drops_pickup()
-    if enabled.inserter_drops_pickup then
-        return false -- already registered
-    end
-    enabled.inserter_drops_pickup = true
-    Event.add_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
-    return true
-end
-
-local function on_init()
-    if config.loaders then
-        Task.set_timeout_in_ticks(1, loader_check_token, nil)
-    end
-end
-
-Event.on_init(on_init)
-Event.on_configuration_changed(on_init)
-
--- Public functions
-
---- Sets random_train_color on or off.
--- @param enable <boolean> true to toggle on, false for off
--- @return <boolean> Success/failure of command
-function Public.set_random_train_color(enable)
-    if enable then
-        return register_random_train_color()
-    end
-    Event.remove_removable(defines.events.on_built_entity, random_train_color)
-    enabled.random_train_color = false
-    return true
-end
-
---- Return status of restrict_chest
-function Public.get_random_train_color()
-    return enabled.random_train_color or false
-end
-
---- Sets restrict_chest on or off.
--- @param enable <boolean> true to toggle on, false for off
--- @return <boolean> Success/failure of command
-function Public.set_restrict_chest(enable)
-    if enable then
-        return register_restrict_chest()
-    else
-        Event.remove_removable(defines.events.on_built_entity, restrict_chest)
-        Event.remove_removable(defines.events.on_robot_built_entity, restrict_chest)
-        enabled.restrict_chest = false
-        return true
-    end
-end
-
---- Return status of restrict_chest
-function Public.get_restrict_chest()
-    return enabled.restrict_chest or false
-end
-
---- Sets backer_name on or off.
--- @param enable <boolean> true to toggle on, false for off
--- @return <boolean> Success/failure of command
-function Public.set_backer_name(enable)
-    if enable then
-        return register_change_backer_name()
-    else
-        Event.remove_removable(defines.events.on_built_entity, change_backer_name)
-        Event.remove_removable(defines.events.on_robot_built_entity, change_backer_name)
-        enabled.change_backer_name = false
-        return true
-    end
-end
-
---- Return status of backer_name
-function Public.get_backer_name()
-    return enabled.change_backer_name or false
-end
-
---- Sets set_alt_on_create on or off.
--- @param enable <boolean> true to toggle on, false for off
--- @return <boolean> Success/failure of command
-function Public.set_set_alt_on_create(enable)
-    if enable then
-        return register_set_alt_on_create()
-    else
-        Event.remove_removable(defines.events.on_player_created, set_alt_on_create)
-        enabled.set_alt_on_create = false
-        return true
-    end
-end
-
---- Return status of set_alt_on_create
-function Public.get_set_alt_on_create()
-    return enabled.set_alt_on_create or false
-end
-
---- Sets inserter_drops_pickup on or off.
--- @param enable <boolean> true to toggle on, false for off
--- @return <boolean> Success/failure of command
-function Public.set_inserter_drops_pickup(enable)
-    if enable then
-        return register_inserter_drops_pickup()
-    else
-        Event.remove_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
-        enabled.inserter_drops_pickup = false
-        return true
-    end
-end
-
---- Return status of inserter_drops_pickup
-function Public.get_inserter_drops_pickup()
-    return enabled.inserter_drops_pickup or false
-end
-
-
--- Initial event setup
-
-if config.random_train_color then
-    register_random_train_color()
-end
-if config.restrict_chest then
-    register_restrict_chest()
-end
-if config.backer_name then
-    register_change_backer_name()
-end
-if config.set_alt_on_create then
-    register_set_alt_on_create()
-end
-if config.inserter_drops_pickup then
-    register_inserter_drops_pickup()
-end
-
-if config.save_bots then
-    Event.add(defines.events.on_selected_entity_changed, preserve_bot)
-end
-
-local loader_crafter_frame_for_player_name = Gui.uid_name()
-local loader_crafter_frame_for_assembly_machine_name = Gui.uid_name()
-local player_craft_loader_1 = Gui.uid_name()
-local player_craft_loader_2 = Gui.uid_name()
-local player_craft_loader_3 = Gui.uid_name()
-local player_craft_loader_4 = Gui.uid_name()
-local machine_craft_loader_1 = Gui.uid_name()
-local machine_craft_loader_2 = Gui.uid_name()
-local machine_craft_loader_3 = Gui.uid_name()
-local machine_craft_loader_4 = Gui.uid_name()
-
-local open_gui_token = Token.register(function(data)
-    local player = data.player
-    local entity = data.entity
-    player.opened = entity
-end)
-
-local close_gui_token = Token.register(function(data)
-    local player = data.player
-    player.opened = nil
-end)
-
-local function any_loader_enabled(recipes)
-    return recipes['loader'].enabled or recipes['fast-loader'].enabled or recipes['express-loader'].enabled or (recipes['turbo-loader'] and recipes['turbo-loader'].enabled)
-end
-
-local function draw_loader_frame_for_player(parent, player)
-    local frame = parent[loader_crafter_frame_for_player_name]
-
-    local recipes = player.force.recipes
-    if not any_loader_enabled(recipes) then
-        if frame and frame.valid then
-            Gui.destroy(frame)
-        end
-        return
-    end
-
-    if frame and frame.valid then
-        Gui.clear(frame)
-    else
-        local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
-        frame = parent.add {
-            type = 'frame',
-            name = loader_crafter_frame_for_player_name,
-            anchor = anchor,
-            direction = 'vertical'
-        }
-    end
-
-    if recipes['loader'] and recipes['loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = player_craft_loader_1,
-            elem_type = 'recipe',
-            recipe = 'loader'
-        }
-        button.locked = true
-    end
-
-    if recipes['fast-loader'] and recipes['fast-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = player_craft_loader_2,
-            elem_type = 'recipe',
-            recipe = 'fast-loader'
-        }
-        button.locked = true
-    end
-
-    if recipes['express-loader'] and recipes['express-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = player_craft_loader_3,
-            elem_type = 'recipe',
-            recipe = 'express-loader'
-        }
-        button.locked = true
-    end
-
-    if recipes['turbo-loader'] and recipes['turbo-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = player_craft_loader_4,
-            elem_type = 'recipe',
-            recipe = 'turbo-loader'
-        }
-        button.locked = true
-    end
-end
-
-local function draw_loader_frame_for_assembly_machine(parent, entity, player)
-    local frame = parent[loader_crafter_frame_for_assembly_machine_name]
-
-    local recipes = player.force.recipes
-    if not any_loader_enabled(recipes) then
-        if frame and frame.valid then
-            Gui.destroy(frame)
-        end
-        return
-    end
-
-    if frame and frame.valid then
-        Gui.clear(frame)
-    else
-        local anchor = {
-            gui = defines.relative_gui_type.assembling_machine_select_recipe_gui,
-            position = defines.relative_gui_position.right
-        }
-        frame = parent.add {
-            type = 'frame',
-            name = loader_crafter_frame_for_assembly_machine_name,
-            anchor = anchor,
-            direction = 'vertical'
-        }
-    end
-
-    if recipes['loader'] and recipes['loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = machine_craft_loader_1,
-            elem_type = 'recipe',
-            recipe = 'loader'
-        }
-        button.locked = true
-        Gui.set_data(button, entity)
-    end
-
-    if recipes['fast-loader'] and recipes['fast-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = machine_craft_loader_2,
-            elem_type = 'recipe',
-            recipe = 'fast-loader'
-        }
-        button.locked = true
-        Gui.set_data(button, entity)
-    end
-
-    if recipes['express-loader'] and recipes['express-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = machine_craft_loader_3,
-            elem_type = 'recipe',
-            recipe = 'express-loader'
-        }
-        button.locked = true
-        Gui.set_data(button, entity)
-    end
-
-    if recipes['turbo-loader'] and recipes['turbo-loader'].enabled then
-        local button = frame.add {
-            type = 'choose-elem-button',
-            name = machine_craft_loader_4,
-            elem_type = 'recipe',
-            recipe = 'turbo-loader'
-        }
-        button.locked = true
-        Gui.set_data(button, entity)
-    end
-end
-
-local function player_craft_loaders(event, loader_name)
-    local player = event.player
-    if not player.force.recipes[loader_name].enabled then
-        return
-    end
-
-    local button = event.button -- int
-    local shift = event.shift -- bool
-
-    local count
-    if button == defines.mouse_button_type.left then
-        if shift then
-            count = 4294967295 -- uint highest value. Factorio crafts as many as able
+-- Module's public setters/getters
+for _, f in pairs(features) do
+    Public['set_' .. f.name] = function(enable)
+        if enable then
+            return register_feature(f)
         else
-            count = 1
+            return unregister_feature(f)
         end
-    elseif button == defines.mouse_button_type.right then
-        count = 5
-    else
-        return
     end
-    player.begin_crafting {count = count, recipe = loader_name}
+    Public['get_' .. f.name] = function()
+        return enabled[f.name] or false
+    end
 end
 
-Gui.on_click(player_craft_loader_1, function(event)
-    player_craft_loaders(event, 'loader')
-end)
+-- == Events ==================================================================
 
-Gui.on_click(player_craft_loader_2, function(event)
-    player_craft_loaders(event, 'fast-loader')
-end)
-
-Gui.on_click(player_craft_loader_3, function(event)
-    player_craft_loaders(event, 'express-loader')
-end)
-
-Gui.on_click(player_craft_loader_4, function(event)
-    player_craft_loaders(event, 'turbo-loader')
-end)
-
-local function set_assembly_machine_recipe(event, loader_name)
-    if not event.player.force.recipes[loader_name].enabled then
+Gui.on_click(loader_button_player, function(event)
+    local player = event.player
+    local recipe = event.element.elem_value
+    if not player.force.recipes[recipe].enabled then
         return
     end
+    local count = (event.button == defines.mouse_button_type.left) and (event.shift and 4294967295 or 1) or (event.button == defines.mouse_button_type.right) and 5 or nil
+    if count then
+        player.begin_crafting { count = count, recipe = recipe }
+    end
+end)
 
+Gui.on_click(loader_button_machine, function(event)
+    local recipe = event.element.elem_value
+    if not event.player.force.recipes[recipe].enabled then
+        return
+    end
     local entity = Gui.get_data(event.element)
-    entity.set_recipe(loader_name)
-    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player})
-    Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
-end
-
-Gui.on_click(machine_craft_loader_1, function(event)
-    set_assembly_machine_recipe(event, 'loader')
+    if entity and entity.valid then
+        entity.set_recipe(recipe)
+    end
 end)
 
-Gui.on_click(machine_craft_loader_2, function(event)
-    set_assembly_machine_recipe(event, 'fast-loader')
-end)
-
-Gui.on_click(machine_craft_loader_3, function(event)
-    set_assembly_machine_recipe(event, 'express-loader')
-end)
-
-Gui.on_click(machine_craft_loader_4, function(event)
-    set_assembly_machine_recipe(event, 'turbo-loader')
-end)
-
-if config.loaders then
-    Event.add(defines.events.on_research_finished, function(event)
-        local research = event.research
-        local recipe = loaders_technology_map[research.name]
-        if not recipe then
-            return
-        end
-
-        research.force.recipes[recipe].enabled = true
-        for _, player in pairs(game.players) do
-            if player.opened_gui_type == defines.gui_type.controller then
-                local panel = player.gui.relative
-                draw_loader_frame_for_player(panel, player)
+local loader_check_token = Token.register(function()
+    for _, force in pairs(game.forces) do
+        local techs = force.technologies
+        local recipes = force.recipes
+        for t_name, r_name in pairs(loaders_technology_map) do
+            if techs[t_name] and techs[t_name].researched then
+                recipes[r_name].enabled = true
             end
         end
-    end)
-
-    Event.add(defines.events.on_gui_opened, function(event)
-        local player = game.get_player(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-
-        local panel = player.gui.relative
-        local entity = event.entity
-        if entity and entity.valid and entity.type == 'assembling-machine' then
-            draw_loader_frame_for_assembly_machine(panel, entity, player)
-        elseif event.gui_type == defines.gui_type.controller then
-            draw_loader_frame_for_player(panel, player)
-        end
-    end)
-
-    Event.add(defines.events.on_gui_closed, function(event)
-        local player = game.get_player(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-
-        local relative = player.gui.relative
-        local panel = relative[loader_crafter_frame_for_assembly_machine_name]
-        if panel and panel.valid then
-            Gui.remove_data_recursively(panel)
-        end
-    end)
-
-    local direction_to_offset_back = {
-        [0] = {x = 0, y = 1.5},
-        [4] = {x = -1.5, y = 0},
-        [8] = {x = 0, y = -1.5},
-        [12] = {x = 1.5, y = 0}
-    }
-
-    local direction_to_offset_front = {
-        [0] = {x = 0, y = -1.5},
-        [4] = {x = 1.5, y = 0},
-        [8] = {x = 0, y = 1.5},
-        [12] = {x = -1.5, y = 0}
-    }
-
-    local loaders = {['loader'] = true, ['fast-loader'] = true, ['express-loader'] = true, ['turbo-loader'] = true}
-
-    local container_types = {'container', 'logistic-container', 'assembling-machine', 'furnace'}
-
-    local function is_valid_unconnected_loader(entity)
-        if not entity or not entity.valid then
-            return false
-        end
-
-        if not loaders[entity.name] then
-            return false
-        end
-
-        if entity.loader_container then
-            -- loader is already connected.
-            return false
-        end
-
-        return true
     end
+end)
 
-    local function replace_loader(entity, input_type)
-        local get_filter = entity.get_filter
-        local filters = {}
-        local filter_count = entity.filter_slot_count
-        for i = 1, filter_count do
-            filters[i] = get_filter(i)
-        end
-
-        local name = entity.name
-        local position = entity.position
-        local direction = entity.direction
-        local force = entity.force
-        local surface = entity.surface
-        local last_user = entity.last_user
-
-        entity.destroy({raise_destroy = true})
-
-        local new_entity = surface.create_entity {
-            name = name,
-            position = position,
-            direction = direction,
-            type = input_type,
-            force = force,
-            player = last_user
-        }
-
-        if not new_entity then
-            return
-        end
-
-        local set_filter = new_entity.set_filter
-        for i = 1, filter_count do
-            set_filter(i, filters[i])
-        end
-
-        script.raise_script_built({entity = new_entity})
+Event.on_init(function()
+    if config.loaders then
+        Task.set_timeout_in_ticks(1, loader_check_token)
     end
+end)
 
-    local function loader_rotate(entity)
-        if not is_valid_unconnected_loader(entity) then
-            return
-        end
-
-        local direction = entity.direction
-        local offset = direction_to_offset_back[direction]
-
-        local pos = entity.position
-        local target_pos = {pos.x + offset.x, pos.y + offset.y}
-
-        local surface = entity.surface
-        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
-        if target then
-            replace_loader(entity, 'output')
-            return
-        end
-
-        offset = direction_to_offset_front[direction]
-        target_pos = {pos.x + offset.x, pos.y + offset.y}
-
-        target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
-        if target then
-            replace_loader(entity, 'input')
+Event.on_configuration_changed(function()
+    if config.loaders then
+        Task.set_timeout_in_ticks(1, loader_check_token)
+    end
+    for _, p in pairs(game.players) do
+        local frame = p.gui.relative[loader_frame_name]
+        if frame then
+            Gui.destroy(frame)
         end
     end
+end)
 
-    local function loader_built(entity)
-        if not is_valid_unconnected_loader(entity) then
-            return
-        end
-
-        local direction = entity.direction
-        local offset = direction_to_offset_back[direction]
-
-        local pos = entity.position
-        local target_pos = {pos.x + offset.x, pos.y + offset.y}
-
-        local surface = entity.surface
-        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
-        if target then
-            -- loader is already connected. When the loader is first built it isn't connected yet,
-            -- so we look for a container that it will connect to.
-            return
-        end
-
-        offset = direction_to_offset_front[direction]
-        target_pos = {pos.x + offset.x, pos.y + offset.y}
-
-        target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
-        if target then
-            replace_loader(entity, 'input')
-        end
+for _, f in pairs(features) do
+    if config[f.name] then
+        register_feature(f)
     end
-
-    Event.add(defines.events.on_player_rotated_entity, function(event)
-        loader_rotate(event.entity)
-    end)
-
-    Event.add(defines.events.on_built_entity, function(event)
-        loader_built(event.entity)
-    end)
-
-    Event.add(defines.events.on_robot_built_entity, function(event)
-        loader_built(event.entity)
-    end)
 end
 
 return Public
