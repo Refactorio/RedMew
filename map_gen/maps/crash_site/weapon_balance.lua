@@ -84,6 +84,12 @@ local function init_weapon_damage()
     for k, v in pairs(enemy_ammo_starting_modifiers) do
         e_force.set_ammo_damage_modifier(k, v)
     end
+
+    -- Disable defender tech until we figure out what do with bot spawn that is affected by follower count.
+    local defender_tech = p_force.technologies['defender']
+    if defender_tech and defender_tech.valid then
+        defender_tech.enabled = false
+    end
 end
 
 local function enemy_weapon_damage()
