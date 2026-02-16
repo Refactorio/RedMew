@@ -360,7 +360,7 @@ local function draw_main_frame(left, player)
 
     local remaining_time_label = poll_viewer_top_flow.add { type = 'label' }
 
-    local poll_viewer_content = inner.add { type = 'scroll-pane' }
+    local poll_viewer_content = inner.add { type = 'scroll-pane', style = 'naked_scroll_pane' }
     Gui.set_style(poll_viewer_content, { maximal_height = 250, width = 340 })
 
     local poll_index = player_poll_index[player.index] or #polls
