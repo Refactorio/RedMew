@@ -7,7 +7,7 @@ local perlin_noise = Perlin.noise
 return function(config)
     local scale = config.water_scale or 1 / 96
     local water_threshold = config.water_threshold or 0.5
-    local deepwater_threshold = config.deepwater_threshold or 0.55
+    local deepwater_threshold = config.deepwater_threshold or (water_threshold + 0.15)
 
     local scale_function
     if type(scale) == 'function' then

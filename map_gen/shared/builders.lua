@@ -329,8 +329,31 @@ local tile_map = {
     [30] = 'sand-3',
     [31] = 'stone-path',
     [32] = 'water-green',
-    [33] = 'water'
+    [33] = 'water',
+    --[[
+    [34] = 'acid-refined-concrete',
+    [35] = 'black-refined-concrete',
+    [36] = 'blue-refined-concrete',
+    [37] = 'brown-refined-concrete',
+    [38] = 'cyan-refined-concrete',
+    [39] = 'green-refined-concrete',
+    [40] = 'landfill',
+    [41] = 'nuclear-ground',
+    [42] = 'orange-refined-concrete',
+    [43] = 'pink-refined-concrete',
+    [44] = 'purple-refined-concrete',
+    [45] = 'red-refined-concrete',
+    [46] = 'refined-concrete',
+    [47] = 'refined-hazard-concrete-left',
+    [48] = 'refined-hazard-concrete-right',
+    [49] = 'tutorial-grid',
+    [50] = 'water-mud',
+    [51] = 'water-shallow',
+    [52] = 'water-wube',
+    [53] = 'yellow-refined-concrete',
+    ]]
 }
+Builders.default_tile_map = tile_map
 
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersdecompress
 function Builders.decompress(pic)

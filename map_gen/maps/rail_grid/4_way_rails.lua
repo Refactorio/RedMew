@@ -2,7 +2,7 @@ local b = require 'map_gen.shared.builders'
 local rad = math.rad
 
 -- x and y must be even numbers else rail grid is misaligned.
-local spawn_position = {x = 20, y = 20}
+local spawn_position = {x = 18, y = 18}
 
 local function is_not_water_tile(_, _, world)
     local gen_tile = world.surface.get_tile(world.x, world.y)
@@ -27,7 +27,7 @@ local path =
 }
 
 path = b.change_tile(path, true, 'landfill') -- MUST be landfill or the rail removal event doesn't work.
-local grid = b.single_grid_pattern(path, grid_size, grid_size)
+local grid = b.single_pattern(path, grid_size, grid_size)
 
 local no_water_grid = b.choose(is_not_water_tile, grid, b.full_shape)
 

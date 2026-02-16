@@ -128,6 +128,7 @@ return {
     enemy_factor = 10 / (768 * 32),
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
+    enemy_starting_radius = 64,
     -- Additional parameters
     ore_width = nil,
     spawn_tile = nil,
@@ -138,6 +139,8 @@ return {
     main_ores_start_ore_offset = nil,
     main_ore_resource_patches_config = nil,
     spawner_names = nil,
+    spawn_builder = nil,
+    tile_builder = nil,
     tree_names = nil,
   },
 }

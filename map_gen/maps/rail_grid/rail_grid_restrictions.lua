@@ -16,8 +16,18 @@ Global.register(
 )
 
 local rail_entities = {
+    ['curved-rail-a'] = true,
+    ['curved-rail-b'] = true,
+    ['elevated-curved-rail-a'] = true,
+    ['elevated-curved-rail-b'] = true,
+    ['elevated-half-diagonal-rail'] = true,
+    ['elevated-straight-rail'] = true,
+    ['half-diagonal-rail'] = true,
+    ['legacy-curved-rail'] = true,
+    ['legacy-straight-rail'] = true,
+    ['rail-ramp'] = true,
+    ['rail-support'] = true,
     ['straight-rail'] = true,
-    ['curved-rail'] = true
 }
 
 local function all_on_landfill(entity)
@@ -40,12 +50,12 @@ end
 RestrictEntities.set_keep_alive_callback(
     Token.register(
         function(entity)
-            local name = entity.name
-            if name == 'entity-ghost' then
-                name = entity.ghost_name
+            local _type = entity.type
+            if entity.name == 'entity-ghost' then
+                _type = entity.ghost_type
             end
 
-            if not rail_entities[name] then
+            if not rail_entities[_type] then
                 return true
             end
 

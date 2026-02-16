@@ -11,7 +11,7 @@ local default_ore_builder = require 'map_gen.maps.danger_ores.modules.ore_builde
 local perlin_noise = Perlin.noise
 local floor = math.floor
 
-local function spawn_builder(config)
+local function default_spawn_builder(config)
     local spawn_circle = config.spawn_shape or b.circle(64)
     local spawn_tile = config.spawn_tile or 'grass-1'
     local spawn_water_tile = config.spawn_water_tile or 'water'
@@ -25,7 +25,7 @@ local function spawn_builder(config)
     return b.change_map_gen_collision_tile(start, 'water_tile', spawn_tile)
 end
 
-local function tile_builder_factory(config)
+local function default_tile_builder(config)
     local tile_builder_scale = config.tile_builder_scale or (1 / 64)
     local seed = seed_provider()
 
@@ -51,6 +51,8 @@ end
 
 return function(config)
     local ore_builder = config.ore_builder or default_ore_builder
+    local spawn_builder = config.spawn_builder or default_spawn_builder
+    local tile_builder = config.tile_builder or default_tile_builder
     local map
     Global.register_init({}, function(tbl)
         tbl.seed = RS.get_surface().map_gen_settings.seed
@@ -58,7 +60,7 @@ return function(config)
     end, function(tbl)
         local spawn_shape = spawn_builder(config)
         local water_shape = (config.water or empty_builder)(config)
-        local tile_builder = tile_builder_factory(config)
+        local tile_shape = tile_builder(config)
         local trees_shape = (config.trees or no_op)(config)
         local enemy_shape = (config.enemy or no_op)(config)
         local fish_spawn_rate = config.fish_spawn_rate
@@ -74,7 +76,7 @@ return function(config)
 
         local random_gen = tbl.random
         random_gen.re_seed(tbl.seed)
-        map = main_ores_builder(tile_builder, ore_builder(ore_builder_config), spawn_shape, water_shape, random_gen)
+        map = main_ores_builder(tile_shape, ore_builder(ore_builder_config), spawn_shape, water_shape, random_gen)
 
         if enemy_shape then
             map = b.apply_entity(map, enemy_shape)
