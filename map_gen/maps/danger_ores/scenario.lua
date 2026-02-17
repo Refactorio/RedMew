@@ -98,6 +98,9 @@ Public.register = function(danger_ores_config)
   if _C.prevent_quality_mining.enabled then
     require 'map_gen.maps.danger_ores.modules.prevent_quality_mining'
   end
+  if _C.radioactivity.enabled then
+    require 'map_gen.maps.danger_ores.modules.radioactivity'
+  end
   if _C.restart_command.enabled then
     restart_command({ scenario_name = _C.scenario_name })
   end

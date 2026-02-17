@@ -1,5 +1,6 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 local PictureBuilder = require 'map_gen.maps.danger_ores.modules.picture_builder'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
@@ -8,6 +9,10 @@ local Token = require 'utils.token'
 local b = require 'map_gen.shared.builders'
 local math = require 'utils.math'
 local table = require 'utils.table'
+local random = math.random
+
+local spawn_locations = {} --[[@as [player_index] --> MapPosition]]
+Global.register(spawn_locations, function(tbl) spawn_locations = tbl end)
 
 ScenarioInfo.set_map_name('Danger Ores - Joker')
 ScenarioInfo.add_map_extra_info([[
@@ -25,10 +30,8 @@ ScenarioInfo.add_map_extra_info([[
 
 DOC.scenario_name = 'danger-ore-joker'
 DOC.concrete_on_landfill.enabled = false
-DOC.terraforming.enabled = false
-DOC.map_poll.enabled = false
-DOC.game.always_day = false
-DOC.game.technology_price_multiplier = 54
+DOC.terraforming.start_size = 2 * (512 + 32 * 0) -- # of chunks outside starting area
+DOC.terraforming.min_pollution = 200
 DOC.map_config.enemy_starting_radius = 512 * math.sqrt2 + 128
 DOC.map_config.enemy_scale_factor = 64
 DOC.map_config.main_ores_rotate = nil
@@ -62,14 +65,14 @@ local weighted_wrecks = b.prepare_weighted_array(wrecks)
 
 local artifacts = function(shape)
     local remnants_shape = function()
-        if math.random(128) == 1 then
-            return { name = remnants[math.random(#remnants)], force = 'neutral' }
+        if random(128) == 1 then
+            return { name = remnants[random(#remnants)], force = 'neutral' }
         end
     end
 
     local wrecks_shape = function()
-        if math.random(1024) == 1 then
-            local i = math.random() * weighted_wrecks.total
+        if random(1024) == 1 then
+            local i = random() * weighted_wrecks.total
             local index = table.binary_search(weighted_wrecks, i)
             if (index < 0) then
                 index = bit32.bnot(index)
@@ -84,7 +87,7 @@ end
 local water = b.fish(b.change_tile(b.rectangle(1024), true, 'water'), 0.05)
 water = b.subtract(water, b.rectangle(984))
 water = b.add(water, b.change_tile(b.rectangle(984), true, 'nuclear-ground'))
-water = b.subtract(water, b.rectangle(983))
+water = b.subtract(water, b.rectangle(982)) -- 1 tile offset in each direction to allow offshore pumps at the corners
 water = b.subtract(water, b.any{ b.rectangle(1024, 832), b.rectangle(832, 1024) })
 
 local poker_starts = {}
@@ -155,24 +158,49 @@ DOC.map_config.spawn_builder = function()
     return b.any{ water, poker, fox }
 end
 
-Event.add(defines.events.on_player_created, function(event)
-    local player = game.get_player(event.player_index)
-    if not (player and player.valid and player.character and player.character.valid) then
-        return
-    end
-
+---@param player LuaPlayer
+---@param position MapPosition
+local function teleport_safe(player, position)
     local character = player.character
     if not (character and character.valid) then
         return
     end
 
-    local position = poker_starts[math.random(#poker_starts)]
-    local target = character.surface.find_non_colliding_position('character', position, 8, 0.02, false)
-    if target then
-        character.teleport(target)
+    local target = character.surface.find_non_colliding_position(character.type, position, 8, 0.02, false)
+    if not target then
+        -- try again with larger radius if a water body is in the way
+        target = character.surface.find_non_colliding_position(character.type, position, 50, 0.02, false)
     end
 
+    if not target then
+        return
+    end
+
+    character.teleport(target)
+end
+
+--- Send players to a random spawn area, save the origin
+Event.add(defines.events.on_player_created, function(event)
+    local player = game.get_player(event.player_index)
+    if not (player and player.valid) then
+        return
+    end
+
+    local position = poker_starts[random(#poker_starts)]
+    spawn_locations[player.index] = position
+    teleport_safe(player, position)
+
     player.print(ScenarioInfo.get_map_extra_info())
+end)
+
+--- Respawn player at their assigned starting areas
+Event.add(defines.events.on_player_respawned, function(event)
+    local player = game.get_player(event.player_index)
+    if not (player and player.valid) then
+        return
+    end
+
+    teleport_safe(player, spawn_locations[player.index])
 end)
 
 return artifacts(Scenario.register(DOC))

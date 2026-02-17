@@ -1,6 +1,6 @@
 local b = require 'map_gen.shared.builders'
 
-local mine_speed = 1 / 10 -- 1ore/s per mining drill
+local mine_speed = 0.5 / 10 -- 0.5 ore/s per electric mining drill
 local low = 60 * 60 * 4 * mine_speed -- 4h
 local medium = 60 * 60 * 24 * mine_speed -- 24h
 

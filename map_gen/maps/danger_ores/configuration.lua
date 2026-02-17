@@ -61,6 +61,9 @@ return {
   prevent_quality_mining = {
     enabled = true,
   },
+  radioactivity = {
+    enabled = true,
+  },
   rocket_launched = {
     enabled = true,
     win_satellite_count = 1000,
@@ -84,7 +87,7 @@ return {
     draw_resource_selection = false,
     technology_price_multiplier = 25,
     manual_mining_speed_modifier = 1,
-    always_day = true,
+    always_day = false,
     peaceful_mode = true,
     enemy_evolution = {
       enabled = true,
