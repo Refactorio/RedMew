@@ -131,4 +131,21 @@ return [[
       - [DO:Gridlocked] Added DO/Gridlocked preset
       - [DO:Expanse] Updated DO/Expanse to 2.0
       - [DO:Safety] Updated DO/Safety to 2.0
+
+  2026-02-18:
+      - [DO] Added 1x1 loaders
+      - [DO] Added ore radioactivity
+      - [DO] Added reskins for advanced factory (thanks Kirazy)
+      - [DO] Added vibrant colors to entities with player color masks
+      - [DO] Added technology milestones
+      - [DO] Added Deep-house chest
+      - [DO] Turn OFF always day mode
+      - [DO] Rebalanced solar energy production and rocket recipes
+      - [DO] Rebalanced increased copper consumption early game
+      - [DO] Removed 1x2 loaders
+      - [DO] Removed Memory unit mod
+      - [DO] Removed ore stack changes
+      - [DO] Removed robots cost multipliers
+      - [DO:JK] Added DO/Joker preset
+      - [DO:JK] Added biters drop resources
 ]]
