@@ -1,18 +1,18 @@
 --[[
     Blueprint tools for Diggy
 
-    Support beams (tiles and special entities) cannot be marked for deconstruction by default (antigrief/safety feature)
-    Regulars and above will have access to this feature to turn On/Off the safety measure however they prefer.
-    The feature will automatically popup whener the player is about to perform a "blueprint action", which is:
+    Support beams (tiles and special entities) cannot be marked for deconstruction by default (antigrief/safety feature).
+    Regulars and above will have access to this tool to turn On/Off the safety measure however they prefer.
+    The feature will automatically popup whenever the player is about to perform a "blueprint action", which is:
     - using a blueprint record
     - using a blueprint book
     - setting up a blueprint from map
     - holding a blueprintable item-entity in hand
 
     Players can:
-    - turn On/Off the safety measure all toghether
+    - turn On/Off the safety measure all together
     - turn On/Off tiles in bulk
-    - Show/Hide the popupw window (from this window or RedMew "Settings > Show blueprint tools")
+    - Show/Hide the popup window (from this window or RedMew "Settings > Show blueprint tools")
     - turn On/Off individual entities
 ]]
 
