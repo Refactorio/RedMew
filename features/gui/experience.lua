@@ -268,7 +268,7 @@ Public.get_main_frame = function(player)
 
     local data = {}
     frame = Gui.add_left_element(player, { name = main_frame_name, type = 'frame', direction = 'vertical' })
-    Gui.set_style(frame, { maximal_width = 360 })
+    Gui.set_style(frame, { maximal_width = 332 })
 
     local canvas = frame
         .add { type = 'flow', direction = 'vertical', style = 'vertical_flow' }
@@ -358,6 +358,7 @@ Public.get_main_frame = function(player)
     end
     Gui.set_data(frame, data)
     Public.update_main_frame(player)
+    return frame
 end
 
 Public.toggle_main_button = function(player)
