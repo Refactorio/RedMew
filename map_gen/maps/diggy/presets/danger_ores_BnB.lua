@@ -99,9 +99,9 @@ local config = {
             }
         },
         -- adds some QoL helpers for trusted user to use blueprints withing Diggy's fragile contraints
-        blueprint_qol = {
+        blueprint_tools = {
             enabled = true,
-            load = function() return require('map_gen.maps.diggy.feature.blueprint_qol') end,
+            load = function() return require('map_gen.maps.diggy.feature.blueprint_tools') end,
         },
         -- Adds the ability to drop coins and track how many are sent into space
         coin_gathering = {

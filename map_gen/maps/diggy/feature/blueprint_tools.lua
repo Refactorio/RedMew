@@ -37,8 +37,8 @@ local tiles_checkbox_name = Gui.uid_name()
 local show_window_checkbox_name = Gui.uid_name()
 
 local Public = {
-    setting_name = 'diggy_blueprint_qol',
-    setting_tooltip = 'diggy.blueprint_qol_tooltip'
+    setting_name = 'diggy_blueprint_tools',
+    setting_tooltip = 'diggy.blueprint_tools_tooltip'
 }
 
 ---@class PlayerSettingsData
@@ -260,7 +260,7 @@ Public.get_main_frame = function(player)
     data.show_window_checkbox = inner.add {
         type = 'checkbox',
         name = show_window_checkbox_name,
-        caption = { 'diggy.blueprint_qol_tooltip' },
+        caption = { 'diggy.blueprint_tools_tooltip' },
         state = should_show_gui
     }
     Gui.set_data(data.show_window_checkbox, data)
