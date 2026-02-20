@@ -277,7 +277,7 @@ local function get_admin_main_frame(_, player)
         Gui.set_style(online.parent, { horizontally_stretchable = true })
 
         local grid = inner
-            .add { type = 'scroll-pane' }
+            .add { type = 'scroll-pane', style = 'naked_scroll_pane' }
             .add { type = 'table', style = 'table_with_selection', column_count = 4 }
 
         local function make_rank(name)
@@ -305,6 +305,7 @@ local function get_admin_main_frame(_, player)
             local list = grid
                 .add { type = 'scroll-pane', style = 'naked_scroll_pane' }
                 .add { type = 'table', column_count = 10, style = 'filter_slot_table' }
+            list.parent.horizontal_scroll_policy = 'never'
 
             for name, status in pairs(ps.entities) do
                 list.add{ type = 'flow' }.add{
