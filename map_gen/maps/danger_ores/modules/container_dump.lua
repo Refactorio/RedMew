@@ -18,6 +18,31 @@ Global.register(
 
 local Public = {}
 
+local cause_by_type = {
+    ['character'] = function(cause)
+        return cause.player
+    end,
+    ['car'] = function(cause)
+        local d = cause.get_driver()
+        if d then
+            return (d.object_name == 'LuaEntity') and d.player or d
+        else
+            return cause.last_user
+        end
+    end,
+    ['spider-vehicle'] = function(cause)
+        local d = cause.get_driver()
+        if d then
+            return (d.object_name == 'LuaEntity') and d.player or d
+        else
+            return cause.last_user
+        end
+    end,
+    ['land-mine'] = function(cause)
+        return cause.last_user
+    end,
+}
+
 Public.register = function(config)
     local entity_name = config.entity_name or 'coal'
     Event.add(
@@ -76,6 +101,25 @@ Public.register = function(config)
             end
 
             died_entities[entity.unit_number] = true
+
+            local cause = event.cause
+            if not (cause and cause.valid and cause.force and cause.force.name == 'player') then
+                return
+            end
+
+            local handler = cause_by_type[cause.type]
+            local actor = handler and handler(cause)
+            if not (actor and actor.valid) then
+                return
+            end
+
+            local character = actor.character
+            if not (character and character.valid) then
+                return
+            end
+
+            actor.print('The ore fights back!', { color = { 255, 128, 0 } })
+            character.die(game.forces.neutral)
         end
     )
 
