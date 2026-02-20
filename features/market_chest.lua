@@ -68,10 +68,15 @@ local function update_entity(entity)
     return
   end
 
+  local to_remove = floor(o_count / ratio)
+  if to_remove < 1 then
+    return
+  end
+
   local removed = inv.remove {
     name = request,
     quality = request.quality,
-    count = o_count / ratio,
+    count = to_remove,
   }
   if removed > 0 then
     local inserted = inv.insert {
