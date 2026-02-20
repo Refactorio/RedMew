@@ -194,7 +194,9 @@ local function on_marked_for_deconstruction(event)
         return
     end
 
-    local player = game.get_player(event.player_index)
+    local player = event.player_index and game.get_player(event.player_index)
+    -- NOTE: The only case when a support beam is marked for deconstruction AND there's no player_index
+    -- is when player bots-mine rocks and bots have to re-iterate over the rock to fully mine it
     if not player then
         return
     end
