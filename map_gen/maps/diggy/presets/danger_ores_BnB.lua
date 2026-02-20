@@ -92,23 +92,16 @@ local config = {
             collapse_delay = 2.5,
             -- the threshold that will be applied to all neighbors on a collapse via a mask
             collapse_threshold_total_strength = 16,
-            support_beam_entities = {
-                ['market'] = 9,
-                ['nuclear-reactor'] = 4,
-                ['stone-wall'] = 3,
-                ['big-rock'] = 2,
-                ['huge-rock'] = 2.5,
-                ['out-of-map'] = 1,
-                ['stone-path'] = 0.03,
-                ['concrete'] = 0.04,
-                ['hazard-concrete'] = 0.04,
-                ['refined-concrete'] = 0.06,
-                ['refined-hazard-concrete'] = 0.06
-            },
+            support_beam_entities = {},
             cracking_sounds = {
                 {'diggy.cracking_sound_1'},
                 {'diggy.cracking_sound_2'}
             }
+        },
+        -- adds some QoL helpers for trusted user to use blueprints withing Diggy's fragile contraints
+        blueprint_tools = {
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.blueprint_tools') end,
         },
         -- Adds the ability to drop coins and track how many are sent into space
         coin_gathering = {

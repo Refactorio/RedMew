@@ -28,6 +28,8 @@ local clear_table = table.clear_table
 local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
 local cave_collapses_name = 'cave-collapses'
+local support_beam_entities = Template.support_beam_entities
+local is_support_beam = Template.is_support_beam
 
 -- this
 local DiggyCaveCollapse = {}
@@ -55,7 +57,6 @@ local stress_map_add
 local mask_disc_blur
 local mask_init
 local stress_map_check_stress_in_threshold
-local support_beam_entities
 local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
@@ -114,7 +115,7 @@ local function create_collapse_template(positions, surface)
         for _, entity in pairs(find_entities_filtered({area = {position, {x + 1, y + 1}}})) do
             pcall(
                 function()
-                    local strength = support_beam_entities[entity.name]
+                    local strength = is_support_beam(entity.name)
                     if strength then
                         do_insert = false
                     else
@@ -365,28 +366,10 @@ function DiggyCaveCollapse.register(cfg)
     global_to_show[#global_to_show + 1] = cave_collapses_name
 
     config = cfg
-    support_beam_entities = config.support_beam_entities
 
-    if support_beam_entities['stone-path'] then
-        support_beam_entities['stone-brick'] = support_beam_entities['stone-path']
-    else
-        support_beam_entities['stone-brick'] = nil
-    end
-
-    if support_beam_entities['hazard-concrete'] then
-        support_beam_entities['hazard-concrete-left'] = support_beam_entities['hazard-concrete']
-        support_beam_entities['hazard-concrete-right'] = support_beam_entities['hazard-concrete']
-    else
-        support_beam_entities['hazard-concrete-left'] = nil
-        support_beam_entities['hazard-concrete-right'] = nil
-    end
-
-    if support_beam_entities['refined-hazard-concrete'] then
-        support_beam_entities['refined-hazard-concrete-left'] = support_beam_entities['refined-hazard-concrete']
-        support_beam_entities['refined-hazard-concrete-right'] = support_beam_entities['refined-hazard-concrete']
-    else
-        support_beam_entities['refined-hazard-concrete-left'] = nil
-        support_beam_entities['refined-hazard-concrete-right'] = nil
+    -- override custom support beam entities from scenario
+    for k, v in pairs(cfg.support_beam_entities) do
+        support_beam_entities[k] = v
     end
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
@@ -410,18 +393,6 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
-    Event.add(defines.events.on_marked_for_deconstruction, function(event)
-        local entity = event.entity
-        local name = entity.name
-        if is_diggy_rock(name) then
-            return
-        end
-
-        if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-            entity.cancel_deconstruction(game.get_player(event.player_index).force)
-        end
-    end)
-
     Event.add(defines.events.on_player_created, function(event)
         show_deconstruction_alert_message[event.player_index] = true
     end)
@@ -436,7 +407,7 @@ function DiggyCaveCollapse.register(cfg)
             return
         end
 
-        if (nil ~= support_beam_entities[event.entity.name]) then
+        if is_support_beam(event.entity.name) then
             Popup.player(game.get_player(player_index), {'diggy.cave_collapse_warning'})
             show_deconstruction_alert_message[player_index] = nil
         end

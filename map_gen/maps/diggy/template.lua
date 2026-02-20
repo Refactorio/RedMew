@@ -190,4 +190,49 @@ function Template.is_diggy_rock(entity_name)
     return (entity_name == 'big-rock') or (entity_name == 'huge-rock')
 end
 
+
+local support_beam_entities = {
+    ['market'] = 9,
+    ['nuclear-reactor'] = 4,
+    ['stone-wall'] = 3,
+    ['big-rock'] = 2,
+    ['huge-rock'] = 2.5,
+    ['out-of-map'] = 1,
+    ['stone-path'] = 0.03,
+    ['concrete'] = 0.04,
+    ['hazard-concrete'] = 0.04,
+    ['refined-concrete'] = 0.06,
+    ['refined-hazard-concrete'] = 0.06
+}
+
+do
+    if support_beam_entities['stone-path'] then
+        support_beam_entities['stone-brick'] = support_beam_entities['stone-path']
+    else
+        support_beam_entities['stone-brick'] = nil
+    end
+
+    if support_beam_entities['hazard-concrete'] then
+        support_beam_entities['hazard-concrete-left'] = support_beam_entities['hazard-concrete']
+        support_beam_entities['hazard-concrete-right'] = support_beam_entities['hazard-concrete']
+    else
+        support_beam_entities['hazard-concrete-left'] = nil
+        support_beam_entities['hazard-concrete-right'] = nil
+    end
+
+    if support_beam_entities['refined-hazard-concrete'] then
+        support_beam_entities['refined-hazard-concrete-left'] = support_beam_entities['refined-hazard-concrete']
+        support_beam_entities['refined-hazard-concrete-right'] = support_beam_entities['refined-hazard-concrete']
+    else
+        support_beam_entities['refined-hazard-concrete-left'] = nil
+        support_beam_entities['refined-hazard-concrete-right'] = nil
+    end
+end
+
+Template.support_beam_entities = support_beam_entities
+
+function Template.is_support_beam(name)
+    return support_beam_entities[name] ~= nil
+end
+
 return Template
