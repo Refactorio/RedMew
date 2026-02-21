@@ -484,7 +484,7 @@ local function on_entity_died(event)
 
         -- stuff killed by the player force, but not the player
         if force and force.name == 'player' then
-            if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
+            if cause and cause.valid and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
                 exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity_name] or 1)
                 floating_text_position = cause.position
             else
