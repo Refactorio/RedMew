@@ -590,11 +590,11 @@ storage.config = {
         market_provides_chests = true,
         -- What market provides
         offers = {
-            ['coal'] = 5,
-            ['copper-ore'] = 5,
-            ['iron-ore'] = 5,
-            ['stone'] = 5,
-            ['uranium-ore'] = 25,
+            ['coal'] = 2,
+            ['copper-ore'] = 2,
+            ['iron-ore'] = 2,
+            ['stone'] = 2,
+            ['uranium-ore'] = 10,
         },
         -- What market requests
         requests = {
