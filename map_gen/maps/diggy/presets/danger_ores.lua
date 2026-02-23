@@ -361,7 +361,7 @@ local config = {
             entity_name = 'coal',
         },
         disable_mining_productivity = {
-            enabled = true,
+            enabled = false,
             load = function() return require 'map_gen.maps.diggy.feature.mining_productivity' end,
             replace = script.active_mods['redmew-data'] == nil, -- replace mining productivity with robot cargo capacity
         },
