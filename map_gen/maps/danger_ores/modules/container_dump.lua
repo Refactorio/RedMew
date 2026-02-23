@@ -74,7 +74,7 @@ end)
 Public.register = function(config)
     local entity_name = config.entity_name or 'coal'
     local time_penalty = config.time_penalty or 18
-    local spare_vehicle = config.spare_vehicle or true
+    local spare_vehicle = config.spare_vehicle or false
 
     Event.add(defines.events.on_entity_died, function(event)
         local entity = event.entity
