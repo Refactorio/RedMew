@@ -382,11 +382,9 @@ local function draw_market_frame(player, group_name)
         Gui.set_data(button, frame)
     end
 
-    local inner = frame
-        .add { type = 'frame', style = 'entity_frame', direction = 'vertical' } -- entity_frame_filler
+    local inner = frame.add { type = 'frame', style = 'entity_frame', direction = 'vertical' }
     Gui.set_style(inner, { padding = 0 })
 
-    -- table/slot_table
     local scroll_pane = inner.add{ type = 'scroll-pane' }
     Gui.set_style(scroll_pane, { maximal_height = 600, padding = 8, top_padding = 12 })
 
