@@ -89,6 +89,38 @@ Global.register(
     end
 )
 
+---@class MagicCrafter
+---@field base_rate number
+---@field entity LuaEntity
+---@field item string
+---@field last_tick number
+---@field rate number
+
+---@class MagicFluidCrafter
+---@field base_rate number
+---@field entity LuaEntity
+---@field item string
+---@field last_tick number
+---@field rate number
+---@field fluidbox_index
+
+---@class OutpostData
+---@field outpost_id number, unique identifier for the outpost
+---@field area BoundingBox, area covered by the outpost
+---@field artillery_area? BoundingBox, area covered by artillery
+---@field artillery_turrets? LuaEntity[], table of artillery turrets
+---@field base_outputs table<string, number>, outputs produced by the outpost for upgrades
+---@field last_fire_tick? number, last tick when artillery fired
+---@field level number, current level of the outpost
+---@field magic_crafters MagicCrafter[], table of magic crafters
+---@field magic_fluid_crafters? MagicFluidCrafter[], table of magic fluid crafters
+---@field market LuaEntity, reference to the market entity
+---@field maximum_level? number, maximum level
+---@field turret_count number, number of turrets attached to the outpost
+---@field upgrade_base_cost number, base cost for upgrading
+---@field upgrade_cost_base number, cost multiplier for upgrades
+---@field upgrade_rate number, rate at which the outpost upgrades
+
 --[[ local function get_direction(part)
     local dir = bit32.band(part, direction_bit_mask)
     return bit32.rshift(dir, direction_bit_shift - 1)
@@ -683,15 +715,15 @@ local function to_shape(blocks, part_size, on_init)
             --magic_fluid_crafters = {},
             market = nil,
             turret_count = 0,
-            top_left = {nil, nil},
-            bottom_right = {nil, nil},
+            area = nil,
             level = 1,
+            maximum_level = nil,
             upgrade_rate = nil,
             upgrade_base_cost = nil,
             upgrade_cost_base = nil,
             artillery_area = nil,
             artillery_turrets = nil,
-            last_fire_tick = nil
+            last_fire_tick = nil,
         }
     end
 
@@ -988,8 +1020,12 @@ local function update_market_upgrade_description(outpost_data)
 
     prototype.description = tooltip_str
     prototype.disabled = false
-
     prototype.mapview_description = mapview_str
+
+    if outpost_data.maximum_level and (outpost_data.level >= outpost_data.maximum_level) then
+        prototype.disabled = true
+        prototype.disabled_reason = 'Max level reached.'
+    end
 
     Retailer.set_item(outpost_id, prototype)
 end
@@ -1007,7 +1043,6 @@ local function do_outpost_upgrade(event)
 
     local level = outpost_data.level + 1
     outpost_data.level = level
-
 
     local player_name = event.player.name
     local outpost_name = Retailer.get_market_group_label(outpost_id)
@@ -1080,7 +1115,7 @@ local function find_nearest_player(position)
 end
 
 local function do_capture_outpost(outpost_data)
-    local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
+    local area = outpost_data.area
     local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
 
     for i = 1, #walls do
@@ -1643,8 +1678,13 @@ Public.wall_callback =
 
         local outpost_id = data.outpost_id
         local outpost_data = outposts[outpost_id]
-        local top_left = outpost_data.top_left
-        local bottom_right = outpost_data.bottom_right
+        local area = outpost_data.area
+        if not area then
+            area = { top_left = {}, bottom_right = {} }
+            outpost_data.area = area
+        end
+        local top_left = area.top_left
+        local bottom_right = area.bottom_right
         local tx, ty = top_left.x, top_left.y
         local bx, by = bottom_right.x, bottom_right.y
 
@@ -1736,6 +1776,12 @@ Public.market_set_items_callback =
         outpost_data.upgrade_rate = callback_data.upgrade_rate
         outpost_data.upgrade_base_cost = upgrade_base_cost
         outpost_data.upgrade_cost_base = callback_data.upgrade_cost_base
+        outpost_data.maximum_level = callback_data.maximum_level_count
+        if callback_data.maximum_level_formula then
+            assert((outpost_data.maximum_level == nil), 'maximum_level has already been defined')
+            local formula = Token.get(callback_data.maximum_level_formula)
+            outpost_data.maximum_level = formula(callback_data)
+        end
 
         Retailer.add_market(market_id, entity)
         Retailer.set_market_group_label(market_id, callback_data.market_name)
@@ -1946,8 +1992,10 @@ local function market_selected(event)
 
     local args = {
         text = nil,
-        target = selected,
-        target_offset = nil,
+        target = {
+            entity = selected,
+            offset = nil,
+        },
         alignment = 'center',
         surface = selected.surface,
         color = {1, 1, 1},
@@ -1958,15 +2006,15 @@ local function market_selected(event)
     }
 
     args.text = prototype.name_label
-    args.target_offset = {0, -6.5}
+    args.target.offset = {0, -6.5}
     draw_text(args)
 
     args.text = 'Price: ' .. prototype.price
-    args.target_offset = {0, -5}
+    args.target.offset = {0, -5}
     draw_text(args)
 
     args.text = prototype.mapview_description
-    args.target_offset = {0, -3.5}
+    args.target.offset = {0, -3.5}
     draw_text(args)
 end
 
