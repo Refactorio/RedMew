@@ -70,9 +70,11 @@ end)
 ---@param config table
 ---@field entity_name? string, resource to be spawned (default: coal)
 ---@field time_penalty? number, time lost by the player when misbehaving (default: 18s, 0 to apply none)
+---@field spare_vehicle? boolean, saves the involved vehicle, if any (default: false)
 Public.register = function(config)
     local entity_name = config.entity_name or 'coal'
     local time_penalty = config.time_penalty or 18
+    local spare_vehicle = config.spare_vehicle or true
 
     Event.add(defines.events.on_entity_died, function(event)
         local entity = event.entity
@@ -151,7 +153,7 @@ Public.register = function(config)
             time_to_live = time_penalty,
         })
 
-        if cause.type == 'car' or cause.type == 'spider-vehicle' then
+        if (not spare_vehicle) and (cause.type == 'car' or cause.type == 'spider-vehicle') then
             cause.die('neutral')
         end
     end)
