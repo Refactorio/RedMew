@@ -1958,8 +1958,10 @@ local function market_selected(event)
 
     local args = {
         text = nil,
-        target = selected,
-        target_offset = nil,
+        target = {
+            entity = selected,
+            offset = nil,
+        },
         alignment = 'center',
         surface = selected.surface,
         color = {1, 1, 1},
@@ -1970,15 +1972,15 @@ local function market_selected(event)
     }
 
     args.text = prototype.name_label
-    args.target_offset = {0, -6.5}
+    args.target.offset = {0, -6.5}
     draw_text(args)
 
     args.text = 'Price: ' .. prototype.price
-    args.target_offset = {0, -5}
+    args.target.offset = {0, -5}
     draw_text(args)
 
     args.text = prototype.mapview_description
-    args.target_offset = {0, -3.5}
+    args.target.offset = {0, -3.5}
     draw_text(args)
 end
 
