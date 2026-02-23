@@ -686,12 +686,13 @@ local function to_shape(blocks, part_size, on_init)
             top_left = {nil, nil},
             bottom_right = {nil, nil},
             level = 1,
+            maximum_level = nil,
             upgrade_rate = nil,
             upgrade_base_cost = nil,
             upgrade_cost_base = nil,
             artillery_area = nil,
             artillery_turrets = nil,
-            last_fire_tick = nil
+            last_fire_tick = nil,
         }
     end
 
@@ -988,8 +989,12 @@ local function update_market_upgrade_description(outpost_data)
 
     prototype.description = tooltip_str
     prototype.disabled = false
-
     prototype.mapview_description = mapview_str
+
+    if outpost_data.maximum_level and (outpost_data.level >= outpost_data.maximum_level) then
+        prototype.disabled = true
+        prototype.disabled_reason = 'Max level reached.'
+    end
 
     Retailer.set_item(outpost_id, prototype)
 end
@@ -1736,6 +1741,13 @@ Public.market_set_items_callback =
         outpost_data.upgrade_rate = callback_data.upgrade_rate
         outpost_data.upgrade_base_cost = upgrade_base_cost
         outpost_data.upgrade_cost_base = callback_data.upgrade_cost_base
+        if callback_data.maximum_level_count then
+            outpost_data.maximum_level = callback_data.maximum_level
+        end
+        if callback_data.maximum_level_formula then
+            local formula = Token.get(callback_data.maximum_level_formula)
+            outpost_data.maximum_level = formula(callback_data)
+        end
 
         Retailer.add_market(market_id, entity)
         Retailer.set_market_group_label(market_id, callback_data.market_name)

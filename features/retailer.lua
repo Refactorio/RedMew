@@ -331,7 +331,7 @@ local function redraw_market_items(data)
             number = stack_count,
             tooltip = tooltip,
         })
-        button.style = 'slot_button'
+        button.style = 'slot_button_in_shallow_frame'
 
         Gui.set_data(button, {index = i, data = data, stack_count = stack_count})
 
@@ -353,21 +353,42 @@ local function redraw_market_items(data)
 end
 
 local function do_coin_label(coin_count, label)
-    label.caption = {'', coin_count, ' ', currency_item_name, ' ', {'common.available'}}
-    label.style.font = 'default-bold'
+    label.caption = { '', coin_count, ' ', currency_item_name, ' ', { 'common.available' } }
 end
 
 local function draw_market_frame(player, group_name)
     local frame = player.gui.center.add({
         type = 'frame',
         name = market_frame_name,
-        caption = Retailer.get_market_group_label(group_name),
         direction = 'vertical',
+        style = 'non_draggable_frame'
     })
 
-    local scroll_pane = frame.add({type = 'scroll-pane'})
-    local scroll_style = scroll_pane.style
-    scroll_style.maximal_height = 600
+    do -- Header
+        local header = frame.add { type = 'flow', direction = 'horizontal' }
+        Gui.set_style(header, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
+
+        header.add { type = 'label', caption = Retailer.get_market_group_label(group_name), style = 'frame_title' }
+        Gui.add_pusher(header)
+
+        local button = header.add {
+            type = 'sprite-button',
+            name = market_frame_close_button_name,
+            sprite = 'utility/close',
+            clicked_sprite = 'utility/close_black',
+            style = 'close_button',
+            tooltip = {'gui.close-instruction'}
+        }
+        Gui.set_data(button, frame)
+    end
+
+    local inner = frame
+        .add { type = 'frame', style = 'entity_frame', direction = 'vertical' } -- entity_frame_filler
+    Gui.set_style(inner, { padding = 0 })
+
+    -- table/slot_table
+    local scroll_pane = inner.add{ type = 'scroll-pane' }
+    Gui.set_style(scroll_pane, { maximal_height = 600, padding = 8, top_padding = 12 })
 
     local grid = scroll_pane.add({type = 'table', column_count = 10})
 
@@ -381,34 +402,41 @@ local function draw_market_frame(player, group_name)
         player_index = player.index,
     }
 
-    local coin_label = frame.add({type = 'label'})
+    local footer = inner.add { type = 'frame', style = 'subheader_frame' }.add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(footer, { vertical_align = 'center', padding = 4, horizontal_spacing = 8 })
+
+    local coin_label = footer.add { type = 'label', style = 'bold_label' }
     do_coin_label(player_coins, coin_label)
     data.coin_label = coin_label
+    Gui.add_pusher(footer)
 
     redraw_market_items(data)
 
-    local bottom_grid = frame.add({type = 'table', column_count = 2})
+    footer.add{ type = 'label', caption = { '', {'common.quantity'}, ': ' }, style = 'caption_label' }
 
-    bottom_grid.add({type = 'label', caption = {'', {'common.quantity'}, ': '}}).style.font = 'default-bold'
-
-    local count_text = bottom_grid.add({
-        type = 'text-box',
+    local count_text = footer.add {
+        type = 'textfield',
         name = count_text_name,
         text = '1',
-    })
+        numeric = true,
+        allow_decimal = false,
+        allow_negative = false,
+    }
+    Gui.set_style(count_text, { width = 45 })
 
-    local count_slider = frame.add({
+    local count_slider = footer.add {
         type = 'slider',
         name = count_slider_name,
         minimum_value = 1,
         maximum_value = 7,
         value = 1,
-    })
+        style = 'notched_slider',
+    }
+    Gui.set_style(count_slider, { width = 115 })
 
-    frame.add({name = market_frame_close_button_name, type = 'button', caption = 'Close'})
-
-    count_slider.style.width = 115
-    count_text.style.width = 45
+    Gui.add_pusher(footer)
+    local padding = footer.add { type = 'empty-widget' }
+    Gui.set_style(padding, { width = 100 })
 
     data.slider = count_slider
     data.text = count_text

@@ -802,6 +802,10 @@ local function init(config)
 
     map = b.apply_entity(map, ore_grid)
 
+    local spawn_maximum_level_formula = Token.register(function()
+        return game.is_multiplayer() and 6 or nil
+    end)
+
     local market = {
         callback = spawn_callback,
         data = {
@@ -809,6 +813,8 @@ local function init(config)
             upgrade_rate = 0.5,
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
+            maximum_level_count = nil,
+            maximum_level_formula = spawn_maximum_level_formula,
             {
                 price = 0,
                 stack_limit = 1,
@@ -862,7 +868,6 @@ local function init(config)
                 name_label = {'command_description.crash_site_barrage_radius_name_label', 1},
                 sprite = 'virtual-signal/signal-B',
                 description = {'command_description.crash_site_barrage_radius', 1, 0, 25}
-
             },
             {
                 price = 1000,
