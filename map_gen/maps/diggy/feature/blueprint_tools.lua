@@ -25,6 +25,7 @@ local Ranks = require 'resources.ranks'
 local Settings = require 'utils.redmew_settings'
 local Template = require 'map_gen.maps.diggy.template'
 
+local is_diggy_rock = Template.is_diggy_rock
 local is_support_beam = Template.is_support_beam
 local required_rank = Ranks.regular
 local ENTITIES = prototypes.entity
@@ -187,6 +188,11 @@ local function on_marked_for_deconstruction(event)
 
     if name == 'deconstructible-tile-proxy' then
         name = entity.surface.get_tile(entity.position.x, entity.position.y).name
+    end
+
+    -- Rocks are always allowed
+    if is_diggy_rock(name) then
+        return
     end
 
     -- Entity is not a support

@@ -53,6 +53,7 @@ function Scenario.register(diggy_config)
     -- disabled redmew features for diggy
     local redmew_config = storage.config
     redmew_config.market.enabled = false
+    redmew_config.redmew_surface.enabled = false
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
     redmew_config.paint.enabled = false
