@@ -52,6 +52,7 @@ local maps = {
     { name = 'danger-ore-hub-spiral', display_name = 'Hub-spiral (with void)', mod_pack = mod_packs.danger_ore_normal },
     --{ name = 'danger-ore-industrial-revolution-3', display_name = 'Industrial Revolution 3 (default)', mod_pack = mod_packs.danger_ore_ir3 },
     --{ name = 'danger-ore-industrial-revolution-3-grid-factory', display_name = 'Industrial Revolution 3 Grid Factory (squares)', mod_pack = mod_packs.danger_ore_ir3 },
+    { name = 'danger-ore-joker', display_name = 'Joker (4 suits start)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-krastorio2', display_name = 'Krastorio2 (landfill)', mod_pack = mod_packs.danger_ore_krastorio2 },
     { name = 'danger-ore-landfill', display_name = 'Landfill (all tiles)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-lazy-one', display_name = 'Lazy One (no handcraft)', mod_pack = mod_packs.danger_ore_normal },

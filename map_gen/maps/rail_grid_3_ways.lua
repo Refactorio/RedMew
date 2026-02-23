@@ -6,4 +6,4 @@
 
 require 'map_gen.maps.rail_grid.scenario_setup'
 require 'map_gen.maps.rail_grid.rail_grid_restrictions'
-return require 'map_gen.maps.rail_grid.map'
+return require 'map_gen.maps.rail_grid.3_way_rails'

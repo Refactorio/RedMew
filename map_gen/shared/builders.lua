@@ -296,7 +296,7 @@ function Builders.circular_spiral_grow_n_threads(in_thickness, total_thickness, 
     end
 end
 
-local tile_map = {
+local default_tile_map = {
     [1] = false,
     [2] = true,
     [3] = 'concrete',
@@ -329,10 +329,40 @@ local tile_map = {
     [30] = 'sand-3',
     [31] = 'stone-path',
     [32] = 'water-green',
-    [33] = 'water'
+    [33] = 'water',
+    -- + 2.0 tiles
+    [34] = 'acid-refined-concrete',
+    [35] = 'black-refined-concrete',
+    [36] = 'blue-refined-concrete',
+    [37] = 'brown-refined-concrete',
+    [38] = 'cyan-refined-concrete',
+    [39] = 'green-refined-concrete',
+    [40] = 'landfill',
+    [41] = 'nuclear-ground',
+    [42] = 'orange-refined-concrete',
+    [43] = 'pink-refined-concrete',
+    [44] = 'purple-refined-concrete',
+    [45] = 'red-refined-concrete',
+    [46] = 'refined-concrete',
+    [47] = 'refined-hazard-concrete-left',
+    [48] = 'refined-hazard-concrete-right',
+    [49] = 'tutorial-grid',
+    [50] = 'water-mud',
+    [51] = 'water-shallow',
+    [52] = 'water-wube',
+    [53] = 'yellow-refined-concrete',
 }
+Builders.default_tile_map = default_tile_map
 
+--- Decompress the Run-length encoded picture data to a full table of Width*Height
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersdecompress
+---@param pic
+---@field data uint[][]
+---@field width uint
+---@field height uint
+---@field func_map? table
+---@field tile_map? table
+---@return table< width: uint, height: uint, data: uint[][], tile_map?: table, func_map?: table >
 function Builders.decompress(pic)
     local data = pic.data
     local width = pic.width
@@ -346,36 +376,62 @@ function Builders.decompress(pic)
         uncompressed[y] = u_row
         local x = 1
         for index = 1, #row, 2 do
-            local pixel = tile_map[row[index]]
-            local count = row[index + 1]
+            local key = row[index]
 
+            local count = row[index + 1]
             for _ = 1, count do
-                u_row[x] = pixel
+                u_row[x] = key
                 x = x + 1
             end
         end
     end
 
-    return {width = width, height = height, data = uncompressed}
+    return {
+        width = width,
+        height = height,
+        data = uncompressed,
+        tile_map = pic.tile_map,
+        func_map = pic.func_map
+    }
 end
 
+--- Generates a shape from the picture data, returning tiles and entities (if any) of the given pixel
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspicture
+---@param pic
+---@field data uint[][]
+---@field width uint
+---@field height uint
+---@field func_map? table
+---@field tile_map? table - if not provided, the default one will be used instead
+---@return function(x, y, world)
 function Builders.picture(pic)
     local data = pic.data
     local width = pic.width
     local height = pic.height
+    local func_map = pic.func_map or {}
+    local tile_map = pic.tile_map or default_tile_map
 
     -- the plus one is because lua tables are one based.
     local half_width = floor(width / 2) + 1
     local half_height = floor(height / 2) + 1
-    return function(x, y)
+    return function(x, y, world)
         x = floor(x)
         y = floor(y)
         local x2 = x + half_width
         local y2 = y + half_height
 
         if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width then
-            return data[y2][x2]
+            local key = data[y2][x2]
+            local callback = func_map[key]
+            local entity = callback and callback(x, y, world)
+            if entity then
+                return {
+                    tile = tile_map[key],
+                    entities = { entity }
+                }
+            else
+                return tile_map[key]
+            end
         else
             return false
         end
