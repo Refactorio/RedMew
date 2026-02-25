@@ -209,6 +209,35 @@ function Module.format_time(ticks, include_seconds)
     return concat(result, ' ')
 end
 
+--- Takes a time in ticks and returns a string with the time in format "x hour(s) x minute(s)"
+function Module.format_time_short(ticks, include_seconds)
+    local result = {}
+
+    local hours = floor(ticks * ticks_to_hours)
+    local has_previous = false
+    if hours > 0 then
+        has_previous = true
+        ticks = ticks - hours * hours_to_ticks
+        insert(result, hours..'h')
+    end
+
+    local minutes = floor(ticks * ticks_to_minutes)
+    if minutes > 0 or (not include_seconds and not has_previous) then
+        has_previous = true
+        ticks = ticks - minutes * minutes_to_ticks
+        insert(result, minutes..'m')
+    end
+
+    if include_seconds then
+        local seconds = floor(ticks * ticks_to_seconds)
+        if seconds > 0 or not has_previous then
+            insert(result, seconds..'s')
+        end
+    end
+
+    return concat(result, ' ')
+end
+
 --- Prints a message letting the player know they cannot run a command
 -- @param name string name of the command
 function Module.cant_run(name)
