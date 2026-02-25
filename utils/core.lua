@@ -209,7 +209,7 @@ function Module.format_time(ticks, include_seconds)
     return concat(result, ' ')
 end
 
---- Takes a time in ticks and returns a string with the time in format "x hour(s) x minute(s)"
+--- Takes a time in ticks and returns a string with the time in format "xh xm"
 function Module.format_time_short(ticks, include_seconds)
     local result = {}
 
