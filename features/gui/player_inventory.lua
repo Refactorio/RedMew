@@ -10,10 +10,10 @@ local Public = {
 }
 
 local function get_sprite_from_name(name)
-    if TILES[name] then
-        return 'tile.'..name
-    elseif ITEMS[name] then
+    if ITEMS[name] then
         return 'item.'..name
+    elseif TILES[name] then
+        return 'tile.'..name
     elseif ENTITIES[name] then
         return 'entity.'..name
     end
@@ -21,10 +21,10 @@ local function get_sprite_from_name(name)
 end
 
 local function get_tooltip_from_name(name)
-    if TILES[name] then
-        return TILES[name].localised_name
-    elseif ITEMS[name] then
+    if ITEMS[name] then
         return ITEMS[name].localised_name
+    elseif TILES[name] then
+        return TILES[name].localised_name
     elseif ENTITIES[name] then
         return ENTITIES[name].localised_name
     end
@@ -34,13 +34,8 @@ end
 Public.get_player_inventory = function(player)
     local results = {}
 
-    local character = player.character
-    if not (character and character.valid) then
-        return results
-    end
-
-    for k = 1, character.get_max_inventory_index() do
-        local inventory = character.get_inventory(k)
+    for k = 1, player.get_max_inventory_index() do
+        local inventory = player.get_inventory(k)
         if (inventory and inventory.valid) then
             for _, stack in pairs(inventory.get_contents()) do
                 results[stack.name] = (results[stack.name] or 0) + stack.count
