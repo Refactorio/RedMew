@@ -4,6 +4,7 @@ local DiscordChannels = require 'resources.discord'.channel_names
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local PlayerInventory = require 'features.gui.player_inventory'
 local Rank = require 'features.rank_system'
 local Ranks = require 'resources.ranks'
 local Report = require 'features.report'
@@ -470,6 +471,14 @@ local function destroy_selected(_, player)
     end
 end
 
+--- Shows all/target player inventory
+local function inventory(args, player)
+    local target_ident = args.player
+    local target = Utils.validate_player(target_ident)
+
+    PlayerInventory.get_main_frame(player, target)
+end
+
 -- Event registrations
 
 Event.add(defines.events.on_built_entity, built_entity)
@@ -661,6 +670,17 @@ Command.add(
         required_rank = Ranks.admin
     },
     destroy_selected
+)
+
+Command.add(
+    'inventory',
+    {
+        description = {'command_description.inventory'},
+        arguments = { 'player' },
+        default_values = { player = false },
+        required_rank = Ranks.moderator,
+    },
+    inventory
 )
 
 return {
