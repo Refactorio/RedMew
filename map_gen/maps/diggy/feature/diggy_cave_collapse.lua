@@ -390,6 +390,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_entity_died, on_entity_died)
     Event.add(defines.events.script_raised_destroy, script_raised_destroy)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
+    Event.add(defines.events.on_robot_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
