@@ -715,7 +715,7 @@ local function to_shape(blocks, part_size, on_init)
             --magic_fluid_crafters = {},
             market = nil,
             turret_count = 0,
-            area = nil,
+            area = { top_left = {}, bottom_right = {} },
             level = 1,
             maximum_level = nil,
             upgrade_rate = nil,
@@ -1679,10 +1679,6 @@ Public.wall_callback =
         local outpost_id = data.outpost_id
         local outpost_data = outposts[outpost_id]
         local area = outpost_data.area
-        if not area then
-            area = { top_left = {}, bottom_right = {} }
-            outpost_data.area = area
-        end
         local top_left = area.top_left
         local bottom_right = area.bottom_right
         local tx, ty = top_left.x, top_left.y
