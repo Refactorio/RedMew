@@ -14,10 +14,11 @@ local event_handlers = {}
 -- map of nth_tick to handlers[]
 local on_nth_tick_event_handlers = {}
 
-local pcall = pcall
+local xpcall = xpcall
 local log = log
 local script_on_event = script.on_event
 local script_on_nth_tick = script.on_nth_tick
+local error_handler = ErrorLogging.error_handler
 
 local call_handlers
 if _DEBUG then
@@ -31,10 +32,10 @@ else
     function call_handlers(handlers, event)
         for i = #handlers, 1, -1 do
             local handler = handlers[i]
-            local success, error = pcall(handler, event)
+            local success, result = xpcall(handler, error_handler, event)
+
             if not success then
-                log(error)
-                ErrorLogging.generate_error_report(error)
+                log(result)
             end
         end
     end
