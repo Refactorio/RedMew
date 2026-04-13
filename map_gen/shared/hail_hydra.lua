@@ -151,6 +151,9 @@ local on_died =
             if group and group.valid and #group.members > 0 then
                 group.set_command(command)
             end
+            if group and #group.members == 0 then
+                group.destroy()
+            end
         end
     end
 )
