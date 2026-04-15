@@ -134,7 +134,7 @@ local function on_mined_tile(surface, tiles)
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
             count = count + 1
-            new_tiles[count] = {name = 'dirt-' .. random(1, 7), position = tile.position}
+            new_tiles[count] = { tile.old_tile.hidden_tile, position = tile.position }
         end
     end
 
