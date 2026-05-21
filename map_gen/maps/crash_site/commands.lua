@@ -414,7 +414,8 @@ function Public.control(config)
 
     local function strike_formula(count_level)
         local count = (count_level - 2) * 10 + 3
-        local cost = count * 2 -- the number of poison-capsules required in the chest as payment
+         -- the number of poison-capsules required in the chest as payment
+        local cost = math.floor((count * 2) * (0.93 ^ (count_level - 2)))
         return count, cost
     end
 
@@ -560,7 +561,7 @@ function Public.control(config)
 
     local function barrage_formula(count_level)
         local count = (count_level-1)
-        local cost = count * 24
+        local cost = math.floor((count * 24) * (0.93 ^ (count_level - 2)))
         return count, cost
     end
 
