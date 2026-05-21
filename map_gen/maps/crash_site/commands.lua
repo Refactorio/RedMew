@@ -252,7 +252,8 @@ function Public.control(config)
         local ypos = data.ypos
         local player = data.player
         local s = player.surface
-        player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+        local a = data.apothem
+        player.force.chart(s, {{xpos - a, ypos - a}, {xpos + a, ypos + a}})
     end)
 
     local map_chart_tag_clear_callback = Token.register(function(tag)
@@ -316,7 +317,7 @@ function Public.control(config)
                 set_timeout_in_ticks(120, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'raw-fish'})
                 -- reveal 3x3 chunks centred on chunk containing pinged location. Use a callback to make sure it lasts 15 seconds
                 for j = 1, 15 do
-                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos, apothem = 32})
                 end
                 if spy_message_cooldown[1] == false then
                     game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, {color = Color.success})
@@ -334,11 +335,20 @@ function Public.control(config)
     end
 
     local spawn_poison_callback = Token.register(function(data)
-        local r = data.r
+        local function get_random_in_circle(radius, centerX, centerY)
+            local angle = math.random() * 2 * math.pi
+            -- Square root for uniformity
+            local r = radius * math.sqrt(math.random())
+            local x = centerX + r * math.cos(angle)
+            local y = centerY + r * math.sin(angle)
+            return x,y
+        end
+
+        local targetX,targetY = get_random_in_circle(data.r, data.xpos, data.ypos)
         data.s.create_entity {
             name = "poison-capsule",
             position = {0, 0},
-            target = {data.xpos + math.random(-r, r), data.ypos + math.random(-r, r)},
+            target = {targetX, targetY},
             speed = 10,
             max_range = 100000
         }
@@ -404,7 +414,8 @@ function Public.control(config)
 
     local function strike_formula(count_level)
         local count = (count_level - 2) * 10 + 3
-        local cost = count * 2 -- the number of poison-capsules required in the chest as payment
+         -- the number of poison-capsules required in the chest as payment
+        local cost = math.floor((count * 2) * (0.93 ^ (count_level - 2)))
         return count, cost
     end
 
@@ -468,11 +479,20 @@ function Public.control(config)
             local enemies = s.count_entities_filtered{position = {xpos, ypos}, radius=radius+10, force="enemy", limit=1}
 
             if enemies ~= 0 then
+                -- Time in ticks between each capsule firing
+                local poison_firing_delay = 15
                 for j = 1, count do
-                    set_timeout_in_ticks(30 * j, spawn_poison_callback,
-                        {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
-                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                    set_timeout_in_ticks(poison_firing_delay * j, spawn_poison_callback,
+                        {s = s, xpos = xpos, ypos = ypos, r = radius})
                 end
+                -- Reveal the area for the total time it takes to fire plus 20 seconds, enough to see everything
+                local total_firing_time = poison_firing_delay * count
+                local total_reveal_time = total_firing_time + (20 * 60)
+                local reveal_interval = (3 * 60)
+                for t = 0, total_reveal_time, reveal_interval do
+                    set_timeout_in_ticks(t, chart_area_callback, {player = player, xpos = xpos, ypos = ypos, apothem = radius + 10})
+                end
+                set_timeout_in_ticks(total_reveal_time, chart_area_callback, {player = player, xpos = xpos, ypos = ypos, apothem = radius + 10})
             else
                 player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name}, {color = Color.fail})
             end
@@ -489,19 +509,59 @@ function Public.control(config)
         end
     end
 
+    local function barrage_filter_targets(entities)
+        -- Filters an array for valid barrage targets
+        -- Removes invalid entites
+        -- Removes entities whose incoming damage would already guarantee their death
+        local valid_targets = {}
+        local count = 0
+
+        for _, entity in pairs(entities) do
+            if entity and entity.valid and entity.health then
+                local current_health = entity.health
+                local incoming_damage = entity.get_damage_to_be_taken()
+
+                -- Fetch the overkill_fraction (0.05 for nests, default to 0)
+                local overkill_fraction = entity.prototype.overkill_fraction or 0
+
+                -- Calculate the maximum damage allowed before target skipping
+                local max_allowed_damage = current_health * (1 + overkill_fraction)
+
+                -- Only keep the entity if incoming damage is less than max
+                if incoming_damage <= max_allowed_damage then
+                    count = count + 1
+                    valid_targets[count] = entity
+                end
+            end
+        end
+        return valid_targets
+    end
+
     local spawn_rocket_callback = Token.register(function(data)
-        data.s.create_entity {
-            name = "artillery-projectile", --"explosive-rocket",
-            position = {0, 0},
-            target = {data.xpos, data.ypos},
-            speed = 10,
-            max_range = 100000
-        }
+        -- Since time has elapsed, filter again for valid entites with health
+        local valid_targets = barrage_filter_targets(data.nests)
+        if (#valid_targets >= 1) then
+            -- Prioritize nests with lower health remaining
+            local function get_remaining_health(entity)
+                return entity.health - entity.get_damage_to_be_taken()
+            end
+            table.sort(valid_targets, function (a, b)
+                return get_remaining_health(a) < get_remaining_health(b)
+            end)
+
+            data.s.create_entity {
+                name = "artillery-projectile", --"explosive-rocket",
+                position = {0, 0},
+                target = valid_targets[1],
+                speed = 10,
+                max_range = 100000
+            }
+        end
     end)
 
     local function barrage_formula(count_level)
         local count = (count_level-1)
-        local cost = count * 24
+        local cost = math.floor((count * 24) * (0.93 ^ (count_level - 2)))
         return count, cost
     end
 
@@ -557,6 +617,9 @@ function Public.control(config)
                 }, {color = Color.fail})
                 return
             end
+            inv.remove({name = "explosive-rocket", count = strikeCost})
+            -- Chart the area regardless of nests
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             local nests = player.surface.find_entities_filtered {
                 position = {xpos, ypos},
@@ -565,25 +628,43 @@ function Public.control(config)
                 type = "unit-spawner"
             }
 
-            local nest_count = #nests
-            inv.remove({name = "explosive-rocket", count = strikeCost})
-            if nest_count == 0 then
+            -- Filter for nests that are not already going to die via incoming damage
+            nests = barrage_filter_targets(nests)
+
+            if #nests == 0 then
                 player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, {color = Color.fail})
             else
+                -- Sort by distance from center point
+                local function get_distance_squared(entity, pointX, pointY)
+                    local dx = entity.position.x - pointX
+                    local dy = entity.position.y - pointY
+                    return dx*dx + dy*dy
+                end
+                table.sort(nests, function(a,b)
+                    return get_distance_squared(a, xpos, ypos) < get_distance_squared(b, xpos, ypos)
+                end)
 
-                player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-
-                -- draw radius
+                -- Draw radius
                 set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
                 render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
                 for _, nest in pairs(nests) do
                     render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
                 end
 
+                -- Time in ticks between each rocket firing
+                local rocket_firing_delay = 60
                 for j = 1, count do
-                    set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
-                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                    -- FIRE!
+                    set_timeout_in_ticks(rocket_firing_delay * j + math.random(0, 30), spawn_rocket_callback, {s = s, nests = nests})
                 end
+                -- Reveal the area for the total time it takes to fire plus 5 seconds, enough to see everything
+                local total_firing_time = rocket_firing_delay * count + 30
+                local total_reveal_time = total_firing_time + (5 * 60)
+                local reveal_interval = (3 * 60)
+                for t = 0, total_reveal_time, reveal_interval do
+                    set_timeout_in_ticks(t, chart_area_callback, {player = player, xpos = xpos, ypos = ypos, apothem = radius})
+                end
+                set_timeout_in_ticks(total_reveal_time, chart_area_callback, {player = player, xpos = xpos, ypos = ypos, apothem = radius})
             end
             -- move to the next set of coordinates
             i = i + 2
@@ -660,7 +741,7 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
-                cursor_stack.label = 'Poison strike targetting remote'
+                cursor_stack.label = 'Poison strike targeting remote'
                 cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'big-rock'}
@@ -719,7 +800,7 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
-                cursor_stack.label = 'Barrage targetting remote'
+                cursor_stack.label = 'Barrage targeting remote'
                 cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'big-rock'}
