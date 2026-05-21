@@ -489,14 +489,54 @@ function Public.control(config)
         end
     end
 
+    local function barrage_filter_targets(entities)
+        -- Filters an array for valid barrage targets
+        -- Removes invalid entites
+        -- Removes entities whose incoming damage would already guarantee their death
+        local valid_targets = {}
+        local count = 0
+
+        for _, entity in pairs(entities) do
+            if entity and entity.valid and entity.health then
+                local current_health = entity.health
+                local incoming_damage = entity.get_damage_to_be_taken()
+
+                -- Fetch the overkill_fraction (0.05 for nests, default to 0)
+                local overkill_fraction = entity.prototype.overkill_fraction or 0
+
+                -- Calculate the maximum damage allowed before target skipping
+                local max_allowed_damage = current_health * (1 + overkill_fraction)
+
+                -- Only keep the entity if incoming damage is less than max
+                if incoming_damage <= max_allowed_damage then
+                    count = count + 1
+                    valid_targets[count] = entity
+                end
+            end
+        end
+        return valid_targets
+    end
+
     local spawn_rocket_callback = Token.register(function(data)
-        data.s.create_entity {
-            name = "artillery-projectile", --"explosive-rocket",
-            position = {0, 0},
-            target = {data.xpos, data.ypos},
-            speed = 10,
-            max_range = 100000
-        }
+        -- Since time has elapsed, filter again for valid entites with health
+        local valid_targets = barrage_filter_targets(data.nests)
+        if (#valid_targets >= 1) then
+            -- Prioritize nests with lower health remaining
+            local function get_remaining_health(entity)
+                return entity.health - entity.get_damage_to_be_taken()
+            end
+            table.sort(valid_targets, function (a, b)
+                return get_remaining_health(a) < get_remaining_health(b)
+            end)
+
+            data.s.create_entity {
+                name = "artillery-projectile", --"explosive-rocket",
+                position = {0, 0},
+                target = valid_targets[1],
+                speed = 10,
+                max_range = 100000
+            }
+        end
     end)
 
     local function barrage_formula(count_level)
@@ -557,6 +597,9 @@ function Public.control(config)
                 }, {color = Color.fail})
                 return
             end
+            inv.remove({name = "explosive-rocket", count = strikeCost})
+            -- Chart the area regardless of nests
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             local nests = player.surface.find_entities_filtered {
                 position = {xpos, ypos},
@@ -565,24 +608,35 @@ function Public.control(config)
                 type = "unit-spawner"
             }
 
-            local nest_count = #nests
-            inv.remove({name = "explosive-rocket", count = strikeCost})
-            if nest_count == 0 then
+            -- Filter for nests that are not already going to die via incoming damage
+            nests = barrage_filter_targets(nests)
+
+            if #nests == 0 then
                 player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, {color = Color.fail})
             else
+                -- Sort by distance from center point
+                local function get_distance_squared(entity, xpos, ypos)
+                    local dx = entity.position.x - xpos
+                    local dy = entity.position.y - ypos
+                    return dx*dx + dy*dy
+                end
+                table.sort(nests, function(a,b)
+                    return get_distance_squared(a, xpos, ypos) < get_distance_squared(b, xpos, ypos)
+                end)
 
-                player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-
-                -- draw radius
+                -- Draw radius
                 set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
                 render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
                 for _, nest in pairs(nests) do
                     render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
                 end
 
+                -- FIRE!
                 for j = 1, count do
-                    set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
-                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                    local time_delay = 60 * j + math.random(0, 30)
+                    set_timeout_in_ticks(time_delay, spawn_rocket_callback, {s = s, nests = nests})
+                    -- Opdate map after the barrage lands, 300 ticks should be enough.
+                    set_timeout_in_ticks(time_delay + 300, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
             end
             -- move to the next set of coordinates
@@ -660,7 +714,7 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
-                cursor_stack.label = 'Poison strike targetting remote'
+                cursor_stack.label = 'Poison strike targeting remote'
                 cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'big-rock'}
@@ -719,7 +773,7 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
-                cursor_stack.label = 'Barrage targetting remote'
+                cursor_stack.label = 'Barrage targeting remote'
                 cursor_stack.preview_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'big-rock'}
