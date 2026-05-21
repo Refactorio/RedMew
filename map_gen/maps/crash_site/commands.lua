@@ -635,9 +635,9 @@ function Public.control(config)
                 player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, {color = Color.fail})
             else
                 -- Sort by distance from center point
-                local function get_distance_squared(entity, xpos, ypos)
-                    local dx = entity.position.x - xpos
-                    local dy = entity.position.y - ypos
+                local function get_distance_squared(entity, pointX, pointY)
+                    local dx = entity.position.x - pointX
+                    local dy = entity.position.y - pointY
                     return dx*dx + dy*dy
                 end
                 table.sort(nests, function(a,b)
