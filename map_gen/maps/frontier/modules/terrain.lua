@@ -108,7 +108,6 @@ function Terrain.set_map_gen_settings()
   end
 
   surface.map_gen_settings = mgs
-  log(serpent.block{mgs = mgs})
 end
 
 function Terrain.get_map()
