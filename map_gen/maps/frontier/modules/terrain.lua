@@ -3,7 +3,6 @@ local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
 local Noise = require 'map_gen.shared.simplex_noise'
 local Queue = require 'utils.queue'
-local RS = require 'map_gen.shared.redmew_surface'
 local Public = require 'map_gen.maps.frontier.shared.core'
 local math_abs = math.abs
 local math_ceil = math.ceil
@@ -18,14 +17,14 @@ local q_pop  = Queue.pop
 local simplex = Noise.d2
 
 local autoplace_controls = {
-  ['coal']        = { frequency = 1.3,   richness = 0.7, size = 0.80 },
-  ['copper-ore']  = { frequency = 1.4,   richness = 0.7, size = 0.85 },
-  ['crude-oil']   = { frequency = 1,     richness = 0.9, size = 0.95 },
-  ['enemy-base']  = { frequency = 6,     richness = 0.6, size = 4    },
-  ['iron-ore']    = { frequency = 1.6,   richness = 0.8, size = 1.15 },
-  ['stone']       = { frequency = 1,     richness = 0.6, size = 0.65 },
-  ['trees']       = { frequency = 1,     richness = 0.6, size = 1.2  },
-  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.6  },
+  ['coal']        = { frequency = 1.3, richness = 0.7, size = 0.80 },
+  ['copper-ore']  = { frequency = 1.4, richness = 0.7, size = 0.85 },
+  ['crude-oil']   = { frequency = 1.7, richness = 2.4, size = 1.25 },
+  ['enemy-base']  = { frequency = 6,   richness = 0.6, size = 4    },
+  ['iron-ore']    = { frequency = 1.6, richness = 0.8, size = 1.15 },
+  ['stone']       = { frequency = 1,   richness = 0.6, size = 0.65 },
+  ['trees']       = { frequency = 1,   richness = 0.6, size = 1.2  },
+  ['uranium-ore'] = { frequency = 0.5, richness = 0.6, size = 0.6  },
 }
 local blacklisted_resources = {
   ['uranium-ore'] = true,
@@ -69,22 +68,47 @@ if script.active_mods['zombiesextended-core'] then
   blacklisted_resources['vibranium-ore'] = true
 end
 
-RS.set_map_gen_settings({
-  {
-    autoplace_controls = autoplace_controls,
-    cliff_settings = { name = 'cliff', cliff_elevation_0 = 20, cliff_elevation_interval = 40, richness = 0.8 },
-    height = Public.get().height * 32,
-    property_expression_names = {
-      ['control-setting:aux:frequency:multiplier'] = '1.333333',
-      ['control-setting:moisture:bias'] = '-0.250000',
-      ['control-setting:moisture:frequency:multiplier'] = '3.000000',
-    },
-    starting_area = 3,
-  },
-  MGSP.water_none,
-})
-
 local Terrain = {}
+
+function Terrain.set_map_gen_settings()
+  local surface = Public.surface()
+  local mgs = table.deepcopy(surface.map_gen_settings)
+
+  mgs.starting_area = 3
+  mgs.height = Public.get().height * 32
+  mgs.cliff_settings = {
+    name = 'cliff',
+    control = 'nauvis_cliff',
+    cliff_elevation_0 = 20,
+    cliff_elevation_interval = 40,
+    richness = 0.8,
+    cliff_smoothing = 0,
+  }
+  -- Biome
+  for k, v in pairs({
+    ['control:aux:frequency'] = '1.333333',
+    ['control:moisture:bias'] = '-0.250000',
+    ['control:moisture:frequency'] = '3.000000',
+  }) do
+    mgs.property_expression_names[k] = v
+  end
+
+  -- Water none
+  mgs.autoplace_settings = mgs.autoplace_settings or {}
+  mgs.autoplace_settings.tile = mgs.autoplace_settings.tile or {}
+  mgs.autoplace_settings.tile.settings = mgs.autoplace_settings.tile.settings or {}
+  for k, v in pairs(MGSP.water_none.autoplace_settings.tile.settings) do
+    mgs.autoplace_settings.tile.settings[k] = v
+  end
+
+  -- Ores
+  mgs.autoplace_controls = mgs.autoplace_controls or {}
+  for k, v in pairs(autoplace_controls) do
+    mgs.autoplace_controls[k] = v
+  end
+
+  surface.map_gen_settings = mgs
+end
 
 function Terrain.get_map()
   local map

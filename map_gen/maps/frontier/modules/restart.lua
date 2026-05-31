@@ -551,15 +551,11 @@ function Restart.print_endgame_statistics()
     end
 
     local total_ore = 0
-    local ore_totals_message = '('
+    local surface_stats = game.forces.player.get_item_production_statistics(Public.surface())
     for ore_name in pairs(ore_products) do
-      local count = game.forces.player.get_item_production_statistics(Public.surface().name).get_input_count(ore_name)
-      total_ore = total_ore + count
-      ore_totals_message = ore_totals_message..ore_name:gsub( '-ore', '')..': '..format_number(count, true)..', '
+      total_ore = total_ore + (surface_stats.get_input_count(ore_name) or 0)
     end
-    ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ', ' and add a bracket
     statistics.ore_totals_value = format_number(total_ore, true)
-    statistics.ore_totals_breakdown = ore_totals_message
   end
 
   local statistics_message = {
@@ -569,7 +565,6 @@ function Restart.print_endgame_statistics()
     'Map time: '..statistics.time_string,
     'Total entities built: '..statistics.entities_built,
     'Total ore mined: '..statistics.ore_totals_value,
-    statistics.ore_totals_breakdown,
     'Total ore resources exhausted: '..statistics.resources_exhausted,
     'Players: '..statistics.total_players,
     'Rockets launched: '..statistics.rockets_launched,
