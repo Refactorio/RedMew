@@ -319,17 +319,17 @@ function RocketSilo.on_research_finished(technology)
   if technology.force.name ~= 'player' then
     return
   end
-  local this = Public.get()
+  --local this = Public.get()
   local recipes = technology.force.recipes
   if recipes['rocket-silo'] then
     recipes['rocket-silo'].enabled = false
   end
-  if this.rockets_launched == 0 and recipes['landfill'].enabled then
+  --[[ if this.rockets_launched == 0 and recipes['landfill'].enabled then
     recipes['landfill'].enabled = false
   end
   if this.rockets_launched > 0 and not recipes['landfill'].enabled then
     recipes['landfill'].enabled = true
-  end
+  end ]]
 end
 
 return RocketSilo
