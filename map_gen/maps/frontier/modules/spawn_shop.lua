@@ -387,7 +387,6 @@ function SpawnShop.on_player_purchase(player, id)
     inv.remove(item_stack)
   end
 
-  data.level = data.level + 1
   SpawnShop.upgrade_perk(id)
   SpawnShop.refresh_price(id)
   SpawnShop.update_all_guis()
