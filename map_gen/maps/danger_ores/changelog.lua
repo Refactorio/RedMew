@@ -148,4 +148,7 @@ return [[
       - [DO] Removed robots cost multipliers
       - [DO:JK] Added DO/Joker preset
       - [DO:JK] Added biters drop resources
+
+  2026-06-14:
+      - [DO] Disabled radioactivity by default, expect for Joker preset
 ]]

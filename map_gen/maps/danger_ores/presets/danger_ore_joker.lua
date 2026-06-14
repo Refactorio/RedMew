@@ -37,6 +37,7 @@ DOC.map_config.enemy_scale_factor = 64
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.joker_outer_area'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_exclusive_shapes'
+DOC.radioactivity.enabled = true
 
 local remnants = require 'resources.remnants'
 local wrecks = {
