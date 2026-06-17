@@ -1542,7 +1542,7 @@ local set_inactive_token =
     Token.register(
     function(entity)
         if entity.valid then
-            entity.active = false
+            entity.disabled_by_script = true
         end
     end
 )
@@ -1703,7 +1703,7 @@ Public.wall_callback =
 Public.deactivate_callback =
     Token.register(
     function(entity)
-        entity.active = false
+        entity.disabled_by_script = true
         entity.operable = false
         entity.destructible = false
     end
