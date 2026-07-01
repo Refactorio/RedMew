@@ -88,7 +88,7 @@ local maps = {
     { name = 'danger-ore-pyfe', display_name = 'Pyanodon Short (PyFe)', mod_pack = mod_packs.danger_ore_py_short, tags = {tags.overhaul} },
     { name = 'danger-ore-riches', display_name = 'Riches (iron rich near spawn, copper rich further out)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-rivers', display_name = 'Rivers (flowing out from spawn)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
-    { name = 'danger-ore-safety', display_name = 'Safety Ores (inverse Danger Ores)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
+    { name = 'danger-ore-safety', display_name = 'Safety Ores (inverse Danger Ores)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-scrap', display_name = 'Scrapworld (no ores, all scraps)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
     { name = 'danger-ore-scrap-maze', display_name = 'Scrapworld Maze (all scraps + maze)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
     { name = 'danger-ore-space-age', display_name = 'Space Age (everything on Nauvis)', mod_pack = mod_packs.danger_ore_space_age, tags = {tags.overhaul} },
