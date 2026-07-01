@@ -47,6 +47,14 @@ ScenarioInfo.set_map_extra_info([[
   In [font=default-bold]Frontier[/font], your wits will be tested as you evolve from a mere survivor to an engineering genius capable of taming the land and launching your final escape. Build a thriving factory, and prepare to conquer both nature and the relentless horde in a race against time. But remember, the frontier waits for no one. Will you make your mark on this alien world or become another lost tale in the void of space?
 ]])
 ScenarioInfo.set_new_info([[
+  2026-06-07:
+    - Removed landfill lock
+    - Increased crude oil frequency, size and richness
+    - Fixed map height not being applied correctly on startup
+    - Fixed map gen settings allowing water tiles
+    - Fixed endgame statistics for ore mined count
+    - Fixed surface tags not being removed on map reset
+    - Fixed purchasing in spawn shop resulting in double the levels
   2024-08-16:
     - Added random markets
     - Added spawn shop

@@ -14,6 +14,7 @@ local tostring = tostring
 local raw_print = Print.raw_print
 local next = next
 local type = type
+local xpcall = xpcall
 
 local serialize_options = {sparse = true, compact = true}
 
@@ -532,19 +533,16 @@ local function data_set_changed(data)
 
     if _DEBUG then
         for _, handler in ipairs(handlers) do
-            local success, err = pcall(handler, data)
+            local success, result = xpcall(handler, ErrorLogging.error_handler, data)
             if not success then
-                log(err)
-                ErrorLogging.generate_error_report(err)
-                error(err, 2)
+                log(result)
             end
         end
     else
         for _, handler in ipairs(handlers) do
-            local success, err = pcall(handler, data)
+            local success, result = xpcall(handler, ErrorLogging.error_handler, data)
             if not success then
-                log(err)
-                ErrorLogging.generate_error_report(err)
+                log(result)
             end
         end
     end

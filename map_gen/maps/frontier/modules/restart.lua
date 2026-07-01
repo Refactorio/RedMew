@@ -542,9 +542,8 @@ function Restart.print_endgame_statistics()
     local resource_prototypes = prototypes.get_entity_filtered({{ filter = 'type', type = 'resource' }})
     local ore_products = {}
     for _, ore_prototype in pairs(resource_prototypes) do
-      local mineable_properties = ore_prototype.mineable_properties
-      if mineable_properties.minable_flag and ore_prototype.resource_category == 'basic-solid' then
-        for _, product in pairs(mineable_properties.products) do
+      if ore_prototype.resource_category == 'basic-solid' then
+        for _, product in pairs(ore_prototype.mineable_properties.products) do
           ore_products[product.name] = true
         end
       end

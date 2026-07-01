@@ -521,7 +521,14 @@ function Terrain.prepare_next_surface()
   game.print({'frontier.map_setup'})
 
   local surface = Public.surface()
+
+  -- Surface clear up
   surface.clear(true)
+  for _, tag in pairs(game.forces.player.find_chart_tags(surface)) do
+    tag.destroy()
+  end
+
+  -- Seed update
   local mgs = table.deepcopy(surface.map_gen_settings)
   mgs.seed = mgs.seed + 1e4
   surface.map_gen_settings = mgs

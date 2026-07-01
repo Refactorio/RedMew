@@ -62,7 +62,7 @@ return {
     enabled = true,
   },
   radioactivity = {
-    enabled = true,
+    enabled = false,
   },
   rocket_launched = {
     enabled = true,

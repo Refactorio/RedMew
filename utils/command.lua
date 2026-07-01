@@ -15,7 +15,7 @@ local serialize = serpent.line
 local gmatch = string.gmatch
 local get_rank_name = Rank.get_rank_name
 local pairs = pairs
-local pcall = pcall
+local xpcall = xpcall
 
 local Command = {}
 
@@ -250,26 +250,24 @@ function Command.add(command_name, options, callback)
                 log({'command.log_entry', server_time, tick, (required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)})
             end
 
-            local success, error =
-                pcall(
+            local success, result = xpcall(
                 function()
                     callback(named_arguments, player, command.tick)
-                end
+                end,
+                ErrorLogging.error_handler
             )
 
             if not success then
                 local serialized_arguments = serialize(named_arguments)
                 if _DEBUG then
                     print({'command.error_while_running_debug', player_name, command_name, serialized_arguments})
-                    print(error)
-                    ErrorLogging.generate_error_report(error)
+                    print(result)
                     return
                 end
 
                 print({'command.warn_player_of_error', command_name})
-                local err = {'command.error_log', command_name, serialized_arguments, error}
+                local err = {'command.error_log', command_name, serialized_arguments, result}
                 log(err)
-                ErrorLogging.generate_error_report(err)
             end
         end
     )
