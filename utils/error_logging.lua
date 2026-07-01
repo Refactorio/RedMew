@@ -10,7 +10,8 @@ local floor = math.floor
 local format = string.format
 local insert = table.insert
 local concat = table.concat
-local pcall = pcall
+local xpcall = xpcall
+local trace = debug.traceback
 
 -- Local constants
 local minutes_to_ticks = 60 * 60
@@ -85,10 +86,14 @@ end
 
 --- Takes the given string and generates an entry in the error file.
 function Public.generate_error_report(str)
-    local success, err = pcall(try_generate_report, str)
+    local success, result = xpcall(try_generate_report, Public.error_handler, str)
     if not success then
-        log(err)
+        log(result)
     end
+end
+
+function Public.error_handler(err)
+    return trace(err)
 end
 
 return Public
