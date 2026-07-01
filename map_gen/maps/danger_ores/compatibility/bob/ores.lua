@@ -29,7 +29,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -59,7 +59,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -92,7 +92,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -121,7 +121,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -151,7 +151,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -181,7 +181,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -214,7 +214,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -243,7 +243,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -273,7 +273,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -303,7 +303,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -336,7 +336,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -365,7 +365,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -395,7 +395,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 120},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -425,7 +425,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 120},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     }, ]]
@@ -458,12 +458,12 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 120},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
     {
-        name = 'bob-tungsten-ore',
+        name = 'tungsten-ore',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -487,7 +487,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 120},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 120},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 3}
         }
     },
@@ -517,7 +517,7 @@ return {
             {resource = b.resource(b.full_shape, 'bob-silver-ore', value), weight = 5},
             --{resource = b.resource(b.full_shape, 'bob-sulfur', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-tin-ore', value), weight = 10},
-            {resource = b.resource(b.full_shape, 'bob-tungsten-ore', value), weight = 5},
+            {resource = b.resource(b.full_shape, 'tungsten-ore', value), weight = 5},
             {resource = b.resource(b.full_shape, 'bob-zinc-ore', value), weight = 120}
         }
     }

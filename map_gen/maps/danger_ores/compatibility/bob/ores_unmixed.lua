@@ -222,7 +222,7 @@ return {
         },
     },
     {
-        name = 'bob-tungsten-ore',
+        name = 'tungsten-ore',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -231,7 +231,7 @@ return {
         ['start'] = value(125, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            { resource = b.resource(b.full_shape, 'bob-tungsten-ore', value(0, 0.5)), weight = 120 },
+            { resource = b.resource(b.full_shape, 'tungsten-ore', value(0, 0.5)), weight = 120 },
         },
     },
     {

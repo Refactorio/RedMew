@@ -36,7 +36,7 @@ DOC.map_gen_settings.settings = H.empty_map_settings{
     --'bob-sulfur',
     'bob-thorium-ore',
     'bob-tin-ore',
-    'bob-tungsten-ore',
+    'tungsten-ore',
     'uranium-ore',
     'bob-zinc-ore',
 }
