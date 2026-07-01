@@ -217,6 +217,7 @@ stds.factorio_control = {
                 'get_event_order',
                 'level',
                 'mod_name',
+                'new_notification_queue',
                 'on_configuration_changed',
                 'raise_biter_base_built',
                 'raise_console_chat',
@@ -261,6 +262,7 @@ stds.factorio_control = {
                 'draw_arc',
                 'draw_polygon',
                 'draw_sprite',
+                'draw_animation',
                 'draw_light',
                 'destroy',
                 'is_font_valid',
@@ -340,7 +342,9 @@ stds.factorio_control = {
                 'get_intensity',
                 'set_intensity',
                 'get_minimum_darkness',
-                'set_minimum_darkness'
+                'set_minimum_darkness',
+                'get_light_mode',
+                'set_light_mode'
             }
         },
 
@@ -349,15 +353,24 @@ stds.factorio_control = {
             read_only = true,
             fields = {
                 "check_prototype_translations",
+                "compare_versions",
+                "create_profiler",
                 "decode_string",
                 "direction_to_string",
                 "encode_string",
                 "evaluate_expression",
+                "game_version",
+                "is_valid_ambient_sound",
+                "is_valid_animation_path",
                 "is_valid_sound_path",
                 "is_valid_sprite_path",
                 "json_to_table",
+                "multilingual_to_lower",
                 "parse_map_exchange_string",
+                "recv_udp",
                 "remove_path",
+                "send_udp",
+                "stage",
                 "table_to_json",
                 "write_file",
             }
@@ -370,13 +383,14 @@ stds.factorio_control = {
             other_fields = false,
             read_only = false,
             fields = {
+                "allow_debug_settings",
                 "auto_save",
                 "ban_player",
-                "check_consistency",                
+                "check_consistency",
                 "create_force",
-                "create_profiler",
                 "create_random_generator",
                 "create_surface",
+                "delete_blueprint_library",
                 "delete_surface",
                 "desync_players",
                 "disable_replay",
@@ -399,6 +413,7 @@ stds.factorio_control = {
                 "mute_player",
                 "planet",
                 "planets",
+                "play_music",
                 "play_sound",
                 "print_stack_size",
                 "print",
@@ -503,6 +518,7 @@ stds.factorio_control = {
                 technology = {read_only = true, other_fields = true},
                 tile = {read_only = true, other_fields = true},
                 trivial_smoke = {read_only = true, other_fields = true},
+                utility_constants = {read_only = true, other_fields = true},
                 virtual_signal = {read_only = true, other_fields = true},
                 "max_beacon_supply_area_distance",
                 "max_electric_pole_connection_distance",
@@ -841,6 +857,45 @@ stds.factorio_defines = {
                         'wall'
                     }
                 },
+                constant = {
+                    fields = {
+                        'default_icon_size'
+                    }
+                },
+                electric_interface_mode = {
+                    fields = {
+                        'accumulator',
+                        'primary_input',
+                        'primary_output',
+                        'secondary_input',
+                        'secondary_output',
+                        'solar_output',
+                        'tertiary_input',
+                        'tertiary_input_output',
+                        'tertiary_output'
+                    }
+                },
+                inventory_actions = {
+                    fields = {
+                        'cursor_split',
+                        'cursor_transfer',
+                        'inventory_split',
+                        'inventory_transfer',
+                        'open_item',
+                        'open_mod_item',
+                        'send_stack_to_trash',
+                        'send_stacks_to_trash',
+                        'stack_split',
+                        'stack_transfer'
+                    }
+                },
+                target_type = {
+                    fields = {
+                        'electric_network',
+                        'electric_sub_network',
+                        'force'
+                    }
+                },
                 command = {
                     fields = {
                         'attack',
@@ -921,6 +976,16 @@ stds.factorio_defines = {
                                 }
                             }
                         },
+                        radar = {
+                            fields = {
+                                mode = {
+                                    fields = {
+                                        'surface',
+                                        'universe'
+                                    }
+                                }
+                            }
+                        },
                         train_stop = {
                             fields = {
                                 circuit_mode_of_operation = {
@@ -947,19 +1012,23 @@ stds.factorio_defines = {
                             fields = {
                                 'accumulator',
                                 'arithmetic_combinator',
+                                'boiler',
                                 'constant_combinator',
                                 'container',
                                 'decider_combinator',
                                 'generic_on_off',
+                                'heat_pipe',
                                 'inserter',
+                                'lab',
                                 'lamp',
+                                'land_mine',
                                 'logistic_container',
                                 'mining_drill',
                                 'programmable_speaker',
                                 'rail_chain_signal',
                                 'rail_signal',
                                 'roboport',
-                                'storage_tank',
+                                'single_fluid_box',
                                 'train_stop',
                                 'transport_belt',
                                 'wall'
@@ -1093,6 +1162,11 @@ stds.factorio_defines = {
                         'waiting_to_launch_rocket',
                         'waiting_for_source_items',
                         'waiting_for_space_in_destination',
+                        'hatches_blocked_by_elevated_rail',
+                        'too_far_from_pad_to_unload',
+                        'waiting_for_upgrade',
+                        'waiting_to_clear_drop_slots',
+                        'armed',
                     }
                 },
                 render_mode = {
@@ -1108,6 +1182,7 @@ stds.factorio_defines = {
                         'on_ai_command_completed',
                         'on_area_cloned',
                         'on_biter_base_built',
+                        'on_blueprint_settings_pasted',
                         'on_built_entity',
                         'on_cancelled_deconstruction',
                         'on_cancelled_upgrade',
@@ -1139,6 +1214,7 @@ stds.factorio_defines = {
                         'on_gui_click',
                         'on_gui_closed',
                         'on_gui_elem_changed',
+                        'on_gui_inventory_action',
                         'on_gui_opened',
                         'on_gui_selection_state_changed',
                         'on_gui_switch_state_changed',
@@ -1163,6 +1239,7 @@ stds.factorio_defines = {
                         'on_player_changed_surface',
                         'on_player_cheat_mode_disabled',
                         'on_player_cheat_mode_enabled',
+                        'on_player_color_changed',
                         'on_player_configured_blueprint',
                         'on_player_controller_changed',
                         'on_player_crafted_item',
@@ -1185,6 +1262,7 @@ stds.factorio_defines = {
                         'on_player_mined_entity',
                         'on_player_mined_item',
                         'on_player_mined_tile',
+                        'on_player_music_changed',
                         'on_player_muted',
                         'on_player_pipette',
                         'on_player_placed_equipment',
@@ -1253,6 +1331,7 @@ stds.factorio_defines = {
                         'on_train_schedule_changed',
                         'on_trigger_created_entity',
                         'on_trigger_fired_artillery',
+                        'on_udp_packet_received',
                         'on_undo_applied',
                         'on_unit_added_to_group',
                         'on_unit_group_created',
@@ -1286,6 +1365,7 @@ stds.factorio_defines = {
                 gui_type = {
                     fields = {
                         'achievement',
+                        'alerts_config',
                         'blueprint_library',
                         'bonus',
                         'controller',
@@ -1320,6 +1400,7 @@ stds.factorio_defines = {
                         'achievement_gui',
                         'additional_entity_info_gui',
                         'admin_gui',
+                        'alerts_config_gui',
                         'arithmetic_combinator_gui',
                         'armor_gui',
                         'assembling_machine_gui',
@@ -1328,6 +1409,7 @@ stds.factorio_defines = {
                         'blueprint_book_gui',
                         'blueprint_library_gui',
                         'blueprint_setup_gui',
+                        'boiler_gui',
                         'bonus_gui',
                         'burner_equipment_gui',
                         'car_gui',
@@ -1336,6 +1418,7 @@ stds.factorio_defines = {
                         'controller_gui',
                         'decider_combinator_gui',
                         'deconstruction_item_gui',
+                        'electric_energy_interface_equipment_gui',
                         'electric_energy_interface_gui',
                         'electric_network_gui',
                         'entity_variations_gui',
@@ -1360,6 +1443,7 @@ stds.factorio_defines = {
                         'power_switch_gui',
                         'production_gui',
                         'programmable_speaker_gui',
+                        'radar_gui',
                         'rail_chain_signal_gui',
                         'rail_signal_gui',
                         'reactor_gui',
@@ -1371,7 +1455,6 @@ stds.factorio_defines = {
                         'spider_vehicle_gui',
                         'splitter_gui',
                         'standalone_character_gui',
-                        'storage_tank_gui',
                         'tile_variations_gui',
                         'train_gui',
                         'train_stop_gui',
@@ -1565,11 +1648,11 @@ stds.factorio_defines = {
                 },
                 inventory = {
                     fields = {
+                        'agricultural_tower_input',
+                        'agricultural_tower_output',
                         'artillery_turret_ammo',
                         'artillery_wagon_ammo',
-                        'assembling_machine_input',
-                        'assembling_machine_modules',
-                        'assembling_machine_output',
+                        'asteroid_collector_output',
                         'beacon_modules',
                         'burnt_result',
                         'car_ammo',
@@ -1577,14 +1660,17 @@ stds.factorio_defines = {
                         'cargo_wagon',
                         'character_corpse',
                         'chest',
+                        'crafter_input',
+                        'crafter_modules',
+                        'crafter_output',
+                        'crafter_trash',
                         'fuel',
-                        'furnace_modules',
-                        'furnace_result',
-                        'furnace_source',
                         'god_main',
                         'item_main',
                         'lab_input',
                         'lab_modules',
+                        'lab_trash',
+                        'linked_container_main',
                         'mining_drill_modules',
                         'character_ammo',
                         'character_armor',
@@ -1592,6 +1678,7 @@ stds.factorio_defines = {
                         'character_main',
                         'character_trash',
                         'character_vehicle',
+                        'proxy_main',
                         'roboport_material',
                         'roboport_robot',
                         'robot_cargo',

@@ -39,7 +39,10 @@ local function change_quickbar_item()
         end
         if valid_item then
           local rand_position = math.random(1, SEARCHED_QUICKBAR_SLOTS)
-          player.set_quick_bar_slot(rand_position, rand_item)
+          local quick_bar_width = player.quick_bar_width
+          local page = math.ceil(rand_position / quick_bar_width)
+          local slot = rand_position - (page - 1) * quick_bar_width
+          player.set_quick_bar_slot(page, slot, rand_item)
         end
       end
     end
