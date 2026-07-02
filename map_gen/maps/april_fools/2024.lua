@@ -3,16 +3,20 @@
   2024 revamped version of "Pinguin" scenario from 2019 with several addons.
 
   Required mods:
-  - Alien Biomes v0.7.2
-  - RedMew Data  v1.1.0
+  - Alien Biomes v0.8.0
+  - RedMew Data  v4.0.0
 ]]
 
-if not script.active_mods['alien-biomes'] or not (script.active_mods['redmew-data'] and settings.startup.redmew_scenario.value == 'april-fools') then
-  error([[
-    Missing dependencies. Please check that the following mods have been correctly installed:
-    - Alien Biomes >= v0.7.2
-    - RedMew Data >= v1.1.0 & scenario setting "April Fools"
-  ]])
+local ModCompatibility = require 'utils.mod_compatibility'
+ModCompatibility.check {
+  dependencies = {
+    { name = 'alien-biomes', version = '0.8.0' },
+    { name = 'redmew-data', version = '4.0.0' }
+  }
+}
+
+if settings.startup.redmew_scenario.value ~= 'april-fools' then
+  error('The "April Fools" scenario setting must be enabled to play Double Trouble.', 0)
 end
 
 local ScenarioInfo = require 'features.gui.info'

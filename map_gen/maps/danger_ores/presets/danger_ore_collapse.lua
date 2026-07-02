@@ -1,7 +1,12 @@
 
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check {
+	dependencies = {{ name = 'ore-evolution' }}
+}
 
 ScenarioInfo.set_map_name('Danger Ores - Collapse')
 ScenarioInfo.add_map_extra_info([[
