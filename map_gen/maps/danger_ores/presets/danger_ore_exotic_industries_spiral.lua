@@ -1,7 +1,12 @@
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check {
+    dependencies = {{ name = 'exotic-industries' }}
+}
 
 ScenarioInfo.set_map_name('Danger Ores - Exotic Industries Spiral')
 ScenarioInfo.add_map_extra_info([[

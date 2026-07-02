@@ -1,6 +1,9 @@
-local Event = require 'utils.event'
-local Popup = require 'features.gui.popup'
+local ModCompatibility = require 'utils.mod_compatibility'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check {
+    dependencies = {{ name = 'mine-sweeper' }}
+}
 
 ScenarioInfo.set_map_name('Minesweeper')
 ScenarioInfo.set_map_description('Minesweeper - in Factorio!')
@@ -33,26 +36,3 @@ Config.player_create.starting_items = {
     {  count =  32, name = 'firearm-magazine' },
     {  count =  20, name = 'wood' },
 }
-
-local INFO = {
-    mod_name = 'mine-sweeper',
-    popup_name = 'minesweeper-mod-required',
-    title = 'Scenario mod mismatch',
-    message = [[
-        This scenario needs Minesweeper mod in order to work correctly.
-        You can download it from the mod portal: https://mods.factorio.com/mod/mine-sweeper
-    ]],
-    sprite_path = 'virtual-signal.signal-alert'
-}
-
-if not script.active_mods[INFO.mod_name] then
-    Event.add(defines.events.on_player_joined_game, function(event)
-        Popup.player(
-            game.get_player(event.player_index),
-            INFO.message,
-            INFO.title,
-            INFO.sprite_path,
-            INFO.mod_name
-        )
-    end)
-end
