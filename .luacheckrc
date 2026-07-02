@@ -36,7 +36,7 @@
 -- For more information, please refer to <http://unlicense.org/>
 -- ]]
 
--- Current Factorio Version 0.17.0, luacheck version 0.23.0
+-- Current Factorio Version 2.1.9, luacheck version 1.1.1
 
 -------------------------------------------------------------------------------
 --[Set Defaults]--
