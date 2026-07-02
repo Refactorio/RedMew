@@ -21,12 +21,50 @@ local script_on_nth_tick = script.on_nth_tick
 local error_handler = ErrorLogging.error_handler
 
 local call_handlers
+local log_handler_registration
 if _DEBUG then
     function call_handlers(handlers, event)
         for i = #handlers, 1, -1 do
             local handler = handlers[i]
             handler(event)
         end
+    end
+
+    -- map of event key string (e.g. "on_player_created") to registered handler count
+    local handler_counts = {}
+    -- map of event_name id to its key string, seeded with the non-defines.events pseudo events
+    local event_id_to_key = {
+        [init_event_name] = 'on_init',
+        [load_event_name] = 'on_load',
+        [configuration_changed_name] = 'on_configuration_changed'
+    }
+
+    local function get_event_key(event_name)
+        if type(event_name) == 'string' then
+            return event_name
+        end
+
+        local key = event_id_to_key[event_name]
+        if key then
+            return key
+        end
+
+        for name, id in pairs(defines.events) do
+            if id == event_name then
+                event_id_to_key[event_name] = name
+                return name
+            end
+        end
+
+        key = 'unknown_event_' .. tostring(event_name)
+        event_id_to_key[event_name] = key
+        return key
+    end
+
+    function log_handler_registration(event_name, count)
+        local key = get_event_key(event_name)
+        handler_counts[key] = count
+        helpers.write_file('event_handler_registry.json', helpers.table_to_json(handler_counts), false)
     end
 else
     function call_handlers(handlers, event)
@@ -95,6 +133,10 @@ function Public.add(event_name, handler)
             script_on_event(event_name, on_event)
         end
     end
+
+    if _DEBUG then
+        log_handler_registration(event_name, #event_handlers[event_name])
+    end
 end
 
 --- Do not use this function, use Event.on_init instead as it has safety checks.
@@ -108,6 +150,10 @@ function Public.on_init(handler)
         if #handlers == 1 then
             script.on_init(on_init)
         end
+    end
+
+    if _DEBUG then
+        log_handler_registration(init_event_name, #event_handlers[init_event_name])
     end
 end
 
@@ -123,6 +169,10 @@ function Public.on_load(handler)
             script.on_load(on_load)
         end
     end
+
+    if _DEBUG then
+        log_handler_registration(load_event_name, #event_handlers[load_event_name])
+    end
 end
 
 --- Do not use this function, use Event.on_configuration_changed instead as it has safety checks.
@@ -137,6 +187,10 @@ function Public.on_configuration_changed(handler)
             script.on_configuration_changed(configuration_changed)
         end
     end
+
+    if _DEBUG then
+        log_handler_registration(configuration_changed_name, #event_handlers[configuration_changed_name])
+    end
 end
 
 --- Do not use this function, use Event.on_nth_tick instead as it has safety checks.
@@ -150,6 +204,10 @@ function Public.on_nth_tick(tick, handler)
         if #handlers == 1 then
             script_on_nth_tick(tick, on_nth_tick_event)
         end
+    end
+
+    if _DEBUG then
+        log_handler_registration('on_nth_tick_' .. tick, #on_nth_tick_event_handlers[tick])
     end
 end
 
