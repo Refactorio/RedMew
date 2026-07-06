@@ -72,7 +72,7 @@ local maps = {
     { name = 'danger-ore-split', display_name = 'Split (4x sectors)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-square', display_name = 'Square (corner start)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-terraforming', display_name = 'Terraforming (default)', mod_pack = mod_packs.danger_ore_normal },
-    { name = 'danger-ore-tetrominoes', display_name = 'Tetrominoes (interlocking pieces)', mod_pack = mod_packs.danger_ore_normal },  
+    { name = 'danger-ore-tetrominoes', display_name = 'Tetrominoes (interlocking pieces)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-voronoi', display_name = 'Voronoi (organic cells)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-x-cross', display_name = 'X Cross (45 degrees)', mod_pack = mod_packs.danger_ore_normal },
     --{ name = 'danger-ore-xmas-tree', display_name = 'Christmas Tree (triangle)', mod_pack = mod_packs.danger_ore_normal },
