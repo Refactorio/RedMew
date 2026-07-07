@@ -152,6 +152,14 @@ return [[
   2026-06-14:
       - [DO] Disabled radioactivity by default, expect for Joker preset
 
+  2026-07-06:
+      - [DO:Tetrominoes] Added DO/Tetrominoes preset
+      - [DO:Voronoi] Added DO/Voronoi preset
+
+  2026-07-07:
+      - [DO:ScrapMaze] Added DO/Scrapworld-Maze preset
+      - [DO:OmniMaze] Added DO/Omnimatter-Maze preset
+ 
   2026-07-01:
       - [DO] Updated for Factorio 2.1 compatibility
       - [DO] Rewrote biters-drop-resources loot to new ItemProductPrototype format
