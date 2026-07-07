@@ -4,9 +4,7 @@ local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ModCompatibility.check {
-    dependencies = { { name = 'exotic-industries' } },
-}
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.exotic_industries.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Exotic Industries')
 ScenarioInfo.add_map_extra_info([[

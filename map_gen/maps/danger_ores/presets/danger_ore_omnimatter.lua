@@ -7,12 +7,7 @@ local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ModCompatibility.check {
-    dependencies = {
-        { name = 'omnimatter' },
-        { name = 'omnilib' },
-    },
-}
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.omnimatter.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Omnimatter')
 ScenarioInfo.add_map_extra_info([[

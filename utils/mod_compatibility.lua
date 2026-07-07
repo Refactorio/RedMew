@@ -136,6 +136,62 @@ local show_soft_warnings_token = Token.register(function(params)
     show_soft_warnings(game.get_player(params.player_index), params.recommended, params.discouraged)
 end)
 
+--- The category keys understood by `Public.check`, each holding a `ModRef[]`.
+local CATEGORIES = { 'dependencies', 'incompatibles', 'recommended', 'discouraged' }
+
+--- Combines several mod-list tables into a single one suitable for `Public.check`.
+-- Unlike `table.merge`/`table.meld`, which merge by key and therefore let the entries of one
+-- list overwrite the same-indexed entries of another, this appends the arrays under each
+-- category so every entry from every list is kept.
+--
+-- Usage:
+--   ModCompatibility.check(ModCompatibility.combine(
+--       require 'map_gen.maps.danger_ores.compatibility.angel.mod-list',
+--       require 'map_gen.maps.danger_ores.compatibility.bob.mod-list'
+--   ))
+---@param ... table mod-list tables, each with any of the `CATEGORIES` keys
+---@return table combined mod-list table
+function Public.combine(...)
+    local combined = {}
+    for _, category in pairs(CATEGORIES) do
+        combined[category] = {}
+    end
+
+    -- Per category, the index into `combined[category]` at which each mod name was first seen,
+    -- so later duplicates can be deduped in place rather than appended again.
+    local seen = {}
+    for _, category in pairs(CATEGORIES) do
+        seen[category] = {}
+    end
+
+    local lists = { ... }
+    for _, list in pairs(lists) do
+        for _, category in pairs(CATEGORIES) do
+            local entries = list[category]
+            if entries then
+                local target = combined[category]
+                local seen_category = seen[category]
+                for _, mod in pairs(entries) do
+                    local existing_index = seen_category[mod.name]
+                    if not existing_index then
+                        target[#target + 1] = mod
+                        seen_category[mod.name] = #target
+                    else
+                        -- Same mod seen again: keep whichever pins the later version.
+                        -- A missing version means "any", which loses to any pinned version.
+                        local existing = target[existing_index]
+                        if mod.version and (not existing.version or helpers.compare_versions(mod.version, existing.version) > 0) then
+                            target[existing_index] = mod
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return combined
+end
+
 --- Validates and reports on the mods used by a scenario.
 -- dependencies/incompatibles are checked immediately and error out the game if violated.
 -- recommended/discouraged are checked per-player, 10 seconds after they join.

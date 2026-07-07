@@ -4,14 +4,7 @@ local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ModCompatibility.check {
-    dependencies = {
-        { name = 'bzcarbon' },
-        { name = 'bzgold' },
-        { name = 'bztitanium' },
-        { name = 'bztungsten' },
-    },
-}
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.bz.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Very BZ')
 ScenarioInfo.add_map_extra_info([[

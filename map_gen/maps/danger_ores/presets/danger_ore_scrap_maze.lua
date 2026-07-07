@@ -10,20 +10,21 @@ ModCompatibility.check {
     dependencies = {
         { name = 'scrap-resource' },
         { name = 'recycler' },
-    }
+        { name = 'redmew-data' },
+    },
 }
 
 ScenarioInfo.set_map_name('Danger Ores - Scrapworld Maze')
 ScenarioInfo.add_map_extra_info([[
-  This maze is covered in [entity=scrap].
-  Mine it to make room for your factory, and explore the corridors to expand.
+    This maze is covered in [entity=scrap].
+    Mine it to make room for your factory, and explore the corridors to expand.
 ]])
 
 Config.player_create.starting_items = {
-  { count =  2, name = 'burner-mining-drill' },
-  { count =  5, name = 'iron-chest' },
-  { count = 50, name = 'wood' },
-  { count =  1, name = 'recycler' },
+    { count = 2, name = 'burner-mining-drill' },
+    { count = 5, name = 'iron-chest' },
+    { count = 50, name = 'wood' },
+    { count = 1, name = 'recycler' },
 }
 
 DOC.scenario_name = 'danger-ore-scrap-maze'
@@ -37,19 +38,19 @@ DOC.maze.enabled = true
 DOC.terraforming.enabled = false
 DOC.game.technology_price_multiplier = 5
 DOC.game.on_init = function()
-  game.forces.player.technologies['automation'].researched = true
-  game.forces.player.technologies['recycling'].researched = true
+    game.forces.player.technologies['automation'].researched = true
+    game.forces.player.technologies['recycling'].researched = true
 end
-DOC.map_gen_settings.settings = H.empty_map_settings{
-  -- fluid patches
-  'crude-oil',
-  -- ore patches
-  'coal',
-  'copper-ore',
-  'iron-ore',
-  'scrap',
-  'stone',
-  'uranium-ore',
+DOC.map_gen_settings.settings = H.empty_map_settings {
+    -- fluid patches
+    'crude-oil',
+    -- ore patches
+    'coal',
+    'copper-ore',
+    'iron-ore',
+    'scrap',
+    'stone',
+    'uranium-ore',
 }
 
 return Scenario.register(DOC)

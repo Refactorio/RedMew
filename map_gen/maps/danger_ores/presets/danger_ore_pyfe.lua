@@ -5,16 +5,7 @@ local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ModCompatibility.check {
-    dependencies = {
-        { name = 'pycoalprocessing' },
-        { name = 'pycoalprocessinggraphics' },
-        { name = 'pyindustry' },
-        { name = 'pyfusionenergy' },
-        { name = 'pyfusionenergygraphics' },
-        { name = 'pypostprocessing' },
-    },
-}
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.pyanodon.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Pyanodon Fusion Energy')
 ScenarioInfo.add_map_extra_info([[
