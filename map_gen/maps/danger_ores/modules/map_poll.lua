@@ -59,6 +59,7 @@ local maps = {
     { name = 'danger-ore-normal-science', display_name = 'Normal science (+ biters)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-omnimatter', display_name = 'Omnimatter (1 ore)', mod_pack = mod_packs.danger_ore_omnimatter },
     { name = 'danger-ore-omnimatter-cages', display_name = 'Omnimatter Cages (1 ore + frames)', mod_pack = mod_packs.danger_ore_omnimatter },
+    { name = 'danger-ore-omnimatter-maze', display_name = 'Omnimatter Maze (1 ore + maze)', mod_pack = mod_packs.danger_ore_omnimatter },
     { name = 'danger-ore-one-direction', display_name = 'One Direction (right ribbon world)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-one-direction-wide', display_name = 'One Direction Wide (wide right ribbon world)', mod_pack = mod_packs.danger_ore_normal },
     { name = 'danger-ore-patches', display_name = 'Patches (ore islands in coal)', mod_pack = mod_packs.danger_ore_normal },
