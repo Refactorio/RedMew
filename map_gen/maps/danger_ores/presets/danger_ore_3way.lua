@@ -19,18 +19,18 @@ DOC.map_config.water = nil
 
 local t_h_bound, t_v_bound = B.line_x(128), B.line_y(128)
 local t_crop = function(_, y)
-  return y < -64
+    return y < -64
 end
 local t_cross = B.any { t_h_bound, t_v_bound }
 local terraforming_bounds = B.subtract(t_cross, t_crop)
 
 DOC.terraforming = {
-  enabled = true,
-  start_size = 10 * 32,
-  min_pollution = 600,
-  max_pollution = 24000,
-  pollution_increment = 9,
-  bounds = terraforming_bounds,
+    enabled = true,
+    start_size = 10 * 32,
+    min_pollution = 600,
+    max_pollution = 24000,
+    pollution_increment = 9,
+    bounds = terraforming_bounds,
 }
 
 return Scenario.register(DOC)

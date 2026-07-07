@@ -5,8 +5,8 @@ local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Danger Ores - X Cross')
 ScenarioInfo.add_map_extra_info([[
-  This map is split in four sectors [item=iron-ore] [item=copper-ore] [item=coal] [item=stone].
-  Each sector has a main resource and the other resources at a lower ratio.
+    This map is split in four sectors [item=iron-ore] [item=copper-ore] [item=coal] [item=stone].
+    Each sector has a main resource and the other resources at a lower ratio.
 ]])
 
 local h_bound, v_bound = B.line_x(182), B.line_y(182)

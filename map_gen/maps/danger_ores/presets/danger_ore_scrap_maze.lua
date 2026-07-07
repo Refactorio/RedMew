@@ -2,8 +2,16 @@ local B = require 'map_gen.shared.builders'
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Config = require 'config'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check {
+    dependencies = {
+        { name = 'scrap-resource' },
+        { name = 'recycler' },
+    }
+}
 
 ScenarioInfo.set_map_name('Danger Ores - Scrapworld Maze')
 ScenarioInfo.add_map_extra_info([[
