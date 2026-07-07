@@ -151,4 +151,7 @@ return [[
 
   2026-06-14:
       - [DO] Disabled radioactivity by default, expect for Joker preset
+
+  2026-07-07:
+      - [DO:OmniMaze] Added DO/Omnimatter-Maze preset
 ]]
