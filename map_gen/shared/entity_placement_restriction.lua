@@ -143,20 +143,20 @@ local function entities_with_inventory(entity, player)
             for _, item_stack in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
-            for _, item_stack in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.crafter_output).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
-            for _, item_stack in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.crafter_input).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
         elseif type == 'assembling-machine' then
-            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.crafter_input).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
-            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.crafter_modules).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
-            for _, item_stack in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
+            for _, item_stack in pairs(entity.get_inventory(defines.inventory.crafter_output).get_contents()) do
                 spill_item_stack(entity, item_stack)
             end
         elseif type == 'ammo-turret' then

@@ -336,7 +336,7 @@ Enemy.turret_activation_callback = Token.register(function(data)
   if not entity.valid then
     return
   end
-  entity.active = true
+  entity.disabled_by_script = false
 end)
 
 function Enemy.roll_turret(x_distance, evolution)
@@ -414,7 +414,7 @@ function Enemy.spawn_turret_outpost(position)
           direction = v.direction,
         }
         if turret and turret.valid then
-          turret.active = false
+          turret.disabled_by_script = true
           Task.set_timeout_in_ticks(20 + i * 20, Enemy.turret_activation_callback, { entity = turret })
           EnemyTurret.register(turret, refill_name)
         end

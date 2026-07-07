@@ -1,12 +1,15 @@
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.exotic_industries.mod-list')
+
 ScenarioInfo.set_map_name('Danger Ores - Exotic Industries Spiral')
 ScenarioInfo.add_map_extra_info([[
-  This map is split in 3 sectors. Each sector has a main resource.
-  Resource veins are scattered across the map.
+    This map is split in 3 sectors. Each sector has a main resource.
+    Resource veins are scattered across the map.
 ]])
 
 storage.config.redmew_qol.loaders = false
@@ -19,21 +22,21 @@ DOC.map_config.no_resource_patch_shape = nil
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.exotic_industries.resource_patches'
 DOC.map_config.spawn_tile = 'landfill'
 DOC.allowed_entities.allowed_entities['ei_alien-stabilizer'] = true
-DOC.map_gen_settings.settings = H.empty_map_settings{
-  -- point patches
-  'crude-oil',
-  'ei_coal-patch',
-  'ei_copper-patch',
-  'ei_gold-patch',
-  'ei_iron-patch',
-  'ei_lead-patch',
-  'ei_neodym-patch',
-  'ei_sulfur-patch',
-  'ei_uranium-patch',
-  -- ore patches
-  'coal',
-  'copper-ore',
-  'iron-ore',
+DOC.map_gen_settings.settings = H.empty_map_settings {
+    -- point patches
+    'crude-oil',
+    'ei_coal-patch',
+    'ei_copper-patch',
+    'ei_gold-patch',
+    'ei_iron-patch',
+    'ei_lead-patch',
+    'ei_neodym-patch',
+    'ei_sulfur-patch',
+    'ei_uranium-patch',
+    -- ore patches
+    'coal',
+    'copper-ore',
+    'iron-ore',
 }
 
 DOC.biter_drops.enabled = false

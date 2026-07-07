@@ -163,7 +163,7 @@ local function get_nearby_chests(player, a, furnace, wagon)
 
   if furnace then
     container_type = { 'furnace' }
-    inventory_type = defines.inventory.furnace_source
+    inventory_type = defines.inventory.crafter_input
   end
   if wagon then
     container_type = { 'cargo-wagon', 'logistic-container' }
@@ -570,8 +570,11 @@ function Public.auto_stash(player, event)
   this.floating_text_y_offsets = {}
 
   local hotbar_items = {}
+  local quick_bar_width = player.quick_bar_width
   for i = 1, 100, 1 do
-    local prototype = player.get_quick_bar_slot(i)
+    local page = math.ceil(i / quick_bar_width)
+    local slot = i - (page - 1) * quick_bar_width
+    local prototype = player.get_quick_bar_slot(page, slot)
     if prototype then
       hotbar_items[prototype.name] = true
     end

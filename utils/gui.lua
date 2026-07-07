@@ -321,6 +321,42 @@ Gui.on_value_changed = handler_factory(defines.events.on_gui_value_changed)
 -- Adds a player field to the event table.
 Gui.on_switch_state_changed = handler_factory(defines.events.on_gui_switch_state_changed)
 
+-- Register a handler for the on_gui_confirmed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_confirmed = handler_factory(defines.events.on_gui_confirmed)
+
+-- Register a handler for the on_gui_hover event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_hover = handler_factory(defines.events.on_gui_hover)
+
+-- Register a handler for the on_gui_inventory_action event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_inventory_action = handler_factory(defines.events.on_gui_inventory_action)
+
+-- Register a handler for the on_gui_leave event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_leave = handler_factory(defines.events.on_gui_leave)
+
+-- Register a handler for the on_gui_location_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_location_changed = handler_factory(defines.events.on_gui_location_changed)
+
+-- Register a handler for the on_gui_selected_tab_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_selected_tab_changed = handler_factory(defines.events.on_gui_selected_tab_changed)
+
 -- Register a handler for when the player shows the top LuaGuiElements with element_name.
 -- Assuming the element_name has been added with Gui.allow_player_to_toggle_top_element_visibility.
 -- Can only have one handler per element name.

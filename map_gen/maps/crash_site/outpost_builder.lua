@@ -1171,7 +1171,7 @@ local function do_refill_turrets()
 
     local data = turret_data.data
     if data.liquid then
-        turret.fluidbox[1] = data
+        turret.set_fluid(1, data)
     elseif data then
         turret.insert(data)
     end
@@ -1400,11 +1400,10 @@ local function do_magic_fluid_crafters()
 
             if fcount > 0 then
                 local fluidbox_index = data.fluidbox_index
-                local fb = entity.fluidbox
 
-                local fb_data = fb[fluidbox_index] or {name = data.item, amount = 0}
+                local fb_data = entity.get_fluid(fluidbox_index) or {name = data.item, amount = 0}
                 fb_data.amount = fb_data.amount + fcount
-                fb[fluidbox_index] = fb_data
+                entity.set_fluid(fluidbox_index, fb_data)
 
                 data.last_tick = tick - (count - fcount) / rate
             end
@@ -1542,7 +1541,7 @@ local set_inactive_token =
     Token.register(
     function(entity)
         if entity.valid then
-            entity.active = false
+            entity.disabled_by_script = true
         end
     end
 )
@@ -1576,7 +1575,7 @@ Public.magic_item_crafting_callback =
         else
             local furnace_item = callback_data.furnace_item
             if furnace_item then
-                local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
+                local inv = entity.get_inventory(defines.inventory.crafter_input)
                 inv.insert(furnace_item)
                 entity.get_output_inventory().insert(callback_data.output.item)
             end
@@ -1639,7 +1638,7 @@ Public.magic_item_crafting_callback_weighted =
         else
             local furnace_item = stack.furnace_item
             if furnace_item then
-                local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
+                local inv = entity.get_inventory(defines.inventory.crafter_input)
                 inv.insert {name = furnace_item, count = 200}
                 local output_inv = entity.get_output_inventory()
                 output_inv.insert {name = stack.output.item, count = 200 }
@@ -1703,7 +1702,7 @@ Public.wall_callback =
 Public.deactivate_callback =
     Token.register(
     function(entity)
-        entity.active = false
+        entity.disabled_by_script = true
         entity.operable = false
         entity.destructible = false
     end
@@ -1921,7 +1920,7 @@ function Public.do_random_fluid_loot(entity, weights, loot)
         count = stack.count
     end
 
-    entity.fluidbox[1] = {name = stack.name, amount = count}
+    entity.set_fluid(1, {name = stack.name, amount = count})
 end
 
 function Public.do_factory_loot(entity, weights, loot)

@@ -27,6 +27,15 @@ Global.register(
     end
 )
 
+--- Converts a linear 1-100 quick bar slot index into the page/slot pair
+-- expected by LuaPlayer::get/set_quick_bar_slot.
+local function quick_bar_page_slot(player, i)
+    local width = player.quick_bar_width
+    local page = math.ceil(i / width)
+    local slot = i - (page - 1) * width
+    return page, slot
+end
+
 --- Scans all quickbar_slots into a table, then saves that table server-side
 local function save_bars(_, player)
     if not primitives.server_available then
@@ -37,7 +46,8 @@ local function save_bars(_, player)
     local bars = {}
 
     for i = 1, quickbar_slots do
-        local item_prot = player.get_quick_bar_slot(i)
+        local page, slot = quick_bar_page_slot(player, i)
+        local item_prot = player.get_quick_bar_slot(page, slot)
         if item_prot then
             bars[i] = item_prot.name
         end
@@ -81,7 +91,8 @@ local set_bars_callback =
         for i = 1, quickbar_slots do
             item = validate_entry(bars[i], item_prototypes, player)
             if item then
-                player.set_quick_bar_slot(i, item)
+                local page, slot = quick_bar_page_slot(player, i)
+                player.set_quick_bar_slot(page, slot, item)
             end
         end
     end
