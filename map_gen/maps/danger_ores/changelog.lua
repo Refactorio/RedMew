@@ -159,4 +159,5 @@ return [[
   2026-07-07:
       - [DO:ScrapMaze] Added DO/Scrapworld-Maze preset
       - [DO:OmniMaze] Added DO/Omnimatter-Maze preset
+      - [DO:CityBlocks] Added DO/City-Blocks preset
 ]]
