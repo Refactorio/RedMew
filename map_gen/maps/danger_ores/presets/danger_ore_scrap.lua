@@ -10,7 +10,8 @@ ModCompatibility.check {
     dependencies = {
         { name = 'scrap-resource' },
         { name = 'recycler' },
-    }
+        { name = 'redmew-data' },
+    },
 }
 
 ScenarioInfo.set_map_name('Danger Ores - Scrapworld')

@@ -5,9 +5,7 @@ local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
-ModCompatibility.check {
-    dependencies = {{ name = 'bobplates' }}
-}
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.bob.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Bob\'s')
 ScenarioInfo.add_map_extra_info([[
