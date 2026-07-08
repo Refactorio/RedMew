@@ -217,6 +217,8 @@ function M.build(opts)
     local spacing = opts.spacing
     local relaxation = opts.relaxation or 0
     local num_ores = opts.num_ores
+    -- the clean-border guarantee is a graph colouring: 4 colours is the mathematical minimum
+    assert(num_ores >= 4, 'voronoi_layout: at least 4 ore types are required for guaranteed clean borders')
     local random = opts.random
     local max_attempts = opts.max_attempts or 8
     local g = floor(size / spacing)
