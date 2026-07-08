@@ -157,6 +157,12 @@ do
     end
 end
 
+-- enforcement: fewer than 4 ores must be rejected (clean borders need 4 colours)
+local ok_low = pcall(function()
+    return Layout.generate { size = 16, palette = palette, num_ores = 3, random = rand }
+end)
+check(not ok_low, 'generate rejects fewer than 4 ores')
+
 if failures == 0 then
     print('\nALL PASSED')
 else
