@@ -100,7 +100,36 @@ check(rawequal(with_stone[1], vanilla_by_name['iron-ore'])
     'vanilla_ores_stone entries 1-3 ARE the vanilla_ores entries')
 check(with_stone[4].name == 'stone', 'vanilla_ores_stone entry 4 is stone')
 
--- 3) golden numbers for the source configs, so old maps cannot drift by accident
+-- 3) the factory: canonical numbers, and fresh tables per call so configs can never
+-- share mutable state at runtime
+local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
+
+local function mix_weights(mix)
+    local weights = {}
+    for _, pair in ipairs(Factory.mixes[mix]) do
+        weights[#weights + 1] = pair[1] .. ':' .. pair[2]
+    end
+    return table.concat(weights, ' ')
+end
+check(mix_weights('iron-ore') == 'iron-ore:75 copper-ore:13 stone:7 coal:5'
+    and mix_weights('copper-ore') == 'iron-ore:15 copper-ore:70 stone:10 coal:5'
+    and mix_weights('coal') == 'iron-ore:18 copper-ore:9 stone:8 coal:65'
+    and mix_weights('stone') == 'iron-ore:25 copper-ore:10 stone:60 coal:5'
+    and mix_weights('coal-rich') == 'iron-ore:14 copper-ore:6 stone:10 coal:70',
+    'factory mixes carry the canonical weights')
+
+local entry_a = Factory.entry {name = 'iron-ore', start = 1, value = 'v'}
+local entry_b = Factory.entry {name = 'iron-ore', start = 1, value = 'v'}
+check(not rawequal(entry_a.tiles, entry_b.tiles) and not rawequal(entry_a.ratios, entry_b.ratios),
+    'factory builds fresh tiles and ratios tables per call')
+check(entry_a.tiles[1] == 'grass-1' and #entry_a.tiles == 4 and entry_a.weight == 1
+    and #entry_a.ratios == 4 and entry_a.ratios[1].weight == 75,
+    'factory entry has the iron tile set and mix')
+
+local ok_no_value = pcall(Factory.entry, {name = 'iron-ore', start = 1})
+check(not ok_no_value, 'factory entry rejects a missing value/make_resource')
+
+-- 4) golden numbers for the source configs, so old maps cannot drift by accident
 local function ratio_weights(entry)
     local weights = {}
     for _, ratio in ipairs(entry.ratios) do
