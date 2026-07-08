@@ -10,7 +10,7 @@ end
 function fake_builders.exponential_value(base, mult, pow)
     return ('exp(%s,%s,%s)'):format(base, mult, pow)
 end
-function fake_builders.resource(shape, name, value)
+function fake_builders.resource(_, name, value)
     return { kind = 'resource', name = name, value = value }
 end
 setmetatable(fake_builders, {
