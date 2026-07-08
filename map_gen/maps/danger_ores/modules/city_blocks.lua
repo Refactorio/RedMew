@@ -10,6 +10,8 @@ local Event = require 'utils.event'
 local Generate = require 'map_gen.shared.generate'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
+local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
+local Token = require 'utils.token'
 local table = require 'utils.table'
 
 local floor = math.floor
@@ -67,8 +69,7 @@ local ROUNDABOUT = {
 local Public = {}
 
 local data = {
-    generated = false,
-    room_ore = {}, -- ['i/j'] = 1..4
+    room_ore = {}, -- ['i/j'] = 1..num_ores
 }
 Global.register(data, function(tbl)
     data = tbl
@@ -98,13 +99,18 @@ local function neighbours_of(i, j)
     return list
 end
 
--- room ore weights: iron, copper, coal, stone -- stone rooms are deliberately rare
-local ORE_WEIGHTS = { 3, 3, 3, 1 }
-local ORE_WEIGHT_TOTAL = 10
+-- Room ore assignment is derived from the ore config passed to register(): any number of
+-- ores works, and optional weights (config.room_ore_weights) can bias the distribution.
+local num_ores = 1
+local ore_weights = nil
+local ore_weight_total = 0
 
 local function random_ore()
-    local r = random(ORE_WEIGHT_TOTAL)
-    for ore, weight in ipairs(ORE_WEIGHTS) do
+    if not ore_weights then
+        return random(num_ores)
+    end
+    local r = random(ore_weight_total)
+    for ore, weight in ipairs(ore_weights) do
         r = r - weight
         if r <= 0 then
             return ore
@@ -114,8 +120,11 @@ local function random_ore()
 end
 
 local function assign_ores()
-    -- BFS from spawn: the first four rooms reached cover all four ores (shuffled)
-    local first = { 1, 2, 3, 4 }
+    -- BFS from spawn: the first rooms reached cover every ore once (shuffled)
+    local first = {}
+    for i = 1, num_ores do
+        first[i] = i
+    end
     shuffle(first)
     local order = 1
     local spawn_key = key(0, 0)
@@ -126,7 +135,7 @@ local function assign_ores()
         local room = queue[head]
         head = head + 1
         local k = key(room[1], room[2])
-        if order <= 4 and k ~= spawn_key then
+        if order <= num_ores and k ~= spawn_key then
             data.room_ore[k] = first[order]
             order = order + 1
         elseif not data.room_ore[k] then
@@ -299,48 +308,46 @@ local function on_wall_chunk(x, y)
     return lx == PITCH - 1 or ly == PITCH - 1
 end
 
-local function on_built(event)
-    local entity = event.entity
-    if not (entity and entity.valid) then
-        return
-    end
+-- Corridor rule via the shared entity_placement_restriction module (handles ghosts,
+-- refunds and destruction): keep everything off the corridors, and on them only the
+-- allowed types (whitelisted by LuaEntity type, not name, for mod compatibility).
+local keep_alive_callback = Token.register(function(entity)
     local e_type = entity.type
     if e_type == 'entity-ghost' then
         e_type = entity.ghost_type
     end
     if ALLOWED_ON_STRIP[e_type] then
-        return
+        return true
     end
     local pos = entity.position
-    if not on_wall_chunk(pos.x, pos.y) then
-        return
-    end
-    local items = entity.type ~= 'entity-ghost' and entity.prototype and entity.prototype.items_to_place_this
-    local index = event.player_index
-    local player = index and game.get_player(index)
+    return not on_wall_chunk(pos.x, pos.y)
+end)
+
+local function on_restricted_destroyed(event)
+    local player = event.player
     if player and player.valid then
-        if items and items[1] then
-            player.insert(items[1])
-        end
         player.print('Only rail infrastructure (rails, signals, stations, power poles) and trains can be built on the rail corridors!')
     end
-    entity.destroy()
 end
 
 -- === public ================================================================
 
-function Public.register()
-    Event.on_init(function()
-        if data.generated then
-            return
+function Public.register(config)
+    num_ores = #config.main_ores
+    ore_weights = config.room_ore_weights
+    if ore_weights then
+        ore_weight_total = 0
+        for _, weight in ipairs(ore_weights) do
+            ore_weight_total = ore_weight_total + weight
         end
-        data.generated = true
-        assign_ores()
-    end)
+    end
 
+    RestrictEntities.set_keep_alive_callback(keep_alive_callback)
+    RestrictEntities.enable_refund()
+
+    Event.on_init(assign_ores)
     Event.add(Generate.events.on_chunk_generated, on_chunk)
-    Event.add(defines.events.on_built_entity, on_built)
-    Event.add(defines.events.on_robot_built_entity, on_built)
+    Event.add(RestrictEntities.events.on_restricted_entity_destroyed, on_restricted_destroyed)
 end
 
 -- danger-ores main_ores_builder: per tile, pick the room's dominant-ore shape
@@ -361,9 +368,9 @@ function Public.main_ores_builder(config)
             local ri = floor((floor(x / 32) + 2) / PITCH)
             local rj = floor((floor(y / 32) + 2) / PITCH)
             if ri == 0 and rj == 0 then
-                -- spawn room carries all four ores, one per quadrant
-                local ore_index = ((x >= 0) and 1 or 0) + ((y >= 0) and 2 or 0) + 1
-                return shapes[ore_index](x, y, world)
+                -- spawn room splits the main ores across its quadrants
+                local quadrant = ((x >= 0) and 1 or 0) + ((y >= 0) and 2 or 0)
+                return shapes[quadrant % #shapes + 1](x, y, world)
             end
             local ore_index = data.room_ore[ri .. '/' .. rj] or 1
             return shapes[ore_index](x, y, world)
