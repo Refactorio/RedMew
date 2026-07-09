@@ -2,6 +2,26 @@
 -- Run from the repo root:  lua map_gen/maps/danger_ores/config/ore_configs.test.lua
 package.path = './?.lua;' .. package.path
 
+-- stub Factorio's built-in util module (utils.table pulls table.deepcopy from it)
+package.preload['util'] = function()
+    local function deepcopy(object)
+        if type(object) ~= 'table' then
+            return object
+        end
+        local copy = {}
+        for k, v in pairs(object) do
+            copy[deepcopy(k)] = deepcopy(v)
+        end
+        return setmetatable(copy, getmetatable(object))
+    end
+    table.deepcopy = deepcopy -- luacheck: ignore 122
+    table.compare = function(a, b) -- luacheck: ignore 122
+        return a == b
+    end
+    util = {merge = function(tables) return tables[1] end} -- luacheck: globals util
+    return util
+end
+
 -- stub the builders so configs load outside Factorio; value functions become readable tags
 local fake_builders = { full_shape = 'FULL' }
 function fake_builders.euclidean_value(base, mult)
@@ -159,6 +179,31 @@ local modded = Factory.blank():add_ore('omnite')
 check(#modded == 1 and modded[1].tiles == nil and #modded[1].ratios == 1
     and modded[1].ratios[1].resource.name == 'omnite' and modded[1].ratios[1].weight == 1,
     'blank():add_ore gives unknown ores a pure self-mix and no tiles')
+
+local trimmed = Factory.default():remove_ore('coal')
+check(#trimmed == 2 and trimmed[1].name == 'copper-ore' and trimmed[2].name == 'iron-ore',
+    'remove_ore drops the named sector')
+
+local updated = Factory.default():update_ore('coal', {weight = 5, mix = {{'coal', 1}}})
+check(updated[2].weight == 5 and #updated[2].ratios == 1 and updated[2].ratios[1].resource.name == 'coal',
+    'update_ore patches a sector in place')
+
+local no_dark = Factory.default():remove_tile('grass-4')
+check(#no_dark[3].tiles == 3 and no_dark[3].tiles[3] == 'grass-3' and #no_dark[1].tiles == 4,
+    'remove_tile drops a tile from the sector that has it')
+
+local extra_tile = Factory.default():add_tile('snow-0', 'coal')
+check(extra_tile[2].tiles[8] == 'snow-0' and #extra_tile[1].tiles == 4,
+    'add_tile appends only to the named sector')
+
+local low_coal = Factory.default():richness{0, 0.5, 1.1}:richness({0, 0.9, 1.9}, 'coal')
+check(low_coal[2].ratios[1].resource.value == 'exp(0,0.9,1.9)'
+    and low_coal[1].ratios[1].resource.value == 'exp(0,0.5,1.1)',
+    'richness with an ore name overrides one sector, default covers the rest')
+
+local flat_iron = Factory.default():start_value(7, 'iron-ore')
+check(flat_iron[3].start == 7 and flat_iron[1].start ~= 7,
+    'start_value with an ore name overrides one sector')
 
 local d1, d2 = Factory.default(), Factory.default()
 check(not rawequal(d1, d2) and not rawequal(d1[1], d2[1]) and not rawequal(d1[1].ratios, d2[1].ratios),

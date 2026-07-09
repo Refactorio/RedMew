@@ -13,6 +13,9 @@
 --     The returned object IS the main_ores array (assign it to map_config.main_ores
 --     directly); every method mutates it in place and returns it for chaining.
 local b = require 'map_gen.shared.builders'
+local table = require 'utils.table'
+
+local deep_copy = table.deep_copy
 
 local Public = {}
 
@@ -37,19 +40,11 @@ Public.mixes = mixes
 local default_start = b.euclidean_value(0, 0.35)
 local default_value = b.exponential_value(0, 0.07, 1.45)
 
-local function copy_array(array)
-    local copy = {}
-    for i, v in ipairs(array) do
-        copy[i] = v
-    end
-    return copy
-end
-
 -- Fresh copy per call: the runtime must never share mutable tables between entries.
 -- Unknown (modded) ores have no canonical tile set and return nil.
 function Public.tiles(ore_name)
     local tiles = tile_sets[ore_name]
-    return tiles and copy_array(tiles)
+    return tiles and deep_copy(tiles)
 end
 
 -- Build a ratios table from a mix: a canonical mix name, an explicit array of
@@ -109,7 +104,7 @@ function Public.main_ores(params)
         config[i] = Public.entry {
             name = ore.name,
             mix = ore.mix,
-            tiles = ore.tiles or (params.tiles and copy_array(params.tiles)),
+            tiles = ore.tiles or (params.tiles and deep_copy(params.tiles)),
             start = ore.start or params.start,
             value = ore.value or params.value,
             weight = ore.weight or params.weight,
@@ -150,7 +145,7 @@ local function rebuild(self)
     for index, ore in ipairs(spec.ores) do
         local tiles = ore.tiles
         if type(tiles) == 'table' then
-            tiles = copy_array(tiles)
+            tiles = deep_copy(tiles)
         end
         self[index] = Public.entry {
             name = ore.name,
@@ -194,6 +189,30 @@ function Fluent:add_ore(name, opts)
     return rebuild(self)
 end
 
+--- Remove every sector called name.
+function Fluent:remove_ore(name)
+    local spec = getmetatable(self).spec
+    for i = #spec.ores, 1, -1 do
+        if spec.ores[i].name == name then
+            table.remove(spec.ores, i)
+        end
+    end
+    return rebuild(self)
+end
+
+--- Patch a sector's options in place: mix, tiles, start, value, weight, make_resource.
+function Fluent:update_ore(name, opts)
+    local spec = getmetatable(self).spec
+    for _, ore in ipairs(spec.ores) do
+        if ore.name == name then
+            for key, option in pairs(opts) do
+                ore[key] = option
+            end
+        end
+    end
+    return rebuild(self)
+end
+
 --- Reskin every sector, or just ore_name's. tiles: tile name or array of tile names.
 function Fluent:change_tiles(tiles, ore_name)
     if type(tiles) == 'string' then
@@ -208,17 +227,75 @@ function Fluent:change_tiles(tiles, ore_name)
     return rebuild(self)
 end
 
---- Set the richness curve for every sector without its own: a function, or
--- {base, mult, pow} for an exponential curve.
-function Fluent:richness(value)
-    getmetatable(self).spec.value = normalize_value(value)
+-- Materialize a sector's tile list so it can be edited (defaults live in tile_sets).
+local function own_tiles(ore)
+    if ore.tiles == nil then
+        ore.tiles = Public.tiles(ore.name)
+    end
+    return ore.tiles
+end
+
+--- Append a tile to every sector's list, or just ore_name's.
+function Fluent:add_tile(tile, ore_name)
+    local spec = getmetatable(self).spec
+    for _, ore in ipairs(spec.ores) do
+        if ore_name == nil or ore.name == ore_name then
+            local tiles = own_tiles(ore)
+            if tiles then
+                tiles[#tiles + 1] = tile
+            else
+                ore.tiles = {tile}
+            end
+        end
+    end
     return rebuild(self)
 end
 
---- Set the start (guaranteed spawn richness) curve for every sector without its own:
--- a function, a plain number, or {base, mult} for a euclidean curve.
-function Fluent:start_value(start)
-    getmetatable(self).spec.start = normalize_start(start)
+--- Remove a tile from every sector's list, or just ore_name's.
+function Fluent:remove_tile(tile, ore_name)
+    local spec = getmetatable(self).spec
+    for _, ore in ipairs(spec.ores) do
+        if ore_name == nil or ore.name == ore_name then
+            local tiles = own_tiles(ore)
+            if tiles then
+                table.remove_element(tiles, tile)
+            end
+        end
+    end
+    return rebuild(self)
+end
+
+--- Set the richness curve -- for one sector, or as the default for every sector
+-- without its own: a function, or {base, mult, pow} for an exponential curve.
+function Fluent:richness(value, ore_name)
+    value = normalize_value(value)
+    local spec = getmetatable(self).spec
+    if ore_name then
+        for _, ore in ipairs(spec.ores) do
+            if ore.name == ore_name then
+                ore.value = value
+            end
+        end
+    else
+        spec.value = value
+    end
+    return rebuild(self)
+end
+
+--- Set the start (guaranteed spawn richness) curve -- for one sector, or as the
+-- default: a function, a plain number, or {base, mult} for a euclidean curve.
+function Fluent:start_value(start, ore_name)
+    start = normalize_start(start)
+    local spec = getmetatable(self).spec
+    if ore_name then
+        for _, ore in ipairs(spec.ores) do
+            if ore.name == ore_name then
+                ore.start = start
+            end
+        end
+    else
+        spec.start = start
+    end
     return rebuild(self)
 end
 
