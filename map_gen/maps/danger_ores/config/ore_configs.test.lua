@@ -79,19 +79,27 @@ for _, config_name in ipairs(VARIANT_CONFIGS) do
     end
 end
 
--- 2) derived configs share their source's tables (one source of truth for the numbers)
+-- 2) derived configs carry the same canonical numbers as their source
 local with_stone = load_config('vanilla_ores_stone')
 local vanilla = load_config('vanilla_ores')
 local vanilla_by_name = {}
 for _, ore in ipairs(vanilla) do
     vanilla_by_name[ore.name] = ore
 end
+check(#vanilla == 3, 'vanilla_ores has 3 sectors')
 check(#with_stone == 4, 'vanilla_ores_stone has 4 ores')
-check(rawequal(with_stone[1], vanilla_by_name['iron-ore'])
-    and rawequal(with_stone[2], vanilla_by_name['copper-ore'])
-    and rawequal(with_stone[3], vanilla_by_name['coal']),
-    'vanilla_ores_stone entries 1-3 ARE the vanilla_ores entries')
+local same_sectors = true
+for i = 1, 3 do
+    local a, v = with_stone[i], vanilla[i]
+    same_sectors = same_sectors and a.name == v.name and #a.ratios == #v.ratios
+    for r = 1, #a.ratios do
+        same_sectors = same_sectors and a.ratios[r].weight == v.ratios[r].weight
+            and a.ratios[r].resource.name == v.ratios[r].resource.name
+    end
+end
+check(same_sectors, 'vanilla_ores_stone sectors 1-3 match vanilla_ores')
 check(with_stone[4].name == 'stone', 'vanilla_ores_stone entry 4 is stone')
+check(not rawequal(load_config('vanilla_ores'), nil) and true, 'vanilla_ores loads')
 
 -- 3) the factory: canonical numbers, and fresh tables per call so configs can never
 -- share mutable state at runtime
@@ -121,7 +129,42 @@ check(entry_a.tiles[1] == 'grass-1' and #entry_a.tiles == 4 and entry_a.weight =
 local ok_no_value = pcall(Factory.entry, {name = 'iron-ore', start = 1})
 check(not ok_no_value, 'factory entry rejects a missing value/make_resource')
 
--- 4) golden numbers for the source configs, so old maps cannot drift by accident
+-- 4) the fluent API
+local fl = Factory.default()
+check(#fl == 3 and fl[1].name == 'copper-ore' and fl[2].name == 'coal' and fl[3].name == 'iron-ore',
+    'Factory.default() is the canonical 3-sector config')
+check(rawequal(fl:add_ore('stone'), fl) and #fl == 4 and fl[4].name == 'stone'
+    and fl[4].tiles[1] == 'sand-1',
+    'add_ore chains on the same object and appends the canonical stone sector')
+
+local landfill_fl = Factory.default():change_tiles('landfill')
+local all_landfill = true
+for _, entry in ipairs(landfill_fl) do
+    all_landfill = all_landfill and #entry.tiles == 1 and entry.tiles[1] == 'landfill'
+end
+check(all_landfill, 'change_tiles reskins every sector')
+
+local snow = Factory.default():change_tiles({'grass-2', 'grass-3', 'grass-4'}, 'iron-ore')
+check(snow[3].tiles[1] == 'grass-2' and #snow[3].tiles == 3 and snow[1].tiles[1] == 'red-desert-0',
+    'change_tiles with an ore name reskins only that sector')
+
+local rich = Factory.default():richness{50, 0.003, 2.25}:start_value{50, 0.75}
+check(rich[1].ratios[1].resource.value == 'exp(50,0.003,2.25)' and rich[1].start == 'euclid(50,0.75)',
+    'richness/start_value shorthands rebuild every ratio')
+
+local weighted = Factory.default():sector_weights{coal = 8}
+check(weighted[2].weight == 8 and weighted[1].weight == 1, 'sector_weights sets weights by name')
+
+local modded = Factory.blank():add_ore('omnite')
+check(#modded == 1 and modded[1].tiles == nil and #modded[1].ratios == 1
+    and modded[1].ratios[1].resource.name == 'omnite' and modded[1].ratios[1].weight == 1,
+    'blank():add_ore gives unknown ores a pure self-mix and no tiles')
+
+local d1, d2 = Factory.default(), Factory.default()
+check(not rawequal(d1, d2) and not rawequal(d1[1], d2[1]) and not rawequal(d1[1].ratios, d2[1].ratios),
+    'every fluent config is built from fresh tables')
+
+-- 5) golden numbers for the source configs, so old maps cannot drift by accident
 local function ratio_weights(entry)
     local weights = {}
     for _, ratio in ipairs(entry.ratios) do
