@@ -11,7 +11,6 @@ ScenarioInfo.add_map_extra_info([[
 
 DOC.scenario_name = 'danger-ore-one-direction-wide'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_one_direction'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores_one_direction'
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.no_resource_patch_shape = B.rectangle(160)
 DOC.map_config.ore_width = 96

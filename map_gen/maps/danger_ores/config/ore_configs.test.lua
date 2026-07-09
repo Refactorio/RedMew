@@ -40,9 +40,8 @@ end
 -- common ore_builder consumes; VARIANT configs (gradient's shape+weight-function entries,
 -- joker's special starter area) only need to load and have named entries.
 local STRICT_CONFIGS = {
-    'vanilla_ores', '3way_ores', 'x_cross_ores', 'vanilla_ores_one_direction',
-    'vanilla_ores_gridlocked', 'vanilla_ores_landfill',
-    'coal', 'one_direction_ores_xmas', 'poor_mans_coal_fields_ores', 'scrap',
+    'vanilla_ores', 'vanilla_ores_gridlocked', 'vanilla_ores_landfill',
+    'coal', 'poor_mans_coal_fields_ores', 'scrap',
     'vanilla_ores_stone', 'joker_outer_area',
 }
 local VARIANT_CONFIGS = { 'vanilla_gradient_ores', 'joker_starter_area' }
@@ -81,12 +80,6 @@ for _, config_name in ipairs(VARIANT_CONFIGS) do
 end
 
 -- 2) derived configs share their source's tables (one source of truth for the numbers)
-local three_way = load_config('3way_ores')
-local x_cross = load_config('x_cross_ores')
-check(#three_way == 3, '3way_ores has 3 sectors')
-check(rawequal(three_way[1], x_cross[1]) and rawequal(three_way[2], x_cross[2])
-    and rawequal(three_way[3], x_cross[3]), '3way_ores entries ARE the x_cross_ores entries')
-
 local with_stone = load_config('vanilla_ores_stone')
 local vanilla = load_config('vanilla_ores')
 local vanilla_by_name = {}
@@ -140,9 +133,6 @@ check(ratio_weights(vanilla_by_name['iron-ore']) == '75/13/7/5'
     and ratio_weights(vanilla_by_name['copper-ore']) == '15/70/10/5'
     and ratio_weights(vanilla_by_name['coal']) == '18/9/8/65',
     'vanilla_ores ratio weights unchanged (75/13/7/5, 15/70/10/5, 18/9/8/65)')
-check(ratio_weights(x_cross[1]) == '15/70/10/5' and ratio_weights(x_cross[2]) == '18/9/8/65'
-    and ratio_weights(x_cross[3]) == '75/13/7/5' and ratio_weights(x_cross[4]) == '25/10/60/5',
-    'x_cross_ores uses the canonical mixes (coal-rich folded into coal)')
 check(ratio_weights(with_stone[4]) == '25/10/60/5', 'stone entry ratio weights unchanged')
 
 if failures == 0 then

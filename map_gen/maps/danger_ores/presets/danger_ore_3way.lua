@@ -11,7 +11,6 @@ ScenarioInfo.add_map_extra_info([[
 
 DOC.scenario_name = 'danger-ore-3way'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_3way'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.3way_ores'
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.spawn_shape = B.rectangle(72)
 DOC.map_config.start_ore_shape = B.rotate(B.rectangle(88), math.rad(135))
