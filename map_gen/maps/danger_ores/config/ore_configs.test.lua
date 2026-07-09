@@ -180,6 +180,15 @@ check(#modded == 1 and modded[1].tiles == nil and #modded[1].ratios == 1
     and modded[1].ratios[1].resource.name == 'omnite' and modded[1].ratios[1].weight == 1,
     'blank():add_ore gives unknown ores a pure self-mix and no tiles')
 
+local all_coal = Factory.default():change_mix{{'coal', 1}}
+check(#all_coal[1].ratios == 1 and all_coal[1].ratios[1].resource.name == 'coal'
+    and #all_coal[3].ratios == 1 and all_coal[3].ratios[1].resource.name == 'coal',
+    'change_mix rewrites every sector')
+
+local iron_pure = Factory.default():change_mix({{'iron-ore', 1}}, 'iron-ore')
+check(#iron_pure[3].ratios == 1 and #iron_pure[1].ratios == 4,
+    'change_mix with an ore name rewrites only that sector')
+
 local trimmed = Factory.default():remove_ore('coal')
 check(#trimmed == 2 and trimmed[1].name == 'copper-ore' and trimmed[2].name == 'iron-ore',
     'remove_ore drops the named sector')

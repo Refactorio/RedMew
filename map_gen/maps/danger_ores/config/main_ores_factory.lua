@@ -213,6 +213,18 @@ function Fluent:update_ore(name, opts)
     return rebuild(self)
 end
 
+--- Change the resource mix of every sector, or just ore_name's. mix: a canonical mix
+-- name or an array of {resource name, ratio weight} pairs.
+function Fluent:change_mix(mix, ore_name)
+    local spec = getmetatable(self).spec
+    for _, ore in ipairs(spec.ores) do
+        if ore_name == nil or ore.name == ore_name then
+            ore.mix = mix
+        end
+    end
+    return rebuild(self)
+end
+
 --- Reskin every sector, or just ore_name's. tiles: tile name or array of tile names.
 function Fluent:change_tiles(tiles, ore_name)
     if type(tiles) == 'string' then
