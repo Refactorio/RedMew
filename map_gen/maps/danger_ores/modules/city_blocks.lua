@@ -1,7 +1,7 @@
 -- City Blocks: isolated 4x4-chunk one-ore rooms separated by a paved, rail-only corridor
 -- lattice carrying a ready-made double-track network -- ordinary, minable rails: continuous
 -- lines ring every room and meet at a signalled RAIL ROUNDABOUT on every corner (geometry
--- decoded from the user's blueprint; legacy rail pieces, fully functional in 2.0). Players
+-- decoded from the user's blueprint; native Factorio 2.0 rail pieces). Players
 -- may branch their own rails, signals and poles anywhere on the lattice, but nothing else
 -- can be built there, and belts cannot span the 32-tile corridors: trains are the only
 -- inter-room logistics. Room ores are assigned once in on_init and stored in Global.
@@ -24,46 +24,62 @@ local RAIL_A = 13 -- track offsets within a corridor chunk: odd (chunk edges are
 local RAIL_B = 19 -- 32, matching the rail grid) and at corridor-center -3/+3, exactly where
 -- the corner roundabouts' approach lanes sit; the 4-tile gap still fits signals everywhere
 
--- The corner roundabout, decoded from the user's blueprint (31x31, centered on the corner
--- chunk's midpoint). Legacy rail pieces as in the blueprint -- functional in 2.0, connect
--- to modern rails, and RedMew's allowed-entities list already includes them.
+-- The corner roundabout, decoded from the user's blueprint: native 2.0 rail pieces
+-- (curved-rail-a/b, half-diagonal-rail), 40x40 centered on the corner chunk's midpoint,
+-- so it overhangs a few tiles into each adjacent corridor chunk. Approach lanes sit at
+-- center -3/+3 -- exactly the trunk offsets -- and every lane ends with a curved-rail-a
+-- at +-20, where the corridor trunk takes over. Rails are listed before signals: each
+-- chunk stamps only the pieces inside itself, and every signal has a rail in its own
+-- chunk, so signals always find a rail no matter which chunk generates first.
 local ROUNDABOUT = {
-    { name = 'legacy-curved-rail', x = -4, y = -12, direction = 10 },
-    { name = 'legacy-curved-rail', x = 4, y = -12, direction = 8 },
-    { name = 'legacy-curved-rail', x = -4, y = -10, direction = 12 },
-    { name = 'legacy-curved-rail', x = 4, y = -10, direction = 6 },
-    { name = 'legacy-curved-rail', x = -12, y = -4, direction = 4 },
-    { name = 'legacy-curved-rail', x = -10, y = -4, direction = 2 },
-    { name = 'legacy-curved-rail', x = 10, y = -4, direction = 0 },
-    { name = 'legacy-curved-rail', x = 12, y = -4, direction = 14 },
-    { name = 'legacy-curved-rail', x = -12, y = 4, direction = 6 },
-    { name = 'legacy-curved-rail', x = -10, y = 4, direction = 8 },
-    { name = 'legacy-curved-rail', x = 10, y = 4, direction = 10 },
-    { name = 'legacy-curved-rail', x = 12, y = 4, direction = 12 },
-    { name = 'legacy-curved-rail', x = -4, y = 10, direction = 14 },
-    { name = 'legacy-curved-rail', x = 4, y = 10, direction = 4 },
-    { name = 'legacy-curved-rail', x = -4, y = 12, direction = 0 },
-    { name = 'legacy-curved-rail', x = 4, y = 12, direction = 2 },
-    { name = 'legacy-straight-rail', x = -7, y = -9, direction = 6 },
-    { name = 'legacy-straight-rail', x = 7, y = -9, direction = 10 },
-    { name = 'legacy-straight-rail', x = -9, y = -7, direction = 6 },
-    { name = 'legacy-straight-rail', x = -7, y = -7, direction = 14 },
-    { name = 'legacy-straight-rail', x = 7, y = -7, direction = 2 },
-    { name = 'legacy-straight-rail', x = 9, y = -7, direction = 10 },
-    { name = 'legacy-straight-rail', x = -9, y = 7, direction = 2 },
-    { name = 'legacy-straight-rail', x = -7, y = 7, direction = 10 },
-    { name = 'legacy-straight-rail', x = 7, y = 7, direction = 6 },
-    { name = 'legacy-straight-rail', x = 9, y = 7, direction = 14 },
-    { name = 'legacy-straight-rail', x = -7, y = 9, direction = 2 },
-    { name = 'legacy-straight-rail', x = 7, y = 9, direction = 14 },
-    { name = 'rail-signal', x = -4.5, y = -15.5, direction = 0 },
-    { name = 'rail-signal', x = 4.5, y = -15.5, direction = 8 },
-    { name = 'rail-signal', x = -15.5, y = -4.5, direction = 4 },
-    { name = 'rail-signal', x = 15.5, y = -4.5, direction = 4 },
-    { name = 'rail-signal', x = -15.5, y = 4.5, direction = 12 },
-    { name = 'rail-signal', x = 15.5, y = 4.5, direction = 12 },
-    { name = 'rail-signal', x = -4.5, y = 15.5, direction = 0 },
-    { name = 'rail-signal', x = 4.5, y = 15.5, direction = 8 },
+    { name = 'curved-rail-a', x = -3, y = -20, direction = 10 },
+    { name = 'curved-rail-a', x = 3, y = -20, direction = 8 },
+    { name = 'curved-rail-a', x = -2, y = -13, direction = 12 },
+    { name = 'curved-rail-a', x = 2, y = -13, direction = 6 },
+    { name = 'curved-rail-a', x = -20, y = -3, direction = 4 },
+    { name = 'curved-rail-a', x = 20, y = -3, direction = 14 },
+    { name = 'curved-rail-a', x = -13, y = -2, direction = 2 },
+    { name = 'curved-rail-a', x = 13, y = -2, direction = 0 },
+    { name = 'curved-rail-a', x = -13, y = 2, direction = 8 },
+    { name = 'curved-rail-a', x = 13, y = 2, direction = 10 },
+    { name = 'curved-rail-a', x = -20, y = 3, direction = 6 },
+    { name = 'curved-rail-a', x = 20, y = 3, direction = 12 },
+    { name = 'curved-rail-a', x = -2, y = 13, direction = 14 },
+    { name = 'curved-rail-a', x = 2, y = 13, direction = 4 },
+    { name = 'curved-rail-a', x = -3, y = 20, direction = 0 },
+    { name = 'curved-rail-a', x = 3, y = 20, direction = 2 },
+    { name = 'curved-rail-b', x = -7, y = -11, direction = 12 },
+    { name = 'curved-rail-b', x = -7, y = -11, direction = 10 },
+    { name = 'curved-rail-b', x = 7, y = -11, direction = 6 },
+    { name = 'curved-rail-b', x = 7, y = -11, direction = 8 },
+    { name = 'curved-rail-b', x = -11, y = -7, direction = 4 },
+    { name = 'curved-rail-b', x = -11, y = -7, direction = 2 },
+    { name = 'curved-rail-b', x = 11, y = -7, direction = 0 },
+    { name = 'curved-rail-b', x = 11, y = -7, direction = 14 },
+    { name = 'curved-rail-b', x = -11, y = 7, direction = 8 },
+    { name = 'curved-rail-b', x = -11, y = 7, direction = 6 },
+    { name = 'curved-rail-b', x = 11, y = 7, direction = 10 },
+    { name = 'curved-rail-b', x = 11, y = 7, direction = 12 },
+    { name = 'curved-rail-b', x = -7, y = 11, direction = 14 },
+    { name = 'curved-rail-b', x = -7, y = 11, direction = 0 },
+    { name = 'curved-rail-b', x = 7, y = 11, direction = 4 },
+    { name = 'curved-rail-b', x = 7, y = 11, direction = 2 },
+    { name = 'half-diagonal-rail', x = -5, y = -15, direction = 2 },
+    { name = 'half-diagonal-rail', x = 5, y = -15, direction = 0 },
+    { name = 'half-diagonal-rail', x = -15, y = -5, direction = 4 },
+    { name = 'half-diagonal-rail', x = 15, y = -5, direction = 6 },
+    { name = 'half-diagonal-rail', x = -15, y = 5, direction = 6 },
+    { name = 'half-diagonal-rail', x = 15, y = 5, direction = 4 },
+    { name = 'half-diagonal-rail', x = -5, y = 15, direction = 0 },
+    { name = 'half-diagonal-rail', x = 5, y = 15, direction = 2 },
+    { name = 'rail-signal', x = 5.5, y = -16.5, direction = 7 },
+    { name = 'rail-signal', x = -16.5, y = -5.5, direction = 3 },
+    { name = 'rail-signal', x = 18.5, y = 4.5, direction = 11 },
+    { name = 'rail-signal', x = -5.5, y = 16.5, direction = 15 },
+    { name = 'rail-chain-signal', x = -6.5, y = -14.5, direction = 1 },
+    { name = 'rail-chain-signal', x = 14.5, y = -6.5, direction = 5 },
+    { name = 'rail-chain-signal', x = -14.5, y = 6.5, direction = 13 },
+    { name = 'rail-chain-signal', x = 6.5, y = 14.5, direction = 9 },
 }
 
 local Public = {}
@@ -180,19 +196,59 @@ end
 -- offsets match Factorio's 2-tile rail grid; the 2-tile gap between tracks and the wide
 -- outer margins leave room for signals on BOTH sides of both tracks.
 
--- east-west trunk through a horizontal corridor chunk
-local function lay_h_rails(surface, area)
+-- Stamp the roundabout pieces that fall inside this chunk (chunk-local writes only);
+-- center_x/center_y is the owning corner chunk's midpoint, which may lie outside area.
+local function stamp_roundabout(surface, center_x, center_y, area)
+    local left, top = area.left_top.x, area.left_top.y
+    local right, bottom = area.right_bottom.x, area.right_bottom.y
+    for _, e in pairs(ROUNDABOUT) do
+        local x = center_x + e.x
+        local y = center_y + e.y
+        if x >= left and x < right and y >= top and y < bottom then
+            surface.create_entity {
+                name = e.name,
+                position = { x, y },
+                direction = e.direction,
+                force = 'player',
+            }
+        end
+    end
+end
+
+-- The ring's lane-end curves reach 22 tiles out from a corner's midpoint; trunk rails
+-- resume at 23 (the next slot on the 2-tile grid) and join the ring seamlessly.
+local RING_REACH = 22
+
+-- east-west trunk through a horizontal corridor chunk; near_west/near_east: an adjacent
+-- in-bounds corner whose ring overhangs this chunk
+local function lay_h_rails(surface, area, near_west, near_east)
     local top = area.left_top.y
-    for x = area.left_top.x + 1, area.right_bottom.x - 1, 2 do
+    local from = area.left_top.x + 1
+    local to = area.right_bottom.x - 1
+    if near_west then
+        from = area.left_top.x - 16 + RING_REACH + 1
+    end
+    if near_east then
+        to = area.right_bottom.x + 16 - RING_REACH - 1
+    end
+    for x = from, to, 2 do
         lay_rail(surface, x, top + RAIL_A, defines.direction.east)
         lay_rail(surface, x, top + RAIL_B, defines.direction.east)
     end
 end
 
 -- north-south trunk through a vertical corridor chunk
-local function lay_v_rails(surface, area)
+local function lay_v_rails(surface, area, near_north, near_south)
     local left = area.left_top.x
-    for y = area.left_top.y + 1, area.right_bottom.y - 1, 2 do
+    local from = area.left_top.y + 1
+    local to = area.right_bottom.y - 1
+    if near_north then
+        from = area.left_top.y - 16 + RING_REACH + 1
+    end
+    if near_south then
+        to = area.right_bottom.y + 16 - RING_REACH - 1
+    end
+    for y = from, to, 2 do
         lay_rail(surface, left + RAIL_A, y, defines.direction.north)
         lay_rail(surface, left + RAIL_B, y, defines.direction.north)
     end
@@ -260,26 +316,32 @@ local function on_chunk(event)
 
     if x_wall and y_wall then
         -- corner: a signalled roundabout connects all four corridor approaches
-        local center_x = area.left_top.x + 16
-        local center_y = area.left_top.y + 16
-        for _, e in pairs(ROUNDABOUT) do
-            surface.create_entity {
-                name = e.name,
-                position = { center_x + e.x, center_y + e.y },
-                direction = e.direction,
-                force = 'player',
-            }
-        end
-        -- no connector straights needed: the ring's curve ends reach the chunk edge and
-        -- meet the corridor trunk lines directly
+        stamp_roundabout(surface, area.left_top.x + 16, area.left_top.y + 16, area)
         return
     end
 
-    -- continuous trunk lines along every straight corridor chunk
+    -- continuous trunk lines along every straight corridor chunk; next to a corner the
+    -- ring overhangs into this chunk, so stamp its share and shorten the trunk to meet it
     if y_wall then
-        lay_h_rails(surface, area)
+        local near_west = lx == 0 and in_bounds(ri - 1, rj)
+        local near_east = lx == PITCH - 2
+        if near_west then
+            stamp_roundabout(surface, area.left_top.x - 16, area.left_top.y + 16, area)
+        end
+        if near_east then
+            stamp_roundabout(surface, area.right_bottom.x + 16, area.left_top.y + 16, area)
+        end
+        lay_h_rails(surface, area, near_west, near_east)
     else
-        lay_v_rails(surface, area)
+        local near_north = ly == 0 and in_bounds(ri, rj - 1)
+        local near_south = ly == PITCH - 2
+        if near_south then
+            stamp_roundabout(surface, area.left_top.x + 16, area.right_bottom.y + 16, area)
+        end
+        if near_north then
+            stamp_roundabout(surface, area.left_top.x + 16, area.left_top.y - 16, area)
+        end
+        lay_v_rails(surface, area, near_north, near_south)
     end
 end
 
