@@ -1,4 +1,4 @@
--- Poor Man's Coal Fields: canonical mixes (with the coal-rich coal sector), but the
+-- Poor Man's Coal Fields: canonical mixes, but the
 -- minor ores only show near spawn -- above the richness threshold a patch yields the
 -- sector's dominant ore instead of the mixed-in one.
 local b = require 'map_gen.shared.builders'
@@ -28,7 +28,7 @@ end
 return Factory.main_ores {
     ores = {
         {name = 'copper-ore', make_resource = degrading_resource('copper-ore')},
-        {name = 'coal', mix = 'coal-rich', make_resource = degrading_resource('coal')},
+        {name = 'coal', make_resource = degrading_resource('coal')},
         {name = 'iron-ore', make_resource = degrading_resource('iron-ore')},
         {name = 'stone', make_resource = degrading_resource('stone')}
     },

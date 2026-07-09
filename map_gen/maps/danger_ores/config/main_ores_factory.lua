@@ -19,9 +19,7 @@ local mixes = {
     ['iron-ore'] = {{'iron-ore', 75}, {'copper-ore', 13}, {'stone', 7}, {'coal', 5}},
     ['copper-ore'] = {{'iron-ore', 15}, {'copper-ore', 70}, {'stone', 10}, {'coal', 5}},
     ['coal'] = {{'iron-ore', 18}, {'copper-ore', 9}, {'stone', 8}, {'coal', 65}},
-    ['stone'] = {{'iron-ore', 25}, {'copper-ore', 10}, {'stone', 60}, {'coal', 5}},
-    -- the coal-heavier mix used by the X-Cross family and Poor Man's Coal Fields
-    ['coal-rich'] = {{'iron-ore', 14}, {'copper-ore', 6}, {'stone', 10}, {'coal', 70}}
+    ['stone'] = {{'iron-ore', 25}, {'copper-ore', 10}, {'stone', 60}, {'coal', 5}}
 }
 Public.mixes = mixes
 

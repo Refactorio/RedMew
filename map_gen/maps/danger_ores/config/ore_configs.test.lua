@@ -114,8 +114,7 @@ end
 check(mix_weights('iron-ore') == 'iron-ore:75 copper-ore:13 stone:7 coal:5'
     and mix_weights('copper-ore') == 'iron-ore:15 copper-ore:70 stone:10 coal:5'
     and mix_weights('coal') == 'iron-ore:18 copper-ore:9 stone:8 coal:65'
-    and mix_weights('stone') == 'iron-ore:25 copper-ore:10 stone:60 coal:5'
-    and mix_weights('coal-rich') == 'iron-ore:14 copper-ore:6 stone:10 coal:70',
+    and mix_weights('stone') == 'iron-ore:25 copper-ore:10 stone:60 coal:5',
     'factory mixes carry the canonical weights')
 
 local entry_a = Factory.entry {name = 'iron-ore', start = 1, value = 'v'}
@@ -141,9 +140,9 @@ check(ratio_weights(vanilla_by_name['iron-ore']) == '75/13/7/5'
     and ratio_weights(vanilla_by_name['copper-ore']) == '15/70/10/5'
     and ratio_weights(vanilla_by_name['coal']) == '18/9/8/65',
     'vanilla_ores ratio weights unchanged (75/13/7/5, 15/70/10/5, 18/9/8/65)')
-check(ratio_weights(x_cross[1]) == '15/70/10/5' and ratio_weights(x_cross[2]) == '14/6/10/70'
+check(ratio_weights(x_cross[1]) == '15/70/10/5' and ratio_weights(x_cross[2]) == '18/9/8/65'
     and ratio_weights(x_cross[3]) == '75/13/7/5' and ratio_weights(x_cross[4]) == '25/10/60/5',
-    'x_cross_ores ratio weights unchanged')
+    'x_cross_ores uses the canonical mixes (coal-rich folded into coal)')
 check(ratio_weights(with_stone[4]) == '25/10/60/5', 'stone entry ratio weights unchanged')
 
 if failures == 0 then
