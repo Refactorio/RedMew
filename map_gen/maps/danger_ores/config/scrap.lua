@@ -12,4 +12,4 @@ return Factory.blank()
             'sand-1', 'sand-2', 'sand-3'
         }
     })
-    :richness{0, 0.06, 1.55}
+    :richness{mult = 0.06, pow = 1.55}

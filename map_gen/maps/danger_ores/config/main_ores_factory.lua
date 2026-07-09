@@ -118,19 +118,20 @@ end
 
 local Fluent = {}
 
--- {base, mult} shorthand becomes a euclidean curve; functions and plain numbers
--- (flat richness) pass through.
+-- {base = b, mult = m} shorthand becomes a euclidean curve (b + m * distance);
+-- functions and plain numbers (flat richness) pass through.
 local function normalize_start(start)
     if type(start) == 'table' then
-        return b.euclidean_value(start[1], start[2])
+        return b.euclidean_value(start.base or start[1] or 0, start.mult or start[2])
     end
     return start
 end
 
--- {base, mult, pow} shorthand becomes an exponential curve; functions pass through.
+-- {base = b, mult = m, pow = p} shorthand becomes an exponential curve
+-- (b + m * distance^p); functions pass through.
 local function normalize_value(value)
     if type(value) == 'table' then
-        return b.exponential_value(value[1], value[2], value[3])
+        return b.exponential_value(value.base or value[1] or 0, value.mult or value[2], value.pow or value[3])
     end
     return value
 end
@@ -278,7 +279,8 @@ function Fluent:remove_tile(tile, ore_name)
 end
 
 --- Set the richness curve -- for one sector, or as the default for every sector
--- without its own: a function, or {base, mult, pow} for an exponential curve.
+-- without its own: a function, or {base = b, mult = m, pow = p} for an exponential
+-- curve b + m * distance^p.
 function Fluent:richness(value, ore_name)
     value = normalize_value(value)
     local spec = getmetatable(self).spec
@@ -295,7 +297,8 @@ function Fluent:richness(value, ore_name)
 end
 
 --- Set the start (guaranteed spawn richness) curve -- for one sector, or as the
--- default: a function, a plain number, or {base, mult} for a euclidean curve.
+-- default: a function, a plain number (flat), or {base = b, mult = m} for a euclidean
+-- curve b + m * distance.
 function Fluent:start_value(start, ore_name)
     start = normalize_start(start)
     local spec = getmetatable(self).spec

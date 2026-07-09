@@ -7,5 +7,5 @@ return Factory.default()
     :add_ore('stone')
     :change_mix{{'coal', 1}}
     :change_tiles{'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7'}
-    :start_value{50, 0}
-    :richness{0, 0.035, 1.45}
+    :start_value{base = 50, mult = 0}
+    :richness{mult = 0.035, pow = 1.45}

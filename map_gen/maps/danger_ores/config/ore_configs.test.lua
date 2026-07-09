@@ -168,7 +168,7 @@ local snow = Factory.default():change_tiles({'grass-2', 'grass-3', 'grass-4'}, '
 check(snow[3].tiles[1] == 'grass-2' and #snow[3].tiles == 3 and snow[1].tiles[1] == 'red-desert-0',
     'change_tiles with an ore name reskins only that sector')
 
-local rich = Factory.default():richness{50, 0.003, 2.25}:start_value{50, 0.75}
+local rich = Factory.default():richness{base = 50, mult = 0.003, pow = 2.25}:start_value{base = 50, mult = 0.75}
 check(rich[1].ratios[1].resource.value == 'exp(50,0.003,2.25)' and rich[1].start == 'euclid(50,0.75)',
     'richness/start_value shorthands rebuild every ratio')
 
@@ -205,7 +205,7 @@ local extra_tile = Factory.default():add_tile('snow-0', 'coal')
 check(extra_tile[2].tiles[8] == 'snow-0' and #extra_tile[1].tiles == 4,
     'add_tile appends only to the named sector')
 
-local low_coal = Factory.default():richness{0, 0.5, 1.1}:richness({0, 0.9, 1.9}, 'coal')
+local low_coal = Factory.default():richness{mult = 0.5, pow = 1.1}:richness({0, 0.9, 1.9}, 'coal') -- second one positional: fallback still works
 check(low_coal[2].ratios[1].resource.value == 'exp(0,0.9,1.9)'
     and low_coal[1].ratios[1].resource.value == 'exp(0,0.5,1.1)',
     'richness with an ore name overrides one sector, default covers the rest')
