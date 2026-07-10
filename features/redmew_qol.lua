@@ -34,8 +34,13 @@ local function pick_name()
 end
 
 local loader_frame_name = Gui.uid_name()
+local loader_machine_frame_name = Gui.uid_name()
 local loader_button_player = Gui.uid_name()
 local loader_button_machine = Gui.uid_name()
+
+-- Exposed for tests
+Public._loader_frame_name = loader_frame_name
+Public._loader_machine_frame_name = loader_machine_frame_name
 
 local loaders = {
     ['loader'] = true,
@@ -92,10 +97,11 @@ local function any_loader_enabled(recipes)
 end
 
 local function draw_loader_frame(parent, entity)
-    local frame = parent[loader_frame_name]
+    local frame_name = entity and loader_machine_frame_name or loader_frame_name
+    local frame = parent[frame_name]
     local player = entity or safe_get_player(parent.player_index)
-    local recipes = player.force.recipes
-    if not player or not any_loader_enabled(recipes) then
+    local recipes = player and player.force.recipes
+    if not recipes or not any_loader_enabled(recipes) then
         if frame and frame.valid then
             Gui.destroy(frame)
         end
@@ -107,7 +113,7 @@ local function draw_loader_frame(parent, entity)
     else
         frame = parent.add {
             type = 'frame',
-            name = loader_frame_name,
+            name = frame_name,
             anchor = {
                 gui = defines.relative_gui_type[entity and 'assembling_machine_select_recipe_gui' or 'controller_gui'],
                 position = defines.relative_gui_position.right
@@ -321,6 +327,9 @@ local features = {
             [defines.events.on_research_finished] = 'on_research_finished',
             [defines.events.on_gui_opened] = 'on_gui_opened',
             [defines.events.on_gui_closed] = 'on_gui_closed',
+            [defines.events.on_player_created] = 'on_player_created',
+            [defines.events.on_player_joined_game] = 'on_player_created',
+            [defines.events.on_player_changed_force] = 'on_player_created',
         },
         handlers = {
             on_built = Token.register(snap_loader),
@@ -330,10 +339,18 @@ local features = {
                     return
                 end
                 e.research.force.recipes[recipe].enabled = true
-                for _, p in pairs(game.players) do
-                    if p.opened_gui_type == defines.gui_type.controller then
-                        draw_loader_frame(p.gui.relative)
-                    end
+                for _, p in pairs(e.research.force.players) do
+                    draw_loader_frame(p.gui.relative)
+                end
+            end),
+            -- The frame anchored to the controller GUI is kept in place permanently.
+            -- Creating it inside on_gui_opened instead would delay its appearance in
+            -- multiplayer by the latency round trip, as script events do not run in
+            -- the client's latency-hidden state.
+            on_player_created = Token.register(function(e)
+                local p = safe_get_player(e.player_index)
+                if p then
+                    draw_loader_frame(p.gui.relative)
                 end
             end),
             on_gui_opened = Token.register(function(e)
@@ -353,12 +370,27 @@ local features = {
                 if not p then
                     return
                 end
-                local frame = p.gui.relative[loader_frame_name]
+                local frame = p.gui.relative[loader_machine_frame_name]
                 if frame and frame.valid then
                     Gui.destroy(frame)
                 end
             end)
-        }
+        },
+        on_register = function()
+            for _, p in pairs(game.players) do
+                draw_loader_frame(p.gui.relative)
+            end
+        end,
+        on_unregister = function()
+            for _, p in pairs(game.players) do
+                for _, name in pairs({ loader_frame_name, loader_machine_frame_name }) do
+                    local frame = p.gui.relative[name]
+                    if frame and frame.valid then
+                        Gui.destroy(frame)
+                    end
+                end
+            end
+        end,
     },
     {
         name = 'save_bots',
@@ -379,6 +411,9 @@ local function register_feature(feature)
     for event_id, handler_id in pairs(feature.events) do
         Event.add_removable(event_id, feature.handlers[handler_id])
     end
+    if feature.on_register and game then
+        feature.on_register()
+    end
     return true
 end
 
@@ -387,6 +422,9 @@ local function unregister_feature(feature)
         Event.remove_removable(event_id, feature.handlers[handler_id])
     end
     enabled[feature.name] = false
+    if feature.on_unregister and game then
+        feature.on_unregister()
+    end
     return true
 end
 
@@ -409,7 +447,8 @@ end
 Gui.on_click(loader_button_player, function(event)
     local player = event.player
     local recipe = event.element.elem_value
-    if not player.force.recipes[recipe].enabled then
+    local force_recipe = recipe and player.force.recipes[recipe]
+    if not (force_recipe and force_recipe.enabled) then
         return
     end
     local count = (event.button == defines.mouse_button_type.left) and (event.shift and 4294967295 or 1) or (event.button == defines.mouse_button_type.right) and 5 or nil
@@ -420,7 +459,8 @@ end)
 
 Gui.on_click(loader_button_machine, function(event)
     local recipe = event.element.elem_value
-    if not event.player.force.recipes[recipe].enabled then
+    local force_recipe = recipe and event.player.force.recipes[recipe]
+    if not (force_recipe and force_recipe.enabled) then
         return
     end
     local entity = Gui.get_data(event.element)
@@ -439,6 +479,11 @@ local loader_check_token = Token.register(function()
             end
         end
     end
+    if enabled.loaders then
+        for _, p in pairs(game.players) do
+            draw_loader_frame(p.gui.relative)
+        end
+    end
 end)
 
 Event.on_init(function()
@@ -452,9 +497,11 @@ Event.on_configuration_changed(function()
         Task.set_timeout_in_ticks(1, loader_check_token)
     end
     for _, p in pairs(game.players) do
-        local frame = p.gui.relative[loader_frame_name]
-        if frame then
-            Gui.destroy(frame)
+        for _, name in pairs({ loader_frame_name, loader_machine_frame_name }) do
+            local frame = p.gui.relative[name]
+            if frame then
+                Gui.destroy(frame)
+            end
         end
     end
 end)
