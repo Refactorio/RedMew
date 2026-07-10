@@ -137,10 +137,12 @@ Declare.module({'features', 'restart_command'}, function()
     declare_test('Requires admin to run command.', function(context)
         -- Arrange.
         local player = context.player
-        Helper.modify_lua_object(context, player, 'admin', false)
-        Helper.modify_lua_object(context, game, 'get_player', function()
-            return player
-        end)
+        local fake_player = Helper.fake_lua_object(player, { admin = false })
+        Helper.modify_global(context, 'game', Helper.fake_lua_object(game, {
+            get_player = function()
+                return fake_player
+            end
+        }))
 
         -- Act.
         run_config_command(player)
@@ -155,12 +157,16 @@ Declare.module({'features', 'restart_command'}, function()
         -- Arrange.
         local player = context.player
         local actual = nil
-        Helper.modify_lua_object(context, player, 'print', function(str)
-            actual = str
-        end)
-        Helper.modify_lua_object(context, game, 'get_player', function()
-            return player
-        end)
+        local fake_player = Helper.fake_lua_object(player, {
+            print = function(str)
+                actual = str
+            end
+        })
+        Helper.modify_global(context, 'game', Helper.fake_lua_object(game, {
+            get_player = function()
+                return fake_player
+            end
+        }))
 
         local start_game_data = {
             type = RestartCommand.game_types.scenario,
@@ -345,7 +351,7 @@ Mod Pack: some_mod_pack]]
             output[#output + 1] = str
         end
 
-        Helper.modify_lua_object(context, game, 'print', game_print)
+        Helper.modify_global(context, 'game', Helper.fake_lua_object(game, { print = game_print }))
 
         -- Act.
         run_restart_command(player)
@@ -376,7 +382,7 @@ Mod Pack: some_mod_pack]]
                 output[#output + 1] = str
             end
 
-            Helper.modify_lua_object(context, game, 'print', game_print)
+            Helper.modify_global(context, 'game', Helper.fake_lua_object(game, { print = game_print }))
 
             -- Act.
             run_restart_command(player, argument)

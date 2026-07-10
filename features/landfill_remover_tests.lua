@@ -727,13 +727,17 @@ Declare.module(
 
                 local messages = {}
 
-                Helper.modify_lua_object(context, player, 'print', function(text)
-                    messages[#messages+1] = text
-                end)
+                local fake_player = Helper.fake_lua_object(player, {
+                    print = function(text)
+                        messages[#messages+1] = text
+                    end
+                })
 
-                Helper.modify_lua_object(context, game, 'get_player', function()
-                    return player
-                end)
+                Helper.modify_global(context, 'game', Helper.fake_lua_object(game, {
+                    get_player = function()
+                        return fake_player
+                    end
+                }))
 
                 -- Act
                 EventFactory.do_player_deconstruct_area(cursor, player, area)
@@ -765,13 +769,17 @@ Declare.module(
 
                 local messages = {}
 
-                Helper.modify_lua_object(context, player, 'print', function(text)
-                    messages[#messages+1] = text
-                end)
+                local fake_player = Helper.fake_lua_object(player, {
+                    print = function(text)
+                        messages[#messages+1] = text
+                    end
+                })
 
-                Helper.modify_lua_object(context, game, 'get_player', function()
-                    return player
-                end)
+                Helper.modify_global(context, 'game', Helper.fake_lua_object(game, {
+                    get_player = function()
+                        return fake_player
+                    end
+                }))
 
                 -- Act
                 EventFactory.do_player_deconstruct_area(cursor, player, area)

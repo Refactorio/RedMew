@@ -6,9 +6,19 @@ local Helper = require 'utils.test.helper'
 Declare.module({'utils', 'Gui'}, function()
     Declare.module('can toggle top buttons', function()
         local function count_gui_elements(player)
-            -- local gui = player.gui
-            -- return #gui.top.children + #gui.left.children + #gui.center.children + #gui.screen.children
-            return #Gui.get_top_flow(player).children + #Gui.get_left_flow(player).children + #player.gui.center.children + #player.gui.screen.children
+            local roots = {Gui.get_top_flow(player), Gui.get_left_flow(player), player.gui.center, player.gui.screen}
+            local count = 0
+            for _, root in pairs(roots) do
+                for _, child in pairs(root.children) do
+                    -- Only visible elements count as open: some GUIs, such as the
+                    -- production hud, hide their frame on close instead of
+                    -- destroying it, to preserve its screen position.
+                    if child.visible then
+                        count = count + 1
+                    end
+                end
+            end
+            return count
         end
 
         local function is_ignored_element(element)
