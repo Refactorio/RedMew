@@ -19,6 +19,7 @@ local function new_module(module_name)
         is_open = false,
         depth = nil,
         count = nil,
+        pass_count = nil,
         passed = nil
     }
 end

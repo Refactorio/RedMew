@@ -20,16 +20,26 @@ end
 local function mark_module_for_passed(module)
     local any_fails = false
     local all_ran = true
+    local pass_count = 0
+    local ran_count = 0
 
     for _, child in pairs(module.children) do
-        local module_any_fails, module_all_ran = mark_module_for_passed(child)
+        local module_any_fails, module_all_ran, module_pass_count, module_ran_count = mark_module_for_passed(child)
         any_fails = any_fails or module_any_fails
         all_ran = all_ran and module_all_ran
+        pass_count = pass_count + module_pass_count
+        ran_count = ran_count + module_ran_count
     end
 
     for _, test in pairs(module.tests) do
         any_fails = any_fails or (test.passed == false)
         all_ran = all_ran and (test.passed ~= nil)
+        if test.passed == true then
+            pass_count = pass_count + 1
+        end
+        if test.passed ~= nil then
+            ran_count = ran_count + 1
+        end
     end
 
     if any_fails then
@@ -40,7 +50,10 @@ local function mark_module_for_passed(module)
         module.passed = nil
     end
 
-    return any_fails, all_ran
+    -- Only show a pass count for modules that have results.
+    module.pass_count = ran_count > 0 and pass_count or nil
+
+    return any_fails, all_ran, pass_count, ran_count
 end
 
 local function mark_modules_for_passed()

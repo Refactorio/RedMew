@@ -149,8 +149,12 @@ local function draw_tests_test(container, test, depth)
 end
 
 local function draw_tests_module(container, module)
-    local caption = {module.name or 'All Tests', ' (', module.count, ')'}
-    caption = table.concat(caption)
+    local caption
+    if module.pass_count then
+        caption = table.concat({module.name or 'All Tests', ' (', module.pass_count, '/', module.count, ')'})
+    else
+        caption = table.concat({module.name or 'All Tests', ' (', module.count, ')'})
+    end
 
     local flow = container.add {type = 'flow'}
     local arrow =
