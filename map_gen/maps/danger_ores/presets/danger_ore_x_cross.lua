@@ -14,7 +14,7 @@ local cross = B.rotate(B.any{ h_bound, v_bound }, math.rad(135))
 
 DOC.scenario_name = 'danger-ore-x-cross'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_x_cross'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.x_cross_ores'
+DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores_stone'
 DOC.map_config.main_ores_rotate = 135
 DOC.map_config.spawn_shape = B.rectangle(100)
 DOC.map_config.start_ore_shape = B.rotate(B.rectangle(116), math.rad(135))

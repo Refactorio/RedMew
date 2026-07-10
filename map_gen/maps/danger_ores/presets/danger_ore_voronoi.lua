@@ -13,7 +13,7 @@ ScenarioInfo.add_map_extra_info([[
 
 DOC.scenario_name = 'danger-ore-voronoi'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_voronoi'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.voronoi_ores'
+DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores_stone'
 DOC.map_config.main_ores_rotate = nil
 
 return Scenario.register(DOC)

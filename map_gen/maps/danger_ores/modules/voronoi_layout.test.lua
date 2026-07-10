@@ -136,6 +136,12 @@ do
     check(totals[4] == min_ore, 'stone (ore 4) is the least-used ore')
 end
 
+-- enforcement: fewer than 4 ores must be rejected (clean borders need 4 colours)
+local ok_low = pcall(function()
+    return Layout.generate { size = 16, spacing = 4, relaxation = 0, num_ores = 3, random = rand }
+end)
+check(not ok_low, 'generate rejects fewer than 4 ores')
+
 if failures == 0 then
     print('\nALL PASSED')
 else

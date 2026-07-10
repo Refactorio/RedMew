@@ -13,7 +13,6 @@ local start_ore_offset = 44
 
 DOC.scenario_name = 'danger-ore-square'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_square'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.3way_ores'
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.main_ores_shuffle_order = true
 DOC.map_config.main_ores_start_ore_offset = start_ore_offset

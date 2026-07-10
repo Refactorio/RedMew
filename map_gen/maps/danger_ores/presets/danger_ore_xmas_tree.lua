@@ -15,7 +15,9 @@ Config.day_night.fixed_brightness = 0.70
 
 DOC.scenario_name = 'danger-ore-xmas-tree'
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_xmas_tree'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.one_direction_ores_xmas'
+-- canonical ores minus grass-4, the one dark green that interrupts the tree aesthetic
+local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
+DOC.map_config.main_ores = Factory.default():remove_tile('grass-4')
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.water = nil
 DOC.game.always_day = false
