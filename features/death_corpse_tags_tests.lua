@@ -69,13 +69,17 @@ Declare.module({'features', 'death_corpse_tags'}, function()
 
         local actual_text
 
-        Helper.modify_lua_object(context, player, 'print', function(text)
-            actual_text = text
-        end)
+        local fake_player = Helper.fake_lua_object(player, {
+            print = function(text)
+                actual_text = text
+            end
+        })
 
-        Helper.modify_lua_object(context, game, 'get_player', function()
-            return player
-        end)
+        Helper.modify_global(context, 'game', Helper.fake_lua_object(game, {
+            get_player = function()
+                return fake_player
+            end
+        }))
 
         local event = fake_death(player, false)
 

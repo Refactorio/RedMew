@@ -91,11 +91,39 @@ function Public.wait_for_chunk_to_be_charted(context, force, surface, chunk_posi
 end
 
 function Public.modify_lua_object(context, object, key, value)
+    if type(object) ~= 'table' then
+        error('LuaObjects are userdata since Factorio 2.0 and cannot be modified; use Helper.fake_lua_object and Helper.modify_global instead.', 2)
+    end
+
     local old_value = object[key]
     rawset(object, key, value)
 
     context:add_teardown(function()
         rawset(object, key, old_value)
+    end)
+end
+
+-- LuaObjects are userdata since Factorio 2.0, so their fields cannot be
+-- replaced. Returns a table that reads and writes through to the given object,
+-- except for the overridden fields.
+function Public.fake_lua_object(object, overrides)
+    return setmetatable(overrides or {}, {
+        __index = function(_, key)
+            return object[key]
+        end,
+        __newindex = function(_, key, value)
+            object[key] = value
+        end
+    })
+end
+
+-- Replaces a global variable, e.g. the 'game' object, until test teardown.
+function Public.modify_global(context, name, value)
+    local old_value = _G[name]
+    rawset(_G, name, value)
+
+    context:add_teardown(function()
+        rawset(_G, name, old_value)
     end)
 end
 
