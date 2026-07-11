@@ -1,5 +1,6 @@
 local B = require 'map_gen.shared.builders'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
@@ -13,7 +14,9 @@ DOC.scenario_name = 'danger-ore-coal-maze'
 DOC.map_config.spawn_shape = B.translate(B.rectangle(64), 2, 2)
 DOC.map_config.start_ore_shape = B.translate(B.rectangle(68), 2, 2)
 DOC.map_config.no_resource_patch_shape = B.translate(B.rectangle(80), 2, 2)
-DOC.map_config.main_ore_resource_patches_config = require 'map_gen.maps.danger_ores.config.main_ore_resource_patches'
+DOC.map_config.main_ore_resource_patches_config = Factory
+    .patches(require 'map_gen.maps.danger_ores.config.main_ore_resource_patches')
+    :scale{richness = 0.5, size = 2}
 DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_patches'
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.coal'
 DOC.map_config.main_ores_rotate = nil

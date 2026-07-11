@@ -1,13 +1,15 @@
 local B = require 'map_gen.shared.builders'
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
 local Config = require 'config'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Danger Ores - Scrapworld Maze')
 ScenarioInfo.add_map_extra_info([[
-  This maze is covered in [entity=scrap].
+  This maze is covered in [entity=scrap], with occasional dense patches of
+  [item=stone] for landfill.
   Mine it to make room for your factory, and explore the corridors to expand.
 ]])
 
@@ -19,7 +21,10 @@ Config.player_create.starting_items = {
 }
 
 DOC.scenario_name = 'danger-ore-scrap-maze'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.scrap'
+DOC.map_config.main_ore_resource_patches_config = Factory.patches()
+    :add_patch('stone', {scale = 1 / 32, threshold = 0.6, richness = {mult = 0.7, pow = 1.45}})
+DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_patches'
+DOC.map_config.main_ores = require('map_gen.maps.danger_ores.config.scrap'):scale_richness(0.25)
 DOC.map_config.main_ores_rotate = nil
 DOC.map_config.no_resource_patch_shape = B.translate(B.rectangle(80), 2, 2)
 DOC.map_config.spawn_shape = B.translate(B.rectangle(64), 2, 2)
