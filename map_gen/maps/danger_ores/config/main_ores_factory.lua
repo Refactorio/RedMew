@@ -314,6 +314,49 @@ function Fluent:start_value(start, ore_name)
     return rebuild(self)
 end
 
+-- Multiply a curve by a factor: numbers scale directly, functions get wrapped.
+local function scale_curve(curve, multiplier)
+    if curve == nil or multiplier == 1 then
+        return curve
+    end
+    if type(curve) == 'number' then
+        return multiplier * curve
+    end
+    return function(x, y)
+        return multiplier * curve(x, y)
+    end
+end
+
+--- Scale the ore density: multiply every start and richness curve by multiplier --
+-- for one sector, or the whole config. e.g. :scale_richness(0.25) for a quarter of
+-- the source config's ore. Entries with a custom make_resource are not affected.
+function Fluent:scale_richness(multiplier, ore_name)
+    local spec = getmetatable(self).spec
+    if ore_name then
+        for _, ore in ipairs(spec.ores) do
+            if ore.name == ore_name then
+                -- materialize the defaults before scaling only this sector
+                if ore.start == nil then
+                    ore.start = spec.start
+                end
+                if ore.value == nil then
+                    ore.value = spec.value
+                end
+                ore.start = scale_curve(ore.start, multiplier)
+                ore.value = scale_curve(ore.value, multiplier)
+            end
+        end
+    else
+        spec.start = scale_curve(spec.start, multiplier)
+        spec.value = scale_curve(spec.value, multiplier)
+        for _, ore in ipairs(spec.ores) do
+            ore.start = scale_curve(ore.start, multiplier)
+            ore.value = scale_curve(ore.value, multiplier)
+        end
+    end
+    return rebuild(self)
+end
+
 --- Set per-sector selection weights from a map of ore name -> weight.
 function Fluent:sector_weights(weights)
     local spec = getmetatable(self).spec
@@ -323,6 +366,94 @@ function Fluent:sector_weights(weights)
         end
     end
     return rebuild(self)
+end
+
+-- == Resource patches =======================================================
+-- A fluent builder for resource patches configs (main_ore_resource_patches_config /
+-- resource_patches_config): perlin-noise patches of dense resources on top of the
+-- main ores. Same contract as the main-ores fluent API: the returned object IS the
+-- patches array, every method mutates it in place and returns it for chaining, and
+-- method order never matters.
+--     Factory.patches():add_patch('stone', {scale = 1 / 32, threshold = 0.6})
+--     Factory.patches(shared_config):scale{richness = 0.5, size = 2}
+
+local PatchesFluent = {}
+
+-- The canonical patch richness curve, as used by the vanilla resource patches.
+local default_patch_value = b.exponential_value(0, 1.4, 1.45)
+
+-- Multiply the amounts a resource shape yields.
+local function scale_amount(resource, multiplier)
+    if multiplier == 1 then
+        return resource
+    end
+    return function(x, y, world)
+        local entity = resource(x, y, world)
+        if entity and entity.amount then
+            entity.amount = multiplier * entity.amount
+        end
+        return entity
+    end
+end
+
+local function rebuild_patches(self)
+    local spec = getmetatable(self).spec
+    for i = #self, 1, -1 do
+        self[i] = nil
+    end
+    for index, patch in ipairs(spec.patches) do
+        local resource
+        if patch.resource then -- entry carried over from a source config
+            resource = scale_amount(patch.resource, spec.richness)
+        else
+            resource = b.resource(b.full_shape, patch.name, scale_curve(patch.value or default_patch_value, spec.richness))
+        end
+        self[index] = {
+            scale = patch.scale / spec.size,
+            threshold = patch.threshold,
+            seed = patch.seed,
+            resource = resource
+        }
+    end
+    return self
+end
+
+--- A fluent resource patches config, optionally seeded from an existing plain
+-- config. The source is not modified; its entries are carried over and can still
+-- be scaled.
+function Public.patches(source)
+    local patches = {}
+    for i, data in ipairs(source or {}) do
+        patches[i] = {scale = data.scale, threshold = data.threshold, seed = data.seed, resource = data.resource}
+    end
+    local spec = {patches = patches, richness = 1, size = 1}
+    return rebuild_patches(setmetatable({}, {__index = PatchesFluent, spec = spec}))
+end
+
+--- Append a pure-resource patch. opts (all optional): scale (patch size, default
+-- 1 / 24), threshold (rarity, default 0.5), richness (a function or
+-- {base = b, mult = m, pow = p}, default the canonical patch curve) and seed.
+function PatchesFluent:add_patch(resource_name, opts)
+    opts = opts or {}
+    local spec = getmetatable(self).spec
+    spec.patches[#spec.patches + 1] = {
+        name = resource_name,
+        scale = opts.scale or 1 / 24,
+        threshold = opts.threshold or 0.5,
+        value = normalize_value(opts.richness),
+        seed = opts.seed
+    }
+    return rebuild_patches(self)
+end
+
+--- Scale every patch: richness multiplies the ore amounts, size multiplies the
+-- linear patch dimensions (patch spacing grows with it, so the ore coverage
+-- fraction stays the same). Multipliers compound when applied twice.
+function PatchesFluent:scale(multipliers)
+    local spec = getmetatable(self).spec
+    spec.richness = spec.richness * (multipliers.richness or 1)
+    spec.size = spec.size * (multipliers.size or 1)
+    return rebuild_patches(self)
 end
 
 return Public

@@ -218,6 +218,91 @@ local d1, d2 = Factory.default(), Factory.default()
 check(not rawequal(d1, d2) and not rawequal(d1[1], d2[1]) and not rawequal(d1[1].ratios, d2[1].ratios),
     'every fluent config is built from fresh tables')
 
+-- function curves so the scaled results stay callable under the stubbed builders
+local function flat(amount)
+    return function()
+        return amount
+    end
+end
+
+local function test_scale_richness()
+    local scaled = Factory.blank()
+        :add_ore('scrap', {mix = {{'scrap', 100}}})
+        :richness(flat(100))
+        :start_value(flat(40))
+        :scale_richness(0.25)
+    check(scaled[1].ratios[1].resource.value() == 25 and scaled[1].start() == 10,
+        'scale_richness scales the richness and start curves')
+
+    local half_coal = Factory.default()
+        :richness(flat(100))
+        :start_value(50)
+        :scale_richness(0.5, 'coal')
+    check(half_coal[2].ratios[1].resource.value() == 50 and half_coal[2].start == 25
+        and half_coal[1].ratios[1].resource.value() == 100 and half_coal[1].start == 50,
+        'scale_richness with an ore name scales only that sector')
+
+    local compounded = Factory.blank()
+        :add_ore('omnite')
+        :richness(flat(100))
+        :start_value(8)
+        :scale_richness(0.5)
+        :scale_richness(0.5)
+    check(compounded[1].ratios[1].resource.value() == 25 and compounded[1].start == 2,
+        'scale_richness compounds when applied twice')
+
+    local scaled_then_added = Factory.blank()
+        :richness(flat(100))
+        :start_value(flat(40))
+        :scale_richness(0.25)
+        :add_ore('scrap', {mix = {{'scrap', 100}}})
+    check(scaled_then_added[1].ratios[1].resource.value() == 25 and scaled_then_added[1].start() == 10,
+        'sectors added after scale_richness still get the scaled defaults')
+end
+test_scale_richness()
+
+local function test_patches()
+    local stone = Factory.patches()
+        :add_patch('stone', {scale = 1 / 32, threshold = 0.6, richness = flat(100)})
+    check(#stone == 1 and stone[1].scale == 1 / 32 and stone[1].threshold == 0.6
+        and stone[1].resource.name == 'stone' and stone[1].resource.value() == 100,
+        'patches():add_patch builds a pure resource patch entry')
+
+    stone:scale{richness = 0.25, size = 2}
+    check(stone[1].scale == 1 / 64 and stone[1].resource.value() == 25,
+        'patches scale multiplies richness and grows the patch size')
+
+    local canonical = Factory.patches():add_patch('iron-ore')
+    check(canonical[1].scale == 1 / 24 and canonical[1].threshold == 0.5
+        and canonical[1].resource.value == 'exp(0,1.4,1.45)',
+        'add_patch defaults to the canonical patch size, rarity and curve')
+
+    local source = {
+        {scale = 1 / 24, threshold = 0.5, resource = function()
+            return {name = 'iron-ore', amount = 100}
+        end},
+        {scale = 1 / 24, threshold = 0.5, resource = function()
+            return nil
+        end}
+    }
+    local wrapped = Factory.patches(source):scale{richness = 0.5, size = 2}
+    check(wrapped[1].scale == 1 / 48 and wrapped[1].resource(0, 0, {}).amount == 50,
+        'patches(source) carries over an existing config and scales it')
+    check(wrapped[2].resource(0, 0, {}) == nil,
+        'patches(source) preserves empty resource results')
+    check(source[1].scale == 1 / 24 and source[1].resource(0, 0, {}).amount == 100,
+        'patches(source) does not modify the original config')
+
+    local compounded = Factory.patches(source):scale{richness = 0.5}:scale{richness = 0.5}
+    check(compounded[1].resource(0, 0, {}).amount == 25,
+        'patches scale compounds when applied twice')
+
+    local late = Factory.patches():scale{richness = 0.5}:add_patch('stone', {richness = flat(100)})
+    check(late[1].resource.value() == 50,
+        'patches added after scale still get the scale applied')
+end
+test_patches()
+
 -- 5) golden numbers for the source configs, so old maps cannot drift by accident
 local function ratio_weights(entry)
     local weights = {}
