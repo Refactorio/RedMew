@@ -25,7 +25,9 @@ starting_items[#starting_items + 1] = { count = 1, name = 'locomotive' }
 starting_items[#starting_items + 1] = { count = 2, name = 'cargo-wagon' }
 starting_items[#starting_items + 1] = { count = 50, name = 'coal' }
 
-local main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+-- Half the canonical density: a room is 4x4 chunks of solid single-ore field, so at full
+-- richness one room outlasts anything you can build in it and clearing ground stops mattering.
+local main_ores = require('map_gen.maps.danger_ores.config.vanilla_ores'):scale_richness(0.5)
 
 DOC.biter_drops.enabled = false
 DOC.scenario_name = 'danger-ore-city-blocks'

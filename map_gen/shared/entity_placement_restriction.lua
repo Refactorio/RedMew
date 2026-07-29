@@ -12,7 +12,11 @@
     This function must be a registered with the Token module and the keep_alive_callback function will take the Token-id as parameter
     This is to prevent upvalue errors
 
-    Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions
+    Rules apply to both player and construction-robot placement, and to ghosts.
+
+    Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions.
+    The refunded item is derived from the entity's prototype (quality preserved) and goes back to
+    whoever built it: the placing player, or the construction robot for a robot build.
 
     Lastly, this module raises 2 events: on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
     They are fully defined below.
@@ -171,7 +175,74 @@ local function entities_with_inventory(entity, player)
     return false
 end
 
---- Token for the on_built event callback, checks if an entity should be destroyed.
+--- The item to hand back for a destroyed entity, quality preserved.
+-- Derived from the entity prototype rather than the build event, because robot build events
+-- carry no consumed_items at all, and because consumed_items.get_contents() returns plain
+-- ItemWithQualityCount tables ({name, quality, count}) with no `valid` field - the old
+-- `stack.valid` guard was therefore never true and every destroyed entity was silently
+-- deleted with no refund.
+local function placement_stack(entity)
+    local items = entity.prototype.items_to_place_this
+    if not items or #items == 0 then
+        return nil
+    end
+    local item = items[1]
+    if not item or not item.name then
+        return nil
+    end
+    return {name = item.name, count = item.count or 1, quality = entity.quality}
+end
+
+--- Destroys a disallowed entity and refunds whoever built it (player or construction robot).
+local function destroy_restricted(entity, ghost, event)
+    local index = event.player_index
+    local player = index and game.get_player(index)
+    local robot = event.robot
+    local stack = (not ghost) and placement_stack(entity) or nil
+
+    raise_event(
+        Public.events.on_pre_restricted_entity_destroyed,
+        {
+            player_index = index,
+            created_entity = entity,
+            ghost = ghost,
+            stack = stack or {}
+        }
+    )
+
+    -- Need to revalidate the entity since we sent it to the raised event
+    if entity.valid then
+        -- Checking if the entity has an inventory and spills the content on the ground to prevent destroying those too
+        if player and player.valid and entities_with_inventory(entity, player) then
+            ghost = true -- Cheating to prevent refunds
+        else
+            entity.destroy()
+        end
+    end
+
+    -- Refund to the robot when a robot built it, so the item returns to the logistic network
+    -- instead of vanishing; otherwise to the player who placed it.
+    local actor = robot or player
+    local item_returned = false
+    if stack and not ghost and primitives.refund and actor and actor.valid and actor.can_insert(stack) then
+        actor.insert(stack)
+        item_returned = true
+    end
+
+    raise_event(
+        Public.events.on_restricted_entity_destroyed,
+        {
+            player_index = index,
+            player = player,
+            ghost = ghost,
+            item_returned = item_returned
+        }
+    )
+end
+
+--- Token for the build event callbacks, checks if an entity should be destroyed.
+-- Registered for both on_built_entity and on_robot_built_entity: restricting only player
+-- placement left every rule in this module bypassable with construction robots.
 local on_built_token =
     Token.register(
     function(event)
@@ -212,73 +283,28 @@ local on_built_token =
             return
         end
 
-        local index = event.player_index
-        local stack = event.consumed_items.get_contents()[1]
-        if not stack then
-            if index then
-                return
-            else
-                stack = {}
-            end
-        end
-
-        raise_event(
-            Public.events.on_pre_restricted_entity_destroyed,
-            {
-                player_index = index,
-                created_entity = entity,
-                ghost = ghost,
-                stack = stack
-            }
-        )
-
-        local player = game.get_player(index)
-
-        -- Need to revalidate the entity since we sent it to the raised event
-        if entity.valid then
-            -- Checking if the entity has an inventory and spills the content on the ground to prevent destroying those too
-            if entities_with_inventory(entity, player) then
-                ghost = true -- Cheating to prevent refunds
-            else
-                entity.destroy()
-            end
-        end
-
-        -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
-        -- and revalidate the stack since we sent it to the raised event
-        local item_returned
-        if player and player.valid and primitives.refund and not ghost and stack.valid then
-            player.insert(stack)
-            item_returned = true
-        else
-            item_returned = false
-        end
-
-        raise_event(
-            Public.events.on_restricted_entity_destroyed,
-            {
-                player_index = index,
-                player = player,
-                ghost = ghost,
-                item_returned = item_returned
-            }
-        )
+        destroy_restricted(entity, ghost, event)
     end
 )
 
---- Registers and unregisters the event hook
+--- Registers and unregisters the event hooks.
+-- Both the player and the robot build event are hooked: a rule that only covers
+-- on_built_entity is trivially bypassed by placing a ghost the bots then complete, or by any
+-- ghost the game creates itself (entity death with a ghost, upgrade planner, undo).
 local function check_event_status()
-    -- First we check if the event hook is in place or not
+    -- First we check if the event hooks are in place or not
     if primitives.event then
-        -- If there are no items in either list and no function is present, unhook the event
+        -- If there are no items in either list and no function is present, unhook the events
         if not next(allowed_entities) and not next(banned_entities) and not primitives.keep_alive_callback then
             Event.remove_removable(defines.events.on_built_entity, on_built_token)
+            Event.remove_removable(defines.events.on_robot_built_entity, on_built_token)
             primitives.event = nil
         end
     else
-        -- If either of the lists have an entry or there is a function present, hook the event
+        -- If either of the lists have an entry or there is a function present, hook the events
         if next(allowed_entities) or next(banned_entities) or primitives.keep_alive_callback then
             Event.add_removable(defines.events.on_built_entity, on_built_token)
+            Event.add_removable(defines.events.on_robot_built_entity, on_built_token)
             primitives.event = true
         end
     end
