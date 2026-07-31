@@ -2,9 +2,9 @@
 -- lattice carrying a ready-made double-track network -- ordinary, minable rails: continuous
 -- lines ring every room and meet at a signalled RAIL ROUNDABOUT on every corner (geometry
 -- decoded from the user's blueprint; native Factorio 2.0 rail pieces). Players
--- may branch their own rails, signals and poles anywhere on the lattice, but nothing else
--- can be built there, and belts cannot span the 32-tile corridors: trains are the only
--- inter-room logistics. Room ores are assigned once in on_init and stored in Global.
+-- may branch their own rails, signals, poles and roboports anywhere on the lattice, but
+-- nothing else can be built there, and belts cannot span the 32-tile corridors: trains are
+-- the bulk inter-room logistics. Room ores are assigned once in on_init and stored in Global.
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Generate = require 'map_gen.shared.generate'
@@ -362,6 +362,12 @@ local ALLOWED_ON_CORRIDOR = {
     ['rail-chain-signal'] = true,
     ['train-stop'] = true,
     ['electric-pole'] = true,
+    -- Roboports are allowed even though bots can ferry items between rooms, because they can
+    -- do that already: a roboport's logistics_radius is 25 and roboports join into one network
+    -- when their logistic zones touch, so two placed inside adjacent rooms are within reach
+    -- across a 32 tile corridor without anything ever being built on the corridor itself.
+    -- Keeping them off it only forced players to give up the tidy placement, not the capability.
+    ['roboport'] = true,
     ['locomotive'] = true,
     ['cargo-wagon'] = true,
     ['fluid-wagon'] = true,
@@ -392,7 +398,7 @@ end)
 local function on_restricted_destroyed(event)
     local player = event.player
     if player and player.valid then
-        player.print('Only rail infrastructure (rails, signals, stations, power poles) and trains can be built on the rail corridors!')
+        player.print('Only rail infrastructure (rails, signals, stations, power poles, roboports) and trains can be built on the rail corridors!')
     end
 end
 

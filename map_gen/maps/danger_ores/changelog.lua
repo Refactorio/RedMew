@@ -164,6 +164,7 @@ return [[
   2026-07-29:
       - [DO:CityBlocks] Halved main ore density
       - [DO:CityBlocks] Left a 3 tile ore-free band inside each room along the rail corridors
+      - [DO:CityBlocks] Allowed roboports to be built on the rail corridors
       - [DO] Build restrictions now apply to construction robots, not just player placement
       - [DO] Fixed entities destroyed by a build restriction not being refunded
 ]]

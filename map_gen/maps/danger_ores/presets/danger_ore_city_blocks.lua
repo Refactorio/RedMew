@@ -13,8 +13,8 @@ ScenarioInfo.add_map_extra_info([[
   double-track network: continuous lines ring every room and meet at a
   signalled roundabout on every corner, and the rails are yours --
   extend them, reroute them, mine them. Rails, signals, train stops,
-  power poles and trains are the only things buildable on the
-  corridors, and belts cannot cross them: trains are your logistics.
+  power poles, roboports and trains are the only things buildable on
+  the corridors, and belts cannot cross them: trains move the tonnage.
 ]])
 
 local starting_items = Config.player_create.starting_items
