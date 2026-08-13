@@ -160,4 +160,7 @@ return [[
       - [DO:ScrapMaze] Added DO/Scrapworld-Maze preset
       - [DO:OmniMaze] Added DO/Omnimatter-Maze preset
       - [DO:CityBlocks] Added DO/City-Blocks preset
+
+  2026-08-14:
+      - [DO] Lamps can now be built on ore
 ]]
