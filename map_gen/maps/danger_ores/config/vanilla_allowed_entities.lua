@@ -13,6 +13,7 @@ return {
     ['tile-ghost'] = true,
     ['electric-pole'] = true,
     ['mining-drill'] = true,
+    ['lamp'] = true,
 
     -- vehicles
     ['car'] = true,

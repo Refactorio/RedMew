@@ -167,4 +167,7 @@ return [[
       - [DO:CityBlocks] Allowed roboports to be built on the rail corridors
       - [DO] Build restrictions now apply to construction robots, not just player placement
       - [DO] Fixed entities destroyed by a build restriction not being refunded
+
+  2026-08-14:
+      - [DO] Lamps can now be built on ore
 ]]
