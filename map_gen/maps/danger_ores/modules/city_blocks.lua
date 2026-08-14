@@ -2,9 +2,9 @@
 -- lattice carrying a ready-made double-track network -- ordinary, minable rails: continuous
 -- lines ring every room and meet at a signalled RAIL ROUNDABOUT on every corner (geometry
 -- decoded from the user's blueprint; native Factorio 2.0 rail pieces). Players
--- may branch their own rails, signals and poles anywhere on the lattice, but nothing else
--- can be built there, and belts cannot span the 32-tile corridors: trains are the only
--- inter-room logistics. Room ores are assigned once in on_init and stored in Global.
+-- may branch their own rails, signals, poles and roboports anywhere on the lattice, but
+-- nothing else can be built there, and belts cannot span the 32-tile corridors: trains are
+-- the bulk inter-room logistics. Room ores are assigned once in on_init and stored in Global.
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Generate = require 'map_gen.shared.generate'
@@ -20,6 +20,10 @@ local shuffle = table.shuffle_table
 
 local PITCH = 5 -- chunks per room+wall cell
 local ROOMS_RADIUS = 12 -- rooms span -R..R on both axes
+-- Ore-free band inside each room along its edge with the corridor. Without it the ore starts
+-- flush against the corridor and you have to hand-mine a bay before you can place a train stop
+-- or an inserter, so nothing in a fresh room can be automated until it has been cleared by hand.
+local ROOM_EDGE_MARGIN = 3
 local RAIL_A = 13 -- track offsets within a corridor chunk: odd (chunk edges are multiples of
 local RAIL_B = 19 -- 32, matching the rail grid) and at corridor-center -3/+3, exactly where
 -- the corner roundabouts' approach lanes sit; the 4-tile gap still fits signals everywhere
@@ -345,9 +349,9 @@ local function on_chunk(event)
     end
 end
 
--- === strip placement rule ==================================================
+-- === rail corridor placement rule ==========================================
 
-local ALLOWED_ON_STRIP = {
+local ALLOWED_ON_CORRIDOR = {
     ['straight-rail'] = true,
     ['curved-rail-a'] = true,
     ['curved-rail-b'] = true,
@@ -358,37 +362,43 @@ local ALLOWED_ON_STRIP = {
     ['rail-chain-signal'] = true,
     ['train-stop'] = true,
     ['electric-pole'] = true,
+    -- Roboports are allowed even though bots can ferry items between rooms, because they can
+    -- do that already: a roboport's logistics_radius is 25 and roboports join into one network
+    -- when their logistic zones touch, so two placed inside adjacent rooms are within reach
+    -- across a 32 tile corridor without anything ever being built on the corridor itself.
+    -- Keeping them off it only forced players to give up the tidy placement, not the capability.
+    ['roboport'] = true,
     ['locomotive'] = true,
     ['cargo-wagon'] = true,
     ['fluid-wagon'] = true,
     ['artillery-wagon'] = true,
 }
 
-local function on_wall_chunk(x, y)
+local function on_corridor_chunk(x, y)
     local _, lx = room_of_chunk(floor(x / 32))
     local _, ly = room_of_chunk(floor(y / 32))
     return lx == PITCH - 1 or ly == PITCH - 1
 end
 
--- Corridor rule via the shared entity_placement_restriction module (handles ghosts,
--- refunds and destruction): keep everything off the corridors, and on them only the
--- allowed types (whitelisted by LuaEntity type, not name, for mod compatibility).
+-- Corridor rule via the shared entity_placement_restriction module, which handles ghosts,
+-- robot placement, refunds and destruction: keep everything off the corridors, and on them
+-- only the allowed types (whitelisted by LuaEntity type, not name, for mod compatibility).
 local keep_alive_callback = Token.register(function(entity)
     local e_type = entity.type
     if e_type == 'entity-ghost' then
         e_type = entity.ghost_type
     end
-    if ALLOWED_ON_STRIP[e_type] then
+    if ALLOWED_ON_CORRIDOR[e_type] then
         return true
     end
     local pos = entity.position
-    return not on_wall_chunk(pos.x, pos.y)
+    return not on_corridor_chunk(pos.x, pos.y)
 end)
 
 local function on_restricted_destroyed(event)
     local player = event.player
     if player and player.valid then
-        player.print('Only rail infrastructure (rails, signals, stations, power poles) and trains can be built on the rail corridors!')
+        player.print('Only rail infrastructure (rails, signals, stations, power poles, roboports) and trains can be built on the rail corridors!')
     end
 end
 
@@ -412,30 +422,59 @@ function Public.register(config)
     Event.add(RestrictEntities.events.on_restricted_entity_destroyed, on_restricted_destroyed)
 end
 
+-- True for tiles in the ore-free band along a room's edge with the corridor. Rooms are
+-- PITCH-1 chunks wide, so a room's outermost chunks are the ones at local offset 0 and
+-- PITCH-2; only those can hold the band, and only on the side facing the corridor.
+local function in_room_margin(x, y)
+    local tx, ty = floor(x), floor(y)
+    local _, lx = room_of_chunk(floor(tx / 32))
+    local _, ly = room_of_chunk(floor(ty / 32))
+    local ox, oy = tx % 32, ty % 32
+
+    if lx == 0 and ox < ROOM_EDGE_MARGIN then
+        return true
+    end
+    if lx == PITCH - 2 and ox >= 32 - ROOM_EDGE_MARGIN then
+        return true
+    end
+    if ly == 0 and oy < ROOM_EDGE_MARGIN then
+        return true
+    end
+    if ly == PITCH - 2 and oy >= 32 - ROOM_EDGE_MARGIN then
+        return true
+    end
+    return false
+end
+
 -- danger-ores main_ores_builder: per tile, pick the room's dominant-ore shape
 function Public.main_ores_builder(config)
     local main_ores = config.main_ores
 
     return function(tile_builder, ore_builder, spawn_shape, water_shape, _)
         local shapes = {}
+        -- Same ground, no ore entity: used for the room-edge band so the tiles still look like
+        -- the room's ore field but can be built on straight away.
+        local bare_shapes = {}
         for _, ore_data in ipairs(main_ores) do
             local land = tile_builder(ore_data.tiles)
             local ratios = ore_data.ratios
             local weighted = b.prepare_weighted_array(ratios)
             local ore = ore_builder(ore_data.name, ore_data.start, ratios, weighted)
             shapes[#shapes + 1] = b.apply_entity(land, ore)
+            bare_shapes[#bare_shapes + 1] = land
         end
 
         local function rooms(x, y, world)
             local ri = floor((floor(x / 32) + 2) / PITCH)
             local rj = floor((floor(y / 32) + 2) / PITCH)
+            local set = in_room_margin(x, y) and bare_shapes or shapes
             if ri == 0 and rj == 0 then
                 -- spawn room splits the main ores across its quadrants
                 local quadrant = ((x >= 0) and 1 or 0) + ((y >= 0) and 2 or 0)
-                return shapes[quadrant % #shapes + 1](x, y, world)
+                return set[quadrant % #set + 1](x, y, world)
             end
             local ore_index = data.room_ore[ri .. '/' .. rj] or 1
-            return shapes[ore_index](x, y, world)
+            return set[ore_index](x, y, world)
         end
 
         return b.any { spawn_shape, water_shape, rooms }
