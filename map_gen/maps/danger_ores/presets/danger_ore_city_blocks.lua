@@ -13,8 +13,8 @@ ScenarioInfo.add_map_extra_info([[
   double-track network: continuous lines ring every room and meet at a
   signalled roundabout on every corner, and the rails are yours --
   extend them, reroute them, mine them. Rails, signals, train stops,
-  power poles and trains are the only things buildable on the
-  corridors, and belts cannot cross them: trains are your logistics.
+  power poles, roboports and trains are the only things buildable on
+  the corridors, and belts cannot cross them: trains move the tonnage.
 ]])
 
 local starting_items = Config.player_create.starting_items
@@ -25,7 +25,9 @@ starting_items[#starting_items + 1] = { count = 1, name = 'locomotive' }
 starting_items[#starting_items + 1] = { count = 2, name = 'cargo-wagon' }
 starting_items[#starting_items + 1] = { count = 50, name = 'coal' }
 
-local main_ores = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+-- Half the canonical density: a room is 4x4 chunks of solid single-ore field, so at full
+-- richness one room outlasts anything you can build in it and clearing ground stops mattering.
+local main_ores = require('map_gen.maps.danger_ores.config.vanilla_ores'):scale_richness(0.5)
 
 DOC.biter_drops.enabled = false
 DOC.scenario_name = 'danger-ore-city-blocks'
