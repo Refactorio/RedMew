@@ -177,10 +177,7 @@ end
 
 --- The item to hand back for a destroyed entity, quality preserved.
 -- Derived from the entity prototype rather than the build event, because robot build events
--- carry no consumed_items at all, and because consumed_items.get_contents() returns plain
--- ItemWithQualityCount tables ({name, quality, count}) with no `valid` field - the old
--- `stack.valid` guard was therefore never true and every destroyed entity was silently
--- deleted with no refund.
+-- carry no consumed_items at all.
 local function placement_stack(entity)
     local items = entity.prototype.items_to_place_this
     if not items or #items == 0 then
