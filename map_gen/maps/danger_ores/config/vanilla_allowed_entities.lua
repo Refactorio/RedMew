@@ -13,8 +13,6 @@ return {
     ['tile-ghost'] = true,
     ['electric-pole'] = true,
     ['mining-drill'] = true,
-    -- Lamps light the ore field you are standing on; they take no ground the factory
-    -- wants and give nothing away, they just make the map readable at night.
     ['lamp'] = true,
 
     -- vehicles
