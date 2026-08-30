@@ -41,10 +41,10 @@ function Public.is_nil(value, optional_message)
     error(message, 2)
 end
 
-function Public.table_equal(a, b)
+function Public.table_equal(a, b, optional_message)
     -- Todo write own table equal
     if not table.equals(a, b) then
-        error('tables not equal', 2)
+        error(append_optional_message('tables not equal', optional_message), 2)
     end
 end
 
