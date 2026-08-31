@@ -993,6 +993,41 @@ end)
 
 Gui.on_click(create_poll_confirm_name, create_poll)
 
+--- Removes the poll with the given id and fixes the poll viewer of connected players.
+-- @param id <number>
+-- @return <boolean> true if a poll was removed, false if no poll with the id exists.
+local function remove_poll(id)
+    local removed_index
+    for i, poll_data in pairs(polls) do
+        if poll_data.id == id then
+            table.remove(polls, i)
+            table.remove_element(active_polls, poll_data)
+            removed_index = i
+            break
+        end
+    end
+
+    if not removed_index then
+        return false
+    end
+
+    for _, player in pairs(game.connected_players) do
+        local main_frame = Gui.get_left_element(player, main_frame_name)
+        if main_frame and main_frame.valid then
+            local main_frame_data = Gui.get_data(main_frame)
+            local poll_index = main_frame_data.poll_index
+
+            if removed_index < poll_index then
+                main_frame_data.poll_index = poll_index - 1
+            end
+
+            update_poll_viewer(main_frame_data)
+        end
+    end
+
+    return true
+end
+
 Gui.on_click(create_poll_delete_name, function(event)
     local player = event.player
     local data = Gui.get_data(event.element)
@@ -1004,17 +1039,7 @@ Gui.on_click(create_poll_delete_name, function(event)
 
     player_create_poll_data[player.index] = nil
 
-    local removed_index
-    for i, p in pairs(polls) do
-        if p == poll then
-            table.remove(polls, i)
-            table.remove_element(active_polls, p)
-            removed_index = i
-            break
-        end
-    end
-
-    if not removed_index then
+    if not remove_poll(poll.id) then
         return
     end
 
@@ -1023,18 +1048,6 @@ Gui.on_click(create_poll_delete_name, function(event)
     for _, p in pairs(game.connected_players) do
         if not no_notify_players[p.index] then
             p.print(message)
-        end
-
-        local main_frame = Gui.get_left_element(player, main_frame_name)
-        if main_frame and main_frame.valid then
-            local main_frame_data = Gui.get_data(main_frame)
-            local poll_index = main_frame_data.poll_index
-
-            if removed_index < poll_index then
-                main_frame_data.poll_index = poll_index - 1
-            end
-
-            update_poll_viewer(main_frame_data)
         end
     end
 end)
@@ -1361,6 +1374,8 @@ function Class.get_poll_data(id)
 
     return nil
 end
+
+Class.remove_poll = remove_poll
 
 local function poll_command(args)
     local param = args.poll

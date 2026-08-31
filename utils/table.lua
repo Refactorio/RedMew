@@ -90,6 +90,18 @@ function table.array_contains(t, e)
     return index_of_in_array(t, e) and true or false
 end
 
+--- Returns a sorted copy of the given array, leaving the original untouched.
+-- @param array <table> arrayed table
+-- @returns <table> a new sorted array
+function table.sorted_copy(array)
+    local sorted = {}
+    for i, v in pairs(array) do
+        sorted[i] = v
+    end
+    table.sort(sorted)
+    return sorted
+end
+
 --- Adds an element into a specific index position while shuffling the rest down
 -- @param t <table> to add into
 -- @param index <number> the position in the table to add to
