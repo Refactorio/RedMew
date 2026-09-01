@@ -37,5 +37,42 @@ Are you a Content Creator looking to play a RedMew scenario? [Visit the Content 
 If you wish to contribute, don't hesitate to make a Pull Request or open an issue. When in doubt, you can always ask
 on [Discord](http://refactorio.de/discord).
 
+## Linting
+The repository is linted with [luacheck](https://github.com/mpeterv/luacheck) in CI (see
+[.github/workflows/CI.yml](.github/workflows/CI.yml)) using the project's [.luacheckrc](.luacheckrc), which contains
+all required Factorio-specific definitions. Version 0.23.0 matches what CI uses.
+
+### Installing luacheck
+
+**Windows (no Lua/LuaRocks required):**
+1. Download `luacheck.exe` from the [0.23.0 release](https://github.com/mpeterv/luacheck/releases/tag/0.23.0)
+   (under "Assets").
+2. Place it in a folder, e.g. `%LOCALAPPDATA%\luacheck`.
+3. Add that folder to your `PATH` (Settings > "Edit the system environment variables" > Environment Variables, or
+   in PowerShell: `[Environment]::SetEnvironmentVariable('Path', "$env:Path;$env:LOCALAPPDATA\luacheck", 'User')`).
+4. Open a new terminal and verify with `luacheck --version`.
+
+**Linux / macOS (requires Lua and [LuaRocks](https://luarocks.org)):**
+```
+luarocks install luacheck 0.23.0
+```
+
+### Running luacheck
+From the repository root:
+
+```
+luacheck .
+```
+
+This is exactly what CI runs (0 warnings / 0 errors is the passing state). Useful variations:
+
+```
+luacheck features/market.lua   # check a single file (faster feedback)
+luacheck . --cache             # cache results to speed up repeat runs
+```
+
+**VS Code:** a `luacheck (same as CI)` task is provided in [.vscode/tasks.json](.vscode/tasks.json) — run it with
+`Ctrl+Shift+B` (or `Terminal > Run Build Task`). Warnings appear in the Problems panel with clickable locations.
+
 ## License
 The RedMew codebase is licensed under the [GPL3 License](LICENSE).
