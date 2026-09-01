@@ -12,7 +12,6 @@ ScenarioInfo.add_map_extra_info([[
 DOC.scenario_name = 'danger-ore-bob'
 DOC.compatibility.redmew_data.remove_resource_patches = false
 DOC.game.technology_price_multiplier = 10
-DOC.game.peaceful_mode = false
 DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.compatibility.bob.ores'
 DOC.map_config.resource_patches_config = require 'map_gen.maps.danger_ores.compatibility.bob.resource_patches'
 DOC.map_config.spawn_shape = B.circle(40)
