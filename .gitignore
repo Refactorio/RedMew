@@ -1,2 +1,3 @@
 /map_selection.lua
-.vscode
+.vscode/*
+!.vscode/tasks.json

@@ -1,5 +1,6 @@
 -- luacheck: globals commands
 local Event = require 'utils.event'
+local EventCore = require 'utils.event_core'
 local Utils = require 'utils.core'
 local Timestamp = require 'utils.timestamp'
 local ErrorLogging = require 'utils.error_logging'
@@ -20,6 +21,8 @@ local xpcall = xpcall
 local Command = {}
 
 local command_list = {}
+-- Stores the handler of each registered command so tests can raise commands through Command._raise_command
+local command_store = {}
 
 local deprecated_command_alternatives = {
     ['dc'] = 'sc',
@@ -149,128 +152,126 @@ function Command.add(command_name, options, callback)
 
     local help_text = {'command.help_text_format', (custom_help_text or argument_list), description, extra}
 
-    commands.add_command(
-        command_name,
-        help_text,
-        function(command)
-            local print  -- custom print reference in case no player is present
-            local player_index = command.player_index
-            local player = nil
+    local function execute(command)
+        local print  -- custom print reference in case no player is present
+        local player_index = command.player_index
+        local player = nil
 
-            if player_index ~= nil and player_index ~= 0 then
-                player = game.get_player(player_index)
+        if player_index ~= nil and player_index ~= 0 then
+            player = game.get_player(player_index)
+        end
+
+        local player_name = player and player.valid and player.name or '<server>'
+        if not player or not player.valid then
+            print = log
+
+            if not allowed_by_server then
+                print({'command.not_allowed_by_server', command_name})
+                return
             end
+        else
+            print = player.print
 
-            local player_name = player and player.valid and player.name or '<server>'
-            if not player or not player.valid then
-                print = log
-
-                if not allowed_by_server then
-                    print({'command.not_allowed_by_server', command_name})
-                    return
-                end
-            else
-                print = player.print
-
-                if not allowed_by_player then
-                    print({'command.not_allowed_by_players', command_name})
-                    return
-                end
-
-                if Rank.less_than(player_name, required_rank) then
-                    print({'command.higher_rank_needed', command_name, get_rank_name(required_rank)})
-                    return
-                end
-
-                if donator_only and not Donator.is_donator(player_name) then
-                    print({'command.not_allowed_by_non_donators', command_name})
-                    return
-                end
-            end
-
-            local named_arguments = {}
-            local from_command = {}
-            local raw_parameter_index = 1
-            for param in gmatch(command.parameter or '', '%S+') do
-                if capture_excess_arguments and raw_parameter_index == argument_list_size then
-                    if not from_command[raw_parameter_index] then
-                        from_command[raw_parameter_index] = param
-                    else
-                        from_command[raw_parameter_index] = from_command[raw_parameter_index] .. ' ' .. param
-                    end
-                else
-                    from_command[raw_parameter_index] = param
-                    raw_parameter_index = raw_parameter_index + 1
-                end
-            end
-
-            local errors = {}
-
-            for index, argument in pairs(arguments) do
-                local parameter = from_command[index]
-
-                if not parameter then
-                    for default_value_name, default_value in pairs(default_values) do
-                        if default_value_name == argument then
-                            parameter = default_value
-                            break
-                        end
-                    end
-                end
-
-                if parameter == nil then
-                    insert(errors, {'command.fail_missing_argument', argument, command_name})
-                else
-                    named_arguments[argument] = parameter
-                end
-            end
-
-            local return_early = false
-
-            for _, error in pairs(errors) do
-                return_early = true
-                print(error)
-            end
-
-            if return_early then
+            if not allowed_by_player then
+                print({'command.not_allowed_by_players', command_name})
                 return
             end
 
-            if log_command then
-                local tick = 'pre-game'
-                if game then
-                    tick = Utils.format_time(game.tick)
-                end
-                local server_time = Server.get_current_time()
-                if server_time then
-                    server_time = format('(Server time: %s)', Timestamp.to_string(server_time))
-                else
-                    server_time = ''
-                end
-                log({'command.log_entry', server_time, tick, (required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)})
+            if Rank.less_than(player_name, required_rank) then
+                print({'command.higher_rank_needed', command_name, get_rank_name(required_rank)})
+                return
             end
 
-            local success, result = xpcall(
-                function()
-                    callback(named_arguments, player, command.tick)
-                end,
-                ErrorLogging.error_handler
-            )
-
-            if not success then
-                local serialized_arguments = serialize(named_arguments)
-                if _DEBUG then
-                    print({'command.error_while_running_debug', player_name, command_name, serialized_arguments})
-                    print(result)
-                    return
-                end
-
-                print({'command.warn_player_of_error', command_name})
-                local err = {'command.error_log', command_name, serialized_arguments, result}
-                log(err)
+            if donator_only and not Donator.is_donator(player_name) then
+                print({'command.not_allowed_by_non_donators', command_name})
+                return
             end
         end
-    )
+
+        local named_arguments = {}
+        local from_command = {}
+        local raw_parameter_index = 1
+        for param in gmatch(command.parameter or '', '%S+') do
+            if capture_excess_arguments and raw_parameter_index == argument_list_size then
+                if not from_command[raw_parameter_index] then
+                    from_command[raw_parameter_index] = param
+                else
+                    from_command[raw_parameter_index] = from_command[raw_parameter_index] .. ' ' .. param
+                end
+            else
+                from_command[raw_parameter_index] = param
+                raw_parameter_index = raw_parameter_index + 1
+            end
+        end
+
+        local errors = {}
+
+        for index, argument in pairs(arguments) do
+            local parameter = from_command[index]
+
+            if not parameter then
+                for default_value_name, default_value in pairs(default_values) do
+                    if default_value_name == argument then
+                        parameter = default_value
+                        break
+                    end
+                end
+            end
+
+            if parameter == nil then
+                insert(errors, {'command.fail_missing_argument', argument, command_name})
+            else
+                named_arguments[argument] = parameter
+            end
+        end
+
+        local return_early = false
+
+        for _, error in pairs(errors) do
+            return_early = true
+            print(error)
+        end
+
+        if return_early then
+            return
+        end
+
+        if log_command then
+            local tick = 'pre-game'
+            if game then
+                tick = Utils.format_time(game.tick)
+            end
+            local server_time = Server.get_current_time()
+            if server_time then
+                server_time = format('(Server time: %s)', Timestamp.to_string(server_time))
+            else
+                server_time = ''
+            end
+            log({'command.log_entry', server_time, tick, (required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)})
+        end
+
+        local success, result = xpcall(
+            function()
+                callback(named_arguments, player, command.tick)
+            end,
+            ErrorLogging.error_handler
+        )
+
+        if not success then
+            local serialized_arguments = serialize(named_arguments)
+            if _DEBUG then
+                print({'command.error_while_running_debug', player_name, command_name, serialized_arguments})
+                print(result)
+                return
+            end
+
+            print({'command.warn_player_of_error', command_name})
+            local err = {'command.error_log', command_name, serialized_arguments, result}
+            log(err)
+        end
+    end
+
+    commands.add_command(command_name, help_text, execute)
 
     command_list[command_name] = {
         name = command_name,
@@ -286,6 +287,8 @@ function Command.add(command_name, options, callback)
         log_command = log_command,
         rank = required_rank,
     }
+
+    command_store[command_name] = execute
 end
 
 function Command.list()
@@ -320,55 +323,23 @@ local function on_command(event)
     end
 end
 
---- Traps command errors if not in DEBUG.
---[[ FIXME:
-if not _DEBUG then
-    local old_add_command = commands.add_command
-    commands.add_command =
-        function(name, desc, func)
-        old_add_command(
-            name,
-            desc,
-            function(cmd)
-                local success, error = pcall(func, cmd)
-                if not success then
-                    log(error)
-                    Game.player_print({'command.failed_command', cmd.name})
-                end
-            end
-        )
-    end
-end
-]]
-
 Event.add(defines.events.on_console_command, on_command)
 
--- Backdoor for testing
---[[ FIXME:
-if _DEBUG then
-    local EventCore = require 'utils.event_core'
-
-    local commands_store = {}
-    _G.commands_store = commands_store
-
-    local old_add_command = commands.add_command
-    commands.add_command = function(name, desc, func)
-        old_add_command(name, desc, func)
-        commands_store[name] = func
+--- Backdoor for testing: raises a command as if it was executed by the given player.
+function Command._raise_command(name, player_index, parameter)
+    if not _DEBUG then
+        error('Command._raise_command is only available when _DEBUG is true.', 2)
     end
 
-    function Command._raise_command(name, player_index, parameter)
-        local func = commands_store[name] or error('command \'' .. name .. '\' not found.', 2)
-        func({name = name, tick = game.tick, player_index = player_index, parameter = parameter })
+    local func = command_store[name] or error('command \'' .. name .. '\' not found.', 2)
+    func({name = name, tick = game.tick, player_index = player_index, parameter = parameter})
 
-        EventCore.on_event({
-            name = defines.events.on_console_command,
-            tick = game.tick,
-            player_index = player_index,
-            command = name,
-            parameters = parameter })
-    end
+    EventCore.on_event({
+        name = defines.events.on_console_command,
+        tick = game.tick,
+        player_index = player_index,
+        command = name,
+        parameters = parameter})
 end
-]]
 
 return Command

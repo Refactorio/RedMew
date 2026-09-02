@@ -445,17 +445,34 @@ local function remove_main_frame(main_frame, left, player)
     end
 end
 
+--- Closes the poll main frame for the given player, if it is open.
+local function close_main_frame(player)
+    if not player or not player.valid then
+        return
+    end
+
+    local left = Gui.get_left_flow(player)
+    local main_frame = left[main_frame_name]
+
+    if main_frame then
+        remove_main_frame(main_frame, left, player)
+
+        local main_button = Gui.get_top_element(player, main_button_name)
+        if main_button and main_button.valid then
+            main_button.toggled = false
+        end
+    end
+end
+
 local function toggle(event)
     local player = event.player
     local left = Gui.get_left_flow(player)
     local main_frame = left[main_frame_name]
 
     if main_frame then
-        remove_main_frame(main_frame, left, event.player)
-        local main_button = Gui.get_top_element(player, main_button_name)
-        main_button.toggled = false
+        close_main_frame(player)
     else
-        draw_main_frame(left, event.player)
+        draw_main_frame(left, player)
     end
 end
 
@@ -1376,6 +1393,7 @@ function Class.get_poll_data(id)
 end
 
 Class.remove_poll = remove_poll
+Class.close_main_frame = close_main_frame
 
 local function poll_command(args)
     local param = args.poll

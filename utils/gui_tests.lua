@@ -35,6 +35,12 @@ Declare.module({'utils', 'Gui'}, function()
                 local player = context.player
                 local element = Gui.get_top_flow(player)[name]
 
+                -- Elements owned by other mods (see mod compatibility in utils/gui.lua) only
+                -- exist when those mods are active, skip the test when they don't.
+                if not element or not element.valid then
+                    return
+                end
+
                 if not element.enabled or is_ignored_element(element) then
                     return
                 end

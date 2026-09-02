@@ -117,6 +117,13 @@ Declare.module({'map_gen', 'maps', 'danger_ores', 'modules', 'map_poll'}, functi
             original_try_get_data = nil
         end
 
+        -- Creating a poll opens the poll viewer for connected players (notification
+        -- behavior of Poll.poll). Close it again so tests that assume a clean GUI,
+        -- such as the 'can toggle top buttons' tests, are not affected.
+        for _, player in pairs(game.connected_players) do
+            Poll.close_main_frame(player)
+        end
+
         MapPoll.reset()
         Server.set_start_data({server_id = initial_server_id, server_name = initial_server_name})
         Restart.set_use_map_poll_result_option(initial_use_map_poll_result)
