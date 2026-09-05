@@ -1,3 +1,4 @@
 /map_selection.lua
 .vscode/*
 !.vscode/tasks.json
+/.temp/
