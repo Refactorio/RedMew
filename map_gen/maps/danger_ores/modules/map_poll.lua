@@ -54,6 +54,7 @@ local maps = {
     --{ name = 'danger-ore-bz', display_name = 'Very BZ (default)', mod_pack = mod_packs.danger_ore_bz, tags = {tags.overhaul} },
     { name = 'danger-ore-chessboard', display_name = 'Chessboard (random squares)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-circles', display_name = 'Circles (ore rings)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
+    { name = 'danger-ore-citadel', display_name = 'Citadel (rings of walls with gates)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-city-blocks', display_name = 'City Blocks (train-only blocks)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-coal-maze', display_name = 'Coal Maze (maze)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-collapse', display_name = 'Collapse (increasing hardness)', mod_pack = mod_packs.danger_ore_collapse, tags = {tags.overhaul} },
