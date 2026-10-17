@@ -174,4 +174,5 @@ return [[
   2026-10-17:
       - [DO] Turn ON always day mode
       - [DO:CityBlocks] Allowed legacy and elevated rails to be built on the rail corridors
+      - [DO:Citadel] Added DO/Citadel preset
 ]]
