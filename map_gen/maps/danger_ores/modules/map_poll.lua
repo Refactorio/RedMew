@@ -81,6 +81,7 @@ local maps = {
     { name = 'danger-ore-permanence', display_name = 'Permanence (rebuilding penalty)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     --{ name = 'danger-ore-poor-mans-coal-fields', display_name = 'Poor Man\'s Coal Fields (Alex Gaming\'s map)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-pyfe', display_name = 'Pyanodon Short (PyFe)', mod_pack = mod_packs.danger_ore_py_short, tags = {tags.overhaul} },
+    { name = 'danger-ore-rivers', display_name = 'Rivers (flowing out from spawn)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-safety', display_name = 'Safety Ores (inverse Danger Ores)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
     { name = 'danger-ore-scrap', display_name = 'Scrapworld (no ores, all scraps)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
     { name = 'danger-ore-scrap-maze', display_name = 'Scrapworld Maze (all scraps + maze)', mod_pack = mod_packs.danger_ore_scrap, tags = {tags.overhaul} },
