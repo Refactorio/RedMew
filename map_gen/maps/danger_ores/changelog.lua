@@ -170,4 +170,7 @@ return [[
 
   2026-08-14:
       - [DO] Lamps can now be built on ore
+
+  2026-10-17:
+      - [DO] Turn ON always day mode
 ]]

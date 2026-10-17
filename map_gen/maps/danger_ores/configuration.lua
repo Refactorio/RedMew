@@ -87,7 +87,7 @@ return {
     draw_resource_selection = false,
     technology_price_multiplier = 25,
     manual_mining_speed_modifier = 1,
-    always_day = false,
+    always_day = true,
     peaceful_mode = true,
     enemy_evolution = {
       enabled = true,
