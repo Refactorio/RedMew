@@ -107,13 +107,14 @@ Public.register = function(danger_ores_config)
   end
   if _C.rocket_launched.enabled then
     rocket_launched(_C.rocket_launched)
+    local win_satellite_count = _C.rocket_launched.win_satellite_count or 1000
     ScenarioInfo.set_map_description(table.concat {
       (ScenarioInfo.get_map_description():gsub('%s+$', '')),
       '\n\n  Launching the first satellite kills all the biters.',
-      '\n  Launch ', _C.rocket_launched.win_satellite_count or 1000, ' satellites to win the map.',
+      '\n  Launch ', win_satellite_count, ' satellites to win the map.',
     })
     -- show progress toward the win in the score bar
-    Config.score.goals['satellites-launched'] = _C.rocket_launched.win_satellite_count or 1000
+    Config.score.goals['satellites-launched'] = win_satellite_count
   end
   if _C.terraforming.enabled then
     terraforming(_C.terraforming)
