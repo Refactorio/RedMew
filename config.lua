@@ -106,7 +106,10 @@ storage.config = {
             'rocks-smashed',
             'kills-by-trains',
             'coins-spent'
-        }
+        },
+        -- optional goals for the global scores, as score name => target; a score with a goal
+        -- shows its count as "count / goal" with a progress bar, e.g. ['satellites-launched'] = 1000
+        goals = {}
     },
     -- adds a paint brush
     paint = {

@@ -106,6 +106,8 @@ Public.register = function(danger_ores_config)
   end
   if _C.rocket_launched.enabled then
     rocket_launched(_C.rocket_launched)
+    -- show progress toward the win in the score bar
+    Config.score.goals['satellites-launched'] = _C.rocket_launched.win_satellite_count or 1000
   end
   if _C.terraforming.enabled then
     terraforming(_C.terraforming)

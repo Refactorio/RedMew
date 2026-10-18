@@ -10,7 +10,10 @@ local ScoreTracker = require 'utils.score_tracker'
 local format_number = require 'util'.format_number
 local pairs = pairs
 local concat = table.concat
+local min = math.min
+local format = string.format
 local scores_to_show = storage.config.score.global_to_show
+local score_goals = storage.config.score.goals or {}
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local main_frame_name = Gui.uid_name()
 local main_button_name = Gui.uid_name()
@@ -28,17 +31,30 @@ Global.register(
     end
 )
 
----Creates a map of score name => {captain, tooltip}
+---Creates a map of score name => {caption, tooltip, progress}, where progress (0 to 1) is only
+---set for scores with a goal in storage.config.score.goals
 local function get_global_score_labels()
     local scores = ScoreTracker.get_global_scores_with_metadata(scores_to_show)
     local score_labels = {}
 
     for index = 1, #scores do
         local score_data = scores[index]
-        score_labels[score_data.name] = {
-            caption = concat({score_data.icon, format_number(score_data.value, true)}, ' '),
-            tooltip = score_data.locale_string
-        }
+        local value = score_data.value
+        local goal = score_goals[score_data.name]
+
+        if goal and goal > 0 then
+            local progress = min(value / goal, 1)
+            score_labels[score_data.name] = {
+                caption = concat({score_data.icon, format_number(value, true), '/', format_number(goal, true)}, ' '),
+                tooltip = {'score.goal_tooltip', score_data.locale_string, format_number(value), format_number(goal), format('%.1f', progress * 100)},
+                progress = progress
+            }
+        else
+            score_labels[score_data.name] = {
+                caption = concat({score_data.icon, format_number(value, true)}, ' '),
+                tooltip = score_data.locale_string
+            }
+        end
     end
 
     return score_labels
@@ -57,7 +73,15 @@ local do_redraw_score =
             if frame and frame.valid then
                 local score_table = frame.score_table
                 for score_name, textual_display in pairs(scores) do
-                    score_table[score_name].caption = textual_display.caption
+                    local element = score_table[score_name]
+                    if textual_display.progress then
+                        element.label.caption = textual_display.caption
+                        element.label.tooltip = textual_display.tooltip
+                        element.bar.value = textual_display.progress
+                        element.bar.tooltip = textual_display.tooltip
+                    else
+                        element.caption = textual_display.caption
+                    end
                 end
             end
         end
@@ -126,16 +150,30 @@ local function score_show(top)
     style.horizontal_spacing = 16
 
     for score_name, textual_display in pairs(scores) do
+        local parent = score_table
+        local label_name = score_name
+        if textual_display.progress then
+            -- a score with a goal shows its count next to a progress bar toward it
+            parent = score_table.add({type = 'flow', name = score_name, direction = 'horizontal'})
+            Gui.set_style(parent, {vertical_align = 'center', horizontal_spacing = 8})
+            label_name = 'label'
+        end
+
         local label =
-            score_table.add(
+            parent.add(
             {
                 type = 'label',
-                name = score_name,
+                name = label_name,
                 caption = textual_display.caption,
                 tooltip = textual_display.tooltip
             }
         )
         score_label_style(label, Color.white)
+
+        if textual_display.progress then
+            local bar = parent.add({type = 'progressbar', name = 'bar', value = textual_display.progress, tooltip = textual_display.tooltip})
+            Gui.set_style(bar, {width = 120})
+        end
     end
 end
 
