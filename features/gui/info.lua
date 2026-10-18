@@ -187,6 +187,35 @@ local function get_score_sprite()
     return 'achievement/there-is-no-spoon'
 end
 
+-- The map description and extra info boxes share this much height. The extra info is usually the
+-- map-specific text, so it gets what it needs up to its old fixed 248 and the description, which
+-- used to be capped at 100, gets everything left over.
+local map_text_total_height = 348
+local map_text_extra_info_max_height = 248
+local map_text_minimal_height = 80
+local map_text_line_height = 20
+local map_text_chars_per_line = 60
+
+--- Rough height a text needs in a 490 wide word-wrapped text box: wrapped lines times the line
+--- height. Rich text tags like [item=coal] draw as one icon, so they count as two characters.
+local function estimate_map_text_height(text)
+    local lines = 0
+    text = (text or ''):gsub('%s+$', '')
+    for line in (text .. '\n'):gmatch('(.-)\n') do
+        local visible = line:gsub('%[.-%]', 'xx')
+        lines = lines + math.max(1, math.ceil(#visible / map_text_chars_per_line))
+    end
+    return lines * map_text_line_height + 16
+end
+
+--- Heights for the description and extra info boxes: the extra info gets what it needs (at
+--- least the minimal height, at most its old fixed height) and the description gets the rest.
+local function map_text_heights(extra_info)
+    local extra_info_height = estimate_map_text_height(extra_info)
+    extra_info_height = math.min(math.max(extra_info_height, map_text_minimal_height), map_text_extra_info_max_height)
+    return map_text_total_height - extra_info_height, extra_info_height
+end
+
 local pages = {
     {
         tab_button = function(parent)
@@ -354,11 +383,11 @@ local pages = {
             map_description_textbox.read_only = read_only
             map_description_textbox.word_wrap = true
 
+            local description_height, extra_info_height = map_text_heights(editable_info[map_extra_info_key])
+
             local map_description_textbox_style = map_description_textbox.style
             map_description_textbox_style.width = 490
-            map_description_textbox_style.minimal_height = 80
-            map_description_textbox_style.vertically_stretchable = true
-            map_description_textbox_style.maximal_height = 100
+            map_description_textbox_style.height = description_height
 
             Gui.set_data(map_description_textbox, map_description_key)
 
@@ -373,7 +402,7 @@ local pages = {
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
             map_extra_info_textbox_style.width = 490
-            map_extra_info_textbox_style.height = 248
+            map_extra_info_textbox_style.height = extra_info_height
 
             Gui.set_data(map_extra_info_textbox, map_extra_info_key)
         end
