@@ -28,7 +28,6 @@ DOC.map_config.no_resource_patch_shape = B.square_diamond(80 * 2)
 DOC.map_config.spawn_shape = B.square_diamond(36 * 2)
 DOC.map_config.spawn_tile = 'landfill'
 DOC.map_config.start_ore_shape = B.square_diamond(44 * 2)
-DOC.rocket_launched.win_satellite_count = 100
 DOC.map_gen_settings.settings = H.empty_map_settings{
   'infinite-omnite',
   'omnite',
