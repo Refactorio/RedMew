@@ -33,6 +33,13 @@ return function(config)
             return nil
         end
 
+        -- Worms and spawners both need this roll, and most tiles fail it, so it comes before
+        -- the noise, which then only runs for the few that pass.
+        local chance = min(max_chance, d * factor)
+        if random() >= chance then
+            return
+        end
+
         local threshold = 1 - d * m
         threshold = max(threshold, 0.3)
 
@@ -53,24 +60,17 @@ return function(config)
                 lvl = 4
             end
 
-            local chance = min(max_chance, d * factor)
-
-            if random() < chance then
-                local worm_id
-                if d > 1000 then
-                    local power = 1000 / d
-                    worm_id = ceil((random() ^ power) * lvl)
-                else
-                    worm_id = random(lvl)
-                end
-                return { name = worm_names[worm_id] }
+            local worm_id
+            if d > 1000 then
+                local power = 1000 / d
+                worm_id = ceil((random() ^ power) * lvl)
+            else
+                worm_id = random(lvl)
             end
+            return { name = worm_names[worm_id] }
         else
-            local chance = min(max_chance, d * factor)
-            if random() < chance then
-                local spawner_id = random(#spawner_names)
-                return { name = spawner_names[spawner_id] }
-            end
+            local spawner_id = random(#spawner_names)
+            return { name = spawner_names[spawner_id] }
         end
     end
 end
