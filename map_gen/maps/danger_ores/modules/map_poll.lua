@@ -49,6 +49,7 @@ local tags = {
 local maps = {
     { name = 'danger-ore-3way', display_name = '3-Way (T-shape)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-angel', display_name = 'Angel\'s mods (default)', mod_pack = mod_packs.danger_ore_angel, tags = {tags.overhaul} },
+    { name = 'danger-ore-archipelago', display_name = 'Archipelago (ore islands, landfill the sea)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-bob', display_name = 'Bob\'s mods (default)', mod_pack = mod_packs.danger_ore_bob, tags = {tags.overhaul} },
     { name = 'danger-ore-bob-angel', display_name = 'Bob\'s + Angel\'s mods (default)', mod_pack = mod_packs.danger_ore_bob_angel, tags = {tags.overhaul} },
     --{ name = 'danger-ore-bz', display_name = 'Very BZ (default)', mod_pack = mod_packs.danger_ore_bz, tags = {tags.overhaul} },

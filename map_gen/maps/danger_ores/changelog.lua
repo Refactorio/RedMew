@@ -176,4 +176,5 @@ return [[
       - [DO:CityBlocks] Allowed legacy and elevated rails to be built on the rail corridors
       - [DO:Rivers] Added DO/Rivers preset
       - [DO:Citadel] Added DO/Citadel preset
+      - [DO:Archipelago] Added DO/Archipelago preset
 ]]
