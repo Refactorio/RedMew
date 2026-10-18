@@ -177,4 +177,7 @@ return [[
       - [DO:Rivers] Added DO/Rivers preset
       - [DO:Citadel] Added DO/Citadel preset
       - [DO:Archipelago] Added DO/Archipelago preset
+
+  2026-10-18:
+      - [DO:FaultLines] Added DO/FaultLines preset
 ]]

@@ -62,6 +62,7 @@ local maps = {
     --{ name = 'danger-ore-exotic-industries', display_name = 'Exotic Industries (default)', mod_pack = mod_packs.danger_ore_ei, tags = {tags.overhaul} },
     --{ name = 'danger-ore-exotic-industries-spiral', display_name = 'Exotic Industries Spiral (without void)', mod_pack = mod_packs.danger_ore_ei, tags = {tags.overhaul} },
     { name = 'danger-ore-expanse', display_name = 'Expanse (feed Hungry Chests to expand)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
+    { name = 'danger-ore-fault-lines', display_name = 'Fault Lines (cracks belts cross underground)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-for-the-swarm', display_name = 'Honeycomb-gradient (smooth ore ratios)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-gradient', display_name = 'Gradient (smooth ore ratios)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-grid-factory', display_name = 'Grid Factory (squares)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
