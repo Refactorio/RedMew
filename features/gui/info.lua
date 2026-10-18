@@ -192,11 +192,12 @@ end
 local map_text_width = 490
 local map_name_maximal_height = 30
 
--- The map description and extra info boxes share this much height. The extra info is usually the
--- map-specific text, so it gets what it needs up to its old fixed 248 and the description, which
--- used to be capped at 100, gets everything left over.
-local map_text_total_height = 348
-local map_extra_info_maximal_height = 248
+-- The map description and extra info boxes share this much height: the old 100 + 248 made the
+-- tab about 10 px taller than the dialog has room for, pushing the Close button down. The extra
+-- info is usually the map-specific text, so it gets what it needs up to 236, which still leaves
+-- the description its old 100, and the description gets everything left over.
+local map_text_total_height = 336
+local map_extra_info_maximal_height = 236
 local map_text_minimal_height = 80
 local map_text_line_height = 20
 -- the default font averages about 8 px per character
@@ -225,7 +226,7 @@ local scroll_to_top_token = Token.register(function(elements)
 end)
 
 --- Heights for the description and extra info boxes: the extra info gets what it needs (at
---- least the minimal height, at most its old fixed height) and the description gets the rest.
+--- least the minimal height, at most map_extra_info_maximal_height) and the description gets the rest.
 local function map_text_heights(extra_info)
     local extra_info_height = estimate_map_text_height(extra_info)
     extra_info_height = math.min(math.max(extra_info_height, map_text_minimal_height), map_extra_info_maximal_height)
