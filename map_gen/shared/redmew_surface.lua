@@ -91,7 +91,8 @@ local global_data = {
     surface = nil,
     first_player_position_check_override = nil,
     spawn_position = nil,
-    island_tile = nil
+    island_tile = nil,
+    clearing = nil
 }
 
 Global.register(
@@ -205,6 +206,11 @@ local function get_or_create_surface()
     end
 end
 
+local function generate_spawn_chunks(surface)
+    surface.request_to_generate_chunks({0, 0}, 4)
+    surface.force_generate_chunk_requests()
+end
+
 local function initialize_surface()
     local surface = global_data.surface
     if not surface then
@@ -212,16 +218,18 @@ local function initialize_surface()
     end
 
     if config.use_default then
+        -- clear() only takes effect at the end of the tick and deletes every chunk generated
+        -- before then, so the spawn chunks are generated once it has happened, in
+        -- surface_cleared. Until then Public.is_clearing tells map generators to skip chunks.
+        global_data.clearing = true
         surface.clear(true)
     else
         -- Hide the vanilla surface to all forces
         for _, force in pairs(game.forces) do
             force.set_surface_hidden(vanilla_surface_name, true)
         end
+        generate_spawn_chunks(surface)
     end
-
-    surface.request_to_generate_chunks({0, 0}, 4)
-    surface.force_generate_chunk_requests()
 
     local spawn_position = global_data.spawn_position
     if spawn_position then
@@ -247,6 +255,16 @@ local function create_scenario_surface()
     end
 
     initialize_surface()
+end
+
+local function surface_cleared(event)
+    local surface = global_data.surface
+    if not global_data.clearing or not surface or event.surface_index ~= surface.index then
+        return
+    end
+
+    global_data.clearing = nil
+    generate_spawn_chunks(surface)
 end
 
 --- Teleport the player to the redmew surface and if there is no suitable location, create an island
@@ -334,6 +352,14 @@ function Public.set_first_player_position_check_override(bool)
     global_data.first_player_position_check_override = bool
 end
 
+--- Whether the surface is waiting to be cleared at the end of the tick. Chunks generated
+-- meanwhile are deleted by the clear, so map generators can skip them.
+-- @param surface <LuaSurface>
+-- @return boolean
+function Public.is_clearing(surface)
+    return global_data.clearing == true and surface == global_data.surface
+end
+
 --- Allows maps to set a custom spawn position
 -- @param position <table> with x and y keys ex.{x = 5.0, y = 5.0}
 function Public.set_spawn_position(position)
@@ -350,6 +376,7 @@ Event.on_init(create_scenario_surface)
 
 if config.enabled then
     Event.add(defines.events.on_player_created, player_created)
+    Event.add(defines.events.on_surface_cleared, surface_cleared)
 end
 
 return Public

@@ -46,7 +46,7 @@ return function(config)
     end
 
     local function on_chunk(event)
-        if surface ~= event.surface then
+        if surface ~= event.surface or RS.is_clearing(surface) then
             return
         end
 

@@ -1,6 +1,7 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local insert = table.insert
 local raise_event = script.raise_event
@@ -316,6 +317,10 @@ local do_chunk = Public.do_chunk
 local schedule_chunk = Public.schedule_chunk
 
 local function on_chunk(event)
+    if RS.is_clearing(event.surface) then
+        return
+    end
+
     if event.tick == 0 then
         do_chunk(event)
     else
@@ -330,7 +335,11 @@ function Public.register()
     end
 
     if _DEBUG then
-        Event.add(defines.events.on_chunk_generated, do_chunk)
+        Event.add(defines.events.on_chunk_generated, function(event)
+            if not RS.is_clearing(event.surface) then
+                do_chunk(event)
+            end
+        end)
     else
         Event.add(defines.events.on_chunk_generated, on_chunk)
     end
