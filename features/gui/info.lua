@@ -6,6 +6,7 @@ local Rank = require 'features.rank_system'
 local PlayerRewards = require 'utils.player_rewards'
 local Server = require 'features.server'
 local Token = require 'utils.token'
+local Task = require 'utils.task'
 local Color = require 'resources.color_presets'
 
 local format = string.format
@@ -208,6 +209,16 @@ local function estimate_map_text_height(text)
     return lines * map_text_line_height + 16
 end
 
+-- A text box opens scrolled to the end of its text, and scrolling it while it is created has no
+-- effect, so the map text boxes are scrolled to the top on the next tick.
+local scroll_to_top_token = Token.register(function(elements)
+    for _, element in pairs(elements) do
+        if element.valid then
+            element.scroll_to_top()
+        end
+    end
+end)
+
 --- Heights for the description and extra info boxes: the extra info gets what it needs (at
 --- least the minimal height, at most its old fixed height) and the description gets the rest.
 local function map_text_heights(extra_info)
@@ -405,6 +416,8 @@ local pages = {
             map_extra_info_textbox_style.height = extra_info_height
 
             Gui.set_data(map_extra_info_textbox, map_extra_info_key)
+
+            Task.set_timeout_in_ticks(1, scroll_to_top_token, {map_description_textbox, map_extra_info_textbox})
         end
     },
     {
