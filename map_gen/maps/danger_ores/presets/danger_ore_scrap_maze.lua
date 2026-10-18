@@ -33,6 +33,7 @@ DOC.map_config.start_ore_shape = B.translate(B.rectangle(68), 2, 2)
 DOC.maze.enabled = true
 DOC.terraforming.enabled = false
 DOC.game.technology_price_multiplier = 5
+DOC.rocket_launched.win_satellite_count = 750
 DOC.game.on_init = function()
   game.forces.player.technologies['automation'].researched = true
   game.forces.player.technologies['recycling'].researched = true

@@ -25,6 +25,7 @@ DOC.map_config.spawn_shape = B.square_diamond(36 * 2)
 DOC.map_config.spawn_tile = 'landfill'
 DOC.map_config.start_ore_shape = B.square_diamond(44 * 2)
 DOC.game.technology_price_multiplier = 5
+DOC.rocket_launched.win_satellite_count = 750
 DOC.game.on_init = function()
   game.forces.player.technologies['automation'].researched = true
   game.forces.player.technologies['recycling'].researched = true

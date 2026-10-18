@@ -31,7 +31,6 @@ DOC.map_config.spawn_tile = 'landfill'
 DOC.map_config.start_ore_shape = B.translate(B.rectangle(68), 2, 2)
 DOC.maze.enabled = true
 DOC.terraforming.enabled = false
-DOC.rocket_launched.win_satellite_count = 100
 DOC.map_gen_settings.settings = H.empty_map_settings{
   'infinite-omnite',
   'omnite',
