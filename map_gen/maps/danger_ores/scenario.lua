@@ -107,7 +107,7 @@ Public.register = function(danger_ores_config)
   end
   if _C.rocket_launched.enabled then
     rocket_launched(_C.rocket_launched)
-    local win_satellite_count = _C.rocket_launched.win_satellite_count or 1000
+    local win_satellite_count = _C.rocket_launched.win_satellite_count
     ScenarioInfo.set_map_description(table.concat {
       (ScenarioInfo.get_map_description():gsub('%s+$', '')),
       '\n\n  Launching the first satellite kills all the biters.',
