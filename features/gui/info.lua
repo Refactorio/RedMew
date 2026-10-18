@@ -6,6 +6,7 @@ local Rank = require 'features.rank_system'
 local PlayerRewards = require 'utils.player_rewards'
 local Server = require 'features.server'
 local Token = require 'utils.token'
+local Task = require 'utils.task'
 local Color = require 'resources.color_presets'
 
 local format = string.format
@@ -187,6 +188,51 @@ local function get_score_sprite()
     return 'achievement/there-is-no-spoon'
 end
 
+-- Map Info tab: width of the name, description and extra info boxes, and the name box's height.
+local map_text_width = 490
+local map_name_maximal_height = 30
+
+-- The map description and extra info boxes share this much height: the old 100 + 248 made the
+-- tab about 10 px taller than the dialog has room for, pushing the Close button down. The extra
+-- info is usually the map-specific text, so it gets what it needs up to 236, which still leaves
+-- the description its old 100, and the description gets everything left over.
+local map_text_total_height = 336
+local map_extra_info_maximal_height = 236
+local map_text_minimal_height = 80
+local map_text_line_height = 20
+-- the default font averages about 8 px per character
+local map_text_chars_per_line = math.floor(map_text_width / 8)
+
+--- Rough height a text needs in a map_text_width wide word-wrapped text box: wrapped lines times the line
+--- height. Rich text tags like [item=coal] draw as one icon, so they count as two characters.
+local function estimate_map_text_height(text)
+    local lines = 0
+    text = (text or ''):gsub('%s+$', '')
+    for line in (text .. '\n'):gmatch('(.-)\n') do
+        local visible = line:gsub('%[.-%]', 'xx')
+        lines = lines + math.max(1, math.ceil(#visible / map_text_chars_per_line))
+    end
+    return lines * map_text_line_height + 16
+end
+
+-- A text box opens scrolled to the end of its text, and scrolling it while it is created has no
+-- effect, so the map text boxes are scrolled to the top on the next tick.
+local scroll_to_top_token = Token.register(function(elements)
+    for _, element in pairs(elements) do
+        if element.valid then
+            element.scroll_to_top()
+        end
+    end
+end)
+
+--- Heights for the description and extra info boxes: the extra info gets what it needs (at
+--- least the minimal height, at most map_extra_info_maximal_height) and the description gets the rest.
+local function map_text_heights(extra_info)
+    local extra_info_height = estimate_map_text_height(extra_info)
+    extra_info_height = math.min(math.max(extra_info_height, map_text_minimal_height), map_extra_info_maximal_height)
+    return map_text_total_height - extra_info_height, extra_info_height
+end
+
 local pages = {
     {
         tab_button = function(parent)
@@ -340,8 +386,8 @@ local pages = {
             map_name_textbox.read_only = read_only
 
             local map_name_textbox_style = map_name_textbox.style
-            map_name_textbox_style.width = 490
-            map_name_textbox_style.maximal_height = 30
+            map_name_textbox_style.width = map_text_width
+            map_name_textbox_style.maximal_height = map_name_maximal_height
 
             Gui.set_data(map_name_textbox, map_name_key)
 
@@ -354,11 +400,11 @@ local pages = {
             map_description_textbox.read_only = read_only
             map_description_textbox.word_wrap = true
 
+            local description_height, extra_info_height = map_text_heights(editable_info[map_extra_info_key])
+
             local map_description_textbox_style = map_description_textbox.style
-            map_description_textbox_style.width = 490
-            map_description_textbox_style.minimal_height = 80
-            map_description_textbox_style.vertically_stretchable = true
-            map_description_textbox_style.maximal_height = 100
+            map_description_textbox_style.width = map_text_width
+            map_description_textbox_style.height = description_height
 
             Gui.set_data(map_description_textbox, map_description_key)
 
@@ -372,10 +418,12 @@ local pages = {
             map_extra_info_textbox.word_wrap = true
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
-            map_extra_info_textbox_style.width = 490
-            map_extra_info_textbox_style.height = 248
+            map_extra_info_textbox_style.width = map_text_width
+            map_extra_info_textbox_style.height = extra_info_height
 
             Gui.set_data(map_extra_info_textbox, map_extra_info_key)
+
+            Task.set_timeout_in_ticks(1, scroll_to_top_token, {map_description_textbox, map_extra_info_textbox})
         end
     },
     {
