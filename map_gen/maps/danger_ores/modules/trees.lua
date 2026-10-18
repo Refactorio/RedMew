@@ -27,8 +27,8 @@ return function(config)
     end
 
     return function(x, y)
-        local tree_noise = perlin_noise(x * scale, y * scale, seed)
-        if tree_noise < threshold or random() < chance then
+        -- The roll fails on most tiles, so it comes before the noise
+        if random() < chance or perlin_noise(x * scale, y * scale, seed) < threshold then
             return nil
         end
 
