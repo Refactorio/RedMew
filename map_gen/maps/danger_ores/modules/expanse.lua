@@ -67,7 +67,7 @@ return function(config)
     local bounds = b.rectangle(start_size, start_size)
 
     local function on_chunk_generated(event)
-        if surface ~= event.surface then
+        if surface ~= event.surface or RS.is_clearing() then
             return
         end
 
