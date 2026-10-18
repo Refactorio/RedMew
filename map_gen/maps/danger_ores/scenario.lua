@@ -10,8 +10,9 @@ ScenarioInfo.set_map_description([[
   You may not build the factory on ore patches. Exceptions:
       - pipes, underground pipes & pumps
       - belts & underground belts
-      - rails, stations, trains and vehicles
-      - power poles
+      - rails, signals, train stops and trains
+      - cars, tanks and spidertrons
+      - power poles and lamps
       - mining drills and pumpjacks
 
   The map size is restricted to the pollution generated.
@@ -106,6 +107,11 @@ Public.register = function(danger_ores_config)
   end
   if _C.rocket_launched.enabled then
     rocket_launched(_C.rocket_launched)
+    ScenarioInfo.set_map_description(table.concat {
+      (ScenarioInfo.get_map_description():gsub('%s+$', '')),
+      '\n\n  Launching the first satellite kills all the biters.',
+      '\n  Launch ', _C.rocket_launched.win_satellite_count or 1000, ' satellites to win the map.',
+    })
     -- show progress toward the win in the score bar
     Config.score.goals['satellites-launched'] = _C.rocket_launched.win_satellite_count or 1000
   end
