@@ -38,6 +38,13 @@ return function(config)
 
     local bounds = b.rectangle(start_size, start_size)
 
+    -- One chunk of out-of-map tiles, reused for every locked chunk: only the positions change,
+    -- so filling a chunk doesn't build 2048 new tables. set_tiles doesn't keep the table.
+    local void_tiles = {}
+    for i = 1, 32 * 32 do
+        void_tiles[i] = {name = 'out-of-map', position = {0, 0}}
+    end
+
     local function on_chunk(event)
         if surface ~= event.surface then
             return
@@ -49,13 +56,15 @@ return function(config)
         if bounds(x + 0.5, y + 0.5) then
             Generate.do_chunk(event)
         else
-            local tiles = {}
+            local i = 1
             for x1 = x, x + 31 do
                 for y1 = y, y + 31 do
-                    tiles[#tiles + 1] = {name = 'out-of-map', position = {x1, y1}}
+                    local position = void_tiles[i].position
+                    position[1], position[2] = x1, y1
+                    i = i + 1
                 end
             end
-            surface.set_tiles(tiles, true)
+            surface.set_tiles(void_tiles, true)
 
             if (outer_bounds(x + 0.5, y + 0.5)) then
                 chunk_list[#chunk_list + 1] = {left_top = left_top, id = nil}
