@@ -3,6 +3,8 @@
     http://flafla2.github.io/2014/08/09/perlinnoise.html
 ]] --
 
+local floor = math.floor
+
 local Perlin = {}
 local p = {}
 
@@ -32,68 +34,40 @@ for i = 0, 255 do
 end
 
 -- Gradient function finds dot product between pseudorandom gradient vector
--- and the vector from input coordinate to a unit cube vertex
-local dot_product = {
-    [0x0] = function(x, y)
-        return x + y
-    end,
-    [0x1] = function(x, y)
-        return -x + y
-    end,
-    [0x2] = function(x, y)
-        return x - y
-    end,
-    [0x3] = function(x, y, _)
-        return -x - y
-    end,
-    [0x4] = function(x, _, z)
-        return x + z
-    end,
-    [0x5] = function(x, _, z)
-        return -x + z
-    end,
-    [0x6] = function(x, _, z)
-        return x - z
-    end,
-    [0x7] = function(x, _, z)
+-- and the vector from input coordinate to a unit cube vertex. hash % 16 picks one of
+-- Ken Perlin's 12 gradients (4 repeated); a branch tree on its bits keeps it to 4 tests.
+local function grad(hash, x, y, z)
+    local h = hash % 16
+    if h < 8 then
+        if h < 4 then
+            if h < 2 then
+                if h == 0 then return x + y end
+                return -x + y
+            end
+            if h == 2 then return x - y end
+            return -x - y
+        end
+        if h < 6 then
+            if h == 4 then return x + z end
+            return -x + z
+        end
+        if h == 6 then return x - z end
         return -x - z
-    end,
-    [0x8] = function(_, y, z)
-        return y + z
-    end,
-    [0x9] = function(_, y, z)
-        return -y + z
-    end,
-    [0xA] = function(_, y, z)
-        return y - z
-    end,
-    [0xB] = function(_, y, z)
-        return -y - z
-    end,
-    [0xC] = function(x, y, _)
-        return y + x
-    end,
-    [0xD] = function(_, y, z)
-        return -y + z
-    end,
-    [0xE] = function(x, y, _)
-        return y - x
-    end,
-    [0xF] = function(_, y, z)
+    end
+    if h < 12 then
+        if h < 10 then
+            if h == 8 then return y + z end
+            return -y + z
+        end
+        if h == 10 then return y - z end
         return -y - z
     end
-}
-local function grad(hash, x, y, z)
-    return dot_product[bit32.band(hash, 0xF)](x, y, z)
-end
-
--- Fade function is used to smooth final output
-local function fade(t)
-    return t * t * t * (t * (t * 6 - 15) + 10)
-end
-
-local function lerp(t, a, b)
-    return a + t * (b - a)
+    if h < 14 then
+        if h == 12 then return y + x end
+        return -y + z
+    end
+    if h == 14 then return y - x end
+    return -y - z
 end
 
 -- Return range: [-1, 1]
@@ -107,40 +81,46 @@ function Perlin.noise(x, y, z)
     z = z - 0.20474238274619
 
     -- Calculate the "unit cube" that the point asked will be located in
-    local xi = bit32.band(math.floor(x), 255)
-    local yi = bit32.band(math.floor(y), 255)
-    local zi = bit32.band(math.floor(z), 255)
+    local fx, fy, fz = floor(x), floor(y), floor(z)
+    local xi = fx % 256
+    local yi = fy % 256
+    local zi = fz % 256
 
     -- Next we calculate the location (from 0 to 1) in that cube
-    x = x - math.floor(x)
-    y = y - math.floor(y)
-    z = z - math.floor(z)
+    x = x - fx
+    y = y - fy
+    z = z - fz
 
-    -- We also fade the location to smooth the result
-    local u = fade(x)
-    local v = fade(y)
-    local w = fade(z)
+    -- We also fade the location to smooth the result: t^3 * (t * (t * 6 - 15) + 10)
+    local u = x * x * x * (x * (x * 6 - 15) + 10)
+    local v = y * y * y * (y * (y * 6 - 15) + 10)
+    local w = z * z * z * (z * (z * 6 - 15) + 10)
 
     -- Hash all 8 unit cube coordinates surrounding input coordinate
-    local A, AA, AB, AAA, ABA, AAB, ABB, B, BA, BB, BAA, BBA, BAB, BBB
-    A = p[xi] + yi
-    AA = p[A] + zi
-    AB = p[A + 1] + zi
-    AAA = p[AA]
-    ABA = p[AB]
-    AAB = p[AA + 1]
-    ABB = p[AB + 1]
+    local A = p[xi] + yi
+    local AA = p[A] + zi
+    local AB = p[A + 1] + zi
 
-    B = p[xi + 1] + yi
-    BA = p[B] + zi
-    BB = p[B + 1] + zi
-    BAA = p[BA]
-    BBA = p[BB]
-    BAB = p[BA + 1]
-    BBB = p[BB + 1]
+    local B = p[xi + 1] + yi
+    local BA = p[B] + zi
+    local BB = p[B + 1] + zi
 
-    -- Take the weighted average between all 8 unit cube coordinates
-    return lerp(w, lerp(v, lerp(u, grad(AAA, x, y, z), grad(BAA, x - 1, y, z)), lerp(u, grad(ABA, x, y - 1, z), grad(BBA, x - 1, y - 1, z))), lerp(v, lerp(u, grad(AAB, x, y, z - 1), grad(BAB, x - 1, y, z - 1)), lerp(u, grad(ABB, x, y - 1, z - 1), grad(BBB, x - 1, y - 1, z - 1))))
+    local x1, y1, z1 = x - 1, y - 1, z - 1
+
+    -- Take the weighted average between all 8 unit cube coordinates: lerp(t, a, b) = a + t * (b - a)
+    local g1 = grad(p[AA], x, y, z)
+    local x00 = g1 + u * (grad(p[BA], x1, y, z) - g1)
+    g1 = grad(p[AB], x, y1, z)
+    local x10 = g1 + u * (grad(p[BB], x1, y1, z) - g1)
+    local y0 = x00 + v * (x10 - x00)
+
+    g1 = grad(p[AA + 1], x, y, z1)
+    local x01 = g1 + u * (grad(p[BA + 1], x1, y, z1) - g1)
+    g1 = grad(p[AB + 1], x, y1, z1)
+    local x11 = g1 + u * (grad(p[BB + 1], x1, y1, z1) - g1)
+    local y1v = x01 + v * (x11 - x01)
+
+    return y0 + w * (y1v - y0)
 end
 
 return Perlin
