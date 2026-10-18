@@ -259,7 +259,7 @@ end
 
 local function surface_cleared(event)
     local surface = global_data.surface
-    if not global_data.clearing or not surface or event.surface_index ~= surface.index then
+    if not global_data.clearing or not (surface and surface.valid) or event.surface_index ~= surface.index then
         return
     end
 
@@ -352,12 +352,11 @@ function Public.set_first_player_position_check_override(bool)
     global_data.first_player_position_check_override = bool
 end
 
---- Whether the surface is waiting to be cleared at the end of the tick. Chunks generated
--- meanwhile are deleted by the clear, so map generators can skip them.
--- @param surface <LuaSurface>
+--- Whether the redmew surface is waiting to be cleared at the end of the tick. Chunks
+-- generated on it meanwhile are deleted by the clear, so map generators can skip them.
 -- @return boolean
-function Public.is_clearing(surface)
-    return global_data.clearing == true and surface == global_data.surface
+function Public.is_clearing()
+    return global_data.clearing == true
 end
 
 --- Allows maps to set a custom spawn position

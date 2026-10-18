@@ -317,7 +317,7 @@ local do_chunk = Public.do_chunk
 local schedule_chunk = Public.schedule_chunk
 
 local function on_chunk(event)
-    if RS.is_clearing(event.surface) then
+    if RS.is_clearing() and event.surface == RS.get_surface() then
         return
     end
 
@@ -336,7 +336,7 @@ function Public.register()
 
     if _DEBUG then
         Event.add(defines.events.on_chunk_generated, function(event)
-            if not RS.is_clearing(event.surface) then
+            if not (RS.is_clearing() and event.surface == RS.get_surface()) then
                 do_chunk(event)
             end
         end)
