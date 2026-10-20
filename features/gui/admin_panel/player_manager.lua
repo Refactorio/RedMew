@@ -99,7 +99,7 @@ local PLAYER_MANAGEMENT_ITEMS = {
   { name = on_purge_player,     caption = 'Purge player',     admin_only = false, style = 'red_button',   tooltip = { 'cmd_tooltip.purge_player' } },
   { name = on_add_moderator,    caption = 'Add moderator',    admin_only = true,  style = 'green_button', tooltip = { 'cmd_tooltip.add_moderator' } },
   { name = on_remove_moderator, caption = 'Remove moderator', admin_only = true,  style = 'red_button',   tooltip = { 'cmd_tooltip.remove_moderator' } },
-  { name = on_trust_all,        caption = 'Trust all',        admin_only = true,  style = 'green_button', tooltip = { 'cmd_tooltip.trust_all' } },
+  { name = on_trust_all,        caption = 'Trust all',        admin_only = true,  style = 'green_button', tooltip = { 'cmd_tooltip.trust_all' }, no_target = true },
   { name = on_invoke_player,    caption = 'Invoke player',    admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.invoke_player' } },
   { name = on_goto_player,      caption = 'Goto player',      admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.goto_player' } },
   { name = on_spank_player,     caption = 'Spank player',     admin_only = false, style = 'button',       tooltip = { 'cmd_tooltip.spank_player' } },
@@ -163,14 +163,19 @@ local function make_checkbox(parent, params)
   return checkbox
 end
 
-local function make_player_dropdown(parent)
-  local player_index = parent.player_index
+local function update_selection(player_index)
   local player_list = get_player_list(player_index)
   local selection_data = this.player_selection[player_index]
   if selection_data.index > #player_list then
     selection_data.index = 1
   end
   selection_data.name = player_list[selection_data.index]
+  return player_list
+end
+
+local function make_player_dropdown(parent, player_list)
+  local player_index = parent.player_index
+  local selection_data = this.player_selection[player_index]
 
   local selection_flow = parent.add { type = 'flow', direction = 'horizontal' }
   Gui.set_style(selection_flow, { vertical_align = 'center' })
@@ -192,6 +197,10 @@ local function draw_gui(player)
   this.selection_switch[player.index] = this.selection_switch[player.index] or 'none'
   this.player_ban_items[player.index] = this.player_ban_items[player.index] or {}
 
+  local player_list = update_selection(player.index)
+  -- The first entry is the "select player" placeholder, not a player
+  local has_target = this.player_selection[player.index].index > 1
+
   local row_1 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'General actions' }
   local table_1 = row_1.add { type = 'table', column_count = 3 }
   for _, button in pairs(GENERAL_ACTION_ITEMS) do
@@ -205,11 +214,12 @@ local function draw_gui(player)
   local table_2 = row_2.add { type = 'table', column_count = 3 }
   for _, button in pairs(PLAYER_MANAGEMENT_ITEMS) do
     local element = make_button(table_2, button)
+    element.enabled = has_target or button.no_target or false
     if button.admin_only then
       AdminPanel.admin_only(element)
     end
   end
-  make_player_dropdown(row_2)
+  make_player_dropdown(row_2, player_list)
 
   local row_3 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Players kick & ban' }
   local table_3 = row_3.add { type = 'table', column_count = 2 }
@@ -220,7 +230,7 @@ local function draw_gui(player)
       state = Table.contains(this.player_ban_items[player.index], item.caption),
     })
   end
-  make_player_dropdown(row_3)
+  make_player_dropdown(row_3, player_list)
 
   local textbox = row_3.add { type = 'text-box', text = generate_ban_text(player) }
   Gui.set_style(textbox, { minimal_width = 460, maximal_width = 460, minimal_height = 72, horizontally_stretchable = true, vertically_stretchable = true })
@@ -228,9 +238,9 @@ local function draw_gui(player)
 
   local flow_3 = row_3.add { type = 'flow', direction = 'horizontal' }
   Gui.add_pusher(flow_3)
-  local kick_button = flow_3.add { type = 'button', name = on_kick_player, style = 'red_back_button', caption = 'Kick player', tooltip = { 'cmd_tooltip.kick_player' } }
+  local kick_button = flow_3.add { type = 'button', name = on_kick_player, style = 'red_back_button', caption = 'Kick player', tooltip = { 'cmd_tooltip.kick_player' }, enabled = has_target }
   Gui.set_data(kick_button, { textbox = textbox })
-  local ban_button = flow_3.add { type = 'button', name = on_ban_player, style = 'red_confirm_button', caption = 'Ban player', tooltip = { 'cmd_tooltip.ban_player' } }
+  local ban_button = flow_3.add { type = 'button', name = on_ban_player, style = 'red_confirm_button', caption = 'Ban player', tooltip = { 'cmd_tooltip.ban_player' }, enabled = has_target }
   Gui.set_data(ban_button, { textbox = textbox })
   AdminPanel.admin_only(ban_button)
 end
