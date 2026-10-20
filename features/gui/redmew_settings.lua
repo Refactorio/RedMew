@@ -36,7 +36,7 @@ local function player_joined(event)
         return
     end
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
 
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
@@ -101,16 +101,23 @@ local function create_input_element(frame, _type, value)
     return frame.add { type = 'text-box', text = tostring(value) }
 end
 
-local function draw_main_frame(center, player)
+local function draw_main_frame(screen, player)
     local settings = Settings.get_setting_metadata()
-    local settings_frame = center.add({
+    local settings_frame = screen.add({
         type = 'frame',
         name = main_frame_name,
         direction = 'vertical',
-        caption = { 'redmew_settings_gui.frame_title' },
-        style = 'non_draggable_frame',
     })
     Gui.set_style(settings_frame, { width = 500 })
+    settings_frame.auto_center = true
+
+    -- a title bar to drag the window by
+    local title_bar = settings_frame.add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(title_bar, { horizontal_spacing = 8, vertical_align = 'center' })
+    local title = title_bar.add { type = 'label', caption = { 'redmew_settings_gui.frame_title' }, style = 'frame_title' }
+    title.drag_target = settings_frame
+    local dragger = Gui.add_dragger(title_bar, settings_frame)
+    Gui.set_style(dragger, { height = 24, horizontally_stretchable = true })
 
     local inner = settings_frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
 
@@ -189,16 +196,15 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local center = gui.center
-    local main_frame = center[main_frame_name]
+    local screen = player.gui.screen
+    local main_frame = screen[main_frame_name]
     local main_button = Gui.get_top_element(player, main_button_name)
 
     if main_frame then
         main_button.toggled = false
         Gui.destroy(main_frame)
     else
-        draw_main_frame(center, player)
+        draw_main_frame(screen, player)
         main_button.toggled = true
     end
 end
@@ -244,7 +250,7 @@ local function save_changes(event)
 
     Toast.toast_player(player, 5, { 'redmew_settings_gui.save_success_toast_message' })
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
 
     if main_frame then
         Gui.destroy(main_frame)
@@ -264,7 +270,7 @@ local function setting_set(event)
         return
     end
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
     if not main_frame or not main_frame.valid then
         return
     end
