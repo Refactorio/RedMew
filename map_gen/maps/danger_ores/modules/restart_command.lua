@@ -5,9 +5,9 @@ local Restart = require 'features.restart_command'
 local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.danger_ores.modules.map_poll'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
+local OreMined = require 'map_gen.maps.danger_ores.modules.ore_mined'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
-local RS = require 'map_gen.shared.redmew_surface'
 local format_number = require 'util'.format_number
 
 return function(config)
@@ -132,22 +132,7 @@ return function(config)
             end
         end
 
-        local resource_prototypes = prototypes.get_entity_filtered({{filter = 'type', type = 'resource'}})
-        local ore_products = {}
-        for _, ore_prototype in pairs(resource_prototypes) do
-            local mineable_properties = ore_prototype.mineable_properties
-            if mineable_properties.minable and ore_prototype.resource_category == 'basic-solid' then
-                for _, product in pairs(mineable_properties.products) do
-                    ore_products[product.name] = true
-                end
-            end
-        end
-
-        local total_ore = 0
-        local surface_stats = game.forces.player.get_item_production_statistics(RS.get_surface_name())
-        for ore_name in pairs(ore_products) do
-            total_ore = total_ore + (surface_stats.get_input_count(ore_name) or 0)
-        end
+        local _, total_ore = OreMined.get_ore_mined()
 
         local statistics_message = statistics.scenario..' completed!\\n\\n'..
             '**Statistics:**\\n'..
