@@ -92,9 +92,10 @@ local function get_global_score_labels()
                 progress = progress
             }
         else
+            local tooltip = score_data.tooltip
             score_labels[score_data.name] = {
                 caption = concat({score_data.icon, format_number(value, true)}, ' '),
-                tooltip = score_data.locale_string
+                tooltip = tooltip and tooltip(value) or score_data.locale_string
             }
         end
     end
@@ -123,6 +124,7 @@ local do_redraw_score =
                         element.bar.tooltip = textual_display.tooltip
                     else
                         element.caption = textual_display.caption
+                        element.tooltip = textual_display.tooltip
                     end
                 end
             end
@@ -214,7 +216,7 @@ local function score_show(top)
 
         if textual_display.progress then
             local bar = parent.add({type = 'progressbar', name = 'bar', value = textual_display.progress, tooltip = textual_display.tooltip})
-            Gui.set_style(bar, {width = 120})
+            Gui.set_style(bar, {width = 60})
         end
     end
 end

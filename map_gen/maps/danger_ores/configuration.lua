@@ -58,6 +58,9 @@ return {
     wall_thickness = 1, -- in chunks
     cell_size = 3,      -- must be an odd number
   },
+  ore_mined = {
+    enabled = true,
+  },
   prevent_quality_mining = {
     enabled = true,
   },

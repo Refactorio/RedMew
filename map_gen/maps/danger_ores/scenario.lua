@@ -48,6 +48,7 @@ local container_dump         = require 'map_gen.maps.danger_ores.modules.contain
 local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
 local mining_productivity    = require 'map_gen.maps.danger_ores.modules.mining_productivity'.register
 local maze                   = require 'map_gen.maps.danger_ores.modules.maze'
+local ore_mined              = require 'map_gen.maps.danger_ores.modules.ore_mined'.register
 local restart_command        = require 'map_gen.maps.danger_ores.modules.restart_command'
 local rocket_launched        = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 local technologies           = require 'map_gen.maps.danger_ores.modules.technologies'
@@ -95,6 +96,9 @@ Public.register = function(danger_ores_config)
   end
   if _C.maze.enabled then
     maze(_C.maze)
+  end
+  if _C.ore_mined.enabled then
+    ore_mined()
   end
   if _C.prevent_quality_mining.enabled then
     require 'map_gen.maps.danger_ores.modules.prevent_quality_mining'
