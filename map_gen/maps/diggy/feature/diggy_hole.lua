@@ -128,13 +128,25 @@ local artificial_tiles = {
     ['refined-hazard-concrete-right'] = true,
 }
 
+-- What a mined floor tile can leave behind that isn't ground: the cave's void, and the tile the
+-- starting zone is dug out of.
+local not_ground = {
+    ['out-of-map'] = true,
+    ['lab-dark-1'] = true,
+}
+
+--- Mining a floor tile puts back the tile it was laid on, landfill say, by the time this
+-- runs (old_tile is the prototype of the mined tile, not what was under it). Only where that
+-- left something that isn't ground does it get dirt, so a mined floor never opens a hole.
 local function on_mined_tile(surface, tiles)
     local new_tiles = {}
     local count = 0
+    local get_tile = surface.get_tile
     for _, tile in pairs(tiles) do
-        if (artificial_tiles[tile.old_tile.name]) then
+        local position = tile.position
+        if artificial_tiles[tile.old_tile.name] and not_ground[get_tile(position.x, position.y).name] then
             count = count + 1
-            new_tiles[count] = { name = tile.old_tile.hidden_tile or ('dirt-' .. random(1, 7)), position = tile.position }
+            new_tiles[count] = { name = 'dirt-' .. random(1, 7), position = position }
         end
     end
 
