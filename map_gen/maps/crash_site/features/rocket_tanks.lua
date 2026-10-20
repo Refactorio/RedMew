@@ -116,9 +116,9 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         Retailer.set_item(market_id, item)
     end
 
-    -- Interval for each level should decrease 30 from 120 ticks each level. 120, 90, 60, 30.
-    if interval_level > 2 then
-        Event.remove_removable_nth_tick((120-(((interval_level-1)-2)*30)), on_tick)
+    -- Levels 2 to 5 fire every 150, 120, 90 and 60 ticks. Swap the previous level's timer for the new one.
+    if interval_level > 1 then
+        Event.remove_removable_nth_tick(210 - 30 * interval_level, on_tick)
     end
-    Event.add_removable_nth_tick((120-((interval_level-2)*30)), on_tick)
+    Event.add_removable_nth_tick(210 - 30 * (interval_level + 1), on_tick)
 end)
