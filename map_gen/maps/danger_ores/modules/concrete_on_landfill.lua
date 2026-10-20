@@ -32,6 +32,7 @@ return function(config)
 
     local function change_tiles(surface, inventory, tiles)
         local new_tiles = {}
+        local below_landfill = {}
         local refund_count = 0
         for i = 1, #tiles do
             local tile = tiles[i]
@@ -40,7 +41,7 @@ return function(config)
 
             if replace_tiles[old_name] or replace_tiles[surface.get_hidden_tile(position)] then
                 new_tiles[#new_tiles + 1] = {name = replace_tile, position = position}
-                surface.set_hidden_tile(position, 'landfill')
+                below_landfill[#new_tiles] = surface.get_double_hidden_tile(position)
             end
 
             if old_name == replace_tile then
@@ -48,7 +49,16 @@ return function(config)
             end
         end
 
+        -- set_tiles clears the hidden tiles of a floor it replaces, so the landfill, and what
+        -- the landfill was laid on, go back under the new tiles afterwards
         surface.set_tiles(new_tiles)
+        for i = 1, #new_tiles do
+            local position = new_tiles[i].position
+            surface.set_hidden_tile(position, 'landfill')
+            if below_landfill[i] then
+                surface.set_double_hidden_tile(position, below_landfill[i])
+            end
+        end
         if inventory and inventory.valid and refund_count > 0 then
             inventory.insert {name = refund_tile, count = refund_count}
         end
