@@ -45,7 +45,9 @@ local on_global_score_changed = Public.events.on_global_score_changed
 ---@param name string
 ---@param locale_string table
 ---@param icon string
-function Public.register(name, locale_string, icon)
+---@param tooltip function|nil optional, takes the global value and returns the LocalisedString the score bar shows
+---as the tooltip instead of locale_string. It runs whenever the score bar redraws, so it must only read game state.
+function Public.register(name, locale_string, icon, tooltip)
     if _LIFECYCLE ~= _STAGE.control then
         error(format('You can only register score types in the control stage, i.e. not inside events. Tried setting "%s".', name), 2)
     end
@@ -57,7 +59,8 @@ function Public.register(name, locale_string, icon)
     local score = {
         name = name,
         icon = icon,
-        locale_string = locale_string
+        locale_string = locale_string,
+        tooltip = tooltip
     }
 
     score_metadata[name] = score
@@ -271,6 +274,7 @@ function Public.get_global_scores_with_metadata(score_names)
                 name = metadata.name,
                 locale_string = metadata.locale_string,
                 icon = metadata.icon,
+                tooltip = metadata.tooltip,
                 value = memory_global[score_name] or 0
             }
         end
