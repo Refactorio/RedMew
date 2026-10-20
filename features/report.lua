@@ -265,7 +265,7 @@ function Module.jail(target_player, player)
         return
     end
 
-    -- A jailed player can't use the GUI to unjail themselves
+    -- Nobody can jail themselves, whether from the GUI or with /jail
     if target_player == player then
         print({ 'admin_commands.jail_fail_self' })
         return
