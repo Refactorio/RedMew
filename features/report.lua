@@ -265,6 +265,12 @@ function Module.jail(target_player, player)
         return
     end
 
+    -- A jailed player can't use the GUI to unjail themselves
+    if target_player == player then
+        print({ 'admin_commands.jail_fail_self' })
+        return
+    end
+
     local target_name = target_player.name
     local permissions = game.permissions
 
