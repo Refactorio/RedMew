@@ -95,6 +95,10 @@ local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
 
+local jail_popup_name = Gui.uid_name()
+local jail_cancel_button_name = Gui.uid_name()
+local jail_confirm_button_name = Gui.uid_name()
+
 local function lighten_color(color)
     color.r = color.r * 0.6 + 0.4
     color.g = color.g * 0.6 + 0.4
@@ -469,13 +473,14 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, sort_symbol)
-            local caption = { 'player_list.report_caption', sort_symbol }
+        draw_heading = function(parent, sort_symbol, data)
+            -- For admins the column jails instead of reporting
+            local is_admin = data.player.admin
             local label = parent.add {
                 type = 'label',
                 name = report_heading_name,
-                caption = caption,
-                tooltip = { 'player_list.report_tooltip' },
+                caption = { is_admin and 'player_list.jail_caption' or 'player_list.report_caption', sort_symbol },
+                tooltip = { is_admin and 'player_list.jail_tooltip' or 'player_list.report_tooltip' },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -483,17 +488,30 @@ local column_builders = {
 
             return label
         end,
-        draw_cell = function(parent, cell_data)
+        draw_cell = function(parent, cell_data, data)
             local parent_style = parent.style
             parent_style.width = 65
             parent_style.horizontal_align = 'center'
 
+            local viewer = data.player
+            local is_admin = viewer.admin
+            local is_self = cell_data == viewer
+            local tooltip
+            if is_self then
+                tooltip = { is_admin and 'player_list.jail_self_tooltip' or 'player_list.report_self_tooltip' }
+            elseif is_admin then
+                tooltip = { 'player_list.jail_button_tooltip', cell_data.name }
+            else
+                tooltip = { 'player_list.report_button_tooltip', cell_data.name }
+            end
+
             local label = parent.add {
                 type = 'sprite-button',
                 name = report_cell_name,
-                sprite = 'utility/force_editor_icon',
-                tooltip = { 'player_list.report_button_tooltip', cell_data.name },
-                style = 'slot_button_in_shallow_frame'
+                sprite = is_admin and 'utility/not_available' or 'utility/force_editor_icon',
+                tooltip = tooltip,
+                style = 'slot_button_in_shallow_frame',
+                enabled = not is_self,
             }
             Gui.set_style(label, {
                 horizontal_align = 'center',
@@ -642,6 +660,7 @@ local function draw_main_frame(left, player)
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
+        player = player,
         frame = frame,
         heading_table_flow = heading_table_flow,
         cell_table_scroll_pane = cell_table_scroll_pane,
@@ -821,14 +840,70 @@ Gui.on_click(poke_cell_name, function(event)
     end
 end)
 
+local function close_jail_popup(player)
+    local popup = player.gui.center[jail_popup_name]
+    if popup and popup.valid then
+        Gui.destroy(popup)
+    end
+end
+
+local function draw_jail_popup(player, target)
+    close_jail_popup(player)
+
+    local popup = player.gui.center.add {
+        type = 'frame',
+        name = jail_popup_name,
+        direction = 'vertical',
+        caption = { 'player_list.jail_confirm_title', target.name },
+    }
+
+    local message = popup.add { type = 'label', caption = { 'player_list.jail_confirm_message', target.name } }
+    Gui.set_style(message, { single_line = false, maximal_width = 400 })
+
+    local button_flow = popup.add { type = 'flow', direction = 'horizontal', style = 'dialog_buttons_horizontal_flow' }
+    button_flow.add { type = 'button', name = jail_cancel_button_name, caption = { 'player_list.jail_cancel_button' }, style = 'back_button' }
+    local spacer = button_flow.add { type = 'empty-widget' }
+    Gui.set_style(spacer, { horizontally_stretchable = true })
+    local confirm_button = button_flow.add { type = 'button', name = jail_confirm_button_name, caption = { 'player_list.jail_confirm_button' }, style = 'red_confirm_button' }
+
+    Gui.set_data(confirm_button, target.index)
+
+    player.opened = popup
+end
+
 Gui.on_click(report_cell_name, function(event)
     local reporting_player = event.player
     local reported_player = Gui.get_data(event.element)
+    if reported_player == reporting_player then
+        return
+    end
+
     if reporting_player.admin then
-        Report.jail(reported_player, reporting_player)
+        draw_jail_popup(reporting_player, reported_player)
     else
         Report.spawn_reporting_popup(reporting_player, reported_player)
     end
+end)
+
+Gui.on_click(jail_cancel_button_name, function(event)
+    close_jail_popup(event.player)
+end)
+
+Gui.on_custom_close(jail_popup_name, function(event)
+    Gui.destroy(event.element)
+end)
+
+Gui.on_click(jail_confirm_button_name, function(event)
+    local player = event.player
+    local target = game.get_player(Gui.get_data(event.element))
+
+    close_jail_popup(player)
+
+    if not player.admin or not target or not target.valid then
+        return
+    end
+
+    Report.jail(target, player)
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
