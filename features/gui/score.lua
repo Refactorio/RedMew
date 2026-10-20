@@ -216,7 +216,7 @@ local function score_show(top)
 
         if textual_display.progress then
             local bar = parent.add({type = 'progressbar', name = 'bar', value = textual_display.progress, tooltip = textual_display.tooltip})
-            Gui.set_style(bar, {width = 120})
+            Gui.set_style(bar, {width = 60})
         end
     end
 end
