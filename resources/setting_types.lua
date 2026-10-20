@@ -262,7 +262,7 @@ return {
 
             local r, g, b = value.r, value.g, value.b
 
-            local brightness = sqrt(0.241 * r * r + 0.691 * g * g, 0.068 * b * b)
+            local brightness = sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
             brightness = floor(brightness)
 
             if brightness < 50 then
