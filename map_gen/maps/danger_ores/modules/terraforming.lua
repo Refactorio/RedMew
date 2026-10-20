@@ -90,8 +90,9 @@ return function(config)
         if pollution > current_min_pollution then
             fast_remove(chunk_list, index)
 
+            -- the progress text only exists once the chunk has been checked below the threshold
             local obj = data.obj
-            if obj.valid then
+            if obj and obj.valid then
                 obj.destroy()
             end
 
