@@ -1,15 +1,20 @@
 local Color = require 'resources.color_presets'
+local ColorPicker = require 'features.gui.color_picker'
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Settings = require 'utils.redmew_settings'
 local Toast = require 'features.gui.toast'
 local pairs = pairs
+local floor = math.floor
 
 local main_button_name = Gui.uid_name()
 local save_changes_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local Public = {}
+
+-- setting types edited with a color picker instead of a text box
+local color_types = {color = true, chat_color = true}
 
 local function player_created(event)
     local player = game.get_player(event.player_index)
@@ -31,14 +36,33 @@ local function player_joined(event)
         return
     end
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
 
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
     end
 end
 
-local function get_element_value(element)
+---0-255 copy of a color the game gives from 0 to 1, like player.color
+local function to_255(color)
+    return {
+        r = floor(color.r * 255 + 0.5),
+        g = floor(color.g * 255 + 0.5),
+        b = floor(color.b * 255 + 0.5),
+        a = floor((color.a or 1) * 255 + 0.5),
+    }
+end
+
+local function get_element_value(element_data)
+    local element = element_data.input
+    if element_data.color_picker then
+        -- a color the player never set stays unset unless they pick one, so saving other settings
+        -- doesn't start syncing their current color
+        if element_data.unset and not ColorPicker.is_touched(element) then
+            return ''
+        end
+        return ColorPicker.get_color(element)
+    end
     if element.type == 'text-box' then
         return element.text
     end
@@ -77,16 +101,23 @@ local function create_input_element(frame, _type, value)
     return frame.add { type = 'text-box', text = tostring(value) }
 end
 
-local function draw_main_frame(center, player)
+local function draw_main_frame(screen, player)
     local settings = Settings.get_setting_metadata()
-    local settings_frame = center.add({
+    local settings_frame = screen.add({
         type = 'frame',
         name = main_frame_name,
         direction = 'vertical',
-        caption = { 'redmew_settings_gui.frame_title' },
-        style = 'non_draggable_frame',
     })
     Gui.set_style(settings_frame, { width = 500 })
+    settings_frame.auto_center = true
+
+    -- a title bar to drag the window by
+    local title_bar = settings_frame.add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(title_bar, { horizontal_spacing = 8, vertical_align = 'center' })
+    local title = title_bar.add { type = 'label', caption = { 'redmew_settings_gui.frame_title' }, style = 'frame_title' }
+    title.drag_target = settings_frame
+    local dragger = Gui.add_dragger(title_bar, settings_frame)
+    Gui.set_style(dragger, { height = 24, horizontally_stretchable = true })
 
     local inner = settings_frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
 
@@ -111,6 +142,10 @@ local function draw_main_frame(center, player)
     })
 
     local setting_grid = scroll_pane.add { type = 'table', column_count = 2 }
+    -- keep labels at the top of rows made taller by an opened color picker
+    local column_alignments = setting_grid.style.column_alignments
+    column_alignments[1] = 'top-left'
+    column_alignments[2] = 'top-left'
     local player_index = player.index
 
     local data = {}
@@ -119,15 +154,26 @@ local function draw_main_frame(center, player)
         local label = setting_grid.add { type = 'label', caption = setting.locale_string }
         Gui.set_style(label, { horizontally_stretchable = true, height = 35, vertical_align = 'center' })
 
-        local value = Settings.toScalar(name, Settings.get(player_index, name))
+        local raw_value = Settings.get(player_index, name)
+        local value = Settings.toScalar(name, raw_value)
         local input_container = setting_grid.add { type = 'flow' }
-        Gui.set_style(input_container, { height = 35, vertical_align = 'center' })
-        local input = create_input_element(input_container, setting.type, value)
+        local color_picker = color_types[setting.type] or nil
+        local input
+        if color_picker then
+            -- an unset color starts from the player's current one
+            local color = raw_value or to_255(setting.type == 'chat_color' and player.chat_color or player.color)
+            input = ColorPicker.add(input_container, color, player.name)
+        else
+            Gui.set_style(input_container, { height = 35, vertical_align = 'center' })
+            input = create_input_element(input_container, setting.type, value)
+        end
 
         data[name] = {
             label = label,
             input = input,
             previous_value = value,
+            color_picker = color_picker,
+            unset = color_picker and raw_value == nil,
         }
     end
 
@@ -150,16 +196,15 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local center = gui.center
-    local main_frame = center[main_frame_name]
+    local screen = player.gui.screen
+    local main_frame = screen[main_frame_name]
     local main_button = Gui.get_top_element(player, main_button_name)
 
     if main_frame then
         main_button.toggled = false
         Gui.destroy(main_frame)
     else
-        draw_main_frame(center, player)
+        draw_main_frame(screen, player)
         main_button.toggled = true
     end
 end
@@ -175,7 +220,7 @@ local function save_changes(event)
     for name, element_data in pairs(data) do
         local input = element_data.input
         local label = element_data.label
-        local value = get_element_value(input)
+        local value = get_element_value(element_data)
         local validated = Settings.validate(name, value)
 
         if nil ~= validated then
@@ -205,7 +250,7 @@ local function save_changes(event)
 
     Toast.toast_player(player, 5, { 'redmew_settings_gui.save_success_toast_message' })
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
 
     if main_frame then
         Gui.destroy(main_frame)
@@ -225,7 +270,7 @@ local function setting_set(event)
         return
     end
 
-    local main_frame = player.gui.center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
     if not main_frame or not main_frame.valid then
         return
     end
@@ -247,7 +292,14 @@ local function setting_set(event)
         -- for some reason it has been removed already
         return
     end
-    set_element_value(input, Settings.toScalar(setting_name, event.new_value))
+    if element_data.color_picker then
+        if event.new_value then
+            ColorPicker.set_color(input, event.new_value)
+            element_data.unset = false
+        end
+    else
+        set_element_value(input, Settings.toScalar(setting_name, event.new_value))
+    end
     element_data.previous_value = Settings.toScalar(setting_name, event.old_value)
 end
 
