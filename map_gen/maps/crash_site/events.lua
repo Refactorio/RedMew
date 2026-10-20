@@ -253,7 +253,7 @@ local function do_pole(entity)
     local surface = entity.surface
     local position = entity.position
     local x, y = position.x, position.y
-    local d = supply_area_distance / 2
+    local d = supply_area_distance -- already the distance from the pole to the edge of its supply area
     filter.area = {{x - d, y - d}, {x + d, y + d}}
 
     local turrets = surface.find_entities_filtered(filter)
