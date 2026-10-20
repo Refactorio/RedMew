@@ -103,7 +103,7 @@ local function lighten_color(color)
 end
 
 local function format_distance(tiles)
-    return round(tiles * 0.001, 1) .. ' km'
+    return { 'si-unit-kilometer', round(tiles * 0.001, 1) }
 end
 
 local function do_poke_spam_protection(player)
@@ -321,7 +321,7 @@ local column_builders = {
                 type = 'label',
                 name = coin_heading_name,
                 caption = caption,
-                tooltip = 'Coins earned / spent.',
+                tooltip = { 'player_list.coins_tooltip' },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -790,7 +790,8 @@ Gui.on_click(poke_cell_name, function(event)
     player_pokes[poke_player_index] = count
 
     local poke_str = poke_messages[random(#poke_messages)]
-    local message = concat({ '>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<' })
+    -- the poked-with objects are a long list of English jokes, so only the sentence is translated
+    local message = { 'player_list.poke_message', player.name, poke_player.name, poke_str }
 
     for _, p in ipairs(game.connected_players) do
         local frame = Gui.get_left_element(p, main_frame_name)
