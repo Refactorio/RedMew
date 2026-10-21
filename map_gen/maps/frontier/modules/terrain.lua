@@ -346,6 +346,7 @@ end
 
 function Terrain.reshape_land(surface, area)
   local this = Public.get()
+  local wall_left = this.right_boundary * 32 - 4
   local right_boundary = this.right_boundary * 32 + this.wall_width + 4
   local left_top = { x = math_max(area.left_top.x, -this.left_boundary * 32), y = area.left_top.y }
   local right_bottom = area.right_bottom
@@ -373,6 +374,11 @@ function Terrain.reshape_land(surface, area)
       return
     end
     if math_abs(x - this.x) < 16 and math_abs(y - this.y) < 16 then
+      return
+    end
+    -- the wall and its concrete strip: a river here would leave the wall with a walkable gap,
+    -- since the wall can't be placed on shallow water
+    if x >= wall_left and x <= right_boundary then
       return
     end
 
