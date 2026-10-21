@@ -9,19 +9,10 @@
 ]]
 local Event = require 'utils.event'
 
--- The area a drill (or its ghost) mines, which reaches past the drill itself.
-local function get_mining_area(entity, ghost)
-  if not ghost then
-    return entity.mining_area
-  end
-  local radius = entity.ghost_prototype.get_mining_drill_radius(entity.quality)
-  local position = entity.position
-  return { { position.x - radius, position.y - radius }, { position.x + radius, position.y + radius } }
-end
-
--- Hands the drill back, at its quality, to the robot or player that built it, or drops it where
--- it stood if they have no room.
-local function refund(entity, event)
+-- Hands the drill back, at its quality, to the player that built it. Otherwise it is dropped where
+-- it stood, marked for deconstruction so robots take it back: that covers a player with no room,
+-- and robots, which can't take it while they build (they still hold the drill they built from).
+local function refund(entity, player)
   local items = entity.prototype.items_to_place_this
   local stack = items and items[1]
   if not stack then
@@ -29,10 +20,8 @@ local function refund(entity, event)
   end
   stack = { name = stack.name, count = stack.count, quality = entity.quality }
 
-  local index = event.player_index
-  local actor = event.robot or (index and game.get_player(index))
-  if actor and actor.valid and actor.can_insert(stack) then
-    actor.insert(stack)
+  if player and player.valid and player.can_insert(stack) then
+    player.insert(stack)
     return
   end
   entity.surface.spill_item_stack { position = entity.position, stack = stack, enable_looted = true, force = entity.force }
@@ -55,9 +44,6 @@ local function on_built(event)
   if entity.quality.level < 1 then
     return
   end
-  if entity.surface.count_entities_filtered { area = get_mining_area(entity, ghost), type = 'resource', limit = 1 } == 0 then
-    return
-  end
 
   local index = event.player_index
   local player = index and game.get_player(index)
@@ -65,7 +51,7 @@ local function on_built(event)
     player.print('Only [quality=normal] drills can be built on top of resources!')
   end
   if not ghost then
-    refund(entity, event)
+    refund(entity, player)
   end
   entity.destroy()
 end
