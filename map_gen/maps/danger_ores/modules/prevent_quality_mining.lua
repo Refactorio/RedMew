@@ -9,6 +9,24 @@
 ]]
 local Event = require 'utils.event'
 
+-- Hands the drill back, at its quality, to the player that built it. Otherwise it is dropped where
+-- it stood, marked for deconstruction so robots take it back: that covers a player with no room,
+-- and robots, which can't take it while they build (they still hold the drill they built from).
+local function refund(entity, player)
+  local items = entity.prototype.items_to_place_this
+  local stack = items and items[1]
+  if not stack then
+    return
+  end
+  stack = { name = stack.name, count = stack.count, quality = entity.quality }
+
+  if player and player.valid and player.can_insert(stack) then
+    player.insert(stack)
+    return
+  end
+  entity.surface.spill_item_stack { position = entity.position, stack = stack, enable_looted = true, force = entity.force }
+end
+
 local function on_built(event)
   local entity = event.entity
   if not (entity and entity.valid) then
@@ -16,7 +34,8 @@ local function on_built(event)
   end
 
   local e_type = entity.type
-  if entity.name == 'entity-ghost' then
+  local ghost = entity.name == 'entity-ghost'
+  if ghost then
     e_type = entity.ghost_type
   end
   if e_type ~= 'mining-drill' then
@@ -30,6 +49,9 @@ local function on_built(event)
   local player = index and game.get_player(index)
   if player and player.valid then
     player.print('Only [quality=normal] drills can be built on top of resources!')
+  end
+  if not ghost then
+    refund(entity, player)
   end
   entity.destroy()
 end
