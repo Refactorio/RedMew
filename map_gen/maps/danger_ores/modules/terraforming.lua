@@ -33,6 +33,7 @@ return function(config)
     end, function(tbl)
         chunk_list = tbl.chunk_list
         pollution_data = tbl.pollution_data
+        _G.terraforming_pollution_data = pollution_data
         surface = tbl.surface
     end)
 
