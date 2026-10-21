@@ -8,7 +8,11 @@ local pcall = pcall
 
 local Public = {}
 
-Public.events = {tests_run_finished = Event.generate_event_name('test_run_finished')}
+Public.events = {
+    tests_run_finished = Event.generate_event_name('test_run_finished'),
+    -- raised as each test finishes, with `order`: how many tests have finished, this one included
+    test_finished = Event.generate_event_name('test_finished')
+}
 
 local run_runnables_token
 
@@ -190,6 +194,7 @@ local function run_test(test)
 
     local func
     if current_step == 0 then
+        test.started_tick = game.tick
         func = test.func
     else
         func = steps[current_step].func
@@ -223,6 +228,12 @@ end
 
 local function do_test(test, data)
     local success = run_test(test)
+
+    if success ~= nil then
+        test.finished_tick = game.tick
+        test.order = data.count + 1
+        script.raise_event(Public.events.test_finished, {order = test.order})
+    end
 
     if success == false then
         data.count = data.count + 1
