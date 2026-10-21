@@ -4,12 +4,13 @@
 -- robot.can_insert is false and robot.insert does nothing.
 local Public = {}
 
---- Inserts `stack` into `robot`'s logistic network. What doesn't fit is spilled at `position`,
--- marked for deconstruction by `force` so the robots pick it up.
+--- Puts `stack` in a storage chest of `robot`'s logistic network, where the robot would have taken
+-- it. What doesn't fit is spilled at `position`, marked for deconstruction by `force` so the
+-- robots pick it up.
 function Public.refund(robot, stack, surface, position, force)
     local network = robot.logistic_network
     local count = stack.count or 1
-    local inserted = network and network.insert(stack) or 0
+    local inserted = network and network.insert(stack, 'storage') or 0
     if inserted < count then
         surface.spill_item_stack {
             position = position,
