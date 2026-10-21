@@ -6,7 +6,8 @@ local Token = require 'utils.token'
 local Server = require 'features.server'
 
 local tank_entities = {}
-local tank_research = {interval_level = 1}
+local tank_research = {interval_level = 0}
+local max_level = 4
 
 Global.register({tank_entities = tank_entities, tank_research = tank_research}, function(tbl)
     tank_entities = tbl.tank_entities
@@ -86,6 +87,11 @@ local on_tick = Token.register(function()
     end
 end)
 
+-- Ticks between rockets at each fire rate level: 150, 120, 90 and 60 for levels 1 to 4.
+local function fire_interval(level)
+    return 180 - 30 * level
+end
+
 Event.add(Retailer.events.on_market_purchase, function(event)
     local market_id = event.group_name
     local group_label = Retailer.get_market_group_label(market_id)
@@ -99,16 +105,16 @@ Event.add(Retailer.events.on_market_purchase, function(event)
     end
 
     local interval_level = tank_research.interval_level
-    local max_level = 5
     if interval_level < max_level then
-        tank_research.interval_level = tank_research.interval_level + 1
+        interval_level = tank_research.interval_level + 1
+        tank_research.interval_level = interval_level
         Toast.toast_all_players(15, {'command_description.crash_site_rocket_tank_upgrade_success', event.player.name, interval_level})
         Server.to_discord_bold('*** '..event.player.name..' has upgraded Rocket Tanks to level '..interval_level..' ***') -- doesn't need locale string
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', (interval_level + 1)}
         item.price = (interval_level + 1) * 1000
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
     end
-    if interval_level >= 4 then -- update label, set price to 0, disable further purchases
+    if interval_level >= max_level then -- update label, set price to 0, disable further purchases
         item.price = 0
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', {'command_description.max_level'}}
         item.disabled = true
@@ -116,9 +122,9 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         Retailer.set_item(market_id, item)
     end
 
-    -- Levels 2 to 5 fire every 150, 120, 90 and 60 ticks. Swap the previous level's timer for the new one.
+    -- Swap the previous level's timer for the new one.
     if interval_level > 1 then
-        Event.remove_removable_nth_tick(210 - 30 * interval_level, on_tick)
+        Event.remove_removable_nth_tick(fire_interval(interval_level - 1), on_tick)
     end
-    Event.add_removable_nth_tick(210 - 30 * (interval_level + 1), on_tick)
+    Event.add_removable_nth_tick(fire_interval(interval_level), on_tick)
 end)
