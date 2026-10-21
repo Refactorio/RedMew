@@ -53,9 +53,13 @@ return function(config)
         -- on goes back under the new tiles afterwards. Not the landfill itself: a floor built over
         -- the unminable marker keeps one hidden tile less, and refund_tiles puts the landfill back
         -- then, so the floor can be mined to landfill and the landfill to what was there before.
+        -- Landfill with nothing under it leaves nothing under the marker: landfill there would
+        -- hand out a landfill each time it was mined.
         surface.set_tiles(new_tiles)
         for i = 1, #new_tiles do
-            surface.set_hidden_tile(new_tiles[i].position, below_landfill[i] or 'landfill')
+            if below_landfill[i] then
+                surface.set_hidden_tile(new_tiles[i].position, below_landfill[i])
+            end
         end
         if inventory and inventory.valid and refund_count > 0 then
             inventory.insert {name = refund_tile, count = refund_count}
