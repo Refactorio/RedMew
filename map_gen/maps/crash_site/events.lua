@@ -145,8 +145,10 @@ local spawn_worm =
         local p = surface.find_non_colliding_position(name, position, 8, 1)
 
         if p then
-            local entity = surface.create_entity({name = data.name, position = data.position})
-            no_coin_entity[entity.unit_number] = true
+            local entity = surface.create_entity({name = name, position = p})
+            if entity then
+                no_coin_entity[entity.unit_number] = true
+            end
         end
     end
 )
