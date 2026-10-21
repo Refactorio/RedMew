@@ -326,6 +326,8 @@ function Terrain.reveal_spawn_area()
   surface.force_generate_chunk_requests()
 end
 
+-- Tiles placed past the kraken line are put back to what was there, and the ones used are not
+-- handed back: building out there costs the materials.
 function Terrain.block_tile_placement(event)
   local this = Public.get()
   local surface = game.get_surface(event.surface_index)
