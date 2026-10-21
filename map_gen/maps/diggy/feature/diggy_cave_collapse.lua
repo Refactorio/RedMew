@@ -264,6 +264,11 @@ end
 
 local function on_mined_entity(event)
     local entity = event.entity
+    -- A robot only wears a rock down: diggy_hole replaces it with a weaker one, and the stress
+    -- is added when the rock finally dies.
+    if not entity.valid then
+        return
+    end
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
