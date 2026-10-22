@@ -16,8 +16,8 @@ local PlayerStats = require 'features.player_stats'
 local Restart = require 'features.restart_command'
 local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.crash_site.map_poll'
+local RestartMessage = require 'utils.restart_message'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local format_number = require 'util'.format_number
 
 -- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
@@ -120,25 +120,23 @@ function Public.control(config)
         return true
     end
 
-    local places = {'1st','2nd','3rd','4th','5th'}
-
-    -- builds a message for top 3 or 4 etc players for a given stat to use in the embedded awards
-    local function get_top_players(players_as_array, statistic_name)
-        local return_message = ""
-        table.sort(players_as_array, function (a, b) return a[statistic_name] > b[statistic_name] end )
-        for i = 1, math.min(3, #players_as_array) do
-            local data = players_as_array[i]
-            if statistic_name == "time_played" then
-                return_message = return_message..places[i].." - "..data.name.." ("..Core.format_time(data[statistic_name]).."), "
-            elseif statistic_name == "fish_eaten" then
-                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).." fish eaten), "
-            else
-                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).."), "
-            end
-        end
-        return_message = return_message:sub(1, -3) -- remove the last ", "
-        return return_message
-    end
+    -- {label, player_data key, format}; an award nobody earned is left out of the message
+    local awards = {
+        {'Most kills overall', 'total_kills'},
+        {'Most biters/spitters killed', 'units_killed'},
+        {'Most spawners killed', 'spawners_killed'},
+        {'Most worms killed', 'worms_killed'},
+        {'Most deaths', 'player_deaths'},
+        {'Most items crafted', 'entities_crafted'},
+        {'Most entities built', 'entities_built'},
+        {'Most time played', 'time_played', Core.format_time},
+        {'Furthest walked', 'distance_walked'},
+        {'Most coins earned', 'coins_earned'},
+        {'Seafood lover', 'fish_eaten', function(value)
+            return RestartMessage.format_count(value) .. ' fish eaten'
+        end},
+        {'Most talkative', 'console_chats'}
+    }
 
     local function restart_callback()
         local end_epoch = Server.get_current_time()
@@ -161,6 +159,7 @@ function Public.control(config)
                 entities_built = ScoreTracker.get_for_player(p.index, PlayerStats.player_entities_built_name),
                 entities_crafted = ScoreTracker.get_for_player(p.index, PlayerStats.player_items_crafted_name),
                 fish_eaten = ScoreTracker.get_for_player(p.index, PlayerStats.player_fish_eaten_name),
+                console_chats = ScoreTracker.get_for_player(p.index, PlayerStats.player_console_chats_name),
                 time_played = p.online_time
             }
         end
@@ -177,54 +176,43 @@ function Public.control(config)
             player_data = player_data
         }
 
-        local players_as_array = {}
-        for _, data in pairs(player_data) do
-            players_as_array[#players_as_array+1] = data
-        end
-
-        local statistics_message
-        local time_string = Core.format_time(game.ticks_played)
-        if statistics.enemy_entities < 1000 then
-            statistics_message = 'Crash Site map won!\\n\\n'
-            .. 'Statistics:\\n'
-            .. 'Map time: '..time_string..'\\n'
-            .. 'Total kills: '..statistics.biters_killed..'\\n'
-            .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
-            .. 'Players: '..statistics.total_players..'\\n'
-            .. 'Total entities built: '..statistics.entities_built..'\\n\\n'
-            .. 'Awards:\\n'
-            -- do the individual awards
-            .. 'Most kills overall: '..get_top_players(players_as_array, "total_kills")..'\\n'
-            .. 'Most biters/spitters killed: '..get_top_players(players_as_array, "units_killed")..'\\n'
-            .. 'Most spawners killed: '..get_top_players(players_as_array, "spawners_killed")..'\\n'
-            .. 'Most worms killed: '..get_top_players(players_as_array, "worms_killed")..'\\n'
-            .. 'Most deaths: '..get_top_players(players_as_array, "player_deaths")..'\\n'
-            .. 'Most items crafted: '..get_top_players(players_as_array, "entities_crafted")..'\\n'
-            .. 'Most entities built: '..get_top_players(players_as_array, "entities_built")..'\\n'
-            .. 'Most time played: '..get_top_players(players_as_array, "time_played")..'\\n'
-            .. 'Furthest walked: '..get_top_players(players_as_array, "distance_walked")..'\\n'
-            .. 'Most coins earned: '..get_top_players(players_as_array, "coins_earned")..'\\n'
-            .. 'Seafood lover: '..get_top_players(players_as_array, "fish_eaten")..'\\n'
-        else
-            statistics_message = 'Crash Site map failed!\\n\\n'
-            .. 'Statistics:\\n'
-            .. 'Map time: '..time_string..'\\n'
-            .. 'Total kills: '..statistics.biters_killed..'\\n'
-            .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
-            .. 'Players: '..statistics.total_players..'\\n'
-        end
-
-        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-
-        -- Uncomment to enable posting stats to crashsite channel.
-        -- Server.to_discord_named_embed(crash_site_channel, statistics_message)
-
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name
+        local map_display_name = scenario_display_name[config.scenario_name] or config.scenario_name or 'Crash Site'
+        local new_map_display_name = scenario_display_name[new_map_name] or new_map_name
+
+        local won = statistics.enemy_entities < 1000
+        local statistics_lines = {
+            RestartMessage.statistic('Map time', Core.format_time(game.ticks_played)),
+            RestartMessage.statistic('Total kills', RestartMessage.format_count(statistics.biters_killed)),
+            RestartMessage.statistic('Biters remaining on map', RestartMessage.format_count(statistics.enemy_entities)),
+            RestartMessage.statistic('Players', statistics.total_players)
+        }
+        local award_lines = {}
+        if won then
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Total entities built', RestartMessage.format_count(statistics.entities_built))
+            for _, award in ipairs(awards) do
+                award_lines[#award_lines + 1] = RestartMessage.award(award[1], player_data, award[2], award[3])
+            end
+        end
+
+        local statistics_message = RestartMessage.build(
+            '**' .. map_display_name .. '** ' .. (won and 'won!' or 'failed!'),
+            {
+                {name = 'Statistics', lines = statistics_lines},
+                {name = 'Awards', lines = award_lines}
+            },
+            '**Next map:** ' .. new_map_display_name
+        )
+
+        Server.to_discord_named_embed_raw(map_promotion_channel, statistics_message)
+
+        -- Uncomment to enable posting stats to crashsite channel.
+        -- Server.to_discord_named_embed_raw(crash_site_channel, statistics_message)
 
         Server.to_discord_named_raw(map_promotion_channel,
-            crash_site_role_mention .. ' **' .. (scenario_display_name[config.scenario_name] or config.scenario_name) .. ' has just restarted!!\\n'
-                .. 'Next map: ' .. (scenario_display_name[new_map_name] or new_map_name) .. '**')
+            crash_site_role_mention .. ' **' .. map_display_name .. ' has just restarted!!\\n'
+                .. 'Next map: ' .. new_map_display_name .. '**')
 
         Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
     end
