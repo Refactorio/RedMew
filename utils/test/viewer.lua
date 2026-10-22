@@ -9,8 +9,10 @@ local Global = require 'utils.global'
 
 local Public = {}
 
-local info_type_test = {}
-local info_type_module = {}
+-- Tests and modules hold functions, which can't be saved, so the selection and the GUI's data
+-- (both in storage) refer to them by id (Builder.get_by_id).
+local info_type_test = 'test'
+local info_type_module = 'module'
 
 local down_arrow = '▼'
 local right_arrow = '►'
@@ -77,12 +79,16 @@ local function get_text_box_error(player_index)
         return ''
     end
 
-    local info_type = test_info.type
+    local selected = Builder.get_by_id(test_info.id)
+    if selected == nil then
+        return ''
+    end
 
+    local info_type = test_info.type
     if info_type == info_type_test then
-        return get_test_error(test_info.test)
+        return get_test_error(selected)
     elseif info_type == info_type_module then
-        return get_module_error(test_info.module)
+        return get_module_error(selected)
     end
 end
 
@@ -106,30 +112,12 @@ end
 
 local function is_test_selected(test, player_index)
     local info = selected_test_info_by_player_index[player_index]
-    if not info then
-        return false
-    end
-
-    local info_test = info.test
-    if not info_test then
-        return false
-    end
-
-    return info_test.id == test.id
+    return info ~= nil and info.type == info_type_test and info.id == test.id
 end
 
 local function is_module_selected(module, player_index)
     local info = selected_test_info_by_player_index[player_index]
-    if not info then
-        return false
-    end
-
-    local info_module = info.module
-    if not info_module then
-        return false
-    end
-
-    return info_module.id == module.id
+    return info ~= nil and info.type == info_type_module and info.id == module.id
 end
 
 local function draw_tests_test(container, test, depth)
@@ -145,7 +133,7 @@ local function draw_tests_test(container, test, depth)
     end
 
     label_style.left_margin = depth * 15 + 10
-    Gui.set_data(label, {test = test, container = container})
+    Gui.set_data(label, {test_id = test.id, container = container})
 end
 
 local function draw_tests_module(container, module)
@@ -164,7 +152,7 @@ local function draw_tests_module(container, module)
         caption = module.is_open and down_arrow or right_arrow
     }
     arrow.style.left_margin = module.depth * 15
-    Gui.set_data(arrow, {module = module, container = container})
+    Gui.set_data(arrow, {module_id = module.id, container = container})
 
     local label = flow.add {type = 'label', name = module_label_name, caption = caption}
 
@@ -175,7 +163,7 @@ local function draw_tests_module(container, module)
         set_passed_style(label_style, get_module_state(module))
     end
 
-    Gui.set_data(label, {module = module, container = container})
+    Gui.set_data(label, {module_id = module.id, container = container})
 
     if not module.is_open then
         return
@@ -270,14 +258,17 @@ end
 local run_module_token =
     Token.register(
     function(data)
-        Runner.run_module(data.module, data.player, data.options)
+        Runner.run_module(data.module_id and Builder.get_by_id(data.module_id), data.player, data.options)
     end
 )
 
 local run_test_token =
     Token.register(
     function(data)
-        Runner.run_test(data.test, data.player, data.options)
+        local test = Builder.get_by_id(data.test_id)
+        if test then
+            Runner.run_test(test, data.player, data.options)
+        end
     end
 )
 
@@ -295,7 +286,7 @@ Gui.on_click(
     function(event)
         local element = event.element
         local data = Gui.get_data(element)
-        local module = data.module
+        local module = Builder.get_by_id(data.module_id)
         local container = data.container
 
         module.is_open = not module.is_open
@@ -308,7 +299,7 @@ Gui.on_click(
     function(event)
         local element = event.element
         local data = Gui.get_data(element)
-        local module = data.module
+        local module = Builder.get_by_id(data.module_id)
         local container = data.container
         local player_index = event.player_index
 
@@ -316,7 +307,7 @@ Gui.on_click(
         selected_test_info_by_player_index[player_index] = nil
 
         if is_selected then
-            selected_test_info_by_player_index[player_index] = {type = info_type_module, module = module}
+            selected_test_info_by_player_index[player_index] = {type = info_type_module, id = module.id}
         end
 
         local error_text_box = get_error_text_box(event.player)
@@ -335,7 +326,7 @@ Gui.on_click(
     function(event)
         local element = event.element
         local data = Gui.get_data(element)
-        local test = data.test
+        local test = Builder.get_by_id(data.test_id)
         local container = data.container
         local player_index = event.player_index
 
@@ -343,7 +334,7 @@ Gui.on_click(
         selected_test_info_by_player_index[player_index] = nil
 
         if is_selected then
-            selected_test_info_by_player_index[player_index] = {type = info_type_test, test = test}
+            selected_test_info_by_player_index[player_index] = {type = info_type_test, id = test.id}
         end
 
         local error_text_box = get_error_text_box(event.player)
@@ -364,7 +355,7 @@ Gui.on_click(
         close_main_frame(frame)
 
         local options = make_options(event.player_index)
-        Task.set_timeout_in_ticks(1, run_module_token, {module = nil, player = event.player, options = options})
+        Task.set_timeout_in_ticks(1, run_module_token, {module_id = nil, player = event.player, options = options})
     end
 )
 
@@ -383,13 +374,13 @@ Gui.on_click(
             Task.set_timeout_in_ticks(
                 1,
                 run_module_token,
-                {module = test_info.module, player = event.player, options = options}
+                {module_id = test_info.id, player = event.player, options = options}
             )
         elseif info_type == info_type_test then
             Task.set_timeout_in_ticks(
                 1,
                 run_test_token,
-                {test = test_info.test, player = event.player, options = options}
+                {test_id = test_info.id, player = event.player, options = options}
             )
         else
             return

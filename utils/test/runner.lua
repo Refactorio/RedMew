@@ -3,6 +3,7 @@ local Task = require 'utils.task'
 local ModuleStore = require 'utils.test.module_store'
 local Builder = require 'utils.test.builder'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 
 local pcall = pcall
 
@@ -21,6 +22,21 @@ Public.events = {
 Public.skip_headless_tag = 'skip-headless'
 
 local run_runnables_token
+
+-- The runs in progress, by id. A run waits between steps on the task queue, which is saved, so
+-- only its id goes there: a run holds the tests, whose functions can't be saved. Loading a save
+-- leaves this empty, so a run that was in progress then stops. The count is saved, so a run
+-- started after loading never takes the id of one still on the queue.
+local runs = {}
+local counts = {runs = 0}
+
+Global.register(counts, function(tbl)
+    counts = tbl
+end)
+
+local function schedule(data, ticks)
+    Task.set_timeout_in_ticks(ticks, run_runnables_token, {run_id = data.id})
+end
 
 -- Prints to the player who started the run. A run started without one (a headless run from the
 -- server) prints nothing: its results are in the test tree and the test_finished events.
@@ -79,6 +95,7 @@ local function mark_modules_for_passed()
 end
 
 local function finish_test_run(data)
+    runs[data.id] = nil
     print_summary(data)
     mark_modules_for_passed()
     script.raise_event(Public.events.tests_run_finished, {player = data.player, headless = data.headless})
@@ -202,12 +219,12 @@ local function do_hook(hook, data)
         local step_index = hook.current_step + 1
         local step = hook.context._steps[step_index]
         hook.current_step = step_index
-        Task.set_timeout_in_ticks(step.delay or 1, run_runnables_token, data)
+        schedule(data, step.delay or 1)
         return
     end
 
     data.index = data.index + 1
-    Task.set_timeout_in_ticks(1, run_runnables_token, data)
+    schedule(data, 1)
     return
 end
 
@@ -275,24 +292,29 @@ local function do_test(test, data)
         end
 
         data.index = data.index + 1
-        Task.set_timeout_in_ticks(1, run_runnables_token, data)
+        schedule(data, 1)
         return
     end
 
     if success == true then
         data.count = data.count + 1
         data.index = data.index + 1
-        Task.set_timeout_in_ticks(1, run_runnables_token, data)
+        schedule(data, 1)
         return
     end
 
     local step_index = test.current_step + 1
     test.current_step = step_index
     local step = test.context._steps[step_index]
-    Task.set_timeout_in_ticks(step.delay or 1, run_runnables_token, data)
+    schedule(data, step.delay or 1)
 end
 
-local function run_runnables(data)
+local function run_runnables(params)
+    local data = runs[params.run_id]
+    if not data then
+        return
+    end
+
     local index = data.index
     local runnable = data.runnables[index]
 
@@ -318,7 +340,10 @@ local function validate_options(options)
 end
 
 local function run(runnables, player, options)
-    run_runnables({
+    local id = counts.runs + 1
+    counts.runs = id
+    runs[id] = {
+        id = id,
         runnables = runnables,
         player = player,
         index = 1,
@@ -326,7 +351,8 @@ local function run(runnables, player, options)
         fail_count = 0,
         stop_on_first_error = options.stop_on_first_error,
         headless = options.headless
-    })
+    }
+    run_runnables({run_id = id})
 end
 
 --- Runs the tests in `module` (all of them if nil), printing the results to `player`.

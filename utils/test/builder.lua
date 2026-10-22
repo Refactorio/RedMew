@@ -5,6 +5,10 @@ local Public = {}
 
 local is_init = false
 local id_count = 0
+-- every module and test by its id, so what goes in storage (the viewer's state, a run waiting
+-- on the task queue) can refer to them by id: they hold functions, which can't be saved. The
+-- tests are declared as the scenario loads, so the ids are the same after loading a save.
+local by_id = {}
 
 local function get_id()
     id_count = id_count + 1
@@ -14,6 +18,7 @@ end
 local function init_inner(module, depth, inherited_tags)
     module.id = get_id()
     module.depth = depth
+    by_id[module.id] = module
 
     -- a module has its own tags and those of every module above it
     local all_tags = {}
@@ -30,8 +35,9 @@ local function init_inner(module, depth, inherited_tags)
     local tests = {}
     for name, func in pairs(module.test_funcs) do
         count = count + 1
+        local id = get_id()
         tests[#tests + 1] = {
-            id = get_id(),
+            id = id,
             name = name,
             module = module,
             func = func,
@@ -41,6 +47,7 @@ local function init_inner(module, depth, inherited_tags)
             error = nil,
             skipped = nil
         }
+        by_id[id] = tests[#tests]
     end
     module.tests = tests
 
@@ -64,6 +71,12 @@ end
 function Public.get_root_modules()
     Public.init()
     return ModuleStore.root_module
+end
+
+--- The module or test with `id`, or nil.
+function Public.get_by_id(id)
+    Public.init()
+    return by_id[id]
 end
 
 local function prepare_pre_module_hooks(module, runnables, player)
