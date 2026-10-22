@@ -16,6 +16,9 @@ local function new_module(module_name)
         teardown_error = nil,
         test_funcs = {},
         tests = nil,
+        tags = {},
+        all_tags = nil,
+        skipped = nil,
         is_open = false,
         depth = nil,
         count = nil,
@@ -109,6 +112,24 @@ function Public.test(test_name, test_func)
     end
 
     test_funcs[test_name] = test_func
+end
+
+--- Tags the module being declared, and so every test and module below it. A run can be told to
+-- skip the tests with a tag: a headless run skips those tagged 'skip-headless'
+-- (see utils/test/headless.lua).
+-- @param ... <string> the tags
+function Public.tags(...)
+    if parent_module == nil then
+        error('tags can not be declared outside of a module.', 2)
+    end
+
+    local tags = parent_module.tags
+    for _, tag in pairs({...}) do
+        if type(tag) ~= 'string' then
+            error('tags must be of type string.', 2)
+        end
+        tags[tag] = true
+    end
 end
 
 function Public.module_startup(startup_func)

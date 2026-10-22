@@ -410,7 +410,10 @@ Gui.on_checked_state_changed(
 Event.add(
     Runner.events.tests_run_finished,
     function(event)
-        Public.open(event.player)
+        -- a headless run started from the server has no player
+        if event.player then
+            Public.open(event.player)
+        end
     end
 )
 

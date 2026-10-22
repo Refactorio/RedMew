@@ -11,9 +11,19 @@ local function get_id()
     return id_count
 end
 
-local function init_inner(module, depth)
+local function init_inner(module, depth, inherited_tags)
     module.id = get_id()
     module.depth = depth
+
+    -- a module has its own tags and those of every module above it
+    local all_tags = {}
+    for tag in pairs(inherited_tags) do
+        all_tags[tag] = true
+    end
+    for tag in pairs(module.tags) do
+        all_tags[tag] = true
+    end
+    module.all_tags = all_tags
 
     local count = 0
 
@@ -28,13 +38,14 @@ local function init_inner(module, depth)
             context = nil,
             current_step = nil,
             passed = nil,
-            error = nil
+            error = nil,
+            skipped = nil
         }
     end
     module.tests = tests
 
     for _, child in pairs(module.children) do
-        count = count + init_inner(child, depth + 1)
+        count = count + init_inner(child, depth + 1, all_tags)
     end
 
     module.count = count
@@ -47,7 +58,7 @@ function Public.init()
     end
 
     is_init = true
-    init_inner(ModuleStore.root_module, 0)
+    init_inner(ModuleStore.root_module, 0, {})
 end
 
 function Public.get_root_modules()
@@ -108,11 +119,47 @@ local function prepare_test(test, player)
     test.current_step = 0
     test.passed = nil
     test.error = nil
+    test.skipped = nil
     return test
 end
 
-local function prepare_module(module, runnables, player)
+--- The first of `skip_tags` the module has, if any.
+local function get_skip_tag(module, skip_tags)
+    if not skip_tags then
+        return nil
+    end
+    for tag in pairs(module.all_tags) do
+        if skip_tags[tag] then
+            return tag
+        end
+    end
+    return nil
+end
+
+--- Marks every test in the module and below it as skipped for `tag`, so none of them, nor the
+-- modules' startup and teardown, are run.
+local function skip_module(module, tag)
     module.passed = nil
+    module.skipped = tag
+    for _, test in pairs(module.tests) do
+        test.passed = nil
+        test.error = nil
+        test.skipped = tag
+    end
+    for _, child in pairs(module.children) do
+        skip_module(child, tag)
+    end
+end
+
+local function prepare_module(module, runnables, player, skip_tags)
+    local skip_tag = get_skip_tag(module, skip_tags)
+    if skip_tag then
+        skip_module(module, skip_tag)
+        return
+    end
+
+    module.passed = nil
+    module.skipped = nil
     prepare_pre_module_hooks(module, runnables, player)
 
     for _, test in pairs(module.tests) do
@@ -121,7 +168,7 @@ local function prepare_module(module, runnables, player)
     end
 
     for _, child in pairs(module.children) do
-        prepare_module(child, runnables, player)
+        prepare_module(child, runnables, player, skip_tags)
     end
 
     prepare_post_module_hooks(module, runnables, player)
@@ -139,13 +186,14 @@ function Public.build_test_for_run(test, player)
     return runnables
 end
 
-function Public.build_module_for_run(module, player)
+--- @param skip_tags <table|nil> set of tags (tag => true) whose tests are skipped
+function Public.build_module_for_run(module, player, skip_tags)
     Public.init()
 
     local runnables = {}
 
     build_pre_module_hooks(module.parent, runnables, player)
-    prepare_module(module, runnables, player)
+    prepare_module(module, runnables, player, skip_tags)
     build_post_module_hooks(module.parent, runnables, player)
 
     return runnables
