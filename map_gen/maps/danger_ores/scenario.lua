@@ -28,6 +28,14 @@ Config.dump_offline_inventories = {
   startup_gear_drop_hours = 24, -- time after which players will keep at least their armor when disconnecting
 }
 Config.market.enabled = false
+-- with no market and no rewards there are no coins to earn or spend, so don't show them
+Config.player_list.show_coin_column = false
+for i, name in ipairs(Config.score.global_to_show) do
+  if name == 'coins-spent' then
+    table.remove(Config.score.global_to_show, i)
+    break
+  end
+end
 Config.paint.enabled = false
 Config.permissions.presets.no_blueprints = false
 Config.player_create.starting_items = {
