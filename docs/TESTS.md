@@ -26,6 +26,18 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
   own write-data, so it never touches the game's saves or settings. The headers of the scripts
   list their options (how many run at once, the seed, the game speed).
 
+  On Windows, use the PowerShell scripts with your installed game (the headless server is
+  Linux only). They need PowerShell 7 (`winget install Microsoft.PowerShell`, then run `pwsh`);
+  the Windows PowerShell that comes with Windows is too old. From the repo folder:
+
+  ```
+  .\.github\scripts\run-all.ps1 'C:\Program Files (x86)\Steam\steamapps\common\Factorio'
+  .\.github\scripts\run-tests.ps1 'C:\Program Files\Factorio' danger-ore-rivers
+  ```
+
+  The first is Steam's install folder, the second the standalone game's. Options are
+  environment variables, as with bash: `$env:SEED = 'random'` before running, say.
+
 CI runs every template on each pull request. The *in-game test results* check lists every test
 grouped by map.
 
