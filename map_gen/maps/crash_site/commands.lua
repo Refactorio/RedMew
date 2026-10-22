@@ -132,8 +132,6 @@ function Public.control(config)
         {'Most spawners killed', 'spawners_killed'},
         {'Most worms killed', 'worms_killed'},
         {'Most deaths', 'player_deaths'},
-        {'Most items crafted', 'entities_crafted'},
-        {'Most entities built', 'entities_built'},
         {'Most time played', 'time_played', Core.format_time},
         {'Furthest walked', 'distance_walked'},
         {'Most coins earned', 'coins_earned'},
