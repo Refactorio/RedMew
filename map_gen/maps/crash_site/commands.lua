@@ -17,6 +17,7 @@ local Restart = require 'features.restart_command'
 local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.crash_site.map_poll'
 local RestartMessage = require 'utils.restart_message'
+local RS = require 'map_gen.shared.redmew_surface'
 local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
 local RPG = require 'features.gui.rpg_military'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
@@ -122,6 +123,23 @@ function Public.control(config)
         return true
     end
 
+    -- The end-game weapons, from the game's own statistics: fired ammo counts as consumed. Each
+    -- explosive rocket crafted also consumed a rocket, so those are taken off. (Outpost crafters
+    -- insert by script, which the statistics don't count.)
+    local function get_end_game_statistics()
+        local surface = RS.get_surface()
+        local items = game.forces.player.get_item_production_statistics(surface)
+        local kills = game.forces.player.get_kill_count_statistics(surface)
+        local rockets_fired = items.get_output_count('rocket') - items.get_input_count('explosive-rocket')
+            + items.get_output_count('explosive-rocket')
+        return {
+            rockets_fired = math.max(0, rockets_fired),
+            artillery_shells_fired = items.get_output_count('artillery-shell'),
+            spidertrons_built = items.get_input_count('spidertron'),
+            spidertrons_lost = kills.get_output_count('spidertron')
+        }
+    end
+
     -- level -> rank of the players in the restart message, to name the highest one
     local ranks_by_level = {}
 
@@ -190,6 +208,7 @@ function Public.control(config)
             total_players = #game.players,
             entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
             outposts_captured = outposts_captured,
+            end_game = get_end_game_statistics(),
             coins_spent = ScoreTracker.get_for_global(PlayerStats.coins_spent_name),
             player_data = player_data
         }
@@ -211,6 +230,10 @@ function Public.control(config)
         local award_lines = {}
         if won then
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Total entities built', RestartMessage.format_count(statistics.entities_built))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Rockets fired', RestartMessage.format_count(statistics.end_game.rockets_fired))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Artillery shells fired', RestartMessage.format_count(statistics.end_game.artillery_shells_fired))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons built', RestartMessage.format_count(statistics.end_game.spidertrons_built))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons lost', RestartMessage.format_count(statistics.end_game.spidertrons_lost))
             for _, award in ipairs(awards) do
                 award_lines[#award_lines + 1] = RestartMessage.award(award[1], player_data, award[2], award[3])
             end
