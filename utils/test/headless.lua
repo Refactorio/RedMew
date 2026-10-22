@@ -7,8 +7,9 @@
 --     _DEBUG = true
 --     _TESTS_HEADLESS = {speed = 100}
 --     return require '<map>'
--- `speed` is the game speed the tests run at (optional): they count ticks, so the server runs
--- them as fast as it can, up to that many times the normal rate. The map seed is fixed by the
+-- `speed` is the game speed (optional), from the start, so the map's own setup before the tests
+-- doesn't take its 300 ticks in real time either: the tests count ticks, so the server runs them
+-- as fast as it can, up to that many times the normal rate. The map seed is fixed by the
 -- scripts on the command line (--map-gen-seed), which also fixes math.random and the seeds of
 -- surfaces a map creates, so every run of a map is the same.
 --
@@ -81,9 +82,6 @@ end
 --- Starts a headless run of every test, printing progress to `player` if given.
 function Public.run(player)
     results = {passed = 0, failed = 0, skipped = 0, tests = {}}
-    if settings and settings.speed then
-        game.speed = settings.speed
-    end
     Runner.run_module(nil, player, {headless = true})
 end
 
@@ -101,6 +99,12 @@ Event.add(Runner.events.tests_run_finished, function(event)
 end)
 
 if settings then
+    if settings.speed then
+        Event.on_init(function()
+            game.speed = settings.speed
+        end)
+    end
+
     Event.add(defines.events.on_tick, function(event)
         if event.tick == START_TICK then
             Public.run()
