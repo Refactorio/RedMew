@@ -35,6 +35,9 @@ local function count_loader_buttons(element)
 end
 
 Declare.module({'features', 'redmew qol', 'loaders gui'}, function()
+    -- uses a player's GUI
+    Declare.tags('skip-headless')
+
     local old_feature_enabled
     local old_recipe_enabled
 

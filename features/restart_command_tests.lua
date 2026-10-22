@@ -61,6 +61,9 @@ local function run_abort_command(player)
 end
 
 Declare.module({'features', 'restart_command'}, function()
+    -- uses a player's GUI
+    Declare.tags('skip-headless')
+
     local inital_start_game_data
 
     Declare.module_startup(function()
