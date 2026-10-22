@@ -9,6 +9,7 @@ local OreMined = require 'map_gen.maps.danger_ores.modules.ore_mined'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local RestartMessage = require 'utils.restart_message'
+local RestartStatistics = require 'map_gen.maps.danger_ores.modules.restart_statistics'
 local format_number = require 'util'.format_number
 
 return function(config)
@@ -62,12 +63,37 @@ return function(config)
         {'Most time played', 'time_played', Core.format_time},
         {'Furthest walked', 'distance_walked'},
         {'Most talkative', 'console_chats'},
+        {'Biggest demolisher', 'entities_removed'},
+        {'Most landfill placed', 'landfill_placed'},
         {'Most deaths', 'player_deaths'},
         {'Most kills overall', 'total_kills'},
         {'Most biters/spitters killed', 'units_killed'},
         {'Most spawners killed', 'spawners_killed'},
         {'Most worms killed', 'worms_killed'}
     }
+
+    -- e.g. '- Ore mined: **171.5M** (iron 68.2M, copper 52.1M, coal 31.0M, stone 20.2M)', most mined
+    -- first; a map with one ore only gets the total
+    local function ore_mined_line(counts, total)
+        local ores = {}
+        for name, count in pairs(counts) do
+            if count > 0 then
+                ores[#ores + 1] = {name = name:gsub('%-ore$', ''), count = count}
+            end
+        end
+        table.sort(ores, function(a, b)
+            return a.count > b.count
+        end)
+
+        local line = RestartMessage.statistic('Ore mined', format_number(total, true))
+        if #ores > 1 then
+            for i, ore in ipairs(ores) do
+                ores[i] = ore.name .. ' ' .. format_number(ore.count, true)
+            end
+            line = line .. ' (' .. table.concat(ores, ', ') .. ')'
+        end
+        return line
+    end
 
     local function restart_callback()
         local start_game_data = Restart.get_start_game_data()
@@ -82,6 +108,7 @@ return function(config)
 
         local player_data = {}
         for _, p in pairs(game.players) do
+            local entities_removed, landfill_placed = RestartStatistics.get_for_player(p.index)
             player_data[p.index] = {
                 name = p.name,
                 total_kills = ScoreTracker.get_for_player(p.index, PlayerStats.player_total_kills_name),
@@ -95,6 +122,8 @@ return function(config)
                 entities_crafted = ScoreTracker.get_for_player(p.index, PlayerStats.player_items_crafted_name),
                 resources_hand_mined = ScoreTracker.get_for_player(p.index, PlayerStats.player_resources_hand_mined_name),
                 console_chats = ScoreTracker.get_for_player(p.index, PlayerStats.player_console_chats_name),
+                entities_removed = entities_removed,
+                landfill_placed = landfill_placed,
                 time_played = p.online_time
             }
         end
@@ -109,19 +138,30 @@ return function(config)
             entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
             resources_exhausted = ScoreTracker.get_for_global(PlayerStats.resources_exhausted_name),
             resources_hand_mined = ScoreTracker.get_for_global(PlayerStats.resources_hand_mined_name),
+            peak_players = RestartStatistics.get_peak_players(),
+            first_satellite_ticks = ShareGlobals.data.first_satellite_ticks,
+            landfill_placed = RestartStatistics.get_landfill_placed(),
             player_data = player_data
         }
 
-        local _, total_ore = OreMined.get_ore_mined()
+        local ore_counts, total_ore = OreMined.get_ore_mined()
+        statistics.ore_mined = ore_counts
 
-        local statistics_lines = {
-            RestartMessage.statistic('Map time', time_string),
-            RestartMessage.statistic('Ore mined', format_number(total_ore, true)),
-            RestartMessage.statistic('Entities built', RestartMessage.format_count(statistics.entities_built)),
-            RestartMessage.statistic('Ore hand mined', RestartMessage.format_count(statistics.resources_hand_mined)),
-            RestartMessage.statistic('Players', statistics.total_players),
-            RestartMessage.statistic('Enemies killed', RestartMessage.format_count(statistics.biters_killed))
-        }
+        local statistics_lines = {RestartMessage.statistic('Map time', time_string)}
+        local function add_line(line)
+            statistics_lines[#statistics_lines + 1] = line
+        end
+        if statistics.first_satellite_ticks then
+            add_line(RestartMessage.statistic('First satellite at', Core.format_time(statistics.first_satellite_ticks)))
+        end
+        add_line(ore_mined_line(ore_counts, total_ore))
+        add_line(RestartMessage.statistic('Entities built', RestartMessage.format_count(statistics.entities_built)))
+        add_line(RestartMessage.statistic('Ore hand mined', RestartMessage.format_count(statistics.resources_hand_mined)))
+        if statistics.landfill_placed > 0 then
+            add_line(RestartMessage.statistic('Landfill placed', RestartMessage.format_count(statistics.landfill_placed)))
+        end
+        add_line('- Players: **' .. statistics.total_players .. '** in total, **' .. statistics.peak_players .. '** online at most')
+        add_line(RestartMessage.statistic('Enemies killed', RestartMessage.format_count(statistics.biters_killed)))
 
         local award_lines = {}
         for _, award in ipairs(awards) do
