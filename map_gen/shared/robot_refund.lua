@@ -1,16 +1,15 @@
--- Hands an item back to the logistic network of the construction robot that built something a
--- rule then removed. The robot itself takes nothing during on_robot_built_entity: it still holds
--- the item it built from (event.stack), which the game uses up after the event, so
--- robot.can_insert is false and robot.insert does nothing.
+-- Hands an item back through the construction robot that built something a rule then removed.
+-- robot.insert does nothing for a construction robot (it returns 0, even with its cargo empty),
+-- but its cargo inventory takes the item, during on_robot_built_entity too, and the robot then
+-- carries it to storage like anything else it picks up.
 local Public = {}
 
---- Puts `stack` in a storage chest of `robot`'s logistic network, where the robot would have taken
--- it. What doesn't fit is spilled at `position`, marked for deconstruction by `force` so the
--- robots pick it up.
+--- Puts `stack` in `robot`'s cargo. What doesn't fit is spilled at `position`, marked for
+-- deconstruction by `force` so the robots pick it up.
 function Public.refund(robot, stack, surface, position, force)
-    local network = robot.logistic_network
+    local cargo = robot.get_inventory(defines.inventory.robot_cargo)
     local count = stack.count or 1
-    local inserted = network and network.insert(stack, 'storage') or 0
+    local inserted = cargo and cargo.insert(stack) or 0
     if inserted < count then
         surface.spill_item_stack {
             position = position,

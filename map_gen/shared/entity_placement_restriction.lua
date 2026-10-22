@@ -16,8 +16,8 @@
 
     Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions.
     The refunded item is derived from the entity's prototype (quality preserved) and goes back to
-    whoever built it: the placing player, or the logistic network of the construction robot for a
-    robot build.
+    whoever built it: the placing player, or the construction robot for a robot build, which takes
+    it back to storage.
 
     Lastly, this module raises 2 events: on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
     They are fully defined below.
@@ -220,8 +220,8 @@ local function destroy_restricted(entity, ghost, event)
         end
     end
 
-    -- Refund to the robot's logistic network when a robot built it; otherwise to the player who
-    -- placed it.
+    -- Refund to the robot when a robot built it, so it takes the item back to storage; otherwise to
+    -- the player who placed it.
     local item_returned = false
     if stack and not ghost and primitives.refund then
         if robot and robot.valid then

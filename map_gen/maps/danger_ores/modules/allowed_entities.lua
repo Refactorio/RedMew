@@ -104,7 +104,7 @@ local function handle_entity_refund(entity, event)
         end
     end
 
-    -- refund item to the robot's logistic network/player
+    -- refund item to robot/player
     local items_to_place_this = entity.prototype.items_to_place_this
     if not items_to_place_this or #items_to_place_this == 0 then
         return
