@@ -410,7 +410,11 @@ Gui.on_checked_state_changed(
 Event.add(
     Runner.events.tests_run_finished,
     function(event)
-        Public.open(event.player)
+        -- headless runs (utils/test/headless.lua) pass the player force, which has no GUI
+        local player = event.player
+        if player and player.object_name == 'LuaPlayer' then
+            Public.open(player)
+        end
     end
 )
 

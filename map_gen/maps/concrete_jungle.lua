@@ -302,12 +302,14 @@ Please be careful!
 
 --- Warning for players when their entities are destroyed (needs to be pre because of the stack)
 local function on_destroy(event)
-    local p = game.get_player(event.player_index)
+    -- a robot build has no player to tell
+    local p = event.player_index and game.get_player(event.player_index)
     local stack = event.stack
-    local entity = event.entity
+    local entity = event.created_entity
     local name
 
-    if stack.valid_for_read then
+    -- the item handed back, or nothing for a ghost
+    if stack.name then
         name = stack.name
     else
         name = entity.name

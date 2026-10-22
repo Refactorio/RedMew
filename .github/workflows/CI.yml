@@ -10,7 +10,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # luacheck. The job keeps its original name, "build", in case a required check refers to it.
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -27,3 +27,73 @@ jobs:
           # URL to the luacheckrc configuration file to be used during checking.
           # Per https://github.com/Roang-zero1/factorio-mod-luacheck/issues/2 - an empty string will use the project's .luacheckrc
           luacheckrc_url: "" # optional, default is https://raw.githubusercontent.com/Nexela/Factorio-luacheckrc/0.17/.luacheckrc
+
+  # Standalone unit tests: every *.test.lua file is a self-contained suite that stubs out
+  # whatever it needs and runs outside Factorio. Suites that need a real surface or the
+  # Factorio API live in *_tests.lua instead and run in game (the ingame-tests job below).
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Lua
+      uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: "5.2"
+
+    - name: Unit tests
+      run: |
+        status=0
+        while read -r file; do
+          echo "== $file"
+          lua "$file" || status=1
+        done < <(find . -name '*.test.lua' | sort)
+        exit $status
+      shell: bash
+
+  # In-game tests (*_tests.lua) on a headless Factorio server: every preset of a game mode, a few
+  # maps at a time, each loaded on its own and given its map_gen tests (see utils/test/headless.lua).
+  # Every map gets the load test; maps with tests of their own run those too. The job summary has a
+  # line per map. Presets that need mods are skipped (see .github/scripts/run-map-group.sh).
+  ingame-tests:
+    name: in-game tests (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    env:
+      FACTORIO_VERSION: "2.0.77"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: Danger Ores
+          group: danger_ores
+        - name: Crash Site
+          group: crash_site
+        - name: Diggy
+          group: diggy
+        - name: Frontier
+          group: frontier
+        - name: Other maps
+          group: templates
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Factorio headless
+      id: cache-factorio
+      uses: actions/cache@v4
+      with:
+        path: ~/factorio
+        key: factorio-headless-${{ env.FACTORIO_VERSION }}
+
+    # the headless server is a free download, no account needed
+    - name: Download Factorio headless
+      if: steps.cache-factorio.outputs.cache-hit != 'true'
+      run: curl -fsSL "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" | tar -xJ -C ~
+
+    # the tests run at game speed 100, but a server still waits now and then (map generation,
+    # robots in flight): two per CPU ran the Danger Ores maps in 47 s against 54 s for one
+    - name: In-game tests
+      env:
+        JOBS: 8
+      run: .github/scripts/run-map-group.sh ~/factorio ${{ matrix.group }}

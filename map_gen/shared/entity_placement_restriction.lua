@@ -16,7 +16,8 @@
 
     Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions.
     The refunded item is derived from the entity's prototype (quality preserved) and goes back to
-    whoever built it: the placing player, or the construction robot for a robot build.
+    whoever built it: the placing player, or the construction robot for a robot build, which takes
+    it back to storage.
 
     Lastly, this module raises 2 events: on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
     They are fully defined below.
@@ -48,6 +49,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'
+local RobotRefund = require 'map_gen.shared.robot_refund'
 
 -- Localized functions
 local raise_event = script.raise_event
@@ -196,6 +198,7 @@ local function destroy_restricted(entity, ghost, event)
     local player = index and game.get_player(index)
     local robot = event.robot
     local stack = (not ghost) and placement_stack(entity) or nil
+    local surface, position, force = entity.surface, entity.position, entity.force
 
     raise_event(
         Public.events.on_pre_restricted_entity_destroyed,
@@ -217,13 +220,17 @@ local function destroy_restricted(entity, ghost, event)
         end
     end
 
-    -- Refund to the robot when a robot built it, so the item returns to the logistic network
-    -- instead of vanishing; otherwise to the player who placed it.
-    local actor = robot or player
+    -- Refund to the robot when a robot built it, so it takes the item back to storage; otherwise to
+    -- the player who placed it.
     local item_returned = false
-    if stack and not ghost and primitives.refund and actor and actor.valid and actor.can_insert(stack) then
-        actor.insert(stack)
-        item_returned = true
+    if stack and not ghost and primitives.refund then
+        if robot and robot.valid then
+            RobotRefund.refund(robot, stack, surface, position, force)
+            item_returned = true
+        elseif player and player.valid and player.can_insert(stack) then
+            player.insert(stack)
+            item_returned = true
+        end
     end
 
     raise_event(

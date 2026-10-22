@@ -286,6 +286,27 @@ local function on_player_changed_position(event)
 end
 Event.add(defines.events.on_player_changed_position, on_player_changed_position)
 
+-- The kraken also eats vehicles past its line: a spidertron can walk out there over the water,
+-- and one sent by remote control takes no player along to be eaten.
+local kraken_vehicle_types = { 'car', 'spider-vehicle' }
+local function on_kraken_hunt()
+  local surface = Public.surface()
+  if not (surface and surface.valid) then
+    return
+  end
+
+  local this = Public.get()
+  local line = -(this.kraken_distance + this.left_boundary * 32)
+  local half_height = this.height * 16
+  local area = { { line - 512, -half_height }, { line, half_height } }
+  for _, vehicle in pairs(surface.find_entities_filtered { area = area, type = kraken_vehicle_types, force = 'player' }) do
+    if vehicle.position.x < line then
+      RocketSilo.kraken_eat_entity(vehicle)
+    end
+  end
+end
+Event.on_nth_tick(60, on_kraken_hunt)
+
 local function on_rocket_launched(event)
   RocketSilo.on_rocket_launched(event)
 end

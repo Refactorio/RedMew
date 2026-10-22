@@ -31,15 +31,14 @@ local autoplace_controls = {
 
 local cliff_settings = {cliff_elevation_0 = 1024, cliff_elevation_interval = 10, name = 'cliff'}
 
-function Public.startup_test_surface(context, options)
+--- Creates a grass-only scratch surface with its chunks generated, and clears it on the next
+-- tick (grass replaces any void a map's own generation left). Doesn't touch any player, so it
+-- also works on a headless run (utils/test/headless.lua).
+-- @return LuaSurface, and a teardown that deletes it
+function Public.create_test_surface(context, options)
     options = options or {}
     local name = options.name or get_surface_name()
     local area = options.area or {64, 64}
-
-    local player = context.player
-    local old_surface = player.surface
-    local old_position = player.position
-    local old_character = player.character
 
     local surface = game.create_surface(name, {
         width = area.x or area[1],
@@ -51,7 +50,6 @@ function Public.startup_test_surface(context, options)
 
     surface.request_to_generate_chunks({0, 0}, 32)
     surface.force_generate_chunk_requests()
-    player.force.chart_all(surface)
 
     context:next(function()
         for k, v in pairs(surface.find_entities()) do
@@ -60,6 +58,32 @@ function Public.startup_test_surface(context, options)
 
         surface.destroy_decoratives {area = {{-32, -32}, {32, 32}}}
 
+        -- some maps (Diggy) generate every surface as void
+        local void = surface.find_tiles_filtered {area = {{-32, -32}, {32, 32}}, name = 'out-of-map'}
+        local ground = {}
+        for i = 1, #void do
+            ground[i] = {name = 'grass-1', position = void[i].position}
+        end
+        surface.set_tiles(ground)
+    end)
+
+    return surface, function()
+        game.delete_surface(surface)
+    end
+end
+
+--- Creates a scratch surface like create_test_surface and moves the player onto it, with a
+-- new character at {0, 0}. The teardown puts the player back.
+function Public.startup_test_surface(context, options)
+    local player = context.player
+    local old_surface = player.surface
+    local old_position = player.position
+    local old_character = player.character
+
+    local surface, delete_surface = Public.create_test_surface(context, options)
+    player.force.chart_all(surface)
+
+    context:next(function()
         player.character = nil
         player.teleport({0, 0}, surface)
         player.create_character()
@@ -73,7 +97,7 @@ function Public.startup_test_surface(context, options)
             player.character = old_character
         end
 
-        game.delete_surface(surface)
+        delete_surface()
     end
 end
 
@@ -125,6 +149,75 @@ function Public.modify_global(context, name, value)
     context:add_teardown(function()
         rawset(_G, name, old_value)
     end)
+end
+
+--- Calls `done` every 10 ticks until it returns true or `ticks` have passed, then calls
+-- `after(true)`, or `after(false)` when it never did.
+function Public.wait_until(context, ticks, done, after)
+    local function check()
+        if done() then
+            return after(true)
+        end
+        ticks = ticks - 10
+        if ticks <= 0 then
+            return after(false)
+        end
+        context:timeout(10, check)
+    end
+    context:timeout(10, check)
+end
+
+--- Builds a logistic network near `position` for real construction robots: a powered roboport
+-- with robots in it, and a storage chest holding `items` ({name, count, quality?} stacks). The
+-- game then carries out the ghosts and deconstruction orders a test places within its reach
+-- (55 tiles) the way it would for a player's robots, with its own build checks and events, and
+-- the robots take back to the chest whatever they are handed or mine. Where a map left void
+-- (Diggy), dirt is laid for it first.
+-- @return the storage chest, and a teardown that removes the network and its robots
+function Public.robot_network(surface, position, items)
+    local void = surface.find_tiles_filtered {area = {{position.x - 8, position.y - 8}, {position.x + 8, position.y + 8}}, name = 'out-of-map'}
+    local ground = {}
+    for i = 1, #void do
+        ground[i] = {name = 'dirt-1', position = void[i].position}
+    end
+    surface.set_tiles(ground)
+
+    local entities = {}
+    local function place(name, near)
+        local p = surface.find_non_colliding_position(name, near, 32, 1)
+        local entity = p and surface.create_entity {name = name, position = p, force = 'player'}
+        if not entity then
+            error('no room for the test ' .. name .. ' near ' .. near.x .. ',' .. near.y, 3)
+        end
+        entities[#entities + 1] = entity
+        return entity
+    end
+
+    local roboport = place('roboport', position)
+    local interface = place('electric-energy-interface', roboport.position)
+    interface.electric_buffer_size = 1e9
+    interface.power_production = 1e7
+    place('substation', roboport.position)
+    roboport.energy = roboport.electric_buffer_size
+    roboport.get_inventory(defines.inventory.roboport_robot).insert {name = 'construction-robot', count = 20}
+
+    local chest = place('storage-chest', roboport.position)
+    local inventory = chest.get_inventory(defines.inventory.chest)
+    for _, stack in pairs(items or {}) do
+        inventory.insert(stack)
+    end
+
+    return chest, function()
+        local area = {{roboport.position.x - 64, roboport.position.y - 64}, {roboport.position.x + 64, roboport.position.y + 64}}
+        for _, robot in pairs(surface.find_entities_filtered {area = area, name = 'construction-robot', force = 'player'}) do
+            robot.destroy()
+        end
+        for _, entity in pairs(entities) do
+            if entity.valid then
+                entity.destroy()
+            end
+        end
+    end
 end
 
 local function get_gui_element_by_name(parent, name)

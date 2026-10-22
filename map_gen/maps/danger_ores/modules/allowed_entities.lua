@@ -17,6 +17,7 @@
 
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local RobotRefund = require 'map_gen.shared.robot_refund'
 local random = math.random
 
 local registered = false
@@ -111,9 +112,14 @@ local function handle_entity_refund(entity, event)
     local stack = items_to_place_this[1]
     if stack then
         stack.quality = entity.quality
-        local actor = event.robot or (event.player_index and game.get_player(event.player_index))
-        if actor and actor.valid and actor.can_insert(stack) then
-            actor.insert(stack)
+        local robot = event.robot
+        if robot and robot.valid then
+            RobotRefund.refund(robot, stack, entity.surface, entity.position, entity.force)
+            return
+        end
+        local player = event.player_index and game.get_player(event.player_index)
+        if player and player.valid and player.can_insert(stack) then
+            player.insert(stack)
         end
     end
 end
