@@ -8,6 +8,7 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local OreMined = require 'map_gen.maps.danger_ores.modules.ore_mined'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
+local RestartMessage = require 'utils.restart_message'
 local format_number = require 'util'.format_number
 
 return function(config)
@@ -34,6 +35,40 @@ return function(config)
         return true
     end
 
+    -- the name players voted for, e.g. 'Rivers (flowing out from spawn)'
+    local function get_display_name(map_name)
+        for _, map_data in pairs(MapPoll.get_maps()) do
+            if map_data.name == map_name then
+                return map_data.display_name
+            end
+        end
+        return map_name
+    end
+
+    -- e.g. '**Danger Ores: Rivers** completed!', the map's name without its description
+    local function get_title()
+        local map_name = config.scenario_name
+        if map_name == nil then
+            return '**Danger Ores** completed!'
+        end
+        return '**Danger Ores: ' .. get_display_name(map_name):gsub('%s*%b()$', '') .. '** completed!'
+    end
+
+    -- {label, player_data key, format}; an award nobody earned is left out of the message
+    local awards = {
+        {'Most ore hand mined', 'resources_hand_mined'},
+        {'Most items crafted', 'entities_crafted'},
+        {'Most entities built', 'entities_built'},
+        {'Most time played', 'time_played', Core.format_time},
+        {'Furthest walked', 'distance_walked'},
+        {'Most talkative', 'console_chats'},
+        {'Most deaths', 'player_deaths'},
+        {'Most kills overall', 'total_kills'},
+        {'Most biters/spitters killed', 'units_killed'},
+        {'Most spawners killed', 'spawners_killed'},
+        {'Most worms killed', 'worms_killed'}
+    }
+
     local function restart_callback()
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name
@@ -59,6 +94,7 @@ return function(config)
                 entities_built = ScoreTracker.get_for_player(p.index, PlayerStats.player_entities_built_name),
                 entities_crafted = ScoreTracker.get_for_player(p.index, PlayerStats.player_items_crafted_name),
                 resources_hand_mined = ScoreTracker.get_for_player(p.index, PlayerStats.player_resources_hand_mined_name),
+                console_chats = ScoreTracker.get_for_player(p.index, PlayerStats.player_console_chats_name),
                 time_played = p.online_time
             }
         end
@@ -76,84 +112,30 @@ return function(config)
             player_data = player_data
         }
 
-        local awards = {
-            ['total_kills'] = {value = 0, player = ''},
-            ['units_killed'] = {value = 0, player = ''},
-            ['spawners_killed'] = {value = 0, player = ''},
-            ['worms_killed'] = {value = 0, player = ''},
-            ['player_deaths'] = {value = 0, player = ''},
-            ['time_played'] = {value = 0, player = ''},
-            ['entities_built'] = {value = 0, player = ''},
-            ['entities_crafted'] = {value = 0, player = ''},
-            ['distance_walked'] = {value = 0, player = ''},
-            ['resources_hand_mined'] = {value = 0, player = ''}
-        }
-
-        for _, v in pairs(statistics.player_data) do
-            if v.total_kills > awards.total_kills.value then
-                awards.total_kills.value = v.total_kills
-                awards.total_kills.player = v.name
-            end
-            if v.units_killed > awards.units_killed.value then
-                awards.units_killed.value = v.units_killed
-                awards.units_killed.player = v.name
-            end
-            if v.spawners_killed > awards.spawners_killed.value then
-                awards.spawners_killed.value = v.spawners_killed
-                awards.spawners_killed.player = v.name
-            end
-            if v.worms_killed > awards.worms_killed.value then
-                awards.worms_killed.value = v.worms_killed
-                awards.worms_killed.player = v.name
-            end
-            if v.player_deaths > awards.player_deaths.value then
-                awards.player_deaths.value = v.player_deaths
-                awards.player_deaths.player = v.name
-            end
-            if v.time_played > awards.time_played.value then
-                awards.time_played.value = v.time_played
-                awards.time_played.player = v.name
-            end
-            if v.entities_built > awards.entities_built.value then
-                awards.entities_built.value = v.entities_built
-                awards.entities_built.player = v.name
-            end
-            if v.entities_crafted > awards.entities_crafted.value then
-                awards.entities_crafted.value = v.entities_crafted
-                awards.entities_crafted.player = v.name
-            end
-            if v.distance_walked > awards.distance_walked.value then
-                awards.distance_walked.value = v.distance_walked
-                awards.distance_walked.player = v.name
-            end
-            if v.resources_hand_mined > awards.resources_hand_mined.value then
-                awards.resources_hand_mined.value = v.resources_hand_mined
-                awards.resources_hand_mined.player = v.name
-            end
-        end
-
         local _, total_ore = OreMined.get_ore_mined()
 
-        local statistics_message = statistics.scenario..' completed!\\n\\n'..
-            '**Statistics:**\\n'..
-            '_Map time:_ '..time_string..'\\n'..
-            '_Total entities built:_ '..statistics.entities_built..'\\n'..
-            '_Total ore mined:_ '..format_number(total_ore, true)..'\\n'..
-            '_Total ore resources exhausted:_ '..statistics.resources_exhausted..'\\n'..
-            '_Total ore hand mined:_ '..statistics.resources_hand_mined..'\\n'..
-            '_Players:_ '..statistics.total_players..'\\n'..
-            '_Enemies killed:_ '..statistics.biters_killed..'\\n\\n'..
-            '**Awards:**\\n'..
-            '_Most ore hand mined:_ '..awards.resources_hand_mined.player..' ('..awards.resources_hand_mined.value..')\\n'..
-            '_Most items crafted:_ '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'..
-            '_Most entities built:_ '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'..
-            '_Most time played:_ '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'..
-            '_Furthest walked:_ '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'..
-            '_Most deaths:_ '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'..
-            '_Most kills overall:_ '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'..
-            '_Most biters/spitters killed:_ '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'..
-            '_Most spawners killed:_ '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
-            '_Most worms killed:_ '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
+        local statistics_lines = {
+            RestartMessage.statistic('Map time', time_string),
+            RestartMessage.statistic('Ore mined', format_number(total_ore, true)),
+            RestartMessage.statistic('Entities built', RestartMessage.format_count(statistics.entities_built)),
+            RestartMessage.statistic('Ore hand mined', RestartMessage.format_count(statistics.resources_hand_mined)),
+            RestartMessage.statistic('Players', statistics.total_players),
+            RestartMessage.statistic('Enemies killed', RestartMessage.format_count(statistics.biters_killed))
+        }
+
+        local award_lines = {}
+        for _, award in ipairs(awards) do
+            award_lines[#award_lines + 1] = RestartMessage.award(award[1], player_data, award[2], award[3])
+        end
+
+        local statistics_message = RestartMessage.build(
+            get_title(),
+            {
+                {name = 'Statistics', lines = statistics_lines},
+                {name = 'Awards', lines = award_lines}
+            },
+            '**Next map:** ' .. get_display_name(new_map_name)
+        )
 
         Server.to_discord_named_embed_raw(map_promotion_channel, statistics_message)
         Server.to_discord_named_embed_raw(danger_ores_channel, statistics_message)
@@ -166,7 +148,7 @@ return function(config)
             time_string,
             '!\\n',
             'Next map: ',
-            new_map_name,
+            get_display_name(new_map_name),
             '**'
         }
         message = table.concat(message)
