@@ -36,7 +36,7 @@ local Public = {}
 function Public.control(config)
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'crashsite'})
 
-    local airstrike_data = {radius_level = 1, count_level = 1}
+    local airstrike_data = {radius_level = 1, count_level = 1, capsules_spent = 0}
     local barrage_data = {radius_level = 1, count_level = 1}
     local spy_message_cooldown = {false}
 
@@ -125,7 +125,8 @@ function Public.control(config)
 
     -- The end-game weapons, from the game's own statistics: fired ammo counts as consumed. Each
     -- explosive rocket crafted also consumed a rocket, so those are taken off. (Outpost crafters
-    -- insert by script, which the statistics don't count.)
+    -- insert by script, which the statistics don't count.) Poison capsules are the thrown ones
+    -- plus those paid for airstrikes, which are taken from the chest by script.
     local function get_end_game_statistics()
         local surface = RS.get_surface()
         local items = game.forces.player.get_item_production_statistics(surface)
@@ -135,6 +136,7 @@ function Public.control(config)
         return {
             rockets_fired = math.max(0, rockets_fired),
             artillery_shells_fired = items.get_output_count('artillery-shell'),
+            poison_capsules_used = items.get_output_count('poison-capsule') + airstrike_data.capsules_spent,
             spidertrons_built = items.get_input_count('spidertron'),
             spidertrons_lost = kills.get_output_count('spidertron')
         }
@@ -232,6 +234,7 @@ function Public.control(config)
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Total entities built', RestartMessage.format_count(statistics.entities_built))
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Rockets fired', RestartMessage.format_count(statistics.end_game.rockets_fired))
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Artillery shells fired', RestartMessage.format_count(statistics.end_game.artillery_shells_fired))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Poison capsules used', RestartMessage.format_count(statistics.end_game.poison_capsules_used))
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons built', RestartMessage.format_count(statistics.end_game.spidertrons_built))
             statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons lost', RestartMessage.format_count(statistics.end_game.spidertrons_lost))
             for _, award in ipairs(awards) do
@@ -503,6 +506,7 @@ function Public.control(config)
             end
 
             inv.remove({name = "poison-capsule", count = strikeCost})
+            airstrike_data.capsules_spent = airstrike_data.capsules_spent + strikeCost
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             -- aim of anti-grief is to stop players accidentally using it on themselves.
