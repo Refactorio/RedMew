@@ -166,9 +166,12 @@ end
 
 function Public.toggle_main_button(player)
   local main_frame = player.gui.screen[main_frame_name]
+  local button = Gui.get_top_element(player, main_button_name)
   if main_frame then
+    button.toggled = false
     Gui.destroy(main_frame)
   else
+    button.toggled = true
     Public.get_main_frame(player)
   end
 end
@@ -208,6 +211,7 @@ Event.add(defines.events.on_player_joined_game, function(event)
   local frame = player.gui.screen[main_frame_name]
   if (frame and frame.valid and not player.admin) then
     Gui.destroy(frame)
+    Gui.get_top_element(player, main_button_name).toggled = false
   end
 end)
 

@@ -146,9 +146,12 @@ end
 ---@param player LuaPlayer
 Public.toggle_main_button = function(player)
     local frame = player.gui.screen[main_frame_name]
+    local button = Gui.get_top_element(player, main_button_name)
     if frame and frame.valid then
         frame.visible = not frame.visible
+        button.toggled = frame.visible
     else
+        button.toggled = true
         Public.get_main_frame(player)
     end
 end
