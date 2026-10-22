@@ -5,7 +5,35 @@ local Builder = require 'utils.test.builder'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 
-local pcall = pcall
+local xpcall = xpcall
+
+--- Error handler for xpcall that gives an error's location its full path. Lua shortens the file
+-- in it to the last 60 or so characters, '...vel__/map_gen/maps/danger_ores/modules/citadel_tests.lua:7:'
+-- say, which this turns back into 'map_gen/maps/danger_ores/modules/citadel_tests.lua:7:'.
+local function error_handler(message)
+    if type(message) ~= 'string' then
+        return message
+    end
+
+    -- The location is that of one of the functions on the stack: the one that failed, or the
+    -- caller of error() at its level (Assert's callers, say).
+    for level = 2, 8 do
+        local info = debug.getinfo(level, 'Sl')
+        if info == nil then
+            break
+        end
+
+        if info.currentline > 0 then
+            local location = info.short_src .. ':' .. info.currentline .. ':'
+            if message:sub(1, #location) == location then
+                local path = info.source:match('__level__/(.+)$') or info.short_src
+                return path .. ':' .. info.currentline .. ':' .. message:sub(#location + 1)
+            end
+        end
+    end
+
+    return message
+end
 
 local Public = {}
 
@@ -147,7 +175,7 @@ local function do_termination(data)
 end
 
 local function run_teardown(teardown, errors)
-    local success, error_message = pcall(teardown)
+    local success, error_message = xpcall(teardown, error_handler)
 
     if not success then
         errors[#errors + 1] = error_message
@@ -184,7 +212,7 @@ local function run_hook(hook, player)
         func = steps[current_step].func
     end
 
-    local success, return_value = pcall(func, context)
+    local success, return_value = xpcall(func, error_handler, context)
 
     if not success then
         hook.error = return_value
@@ -241,7 +269,7 @@ local function run_test(test, player)
         func = steps[current_step].func
     end
 
-    local success, return_value = pcall(func, context)
+    local success, return_value = xpcall(func, error_handler, context)
 
     if not success then
         print_error(player, test.name, return_value)
