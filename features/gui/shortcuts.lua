@@ -105,9 +105,12 @@ end
 
 function Public.toggle_main_button(player)
   local main_frame = player.gui.screen[main_frame_name]
+  local button = Gui.get_top_element(player, main_button_name)
   if main_frame then
+    button.toggled = false
     main_frame.destroy()
   else
+    button.toggled = true
     Public.get_main_frame(player)
   end
 end
