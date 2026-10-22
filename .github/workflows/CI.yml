@@ -10,7 +10,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # luacheck. The job keeps its original name, "build", in case a required check refers to it.
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -27,3 +27,70 @@ jobs:
           # URL to the luacheckrc configuration file to be used during checking.
           # Per https://github.com/Roang-zero1/factorio-mod-luacheck/issues/2 - an empty string will use the project's .luacheckrc
           luacheckrc_url: "" # optional, default is https://raw.githubusercontent.com/Nexela/Factorio-luacheckrc/0.17/.luacheckrc
+
+  # In-game tests (*_tests.lua, run by utils/test) on headless Factorio servers: every scenario
+  # template's map runs the whole suite (see .github/scripts/run-all.ps1), split over a few jobs
+  # that run at once. A failing test doesn't fail these jobs; the "in-game test results" check
+  # below sums them all up, every test grouped by map, and fails if any test did.
+  ingame-tests:
+    name: in-game tests (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    env:
+      FACTORIO_VERSION: "2.0.77"
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cache Factorio headless
+      id: cache-factorio
+      uses: actions/cache@v4
+      with:
+        path: ~/factorio
+        key: factorio-headless-${{ env.FACTORIO_VERSION }}
+
+    # the headless server is a free download, no account needed
+    - name: Download Factorio headless
+      if: steps.cache-factorio.outputs.cache-hit != 'true'
+      run: curl -fsSL "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" | tar -xJ -C ~
+
+    # a server waits now and then (map generation, robots in flight), so two per CPU
+    - name: In-game tests
+      shell: pwsh
+      env:
+        SHARD: ${{ matrix.shard }}/4
+        JOBS: 8
+        RESULTS_DIR: results
+      # the summary is the results check's to write
+      run: |
+        $env:GITHUB_STEP_SUMMARY = $null
+        ./.github/scripts/run-all.ps1 ~/factorio
+        exit 0
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ingame-test-results-${{ matrix.shard }}
+        path: results
+
+  ingame-test-results:
+    name: in-game test results
+    needs: ingame-tests
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: ingame-test-results-*
+        merge-multiple: true
+        path: results
+
+    - name: Results
+      shell: pwsh
+      run: ./.github/scripts/test-summary.ps1 results scenario_templates
