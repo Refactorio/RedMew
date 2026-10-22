@@ -55,8 +55,9 @@ Event.add(defines.events.on_cancelled_deconstruction, function(event)
     end
 end)
 
--- A player's landfill is what they place by hand and the landfill ghosts they place for robots.
--- The total is every tile placed, by players or robots.
+-- A player's landfill is what they place, by hand or with the robots from their personal roboport
+-- (as with entities built in features/player_stats). The total is every tile placed, including
+-- by roboport networks, whose robots belong to no one.
 Event.add(defines.events.on_player_built_tile, function(event)
     local item = event.item
     if item and item.name == landfill then
@@ -66,17 +67,27 @@ Event.add(defines.events.on_player_built_tile, function(event)
     end
 end)
 
+-- The player whose personal roboport the robot is from, if any.
+local function get_robot_player(robot)
+    local network = robot.valid and robot.logistic_network
+    local cell = network and network.cells[1]
+    local owner = cell and cell.owner
+    if owner and owner.valid and owner.type == 'character' then
+        return owner.player
+    end
+end
+
 Event.add(defines.events.on_robot_built_tile, function(event)
     local item = event.item
-    if item and item.name == landfill then
-        data.landfill_placed = data.landfill_placed + #event.tiles
+    if not (item and item.name == landfill) then
+        return
     end
-end)
 
-Event.add(defines.events.on_built_entity, function(event)
-    local entity = event.entity
-    if entity.valid and entity.name == 'tile-ghost' and entity.ghost_name == landfill then
-        add(data.landfill_placed_by_player_index, event.player_index, 1)
+    local count = #event.tiles
+    data.landfill_placed = data.landfill_placed + count
+    local player = get_robot_player(event.robot)
+    if player then
+        add(data.landfill_placed_by_player_index, player.index, count)
     end
 end)
 
