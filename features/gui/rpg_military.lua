@@ -372,6 +372,15 @@ Manager.check_player_level = function(player)
     return false
 end
 
+--- Returns the player's level and rank.
+Manager.get_level = function(player_index)
+    local record = records[player_index]
+    if not record then
+        return 1, TIERS[1]
+    end
+    return record.level, record.rank
+end
+
 Manager.on_player_level_up = function(player)
     local record = get_or_create_record(player.index)
     if record.level == MAX_LEVEL then

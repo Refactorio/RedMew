@@ -17,6 +17,8 @@ local Restart = require 'features.restart_command'
 local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.crash_site.map_poll'
 local RestartMessage = require 'utils.restart_message'
+local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
+local RPG = require 'features.gui.rpg_military'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 -- Use these settings for live
@@ -120,6 +122,9 @@ function Public.control(config)
         return true
     end
 
+    -- level -> rank of the players in the restart message, to name the highest one
+    local ranks_by_level = {}
+
     -- {label, player_data key, format}; an award nobody earned is left out of the message
     local awards = {
         {'Most kills overall', 'total_kills'},
@@ -132,6 +137,11 @@ function Public.control(config)
         {'Most time played', 'time_played', Core.format_time},
         {'Furthest walked', 'distance_walked'},
         {'Most coins earned', 'coins_earned'},
+        {'Biggest spender', 'coins_spent'},
+        {'Most outposts captured', 'outposts_captured'},
+        {'Highest military rank', 'military_level', function(level)
+            return ranks_by_level[level] .. ', level ' .. level
+        end},
         {'Seafood lover', 'fish_eaten', function(value)
             return RestartMessage.format_count(value) .. ' fish eaten'
         end},
@@ -144,8 +154,12 @@ function Public.control(config)
             end_epoch = -1 -- end_epoch is nil if the restart command is used locally rather than on the server
         end
 
+        local outposts_captured, outposts_captured_by_player = OutpostBuilder.get_outposts_captured()
+
         local player_data = {}
         for _, p in pairs(game.players) do
+            local military_level, military_rank = RPG.manager.get_level(p.index)
+            ranks_by_level[military_level] = military_rank
             player_data[p.index] = {
                 name = p.name,
                 total_kills = ScoreTracker.get_for_player(p.index, PlayerStats.player_total_kills_name),
@@ -156,6 +170,10 @@ function Public.control(config)
                 distance_walked = ScoreTracker.get_for_player(p.index, PlayerStats.player_distance_walked_name),
                 player_deaths = ScoreTracker.get_for_player(p.index, PlayerStats.player_deaths_name),
                 coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
+                coins_spent = ScoreTracker.get_for_player(p.index, PlayerStats.coins_spent_name),
+                outposts_captured = outposts_captured_by_player[p.index] or 0,
+                -- level 1 is where everyone starts, so it doesn't win the award
+                military_level = military_level > 1 and military_level or 0,
                 entities_built = ScoreTracker.get_for_player(p.index, PlayerStats.player_entities_built_name),
                 entities_crafted = ScoreTracker.get_for_player(p.index, PlayerStats.player_items_crafted_name),
                 fish_eaten = ScoreTracker.get_for_player(p.index, PlayerStats.player_fish_eaten_name),
@@ -173,6 +191,8 @@ function Public.control(config)
             biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
             total_players = #game.players,
             entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
+            outposts_captured = outposts_captured,
+            coins_spent = ScoreTracker.get_for_global(PlayerStats.coins_spent_name),
             player_data = player_data
         }
 
@@ -186,6 +206,8 @@ function Public.control(config)
             RestartMessage.statistic('Map time', Core.format_time(game.ticks_played)),
             RestartMessage.statistic('Total kills', RestartMessage.format_count(statistics.biters_killed)),
             RestartMessage.statistic('Biters remaining on map', RestartMessage.format_count(statistics.enemy_entities)),
+            RestartMessage.statistic('Outposts captured', RestartMessage.format_count(statistics.outposts_captured)),
+            RestartMessage.statistic('Coins spent', RestartMessage.format_count(statistics.coins_spent)),
             RestartMessage.statistic('Players', statistics.total_players)
         }
         local award_lines = {}

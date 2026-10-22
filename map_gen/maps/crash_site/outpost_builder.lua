@@ -60,6 +60,8 @@ local turret_to_outpost = {} -- map of registration_number -> outpost_id
 local magic_crafters = {index = 1}
 local magic_fluid_crafters = {index = 1}
 local outposts = {}
+-- outposts captured, in total and by player (the nearest one, as announced)
+local captures = {total = 0, by_player_index = {}}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
 local base_pollution_multiplier = 10
@@ -74,8 +76,8 @@ Global.register(
         magic_fluid_crafters = magic_fluid_crafters,
         outposts = outposts,
         artillery_outposts = artillery_outposts,
-        pollution_multiplier = pollution_multiplier
-
+        pollution_multiplier = pollution_multiplier,
+        captures = captures
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
@@ -86,6 +88,7 @@ Global.register(
         outposts = tbl.outposts
         artillery_outposts = tbl.artillery_outposts
         pollution_multiplier = tbl.pollution_multiplier
+        captures = tbl.captures
     end
 )
 
@@ -796,6 +799,12 @@ end
 
 Public.to_shape = to_shape
 
+--- Returns how many outposts have been captured, and a table of player index -> how many of
+-- those each player captured (the nearest player to the outpost when it fell).
+function Public.get_outposts_captured()
+    return captures.total, captures.by_player_index
+end
+
 function Public:do_outpost(template, on_init)
     if template == nil then
         return b.empty_shape
@@ -1139,10 +1148,13 @@ local function do_capture_outpost(outpost_data)
     end
 
     local message = ('Outpost "%s" captured'):format(name)
+    captures.total = captures.total + 1
     local nearest = find_nearest_player({ x = (area.bottom_right.x + area.top_left.x) / 2, y = (area.bottom_right.y + area.top_left.y) / 2 })
     if nearest and nearest.valid then
         message = message .. ' by ' .. nearest.name
         RPG.manager.award_xp(nearest, 'outpost-capture')
+        local by_player_index = captures.by_player_index
+        by_player_index[nearest.index] = (by_player_index[nearest.index] or 0) + 1
     end
 
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
