@@ -34,6 +34,12 @@ local function count_loader_buttons(element)
     return count
 end
 
+-- With redmew-data, which brings loaders of its own, the feature draws no loader frames (see
+-- any_loader_enabled), so there is nothing here to test.
+if prototypes.entity['redmew-loader'] then
+    return
+end
+
 Declare.module({'features', 'redmew qol', 'loaders gui'}, function()
     local old_feature_enabled
     local old_recipe_enabled
