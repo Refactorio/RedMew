@@ -2,6 +2,7 @@ local Config = require 'config'
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
+local table = require 'utils.table'
 
 ScenarioInfo.add_extra_rule({ 'info.rules_text_danger_ore' })
 ScenarioInfo.set_map_description([[
@@ -30,12 +31,7 @@ Config.dump_offline_inventories = {
 Config.market.enabled = false
 -- with no market and no rewards there are no coins to earn or spend, so don't show them
 Config.player_list.show_coin_column = false
-for i, name in ipairs(Config.score.global_to_show) do
-  if name == 'coins-spent' then
-    table.remove(Config.score.global_to_show, i)
-    break
-  end
-end
+table.remove_element(Config.score.global_to_show, 'coins-spent')
 Config.paint.enabled = false
 Config.permissions.presets.no_blueprints = false
 Config.player_create.starting_items = {
