@@ -1,8 +1,7 @@
 #!/usr/bin/env pwsh
 # Sums up the results run-tests.ps1 saved (a <template>.json each) in one folder: a line per map,
 # then every failed test with its error. With GITHUB_STEP_SUMMARY set (in CI), it also writes the
-# full list there, every test grouped by map. test-summary.sh does the same in bash; keep the two
-# in step.
+# full list there, every test grouped by map.
 #
 # usage: test-summary.ps1 <results dir> [templates dir]
 #

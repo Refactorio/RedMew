@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Runs the in-game test suite (utils/test) on a headless Factorio server for one scenario
 # template, or one map, in a scratch copy of the scenario with its own write-data, so it never
-# touches an installed game. run-tests.sh does the same in bash; keep the two in step.
+# touches an installed game.
 #
 # usage: run-tests.ps1 <factorio dir> <template | map module> [-Port n] [-Results file]
 #   e.g. run-tests.ps1 ~/factorio danger-ore-rivers

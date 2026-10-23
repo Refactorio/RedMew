@@ -1,7 +1,6 @@
 #!/usr/bin/env pwsh
 # Runs the in-game tests for every scenario template, or the ones given, several at a time with
-# run-tests.ps1, then sums them up with test-summary.ps1. run-all.sh does the same in bash; keep
-# the two in step.
+# run-tests.ps1, then sums them up with test-summary.ps1.
 #
 # usage: run-all.ps1 <factorio dir> [template ...]
 #   e.g. run-all.ps1 ~/factorio

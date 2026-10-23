@@ -11,32 +11,32 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
 - **Headless, the way CI does:** `/test-runner headless` runs them without a player (see below)
   and writes the results to `script-output/redmew-tests.json`. It works from the server console
   too.
-- **Every scenario template, on headless servers:** the scripts in `.github/scripts` (bash and
-  PowerShell, which do the same):
+- **Every scenario template, on headless servers:** the PowerShell scripts in `.github/scripts`,
+  which CI runs too. They need PowerShell 7 (`pwsh`), which runs on Linux, macOS and Windows; on
+  Windows, `winget install Microsoft.PowerShell` (the Windows PowerShell that comes with Windows
+  is too old). From the repo folder:
 
   ```
-  .github/scripts/run-all.sh ~/factorio                       # every template
-  .github/scripts/run-all.sh ~/factorio danger-ore-rivers     # some of them
-  .github/scripts/run-tests.sh ~/factorio danger-ore-rivers   # one, with every test's result
-  .github/scripts/run-tests.sh ~/factorio map_gen.maps.maze   # a map no template selects
+  pwsh .github/scripts/run-all.ps1 ~/factorio                       # every template
+  pwsh .github/scripts/run-all.ps1 ~/factorio danger-ore-rivers     # some of them
+  pwsh .github/scripts/run-tests.ps1 ~/factorio danger-ore-rivers   # one, with every test's result
+  pwsh .github/scripts/run-tests.ps1 ~/factorio map_gen.maps.maze   # a map no template selects
   ```
 
   `~/factorio` is an unpacked Factorio: the headless server is a free download from
-  factorio.com, or use an installed game. Each run is a scratch copy of the scenario with its
-  own write-data, so it never touches the game's saves or settings. The headers of the scripts
-  list their options (how many run at once, the seed, the game speed).
-
-  On Windows, use the PowerShell scripts with your installed game (the headless server is
-  Linux only). They need PowerShell 7 (`winget install Microsoft.PowerShell`, then run `pwsh`);
-  the Windows PowerShell that comes with Windows is too old. From the repo folder:
+  factorio.com (Linux only), or use an installed game. Each run is a scratch copy of the
+  scenario with its own write-data, so it never touches the game's saves or settings. On
+  Windows, give the game's folder:
 
   ```
-  .\.github\scripts\run-all.ps1 'C:\Program Files (x86)\Steam\steamapps\common\Factorio'
-  .\.github\scripts\run-tests.ps1 'C:\Program Files\Factorio' danger-ore-rivers
+  pwsh .github/scripts/run-all.ps1 'C:\Program Files (x86)\Steam\steamapps\common\Factorio'
+  pwsh .github/scripts/run-tests.ps1 'C:\Program Files\Factorio' danger-ore-rivers
   ```
 
-  The first is Steam's install folder, the second the standalone game's. Options are
-  environment variables, as with bash: `$env:SEED = 'random'` before running, say.
+  The first is Steam's install folder, the second the standalone game's. The headers of the
+  scripts list their options (how many run at once, the seed, the game speed), which are
+  environment variables: `SEED=random pwsh ...` in bash, or `$env:SEED = 'random'` in PowerShell
+  before running.
 
 CI runs every template on each pull request. The *in-game test results* check lists every test
 grouped by map.
