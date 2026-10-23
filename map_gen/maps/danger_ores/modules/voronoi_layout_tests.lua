@@ -1,6 +1,6 @@
--- In-game tests for the pure Voronoi layout algorithm. These run under _DEBUG via /test-runner,
--- and in CI, whenever voronoi_layout.lua is loaded, i.e. on the Voronoi preset. None of them
--- touch the map: they run in game so the layout is checked on Factorio's own Lua.
+-- In-game tests for the pure Voronoi layout algorithm. These run whenever voronoi_layout.lua is
+-- loaded, i.e. on the Voronoi preset. None of them touch the map: they run in game so the
+-- layout is checked on Factorio's own Lua.
 --
 -- The layout takes its randomness the way the map gives it, from a LuaRandomGenerator
 -- (math.randomseed does nothing in Factorio). Seeds start at 1000: lower seeds are raised to a
@@ -50,9 +50,12 @@ Declare.module(
     {'map_gen', 'voronoi', 'layout'},
     function()
         Declare.test(
-            'every cell is assigned a region, the same for the same seed',
+            'every cell is assigned a region',
             function()
+                -- Act
                 local grid = Layout.partition(SIZE, SPACING, Layout.place_seeds(SIZE, SPACING, random(1)))
+
+                -- Assert
                 for x = 0, SIZE - 1 do
                     for y = 0, SIZE - 1 do
                         local id = grid[x][y]
@@ -60,20 +63,33 @@ Declare.module(
                         Assert.is_true(id >= 1 and id <= G * G, 'cell ' .. x .. ',' .. y .. ' has region ' .. id .. ', out of range')
                     end
                 end
-
-                local g1 = Layout.partition(SIZE, SPACING, Layout.place_seeds(SIZE, SPACING, random(42)))
-                local g2 = Layout.partition(SIZE, SPACING, Layout.place_seeds(SIZE, SPACING, random(42)))
-                Assert.is_true(same_grid(g1, g2, SIZE), 'the partition differs for the same seed')
             end
         )
 
         Declare.test(
-            'relaxing keeps every cell covered, evens out the cells and is repeatable',
+            'the partition is the same for the same seed',
             function()
+                -- Act
+                local a = Layout.partition(SIZE, SPACING, Layout.place_seeds(SIZE, SPACING, random(42)))
+                local b = Layout.partition(SIZE, SPACING, Layout.place_seeds(SIZE, SPACING, random(42)))
+
+                -- Assert
+                Assert.is_true(same_grid(a, b, SIZE), 'the partition differs for the same seed')
+            end
+        )
+
+        Declare.test(
+            'relaxing keeps every cell covered and evens out the cells',
+            function()
+                -- Arrange
                 local seeds = Layout.place_seeds(SIZE, SPACING, random(7))
                 local var_before = cell_count_variance(Layout.partition(SIZE, SPACING, seeds), SIZE, G)
+
+                -- Act
                 Layout.relax(SIZE, SPACING, seeds, 3)
                 local grid = Layout.partition(SIZE, SPACING, seeds)
+
+                -- Assert
                 for x = 0, SIZE - 1 do
                     for y = 0, SIZE - 1 do
                         Assert.is_true(grid[x][y] ~= nil, 'cell ' .. x .. ',' .. y .. ' has no region after relaxing')
@@ -82,11 +98,21 @@ Declare.module(
                 local var_after = cell_count_variance(grid, SIZE, G)
                 Assert.is_true(var_after <= var_before,
                     'relaxing raised the cell-size variance (' .. string.format('%.1f -> %.1f', var_before, var_after) .. ')')
+            end
+        )
 
+        Declare.test(
+            'relaxing is the same for the same seed',
+            function()
+                -- Arrange
                 local a = Layout.place_seeds(SIZE, SPACING, random(11))
-                Layout.relax(SIZE, SPACING, a, 2)
                 local b = Layout.place_seeds(SIZE, SPACING, random(11))
+
+                -- Act
+                Layout.relax(SIZE, SPACING, a, 2)
                 Layout.relax(SIZE, SPACING, b, 2)
+
+                -- Assert
                 for i = 0, G - 1 do
                     for j = 0, G - 1 do
                         Assert.is_true(a[i][j].x == b[i][j].x and a[i][j].y == b[i][j].y,
@@ -101,6 +127,7 @@ Declare.module(
             'no two touching regions share an ore, across the wrap too',
             function()
                 for seed = 1, 10 do
+                    -- Arrange: the regions, numbered from 1
                     local seeds = Layout.place_seeds(SIZE, SPACING, random(seed))
                     Layout.relax(SIZE, SPACING, seeds, 2)
                     local grid = Layout.partition(SIZE, SPACING, seeds)
@@ -115,9 +142,12 @@ Declare.module(
                             grid[x][y] = remap[id]
                         end
                     end
-                    local colors = Layout.color(count, Layout.adjacency(grid, SIZE), 4)
-                    Assert.is_true(colors ~= nil, 'no 4-colouring was found for seed ' .. seed)
 
+                    -- Act
+                    local colors = Layout.color(count, Layout.adjacency(grid, SIZE), 4)
+
+                    -- Assert
+                    Assert.is_true(colors ~= nil, 'no 4-colouring was found for seed ' .. seed)
                     for x = 0, SIZE - 1 do
                         for y = 0, SIZE - 1 do
                             local id = grid[x][y]
@@ -134,22 +164,32 @@ Declare.module(
         Declare.test(
             'a layout is the same for the same seed and differs for another',
             function()
+                -- Act
                 local function generate(seed)
                     return Layout.generate {size = 16, spacing = 4, relaxation = 2, num_ores = 4, random = random(seed)}
                 end
-                local a = generate(5)
-                Assert.is_true(same_grid(a, generate(5), 16), 'the layout differs for the same seed')
-                Assert.is_true(not same_grid(a, generate(6), 16), 'two seeds gave the same layout')
+                local a, again, other = generate(5), generate(5), generate(6)
+
+                -- Assert
+                Assert.is_true(same_grid(a, again, 16), 'the layout differs for the same seed')
+                Assert.is_true(not same_grid(a, other, 16), 'two seeds gave the same layout')
             end
         )
 
         Declare.test(
             'layouts at the size the map uses always generate, with stone the rarest ore',
             function()
+                -- Act
                 local PROD = 64
-                local totals = {0, 0, 0, 0}
+                local results = {}
                 for seed = 1, 25 do
-                    local ok, grid = pcall(Layout.generate, {size = PROD, spacing = SPACING, relaxation = 2, num_ores = 4, random = random(seed)})
+                    results[seed] = {pcall(Layout.generate, {size = PROD, spacing = SPACING, relaxation = 2, num_ores = 4, random = random(seed)})}
+                end
+
+                -- Assert
+                local totals = {0, 0, 0, 0}
+                for seed, result in ipairs(results) do
+                    local ok, grid = result[1], result[2]
                     Assert.is_true(ok, 'seed ' .. seed .. ' failed to generate at size ' .. PROD .. ': ' .. tostring(grid))
                     for x = 0, PROD - 1 do
                         for y = 0, PROD - 1 do
@@ -165,7 +205,10 @@ Declare.module(
         Declare.test(
             'fewer than 4 ores are rejected, as clean borders need 4',
             function()
+                -- Act
                 local ok = pcall(Layout.generate, {size = 16, spacing = 4, relaxation = 0, num_ores = 3, random = random(1)})
+
+                -- Assert
                 Assert.is_true(not ok, 'a layout with 3 ores was generated')
             end
         )
