@@ -242,19 +242,41 @@ local function do_teardowns(context, name, player)
     return nil
 end
 
+-- What running a step returns while a wait_until step isn't done yet: run it again next tick.
+local WAITING = {}
+
+--- Runs step `current_step` of `context`, `first_func` being step 0. A wait_until step returns
+-- WAITING until its condition holds, and fails if it doesn't within its ticks.
+local function run_step(context, current_step, first_func)
+    if current_step == 0 then
+        return xpcall(first_func, error_handler, context)
+    end
+
+    local step = context._steps[current_step]
+    local success, return_value = xpcall(step.func, error_handler, context)
+    if not success or not step.wait_ticks or return_value then
+        return success, return_value
+    end
+
+    step.waited = step.waited + 1
+    if step.waited < step.wait_ticks then
+        return true, WAITING
+    end
+
+    local message = step.wait_message or 'the condition was not met'
+    if type(message) == 'function' then
+        local ok, result = xpcall(message, error_handler, context)
+        message = ok and result or ('the wait_until message failed: ' .. tostring(result))
+    end
+    return false, tostring(message) .. ' (waited ' .. step.wait_ticks .. ' ticks)'
+end
+
 local function run_hook(hook, player)
     local context = hook.context
     local steps = context._steps
     local current_step = hook.current_step
 
-    local func
-    if current_step == 0 then
-        func = hook.func
-    else
-        func = steps[current_step].func
-    end
-
-    local success, return_value = xpcall(func, error_handler, context)
+    local success, return_value = run_step(context, current_step, hook.func)
 
     if not success then
         hook.error = return_value
@@ -262,6 +284,10 @@ local function run_hook(hook, player)
         record_hook_error_in_module(hook)
         do_teardowns(context, hook.name, player)
         return false
+    end
+
+    if return_value == WAITING then
+        return WAITING
     end
 
     if current_step ~= #steps then
@@ -288,6 +314,11 @@ local function do_hook(hook, data)
     end
 
     local hook_success = run_hook(hook, data.player)
+
+    if hook_success == WAITING then
+        schedule(data, 1)
+        return
+    end
 
     if hook_success == false then
         local message = table.concat {hook.name, ' of ', get_module_path(hook.module), ' failed: ', tostring(hook.error)}
@@ -320,15 +351,11 @@ local function run_test(test, player)
     local steps = context._steps
     local current_step = test.current_step
 
-    local func
     if current_step == 0 then
         test.started_tick = game.tick
-        func = test.func
-    else
-        func = steps[current_step].func
     end
 
-    local success, return_value = xpcall(func, error_handler, context)
+    local success, return_value = run_step(context, current_step, test.func)
 
     if not success then
         print_error(player, test.name, return_value)
@@ -336,6 +363,10 @@ local function run_test(test, player)
         test.error = return_value
         do_teardowns(context, test.name, player)
         return false
+    end
+
+    if return_value == WAITING then
+        return WAITING
     end
 
     if current_step ~= #steps then
@@ -366,6 +397,11 @@ local function do_test(test, data)
         success = false
     else
         success = run_test(test, data.player)
+    end
+
+    if success == WAITING then
+        schedule(data, 1)
+        return
     end
 
     if success ~= nil then
@@ -445,23 +481,31 @@ local function run(runnables, player, options)
         failed_startups = {}
     }
     run_runnables({run_id = id})
+    return id
 end
 
 --- Runs the tests in `module` (all of them if nil), printing the results to `player`.
 -- options.headless runs them the way a headless server (CI) does: the tests get no player, so
 -- the ones tagged 'skip-headless' are skipped. `player` may then be nil.
+-- @return the run's id, for is_running
 function Public.run_module(module, player, options)
     options = validate_options(options)
     local skip_tags = options.headless and {[Public.skip_headless_tag] = true} or nil
     local test_player = (not options.headless) and player or nil
     local runnables = Builder.build_module_for_run(module or ModuleStore.root_module, test_player, skip_tags)
-    run(runnables, player, options)
+    return run(runnables, player, options)
 end
 
+--- Runs one test, with its modules' startups and teardowns. @return the run's id
 function Public.run_test(test, player, options)
     options = validate_options(options)
     local runnables = Builder.build_test_for_run(test, player)
-    run(runnables, player, options)
+    return run(runnables, player, options)
+end
+
+--- Whether the run with `id` is still going: until its last teardown has run.
+function Public.is_running(id)
+    return runs[id] ~= nil
 end
 
 return Public

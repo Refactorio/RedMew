@@ -1,10 +1,9 @@
--- Tests for how the test runner treats a module whose startup or teardown fails. Each runs a
--- small module of its own through the runner, alongside the run it is part of; the modules
+-- Tests for how the test runner treats a module whose startup or teardown fails, and for
+-- context:wait_until. Each runs a small module of its own through the runner, alongside the run it is part of; the modules
 -- aren't declared, so /test-runner and headless runs never run them by themselves, and their
 -- run reports to no player and isn't headless, so nothing reports their results.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
-local Helper = require 'utils.test.helper'
 local Runner = require 'utils.test.runner'
 
 local RUN_TICKS = 300
@@ -17,42 +16,23 @@ local function new_module(name, parent)
     return module
 end
 
+local function add_test_func(module, name, func)
+    module.tests[#module.tests + 1] = {name = name, module = module, func = func}
+end
+
 -- `ran` records which of the module's functions ran, by name
 local function add_test(module, name, ran)
-    module.tests[#module.tests + 1] = {
-        name = name,
-        module = module,
-        func = function()
-            ran[name] = true
-        end
-    }
-end
-
-local function all_tests(module, list)
-    list = list or {}
-    for _, test in pairs(module.tests) do
-        list[#list + 1] = test
-    end
-    for _, child in pairs(module.children) do
-        all_tests(child, list)
-    end
-    return list
-end
-
---- Runs `module` and calls `after` when every test in it has a result.
-local function run(context, module, after)
-    Runner.run_module(module, nil, {})
-    Helper.wait_until(context, RUN_TICKS, function()
-        for _, test in pairs(all_tests(module)) do
-            if test.passed == nil then
-                return false
-            end
-        end
-        return true
-    end, function(finished)
-        Assert.is_true(finished, 'the run did not finish in ' .. RUN_TICKS .. ' ticks')
-        after()
+    add_test_func(module, name, function()
+        ran[name] = true
     end)
+end
+
+--- Runs `module`; the returned context carries on once the run has finished, teardowns and all.
+local function run(context, module)
+    local id = Runner.run_module(module, nil, {})
+    return context:wait_until(RUN_TICKS, function()
+        return not Runner.is_running(id)
+    end, 'the run did not finish')
 end
 
 local function assert_failed(test, error_start)
@@ -94,7 +74,7 @@ Declare.module({'utils', 'test runner'}, function()
         add_test(child, 'child test', ran)
 
         -- Act
-        run(context, parent, function()
+        run(context, parent):next(function()
             -- Assert
             Assert.equal(true, parent.tests[1].passed, 'the parent test passed')
             Assert.equal('the startup broke', broken.startup_error, 'the startup error recorded on its module')
@@ -121,7 +101,7 @@ Declare.module({'utils', 'test runner'}, function()
         add_test(child, 'child test', ran)
 
         -- Act
-        run(context, broken, function()
+        run(context, broken):next(function()
             -- Assert: both ran, then failed with the teardown
             for _, test in pairs({broken.tests[1], child.tests[1]}) do
                 Assert.is_true(ran[test.name], test.name .. ' did not run')
@@ -143,16 +123,85 @@ Declare.module({'utils', 'test runner'}, function()
         end
         add_test(module, 'test', ran)
 
-        run(context, module, function()
+        local second_run
+        run(context, module):next(function()
             assert_failed(module.tests[1], 'startup of /flaky startup failed')
 
             -- Act
-            module.tests[1].passed = nil
-            run(context, module, function()
-                -- Assert
-                Assert.equal(true, module.tests[1].passed, 'the test passed on the second run')
-                Assert.is_nil(module.startup_error, 'the first run\'s startup error')
+            second_run = Runner.run_module(module, nil, {})
+        end):wait_until(RUN_TICKS, function()
+            return not Runner.is_running(second_run)
+        end, 'the second run did not finish'):next(function()
+            -- Assert
+            Assert.equal(true, module.tests[1].passed, 'the test passed on the second run')
+            Assert.is_nil(module.startup_error, 'the first run\'s startup error')
+        end)
+    end)
+
+    Declare.test('wait_until carries on the tick after its condition holds', function(context)
+        -- Arrange: a test that waits 5 ticks, then notes when its next step ran
+        local ran = {}
+        local module = new_module('wait until')
+        add_test_func(module, 'test', function(inner)
+            ran.held = game.tick + 5
+            inner:wait_until(60, function()
+                return game.tick >= ran.held
+            end):next(function()
+                ran.next_step = game.tick
             end)
+        end)
+
+        -- Act
+        run(context, module):next(function()
+            -- Assert: checked every tick, so the next step runs the tick after
+            Assert.equal(true, module.tests[1].passed, 'the waiting test passed')
+            Assert.equal(ran.held + 1, ran.next_step, 'tick the step after wait_until ran')
+        end)
+    end)
+
+    Declare.test('wait_until fails with its message when its condition never holds', function(context)
+        -- Arrange
+        local ran = {}
+        local module = new_module('wait until never')
+        add_test_func(module, 'test', function(inner)
+            inner:wait_until(5, function()
+                return false
+            end, function()
+                return 'it never held'
+            end):next(function()
+                ran.next_step = true
+            end)
+        end)
+
+        -- Act
+        run(context, module):next(function()
+            -- Assert
+            assert_failed(module.tests[1], 'it never held (waited 5 ticks)')
+            Assert.is_nil(ran.next_step, 'the step after the failed wait_until ran')
+        end)
+    end)
+
+    Declare.test('wait_until works in a module startup', function(context)
+        -- Arrange: a startup that waits a few ticks before it's ready
+        local ran = {}
+        local module = new_module('startup wait until')
+        module.startup_func = function(inner)
+            local ready = game.tick + 3
+            inner:wait_until(30, function()
+                return game.tick >= ready
+            end):next(function()
+                ran.ready = true
+            end)
+        end
+        add_test_func(module, 'test', function()
+            ran.test_saw_ready = ran.ready
+        end)
+
+        -- Act
+        run(context, module):next(function()
+            -- Assert
+            Assert.equal(true, module.tests[1].passed, 'the test passed')
+            Assert.equal(true, ran.test_saw_ready, 'the test ran before the startup was ready')
         end)
     end)
 end)
