@@ -18,15 +18,16 @@ local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
 local EventFactory = require 'utils.test.event_factory'
 local Event = require 'utils.event'
+local Token = require 'utils.token'
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 
 local BANNED = 'wooden-chest'
 local ALLOWED = 'iron-chest'
 local main_inventory = defines.inventory.character_main
 
--- what the module last said it was about to destroy (and refund)
+-- what the module last said it was about to destroy (and refund), while the main module's tests run
 local last_pre_destroy
-Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, function(event)
+local record_pre_destroy = Token.register(function(event)
     last_pre_destroy = event
 end)
 
@@ -70,6 +71,7 @@ Declare.module(
         Declare.module_startup(
             function(context)
                 surface, delete_surface = Helper.create_test_surface(context)
+                Event.add_removable(RestrictEntities.events.on_pre_restricted_entity_destroyed, record_pre_destroy)
 
                 allowed_before = RestrictEntities.get_allowed()[ALLOWED]
                 RestrictEntities.add_banned({BANNED})
@@ -86,6 +88,7 @@ Declare.module(
                 if not allowed_before then
                     RestrictEntities.remove_allowed({ALLOWED})
                 end
+                Event.remove_removable(RestrictEntities.events.on_pre_restricted_entity_destroyed, record_pre_destroy)
                 delete_surface()
             end
         )

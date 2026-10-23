@@ -11,21 +11,35 @@ local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
 local EventFactory = require 'utils.test.event_factory'
 local Event = require 'utils.event'
+local Token = require 'utils.token'
 local RE = require 'map_gen.shared.entity_placement_restriction'
 local H = require 'map_gen.maps.danger_ores.modules.terrain_test_helper'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local SAFETY_RADIUS = 7 -- as in the preset: the stone square is 15 tiles across
 
--- what the restriction module last said it was about to destroy (and refund)
+-- what the restriction module last said it was about to destroy (and refund), while the module's
+-- tests run
 local last_pre_destroy
-Event.add(RE.events.on_pre_restricted_entity_destroyed, function(event)
+local record_pre_destroy = Token.register(function(event)
     last_pre_destroy = event
 end)
 
 Declare.module(
     {'map_gen', 'safety ores'},
     function()
+        Declare.module_startup(
+            function()
+                Event.add_removable(RE.events.on_pre_restricted_entity_destroyed, record_pre_destroy)
+            end
+        )
+
+        Declare.module_teardown(
+            function()
+                Event.remove_removable(RE.events.on_pre_restricted_entity_destroyed, record_pre_destroy)
+            end
+        )
+
         local function build(name, p, extra)
             local surface = RS.get_surface()
             local spec = {name = name, position = p, force = 'player'}
