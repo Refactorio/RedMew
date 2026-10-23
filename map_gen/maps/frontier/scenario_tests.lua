@@ -26,6 +26,7 @@ Declare.module(
         Declare.test(
             'the world is a ribbon of the configured height',
             function()
+                -- Assert: the scenario set it as it started
                 local this = Public.get()
                 Assert.equal(this.height * 32, Public.surface().map_gen_settings.height, 'world height in tiles')
             end
@@ -34,9 +35,12 @@ Declare.module(
         Declare.test(
             'water lies past the west boundary',
             function()
+                -- Act
                 local this = Public.get()
                 local x = -this.left_boundary * 32 - 16
                 local surface = generate(x, 0, 3)
+
+                -- Assert
                 for _, y in pairs {-64, 0, 64} do
                     local tile = surface.get_tile(x, y)
                     Assert.equal('water', tile.name, 'tile at ' .. x .. ',' .. y)
@@ -51,8 +55,10 @@ Declare.module(
                 local left = this.right_boundary * 32
                 local half = this.height * 16
                 for y = -half + 16, half - 16, 64 do
+                    -- Act
                     local surface = generate(left, y, 1)
-                    -- name what stands in any gap, so a failure says what blocked the wall
+
+                    -- Assert: name what stands in any gap, so a failure says what blocked the wall
                     local gaps = {}
                     for x = left, left + this.wall_width - 1 do
                         if surface.count_entities_filtered {area = {{x, y}, {x + 1, y + 1}}, name = 'stone-wall'} == 0 then
@@ -71,14 +77,16 @@ Declare.module(
         Declare.test(
             'the rocket silo is placed east of spawn',
             function()
-                -- out in enemy land in a real game; under _DEBUG, which tests run under, the
-                -- scenario starts it at x 30 so it is quick to reach
+                -- Assert: out in enemy land in a real game; under _DEBUG, which tests run under,
+                -- the scenario starts it at x 30 so it is quick to reach
                 local this = Public.get()
                 local silo = this.rocket_silo
                 Assert.is_true(silo ~= nil and silo.valid, 'no rocket silo')
                 Assert.is_true(silo.position.x >= this.silo_starting_x, 'the silo is at x ' .. silo.position.x .. ', before ' .. this.silo_starting_x)
             end
         )
+        -- Builds `name` at `position` the way a player does: script-created entities don't raise
+        -- the build event, so this raises it.
         local function build(surface, name, position)
             local entity = surface.create_entity {name = name, position = position, force = 'player'}
             Assert.valid(entity, 'the test ' .. name .. ' was not created')
@@ -89,13 +97,16 @@ Declare.module(
         Declare.test(
             'the kraken eats what is built past its line in the west, and nothing short of it',
             function()
+                -- Arrange
                 local this = Public.get()
                 local line = -(this.kraken_distance + this.left_boundary * 32)
                 local surface = generate(line, 0, 1)
 
+                -- Act
                 local eaten = build(surface, 'small-electric-pole', {line - 4.5, 0.5})
                 local spared = build(surface, 'small-electric-pole', {line + 4.5, 0.5})
 
+                -- Assert
                 Assert.is_true(not eaten.valid, 'a pole built at x ' .. (line - 4.5) .. ', past the kraken line at ' .. line .. ', is still there')
                 Assert.is_true(spared.valid, 'a pole built at x ' .. (line + 4.5) .. ', short of the kraken line, was eaten')
                 spared.destroy()
@@ -105,11 +116,13 @@ Declare.module(
         Declare.test(
             'the kraken eats vehicles past its line, and none short of it',
             function(context)
-                -- a spidertron walks out over the water; one sent by remote control takes no
-                -- player along, so the kraken has to find the vehicle itself
+                -- Arrange: a spidertron walks out over the water; one sent by remote control takes
+                -- no player along, so the kraken has to find the vehicle itself
                 local this = Public.get()
                 local line = -(this.kraken_distance + this.left_boundary * 32)
                 local surface = generate(line, 0, 1)
+
+                -- Act
                 local eaten = surface.create_entity {name = 'spidertron', position = {line - 6, 0}, force = 'player'}
                 local spared = surface.create_entity {name = 'spidertron', position = {line + 6, 0}, force = 'player'}
                 Assert.valid(eaten, 'the test spidertron past the line was not created')
@@ -120,6 +133,7 @@ Declare.module(
                     end
                 end)
 
+                -- Assert, after the kraken's next look round, once a second
                 context:timeout(70, function()
                     Assert.is_true(not eaten.valid, 'a spidertron at x ' .. (line - 6) .. ', past the kraken line at ' .. line .. ', is still there a second later')
                     Assert.is_true(spared.valid, 'a spidertron at x ' .. (line + 6) .. ', short of the kraken line, was eaten')
@@ -130,6 +144,7 @@ Declare.module(
         Declare.test(
             'researching the rocket silo does not let it be crafted',
             function(context)
+                -- Arrange
                 local force = game.forces.player
                 local tech = force.technologies['rocket-silo']
                 Assert.is_true(not tech.researched, 'rocket-silo was already researched')
@@ -137,8 +152,10 @@ Declare.module(
                     tech.researched = false
                 end)
 
+                -- Act
                 tech.researched = true
 
+                -- Assert
                 Assert.is_true(not force.recipes['rocket-silo'].enabled, 'the rocket silo recipe is enabled')
             end
         )
