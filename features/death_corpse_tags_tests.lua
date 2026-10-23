@@ -19,6 +19,9 @@ local function declare_test(name, func)
 end
 
 Declare.module({'features', 'death_corpse_tags'}, function()
+    -- kills a player's character
+    Declare.tags('skip-headless')
+
     local teardown
 
     Declare.module_startup(function(context)

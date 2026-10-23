@@ -5,6 +5,9 @@ local Helper = require 'utils.test.helper'
 
 Declare.module({'utils', 'Gui'}, function()
     Declare.module('can toggle top buttons', function()
+        -- uses a player's GUI
+        Declare.tags('skip-headless')
+
         local function count_gui_elements(player)
             local roots = {Gui.get_top_flow(player), Gui.get_left_flow(player), player.gui.center, player.gui.screen}
             local count = 0

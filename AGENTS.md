@@ -31,7 +31,7 @@ Never open or read files under `map_gen/data/` (especially `map_gen/data/presets
 - Define chat commands with `Command.add` from `utils/command.lua` (handles ranks, locales, server flags) rather than raw `commands.add_command`; build GUIs with the helpers in `utils/gui.lua`.
 - Player-facing strings should be translatable: add keys to `locale/en/*.cfg` (the source of truth) and keep keys in sync across locales — the CI pipeline (`.github/workflows/CI.yml`, run before PRs to `develop` are merged) checks for missing/misplaced keys and rejects duplicate keys or sections.
 - Whenever adding, editing, or translating strings in `locale/`, follow `docs/LOCALE.md`.
-- Tests run inside Factorio using the framework in `utils/test/`: create a `<module>_tests.lua` next to the code (see `utils/core_tests.lua`) and run the `/test-runner` command in game (`_DEBUG = true` in `config.lua`).
+- Tests run inside Factorio using the framework in `utils/test/`: create a `<module>_tests.lua` next to the code (see `utils/core_tests.lua`) and run the `/test-runner` command in game (`_DEBUG = true` in `config.lua`). CI runs them on headless servers for every scenario template, where tests needing a player are skipped; see `docs/TESTS.md`.
 - Keep changes surgical; feature modules should be independently disableable through `config.lua`.
 
 ## Scenario templates (`scenario_templates/`)
