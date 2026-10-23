@@ -33,7 +33,15 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
   pwsh .github/scripts/run-tests.ps1 'C:\Program Files\Factorio' danger-ore-rivers
   ```
 
-  The first is Steam's install folder, the second the standalone game's. The headers of the
+  The first is Steam's install folder, the second the standalone game's. On macOS, give the
+  game's app (`brew install powershell` for `pwsh`):
+
+  ```
+  pwsh .github/scripts/run-all.ps1 ~/Library/Application\ Support/Steam/steamapps/common/Factorio/factorio.app
+  pwsh .github/scripts/run-tests.ps1 /Applications/factorio.app danger-ore-rivers
+  ```
+
+  The first is Steam's, the second the standalone game's if it was put in Applications. The headers of the
   scripts list their options (how many run at once, the seed, the game speed), which are
   environment variables: `SEED=random pwsh ...` in bash, or `$env:SEED = 'random'` in PowerShell
   before running.
