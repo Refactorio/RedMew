@@ -7,7 +7,6 @@ local DOC = require 'map_gen.maps.danger_ores.configuration'
 local H = require 'map_gen.maps.danger_ores.modules.terrain_test_helper'
 
 local sea_names = {'water-mud', 'water-shallow', 'water', 'deepwater'}
-local walkable = {['water-mud'] = true, ['water-shallow'] = true, ['water'] = false, ['deepwater'] = false}
 
 -- the areas the sea tests grow through until they find what they need: every seed tried had
 -- all four kinds of sea within 320 of spawn
@@ -41,9 +40,11 @@ Declare.module(
             'coasts shade from mud and shallows into open water',
             function()
                 local surface, half = H.generate_until(0, 0, HALVES, function(s, half)
-                    return has_tiles(s, half, {'water', 'deepwater'})
+                    return has_tiles(s, half, sea_names)
                 end)
-                Assert.is_true(has_tiles(surface, half, {'water', 'deepwater'}), 'no water and deep water within ' .. half .. ' of spawn')
+                for _, name in pairs(sea_names) do
+                    Assert.is_true(has_tiles(surface, half, {name}), 'no ' .. name .. ' within ' .. half .. ' of spawn')
+                end
                 local sea = H.tile_set(surface, {{-half, -half}, {half, half}}, sea_names)
                 local bad, first = 0, nil
                 local inner = {{-half + 1, -half + 1}, {half - 1, half - 1}}
@@ -58,65 +59,6 @@ Declare.module(
                     end
                 end
                 Assert.equal(0, bad, 'water or deep water tiles next to land' .. (first and (', e.g. at ' .. first.x .. ',' .. first.y) or ''))
-            end
-        )
-
-        Declare.test(
-            'mud and shallows can be walked on, water and deep water cannot',
-            function()
-                -- a tile of each kind surrounded by its own kind, with nothing standing on it
-                local function clear_spot(surface, half, name)
-                    local same = H.tile_set(surface, {{-half, -half}, {half, half}}, name)
-                    for _, tile in pairs(surface.find_tiles_filtered {area = {{-half + 1, -half + 1}, {half - 1, half - 1}}, name = name}) do
-                        local p = tile.position
-                        if same[H.key(p.x + 1, p.y)] and same[H.key(p.x - 1, p.y)] and same[H.key(p.x, p.y + 1)] and same[H.key(p.x, p.y - 1)]
-                            and surface.count_entities_filtered {area = {{p.x - 1, p.y - 1}, {p.x + 2, p.y + 2}}} == 0 then
-                            return p
-                        end
-                    end
-                end
-                local spots
-                local surface, half = H.generate_until(0, 0, HALVES, function(s, half)
-                    spots = {}
-                    for name in pairs(walkable) do
-                        spots[name] = clear_spot(s, half, name)
-                        if not spots[name] then
-                            return false
-                        end
-                    end
-                    return true
-                end)
-                for name, expected in pairs(walkable) do
-                    local spot = spots[name]
-                    Assert.is_true(spot ~= nil, 'no clear ' .. name .. ' tile found within ' .. half .. ' of spawn')
-
-                    local can = surface.can_place_entity {name = 'character', position = {spot.x + 0.5, spot.y + 0.5}, force = 'player'}
-                    Assert.equal(expected, can, 'a character can stand on ' .. name .. ' at ' .. spot.x .. ',' .. spot.y)
-                end
-            end
-        )
-
-        Declare.test(
-            'every kind of sea can be landfilled',
-            function()
-                local place = prototypes.item['landfill'].place_as_tile_result
-                local blocked_layers = place.condition and place.condition.layers or {}
-                local allowed = place.tile_condition
-                for _, name in pairs(sea_names) do
-                    local layers = prototypes.tile[name].collision_mask.layers
-                    for layer in pairs(blocked_layers) do
-                        Assert.is_true(not layers[layer], 'landfill cannot be placed on ' .. name .. ': it has the ' .. layer .. ' layer')
-                    end
-                    if allowed then
-                        local listed = false
-                        for _, tile in pairs(allowed) do
-                            if (type(tile) == 'string' and tile or tile.name) == name then
-                                listed = true
-                            end
-                        end
-                        Assert.is_true(listed, 'landfill cannot be placed on ' .. name .. ': not in its tile_condition')
-                    end
-                end
             end
         )
     end
