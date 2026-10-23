@@ -1,6 +1,6 @@
--- In-game tests for Diggy's alien spawner. These run under _DEBUG via /test-runner on Diggy maps
--- with it enabled: opening the void raises enemy evolution, and far enough from spawn lets
--- aliens out of it; near spawn it doesn't.
+-- In-game tests for Diggy's alien spawner. These run on Diggy maps with it enabled: opening the
+-- void raises enemy evolution, and far enough from spawn lets aliens out of it; near spawn it
+-- doesn't.
 --
 -- The void is opened through Template.insert, the way digging does it.
 local Declare = require 'utils.test.declare'

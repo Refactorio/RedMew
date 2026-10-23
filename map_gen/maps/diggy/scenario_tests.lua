@@ -1,7 +1,6 @@
--- In-game bootstrap tests for Diggy. These run under _DEBUG via /test-runner, and are only
--- discovered when scenario.lua is loaded, i.e. when a Diggy map is active. They check that the
--- map starts the way the rest of it relies on: a dug-out starting zone with a ring of rocks
--- around it, and the market.
+-- In-game bootstrap tests for Diggy. These are only discovered when scenario.lua is loaded,
+-- i.e. when a Diggy map is active. They check that the map starts the way the rest of it relies
+-- on: a dug-out starting zone with a ring of rocks around it, and the market.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local EventFactory = require 'utils.test.event_factory'

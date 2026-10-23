@@ -1,5 +1,5 @@
--- In-game tests for Diggy's coin gathering. These run under _DEBUG via /test-runner on Diggy maps
--- with it enabled: enemies that die drop coins.
+-- In-game tests for Diggy's coin gathering. These run on Diggy maps with it enabled: enemies
+-- that die drop coins.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local RS = require 'map_gen.shared.redmew_surface'

@@ -1,5 +1,5 @@
--- In-game tests for Diggy's scattered resources. These run under _DEBUG via /test-runner on Diggy
--- maps with it enabled: ore turns up in the void that is opened far from spawn.
+-- In-game tests for Diggy's scattered resources. These run on Diggy maps with it enabled: ore
+-- turns up in the void that is opened far from spawn.
 --
 -- The void is opened through Template.insert, the way digging does it.
 local Declare = require 'utils.test.declare'
