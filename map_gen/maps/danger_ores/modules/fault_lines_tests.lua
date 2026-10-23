@@ -26,7 +26,10 @@ Declare.module(
         Declare.test(
             'spawn is clear of cracks',
             function()
+                -- Act
                 local surface = H.generate_around(0, 0, SPAWN_CLEAR + 32)
+
+                -- Assert
                 local cracks = surface.count_tiles_filtered {position = {0, 0}, radius = SPAWN_CLEAR, name = 'out-of-map'}
                 Assert.equal(0, cracks, 'crack tiles within ' .. SPAWN_CLEAR .. ' of spawn')
             end
@@ -43,6 +46,7 @@ Declare.module(
             Declare.test(
                 'cracks ' .. r .. ' tiles out are ' .. tier.gap .. ' wide and an underground belt crosses them',
                 function()
+                    -- Arrange: the shortest underground belt that spans the tier's gap
                     local belt
                     for _, name in pairs(belts) do
                         if H.underground_gap(name) >= tier.gap then
@@ -52,11 +56,12 @@ Declare.module(
                     end
                     Assert.is_true(belt ~= nil, 'no underground belt spans ' .. tier.gap .. ' tiles')
 
+                    -- Act
                     local surface = H.generate_around(cx, cy, WINDOW + 16)
                     local cracks = H.tile_set(surface, {{cx - WINDOW - 16, cy - WINDOW - 16}, {cx + WINDOW + 16, cy + WINDOW + 16}}, 'out-of-map')
 
-                    -- width of every crack tile along its better axis; where cracks meet the
-                    -- width runs into the other crack, so judge the crack by its usual width
+                    -- Assert: the width of every crack tile along its better axis; where cracks meet
+                    -- the width runs into the other crack, so judge the crack by its usual width
                     local widths = {}
                     local example = {}
                     for _, tile in pairs(surface.find_tiles_filtered {area = {{cx - WINDOW, cy - WINDOW}, {cx + WINDOW, cy + WINDOW}}, name = 'out-of-map'}) do
@@ -88,13 +93,16 @@ Declare.module(
         Declare.test(
             'every plate around spawn can be walked to',
             function()
-                -- the plates within radius of spawn, with room round them for walks that go round
-                -- the end of a crack
+                -- Arrange: the plates within radius of spawn, with room round them for walks that
+                -- go round the end of a crack
                 local half, radius = 192, 128
                 local surface = H.generate_around(0, 0, half)
                 local cracks = H.tile_set(surface, {{-half, -half}, {half + 1, half + 1}}, 'out-of-map')
+
+                -- Act
                 local reached = H.walk_from_spawn(cracks, half)
-                -- single tiles boxed in where cracks meet are fine; a plate is thousands of tiles
+
+                -- Assert: single tiles boxed in where cracks meet are fine; a plate is thousands of tiles
                 local biggest = 0
                 for _, size in pairs(H.unreached_groups(cracks, reached, radius)) do
                     if size > biggest then

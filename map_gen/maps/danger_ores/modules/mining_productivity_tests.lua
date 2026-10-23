@@ -22,13 +22,15 @@ Declare.module(
             Declare.test(
                 'mining productivity cannot be researched',
                 function()
+                    -- Assert: the map's setup turned it off
                     Assert.is_true(not game.forces.player.technologies[TECH].enabled, TECH .. ' is enabled')
                 end
             )
             return
         end
 
-        local function researching(context)
+        -- the force, the technology and the bonuses before researching it, all put back afterwards
+        local function prepare(context)
             local force = game.forces.player
             local tech = force.technologies[TECH]
             local mining, cargo = force.mining_drill_productivity_bonus, force.worker_robots_storage_bonus
@@ -38,14 +40,19 @@ Declare.module(
                 force.mining_drill_productivity_bonus = mining
                 force.worker_robots_storage_bonus = cargo
             end)
-            tech.researched = true
-            return force, mining, cargo
+            return force, tech, mining, cargo
         end
 
         Declare.test(
             'researching mining productivity gives robot cargo size instead',
             function(context)
-                local force, mining, cargo = researching(context)
+                -- Arrange
+                local force, tech, mining, cargo = prepare(context)
+
+                -- Act
+                tech.researched = true
+
+                -- Assert
                 Assert.equal(mining, force.mining_drill_productivity_bonus, 'mining productivity after researching ' .. TECH)
                 Assert.equal(cargo + 1, force.worker_robots_storage_bonus, 'robot cargo size after researching ' .. TECH)
             end
@@ -54,10 +61,14 @@ Declare.module(
         Declare.test(
             'resetting technology effects keeps mining productivity as robot cargo size',
             function(context)
-                local force, mining, cargo = researching(context)
+                -- Arrange
+                local force, tech, mining, cargo = prepare(context)
+                tech.researched = true
 
+                -- Act
                 force.reset_technology_effects()
 
+                -- Assert
                 Assert.equal(mining, force.mining_drill_productivity_bonus, 'mining productivity after the reset')
                 Assert.equal(cargo + 1, force.worker_robots_storage_bonus, 'robot cargo size after the reset')
             end

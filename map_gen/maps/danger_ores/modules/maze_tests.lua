@@ -42,7 +42,10 @@ Declare.module(
         Declare.test(
             'the area around spawn has both walls and corridors',
             function()
+                -- Act
                 local open, walls = open_chunks()
+
+                -- Assert
                 local corridors = 0
                 for _ in pairs(open) do
                     corridors = corridors + 1
@@ -56,7 +59,10 @@ Declare.module(
         Declare.test(
             'walking from spawn leads out of its cell into the maze',
             function()
+                -- Arrange
                 local open = open_chunks()
+
+                -- Act: walk the open chunks from spawn
                 local seen = {['0,0'] = true}
                 local stack = {{0, 0}}
                 local farthest = 0
@@ -73,7 +79,7 @@ Declare.module(
                         end
                     end
                 end
-                -- out of the spawn cell means more than a cell away from the spawn chunk
+                -- Assert: out of the spawn cell means more than a cell away from the spawn chunk
                 Assert.is_true(farthest > cell, 'walking from spawn only gets ' .. farthest .. ' chunks out: the spawn cell is closed')
             end
         )

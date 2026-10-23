@@ -22,19 +22,26 @@ Declare.module(
         Declare.test(
             'a legendary mech armor wins the map, a normal one does not',
             function(context)
+                -- Arrange
                 Assert.is_true(not ShareGlobals.data.map_won, 'the map was already won')
 
-                -- a rocket launch only tells players the goal
+                -- Act: a rocket launch only tells players the goal
                 EventFactory.raise {name = defines.events.on_rocket_launched, tick = game.tick}
+
+                -- Assert
                 Assert.is_true(ShareGlobals.data.goal_notice, 'a rocket launch did not tell players the goal')
                 Assert.is_true(not ShareGlobals.data.map_won, 'a rocket launch won the map')
 
+                -- Act: a normal mech armor
                 craft('normal')
                 context:timeout(CHECK_TICKS + 10, function()
+                    -- Assert
                     Assert.is_true(not ShareGlobals.data.map_won, 'a normal mech armor won the map')
 
+                    -- Act: a legendary one
                     craft('legendary')
                     context:timeout(CHECK_TICKS + 10, function()
+                        -- Assert
                         Assert.is_true(ShareGlobals.data.map_won, 'a legendary mech armor did not win the map')
                     end)
                 end)

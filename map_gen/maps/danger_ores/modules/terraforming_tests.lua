@@ -77,9 +77,11 @@ Declare.module(
         Declare.test(
             'the starting area is open',
             function()
-                -- only the spawn chunk: elsewhere in the starting area the map can have void
+                -- Act: only the spawn chunk: elsewhere in the starting area the map can have void
                 -- of its own (3-Way's T, say), which looks just like a locked chunk
                 local surface, area = request_chunk(0, 0)
+
+                -- Assert
                 Assert.is_true(void_count(surface, area) < CHUNK_TILES, 'the spawn chunk is locked')
             end
         )
@@ -87,7 +89,10 @@ Declare.module(
         Declare.test(
             'chunks outside the starting area are locked',
             function()
+                -- Act
                 local surface, area, cx, cy = find_far_chunk(ALL_DIRECTIONS, false, 0)
+
+                -- Assert
                 Assert.is_true(surface ~= nil, 'no chunk outside the starting area could be generated')
                 Assert.equal(CHUNK_TILES, void_count(surface, area), 'void tiles in chunk ' .. cx .. ',' .. cy)
             end
@@ -96,6 +101,7 @@ Declare.module(
         Declare.test(
             'a locked chunk opens once its pollution passes the threshold',
             function(context)
+                -- Arrange
                 local data = _G.terraforming_pollution_data
                 local before = data.min_pollution
                 context:add_teardown(function()
@@ -107,9 +113,9 @@ Declare.module(
                 local name = 'chunk ' .. cx .. ',' .. cy
                 Assert.equal(CHUNK_TILES, void_count(surface, area), name .. ' was already open')
 
-                local centre = {area.left_top.x + 16, area.left_top.y + 16}
-                -- keep the pollution up the way a factory would: it spreads out and decays
+                -- Act: keep the pollution up the way a factory would: it spreads out and decays
                 -- while terraforming works round to this chunk
+                local centre = {area.left_top.x + 16, area.left_top.y + 16}
                 local function top_up()
                     local missing = before * 2 - surface.get_pollution(centre)
                     if missing > 0 then
@@ -118,7 +124,7 @@ Declare.module(
                 end
                 top_up()
 
-                -- terraforming checks one locked chunk per tick, then queues the chunk for
+                -- Assert: terraforming checks one locked chunk per tick, then queues the chunk for
                 -- generation; poll until it has been generated
                 local tries = 120
                 local function check()

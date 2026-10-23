@@ -35,7 +35,10 @@ Declare.module(
         Declare.test(
             'spawn is clear inside the first ring',
             function()
+                -- Act
                 local surface = H.generate_around(0, 0, first_ring)
+
+                -- Assert
                 local radius = first_ring - reach - 1
                 local walls = surface.count_tiles_filtered {position = {0, 0}, radius = radius, name = 'out-of-map'}
                 Assert.equal(0, walls, 'wall tiles within ' .. radius .. ' of spawn')
@@ -45,7 +48,10 @@ Declare.module(
         Declare.test(
             'the first ring has its gates',
             function()
+                -- Act
                 local _, walls = first_ring_walls()
+
+                -- Assert
                 local hits = H.band_hits(walls, first_ring, reach, STEPS)
                 local expected = max(2, floor(tau * first_ring / gate_spacing + 0.5))
                 Assert.equal(expected, H.count_runs(hits, STEPS, false), 'gates in the first ring')
@@ -55,6 +61,7 @@ Declare.module(
         Declare.test(
             'walls are too thick for pipe-to-ground to pass under',
             function()
+                -- Arrange: a stretch of the first ring's wall
                 local surface, walls = first_ring_walls()
                 local hits = H.band_hits(walls, first_ring, reach, STEPS)
 
@@ -95,6 +102,7 @@ Declare.module(
                 end
                 Assert.is_true(crossing ~= nil, 'no wall found along the chosen direction')
 
+                -- Act: pipe-to-ground either side of the wall, and the same pair over open ground
                 local a1, b1 = H.build_underground_pair(surface, 'pipe-to-ground', crossing.from, crossing.to, dx, dy)
                 local through_wall = H.connected(a1, b1)
                 H.destroy(a1, b1)
@@ -106,6 +114,7 @@ Declare.module(
                 local over_ground = H.connected(a2, b2)
                 H.destroy(a2, b2)
 
+                -- Assert
                 Assert.is_true(over_ground, 'control: pipe-to-ground from ' .. from.x .. ',' .. from.y .. ' to ' .. to.x .. ',' .. to.y .. ' in spawn did not connect')
                 Assert.is_true(not through_wall, 'pipe-to-ground connected under a ' .. crossing.width .. ' tile wall at ' .. crossing.from.x .. ',' .. crossing.from.y)
             end
@@ -114,8 +123,13 @@ Declare.module(
         Declare.test(
             'a gate leads out of the first ring',
             function()
+                -- Arrange
                 local _, walls = first_ring_walls()
+
+                -- Act
                 local reached = H.walk_from_spawn(walls, half)
+
+                -- Assert
                 local outside = first_ring + reach + 1
                 local escaped = false
                 for k in pairs(reached) do

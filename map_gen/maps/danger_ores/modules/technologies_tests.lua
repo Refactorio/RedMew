@@ -19,6 +19,7 @@ Declare.module(
             Declare.test(
                 'researching ' .. name .. ' also researches ' .. table.concat(unlocks, ', '),
                 function(context)
+                    -- Arrange
                     local techs = game.forces.player.technologies
                     local tech = techs[name]
                     Assert.is_true(tech ~= nil, 'there is no ' .. name .. ' technology')
@@ -32,8 +33,10 @@ Declare.module(
                         tech.researched = false
                     end)
 
+                    -- Act
                     tech.researched = true
 
+                    -- Assert
                     for _, unlock in pairs(unlocks) do
                         if techs[unlock] then
                             Assert.is_true(techs[unlock].researched, unlock .. ' is not researched after ' .. name)

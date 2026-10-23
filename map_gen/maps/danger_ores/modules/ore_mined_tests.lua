@@ -23,12 +23,15 @@ Declare.module(
         Declare.test(
             'ore produced on the map counts as mined',
             function()
+                -- Arrange
                 local counts, total = OreMined.get_ore_mined()
                 local coal = counts['coal']
                 Assert.is_true(coal ~= nil, 'coal is not counted as ore')
 
+                -- Act
                 stats().on_flow('coal', 100)
 
+                -- Assert
                 local after, after_total = OreMined.get_ore_mined()
                 Assert.equal(coal + 100, after['coal'], 'coal mined after producing 100')
                 Assert.equal(total + 100, after_total, 'ore mined after producing 100 coal')
@@ -38,10 +41,13 @@ Declare.module(
         Declare.test(
             'other items do not count',
             function()
+                -- Arrange
                 local _, total = OreMined.get_ore_mined()
 
+                -- Act
                 stats().on_flow('iron-plate', 100)
 
+                -- Assert
                 local _, after = OreMined.get_ore_mined()
                 Assert.equal(total, after, 'ore mined after producing 100 iron plates')
             end
@@ -51,10 +57,13 @@ Declare.module(
             Declare.test(
                 'quality ore counts too',
                 function()
+                    -- Arrange
                     local _, total = OreMined.get_ore_mined()
 
+                    -- Act
                     stats().on_flow({name = 'stone', quality = 'rare'}, 10)
 
+                    -- Assert
                     local _, after = OreMined.get_ore_mined()
                     Assert.equal(total + 10, after, 'ore mined after producing 10 rare stone')
                 end

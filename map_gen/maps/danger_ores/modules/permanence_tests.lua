@@ -27,6 +27,7 @@ Declare.module(
         Declare.test(
             'a building not allowed on ore leaves ore where it stood',
             function()
+                -- Arrange
                 local surface = spawn_surface()
                 local position = surface.find_non_colliding_position('assembling-machine-1', {30.5, -29.5}, 24, 1)
                 Assert.is_true(position ~= nil, 'no dry ground for the test machine near spawn')
@@ -39,8 +40,10 @@ Declare.module(
                 local health = machine.prototype.get_max_health(machine.quality)
                 Assert.equal(0, #ore_in(surface, footprint), 'ore was already there')
 
+                -- Act
                 machine.die()
 
+                -- Assert
                 local ores = ore_in(surface, footprint)
                 local where = {}
                 for _, ore in pairs(ores) do
@@ -55,6 +58,7 @@ Declare.module(
         Declare.test(
             'a building allowed on ore leaves none',
             function()
+                -- Arrange
                 local surface = spawn_surface()
                 local position = surface.find_non_colliding_position('transport-belt', {30.5, 29.5}, 24, 1)
                 Assert.is_true(position ~= nil, 'no dry ground for the test belt near spawn')
@@ -63,8 +67,10 @@ Declare.module(
                 Assert.is_true(AllowedEntities.is_allowed(belt), 'belts are not allowed on ore here, so this test proves nothing')
                 local x, y = math.floor(belt.position.x), math.floor(belt.position.y)
 
+                -- Act
                 belt.die()
 
+                -- Assert
                 Assert.equal(0, #ore_in(surface, {{x, y}, {x + 1, y + 1}}), 'ore where the belt stood')
             end
         )

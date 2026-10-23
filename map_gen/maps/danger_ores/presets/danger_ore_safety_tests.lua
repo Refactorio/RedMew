@@ -42,11 +42,14 @@ Declare.module(
         Declare.test(
             'a building off ore is removed and handed back',
             function()
+                -- Arrange
                 local p = H.dry_spot(RS.get_surface(), 'iron-chest')
                 Assert.is_true(p ~= nil, 'no ore-free ground near spawn')
 
+                -- Act
                 local chest = build('iron-chest', p)
 
+                -- Assert
                 Assert.is_true(not chest.valid, 'the iron chest built off ore at ' .. p.x .. ',' .. p.y .. ' is still there')
                 Assert.is_true(last_pre_destroy ~= nil, 'the restriction module did not say it was destroying anything')
                 Assert.equal('iron-chest', last_pre_destroy.stack.name, 'item handed back')
@@ -56,18 +59,22 @@ Declare.module(
         Declare.test(
             'a building real robots build off ore goes back to storage',
             function(context)
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.dry_spot(surface, 'iron-chest')
                 Assert.is_true(p ~= nil, 'no ore-free ground near spawn')
                 local storage, remove_network = Helper.robot_network(surface, {x = p.x + 8, y = p.y}, {{name = 'iron-chest', count = 1}})
                 context:add_teardown(remove_network)
+                local area = {{p.x - 1, p.y - 1}, {p.x + 1, p.y + 1}}
+
+                -- Act: a ghost for the robots to build
                 local ghost = surface.create_entity {name = 'entity-ghost', inner_name = 'iron-chest', position = p, force = 'player'}
                 Assert.valid(ghost, 'the test iron chest ghost was not placed')
-                local area = {{p.x - 1, p.y - 1}, {p.x + 1, p.y + 1}}
 
                 Helper.wait_until(context, 1800, function()
                     return not ghost.valid and storage.get_item_count('iron-chest') == 1
                 end, function(ok)
+                    -- Assert
                     local built = surface.count_entities_filtered {area = area, name = 'iron-chest'}
                     Assert.is_true(ok, 'the iron chest robots built off ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built .. ', in storage ' .. storage.get_item_count('iron-chest'))
                     Assert.equal(0, built, 'iron chests left off ore')
@@ -78,11 +85,14 @@ Declare.module(
         Declare.test(
             'the same building on ore stays',
             function()
+                -- Arrange
                 local p = H.ore_spot(RS.get_surface(), 'iron-chest')
                 Assert.is_true(p ~= nil, 'no ore near spawn to build on')
 
+                -- Act
                 local chest = build('iron-chest', p)
 
+                -- Assert
                 Assert.is_true(chest.valid, 'the iron chest built on ore at ' .. p.x .. ',' .. p.y .. ' was removed')
                 chest.destroy()
             end
@@ -91,15 +101,19 @@ Declare.module(
         Declare.test(
             'poles stay off ore, belts do not',
             function()
+                -- Arrange
                 local surface = RS.get_surface()
-                local p = H.dry_spot(surface, 'small-electric-pole')
-                Assert.is_true(p ~= nil, 'no ore-free ground near spawn')
-                local pole = build('small-electric-pole', p)
-                Assert.is_true(pole.valid, 'a pole built off ore was removed')
-                pole.destroy()
+                local pole_spot = H.dry_spot(surface, 'small-electric-pole')
+                Assert.is_true(pole_spot ~= nil, 'no ore-free ground near spawn')
 
-                p = H.dry_spot(surface, 'transport-belt')
-                local belt = build('transport-belt', p)
+                -- Act
+                local pole = build('small-electric-pole', pole_spot)
+                local valid_pole = pole.valid
+                pole.destroy()
+                local belt = build('transport-belt', H.dry_spot(surface, 'transport-belt'))
+
+                -- Assert
+                Assert.is_true(valid_pole, 'a pole built off ore was removed')
                 Assert.is_true(not belt.valid, 'a belt built off ore is still there')
             end
         )
@@ -107,6 +121,7 @@ Declare.module(
         Declare.test(
             'a new pumpjack gets a square of stone round it',
             function()
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.dry_spot(surface, 'pumpjack')
                 Assert.is_true(p ~= nil, 'no ore-free ground near spawn')
@@ -120,6 +135,7 @@ Declare.module(
                 Assert.valid(oil, 'the test oil was not created')
                 local before = surface.count_entities_filtered {position = p, radius = 16, name = 'stone'}
 
+                -- Act
                 local pumpjack = build('pumpjack', p)
 
                 -- Assert: stone on every ground tile of the square centred on the pumpjack

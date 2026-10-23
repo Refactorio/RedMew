@@ -82,6 +82,7 @@ Declare.module(
         Declare.test(
             'a building on ore is removed, handed back and its contents spilled',
             function()
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.ore_spot(surface, BUILDING)
                 Assert.is_true(p ~= nil, 'no ore near spawn to build on')
@@ -91,8 +92,10 @@ Declare.module(
                 local near = {position = p, radius = 6, name = 'item-on-ground'}
                 local before = surface.count_entities_filtered(near)
 
+                -- Act
                 local refunded = robot_builds(chest)
 
+                -- Assert
                 Assert.is_true(not chest.valid, 'the ' .. BUILDING .. ' built on ore at ' .. p.x .. ',' .. p.y .. ' is still there')
                 Assert.is_true(refunded ~= nil, 'nothing was handed back')
                 Assert.equal(BUILDING, refunded.name, 'item handed back')
@@ -104,13 +107,16 @@ Declare.module(
         Declare.test(
             'the same building off ore stays',
             function()
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.dry_spot(surface, BUILDING)
                 Assert.is_true(p ~= nil, 'no ore-free ground near spawn')
                 local chest = build(surface, BUILDING, p)
 
+                -- Act
                 local refunded = robot_builds(chest)
 
+                -- Assert
                 Assert.is_true(chest.valid, 'the ' .. BUILDING .. ' built off ore at ' .. p.x .. ',' .. p.y .. ' was removed')
                 Assert.is_true(refunded == nil, 'something was handed back')
                 chest.destroy()
@@ -122,12 +128,15 @@ Declare.module(
             function()
                 local surface = RS.get_surface()
                 for _, name in pairs(ALLOWED) do
+                    -- Arrange
                     local p = H.ore_spot(surface, name)
                     Assert.is_true(p ~= nil, 'no ore near spawn to build a ' .. name .. ' on')
                     local entity = build(surface, name, p)
 
+                    -- Act
                     robot_builds(entity)
 
+                    -- Assert
                     Assert.is_true(entity.valid, 'the ' .. name .. ' built on ore at ' .. p.x .. ',' .. p.y .. ' was removed')
                     entity.destroy()
                 end
@@ -137,17 +146,21 @@ Declare.module(
         Declare.test(
             'a building real robots build on ore goes back to storage',
             function(context)
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.ore_spot(surface, BUILDING)
                 Assert.is_true(p ~= nil, 'no ore near spawn to build on')
                 local storage, remove_network = Helper.robot_network(surface, {x = p.x + 8, y = p.y}, {{name = BUILDING, count = 1}})
                 context:add_teardown(remove_network)
-                local ghost = build(surface, 'entity-ghost', p, {inner_name = BUILDING})
                 local area = {{p.x - 1, p.y - 1}, {p.x + 1, p.y + 1}}
+
+                -- Act: a ghost for the robots to build
+                local ghost = build(surface, 'entity-ghost', p, {inner_name = BUILDING})
 
                 Helper.wait_until(context, 1800, function()
                     return not ghost.valid and storage.get_item_count(BUILDING) == 1
                 end, function(ok)
+                    -- Assert
                     local built = surface.count_entities_filtered {area = area, name = BUILDING}
                     Assert.is_true(ok, 'the ' .. BUILDING .. ' robots built on ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built .. ', in storage ' .. storage.get_item_count(BUILDING))
                     Assert.equal(0, built, BUILDING .. 's left on ore')
@@ -158,13 +171,16 @@ Declare.module(
         Declare.test(
             'a ghost of a building on ore is removed',
             function()
+                -- Arrange
                 local surface = RS.get_surface()
                 local p = H.ore_spot(surface, BUILDING)
                 Assert.is_true(p ~= nil, 'no ore near spawn to build on')
                 local ghost = build(surface, 'entity-ghost', p, {inner_name = BUILDING})
 
+                -- Act
                 EventFactory.raise {name = defines.events.on_built_entity, tick = game.tick, player_index = 1, entity = ghost}
 
+                -- Assert
                 Assert.is_true(not ghost.valid, 'the ' .. BUILDING .. ' ghost on ore is still there')
             end
         )
@@ -173,13 +189,16 @@ Declare.module(
             Declare.test(
                 'a quality building on ore is handed back at its quality',
                 function()
+                    -- Arrange
                     local surface = RS.get_surface()
                     local p = H.ore_spot(surface, BUILDING)
                     Assert.is_true(p ~= nil, 'no ore near spawn to build on')
                     local chest = build(surface, BUILDING, p, {quality = 'rare'})
 
+                    -- Act
                     local refunded = robot_builds(chest)
 
+                    -- Assert
                     Assert.is_true(refunded ~= nil, 'nothing was handed back')
                     local quality = refunded.quality
                     Assert.equal('rare', type(quality) == 'string' and quality or quality.name, 'quality handed back')

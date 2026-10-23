@@ -10,6 +10,14 @@ local L = require 'map_gen.maps.danger_ores.modules.city_blocks_layout'
 local PITCH = L.PITCH
 local MARGIN = L.ROOM_EDGE_MARGIN
 
+-- Chunk -2 is a room's west-most chunk (local offset 0), so its low-x tiles face a corridor;
+-- chunk 1 is its east-most (local offset PITCH-2).
+local WEST_CHUNK_X = -2 * 32
+local EAST_CHUNK_X = 1 * 32
+
+-- the rooms next to spawn, which the BFS seeding gives every ore
+local NEXT_TO_SPAWN = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+
 local function fixed_shuffle(t)
     return t -- identity: keeps assertions readable
 end
@@ -30,18 +38,30 @@ local function chunk_of(v)
     return math.floor((16 + v) / 32)
 end
 
+local function piece_chunk(e)
+    return chunk_of(e.x) .. '/' .. chunk_of(e.y)
+end
+
 Declare.module(
     {'map_gen', 'city blocks', 'layout'},
     function()
         Declare.test(
-            'rooms and corridors sit on the chunk lattice',
+            'spawn sits in the middle of room 0',
             function()
-                -- Spawn sits in room 0/0, and the offset of 2 puts it in the middle of that room
-                -- rather than against a corridor.
-                local r0, o0 = L.room_of_chunk(0)
-                Assert.is_true(r0 == 0 and o0 == 2, 'chunk 0 is room 0 at local offset 2, got ' .. r0 .. '/' .. o0)
+                -- Act
+                local room, offset = L.room_of_chunk(0)
 
-                -- Every cell is PITCH chunks: PITCH-1 of room, then exactly one of corridor.
+                -- Assert: the offset of 2 puts spawn in the middle of its room rather than
+                -- against a corridor
+                Assert.equal(0, room, 'room of chunk 0')
+                Assert.equal(2, offset, 'local offset of chunk 0')
+            end
+        )
+
+        Declare.test(
+            'every cell is PITCH-1 chunks of room, then one of corridor',
+            function()
+                -- Act
                 local room_chunks, corridor_chunks = 0, 0
                 for c = -2, -2 + PITCH - 1 do
                     local _, offset = L.room_of_chunk(c)
@@ -51,100 +71,152 @@ Declare.module(
                         room_chunks = room_chunks + 1
                     end
                 end
-                Assert.equal(1, corridor_chunks, 'one corridor chunk per cell')
-                Assert.equal(PITCH - 1, room_chunks, 'room is PITCH-1 chunks wide')
 
-                -- Room indices advance by one per cell, in both directions, without a gap at the
-                -- origin.
-                Assert.equal(1, select(1, L.room_of_chunk(3)), 'chunk 3 is the first chunk of room 1')
-                Assert.equal(-1, select(1, L.room_of_chunk(-3)), 'chunk -3 belongs to room -1')
-                Assert.equal(PITCH - 1, select(2, L.room_of_chunk(-3)), 'chunk -3 is a corridor chunk')
+                -- Assert
+                Assert.equal(1, corridor_chunks, 'corridor chunks in a cell')
+                Assert.equal(PITCH - 1, room_chunks, 'room chunks in a cell')
+            end
+        )
 
-                -- Corridor detection: a chunk is corridor if either axis is on the lattice, and a
-                -- corner is corridor on both.
-                local x_wall, y_wall = L.corridor_axes_of_chunk(2, 0)
-                Assert.is_true(x_wall and not y_wall, 'chunk 2/0 is a vertical corridor')
-                x_wall, y_wall = L.corridor_axes_of_chunk(2, 2)
-                Assert.is_true(x_wall and y_wall, 'chunk 2/2 is a corner')
-                x_wall, y_wall = L.corridor_axes_of_chunk(0, 0)
-                Assert.is_true(not x_wall and not y_wall, 'chunk 0/0 is room interior')
+        Declare.test(
+            'room numbers go up by one a cell, either side of spawn',
+            function()
+                -- Act
+                local east_room = L.room_of_chunk(3)
+                local west_room, west_offset = L.room_of_chunk(-3)
 
-                Assert.is_true(L.on_corridor_tile(2 * 32, 0), 'first tile of a corridor chunk is on the corridor')
-                Assert.is_true(L.on_corridor_tile(2 * 32 + 31, 31), 'last tile of a corridor chunk is on the corridor')
-                Assert.is_true(not L.on_corridor_tile(2 * 32 - 1, 0), 'the tile before a corridor chunk is not')
+                -- Assert: no gap at the origin
+                Assert.equal(1, east_room, 'room of chunk 3, the first chunk of room 1')
+                Assert.equal(-1, west_room, 'room of chunk -3')
+                Assert.equal(PITCH - 1, west_offset, 'local offset of chunk -3, a corridor chunk')
+            end
+        )
+
+        Declare.test(
+            'a chunk is a corridor if either axis is on the lattice, and a corner if both are',
+            function()
+                -- Act
+                local vertical_x, vertical_y = L.corridor_axes_of_chunk(2, 0)
+                local corner_x, corner_y = L.corridor_axes_of_chunk(2, 2)
+                local room_x, room_y = L.corridor_axes_of_chunk(0, 0)
+
+                -- Assert
+                Assert.is_true(vertical_x and not vertical_y, 'chunk 2/0 is not a vertical corridor')
+                Assert.is_true(corner_x and corner_y, 'chunk 2/2 is not a corner')
+                Assert.is_true(not room_x and not room_y, 'chunk 0/0 is not room interior')
+            end
+        )
+
+        Declare.test(
+            'a corridor chunk is corridor from its first tile to its last',
+            function()
+                -- Act
+                local first = L.on_corridor_tile(2 * 32, 0)
+                local last = L.on_corridor_tile(2 * 32 + 31, 31)
+                local before = L.on_corridor_tile(2 * 32 - 1, 0)
+
+                -- Assert
+                Assert.is_true(first, 'the first tile of a corridor chunk is not on the corridor')
+                Assert.is_true(last, 'the last tile of a corridor chunk is not on the corridor')
+                Assert.is_true(not before, 'the tile before a corridor chunk is on the corridor')
             end
         )
 
         Declare.test(
             'rooms past the radius are out of bounds',
             function()
-                -- in_bounds gates the generated world; outside it chunks are voided.
-                Assert.is_true(L.in_bounds(0, 0), 'spawn room is in bounds')
-                Assert.is_true(L.in_bounds(L.ROOMS_RADIUS, -L.ROOMS_RADIUS), 'corner room is in bounds')
-                Assert.is_true(not L.in_bounds(L.ROOMS_RADIUS + 1, 0), 'one room past the radius is out of bounds')
-                Assert.equal(4, #L.neighbours_of(0, 0), 'an interior room has 4 neighbours')
-                Assert.equal(2, #L.neighbours_of(L.ROOMS_RADIUS, L.ROOMS_RADIUS), 'a corner room has 2 neighbours')
+                -- Act
+                local spawn = L.in_bounds(0, 0)
+                local corner = L.in_bounds(L.ROOMS_RADIUS, -L.ROOMS_RADIUS)
+                local past = L.in_bounds(L.ROOMS_RADIUS + 1, 0)
+                local interior_neighbours = #L.neighbours_of(0, 0)
+                local corner_neighbours = #L.neighbours_of(L.ROOMS_RADIUS, L.ROOMS_RADIUS)
+
+                -- Assert: in_bounds gates the generated world; outside it chunks are voided
+                Assert.is_true(spawn, 'the spawn room is out of bounds')
+                Assert.is_true(corner, 'the corner room is out of bounds')
+                Assert.is_true(not past, 'a room past the radius is in bounds')
+                Assert.equal(4, interior_neighbours, 'neighbours of an interior room')
+                Assert.equal(2, corner_neighbours, 'neighbours of a corner room')
             end
         )
 
         -- Regression cover for the fix that keeps ore off the room edge: without it a fresh room
         -- cannot be automated until a bay has been hand-mined.
         Declare.test(
-            'a margin frames each room along its corridors',
+            'the margin is ' .. MARGIN .. ' tiles deep on the corridor side of a room\'s edge chunks',
             function()
-                -- Chunk -2 is the room's west-most chunk (local offset 0), so its low-x tiles face
-                -- a corridor.
-                local west_chunk_x = -2 * 32
-                for o = 0, MARGIN - 1 do
-                    Assert.is_true(L.in_room_margin(west_chunk_x + o, 0), 'west edge tile at offset ' .. o .. ' is margin')
+                -- Act
+                local west = {}
+                for o = 0, 31 do
+                    west[o] = L.in_room_margin(WEST_CHUNK_X + o, 0)
                 end
-                Assert.is_true(not L.in_room_margin(west_chunk_x + MARGIN, 0), 'margin is exactly ' .. MARGIN .. ' tiles deep')
-                -- ... and its high-x tiles do not: that side faces the room's own interior.
-                Assert.is_true(not L.in_room_margin(west_chunk_x + 31, 0), 'inward side of the west chunk is not margin')
-
-                -- Chunk 1 is the room's east-most chunk (local offset PITCH-2), mirrored.
-                local east_chunk_x = 1 * 32
-                Assert.is_true(L.in_room_margin(east_chunk_x + 31, 0), 'east edge tile is margin')
-                Assert.is_true(not L.in_room_margin(east_chunk_x + 32 - MARGIN - 1, 0), 'margin stops ' .. MARGIN .. ' tiles in')
-                Assert.is_true(not L.in_room_margin(east_chunk_x, 0), 'inward side of the east chunk is not margin')
-
-                -- The two middle chunks of a room touch no corridor, so they are never margin.
-                for _, chunk in ipairs({-1, 0}) do
-                    for o = 0, 31 do
-                        Assert.is_true(not L.in_room_margin(chunk * 32 + o, 0) and not L.in_room_margin(0, chunk * 32 + o),
-                            'interior chunk ' .. chunk .. ' is margin at offset ' .. o)
-                    end
+                local east = {}
+                for o = 0, 31 do
+                    east[o] = L.in_room_margin(EAST_CHUNK_X + o, 0)
                 end
 
-                -- The band runs on both axes: a room corner tile is margin from either direction.
-                Assert.is_true(L.in_room_margin(west_chunk_x, -2 * 32), 'room corner tile is margin')
-                Assert.is_true(L.in_room_margin(0, west_chunk_x), 'north edge produces a margin band too')
-
-                -- A whole room's worth of tiles: the band is a frame, so the count is the room area
-                -- minus the inset area.
-                local room_tiles = (PITCH - 1) * 32
-                local margin_count = 0
-                for x = 0, room_tiles - 1 do
-                    for y = 0, room_tiles - 1 do
-                        if L.in_room_margin(west_chunk_x + x, west_chunk_x + y) then
-                            margin_count = margin_count + 1
-                        end
-                    end
+                -- Assert: the west chunk's low-x tiles face the corridor, its high-x ones the
+                -- room's own interior; the east chunk is mirrored
+                for o = 0, 31 do
+                    Assert.equal(o < MARGIN, west[o], 'margin at offset ' .. o .. ' of the west chunk')
+                    Assert.equal(o >= 32 - MARGIN, east[o], 'margin at offset ' .. o .. ' of the east chunk')
                 end
-                local expected = room_tiles * room_tiles - (room_tiles - 2 * MARGIN) * (room_tiles - 2 * MARGIN)
-                Assert.equal(expected, margin_count, 'tiles in the ' .. MARGIN .. '-tile margin frame')
-
-                -- Corridor tiles are not part of any room, so they are never margin.
-                Assert.is_true(not L.in_room_margin(2 * 32 + 16, 0), 'corridor tiles are not margin')
             end
         )
 
         Declare.test(
-            'every room gets an ore, all four next to spawn',
+            'the middle chunks of a room are never margin',
             function()
-                local rooms_across = 2 * L.ROOMS_RADIUS + 1
+                -- Act
+                local margin = {}
+                for _, chunk in ipairs({-1, 0}) do
+                    for o = 0, 31 do
+                        if L.in_room_margin(chunk * 32 + o, 0) or L.in_room_margin(0, chunk * 32 + o) then
+                            margin[#margin + 1] = chunk .. ':' .. o
+                        end
+                    end
+                end
+
+                -- Assert: they touch no corridor
+                Assert.equal(0, #margin, 'margin tiles in the middle chunks (chunk:offset): ' .. table.concat(margin, ' '))
+            end
+        )
+
+        Declare.test(
+            'the margin frames the room on both axes, and leaves the corridors out',
+            function()
+                -- Act
+                local corner = L.in_room_margin(WEST_CHUNK_X, -2 * 32)
+                local north = L.in_room_margin(0, WEST_CHUNK_X)
+                local corridor = L.in_room_margin(2 * 32 + 16, 0)
+                local room_tiles = (PITCH - 1) * 32
+                local margin_count = 0
+                for x = 0, room_tiles - 1 do
+                    for y = 0, room_tiles - 1 do
+                        if L.in_room_margin(WEST_CHUNK_X + x, WEST_CHUNK_X + y) then
+                            margin_count = margin_count + 1
+                        end
+                    end
+                end
+
+                -- Assert: a frame, so the room's area minus the inset area
+                Assert.is_true(corner, 'a room corner tile is not margin')
+                Assert.is_true(north, 'the north edge has no margin')
+                Assert.is_true(not corridor, 'a corridor tile is margin')
+                local inset = room_tiles - 2 * MARGIN
+                Assert.equal(room_tiles * room_tiles - inset * inset, margin_count, 'tiles in the ' .. MARGIN .. '-tile margin frame')
+            end
+        )
+
+        Declare.test(
+            'every room gets an ore, and all four are next to spawn',
+            function()
+                -- Act
                 local room_ore = L.assign_ores(4, nil, seeded_random(1), fixed_shuffle)
 
+                -- Assert
+                local rooms_across = 2 * L.ROOMS_RADIUS + 1
                 local count = 0
                 for k, ore in pairs(room_ore) do
                     count = count + 1
@@ -152,29 +224,48 @@ Declare.module(
                 end
                 Assert.equal(rooms_across * rooms_across, count, 'rooms with an ore')
 
-                -- The BFS seeding guarantees all four ores sit in the ring of rooms closest to
-                -- spawn, so a new base can reach every ore without a long trek.
-                local near_spawn = {}
-                for _, room in ipairs({{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) do
-                    near_spawn[room_ore[L.key(room[1], room[2])]] = true
+                -- so a new base can reach every ore without a long trek
+                local near_spawn, distinct = {}, 0
+                for _, room in ipairs(NEXT_TO_SPAWN) do
+                    local ore = room_ore[L.key(room[1], room[2])]
+                    if not near_spawn[ore] then
+                        near_spawn[ore] = true
+                        distinct = distinct + 1
+                    end
                 end
-                local distinct = 0
-                for _ in pairs(near_spawn) do
-                    distinct = distinct + 1
-                end
-                Assert.equal(4, distinct, 'ores in the rooms adjacent to spawn')
+                Assert.equal(4, distinct, 'ores in the rooms next to spawn')
+            end
+        )
 
-                -- Same RNG in, same map out: assignment must be reproducible from the seed.
+        Declare.test(
+            'ores are assigned the same for the same RNG',
+            function()
+                -- Act
+                local first = L.assign_ores(4, nil, seeded_random(1), fixed_shuffle)
                 local again = L.assign_ores(4, nil, seeded_random(1), fixed_shuffle)
-                for k, ore in pairs(room_ore) do
+
+                -- Assert
+                for k, ore in pairs(first) do
                     Assert.equal(ore, again[k], 'ore of room ' .. k .. ' with the same RNG')
                 end
+            end
+        )
 
-                -- Weights bias the rooms that are not part of the guaranteed seeding.
-                local weighted = L.assign_ores(2, {1, 0}, seeded_random(7), fixed_shuffle)
-                local seeded = {[L.key(1, 0)] = true, [L.key(-1, 0)] = true, [L.key(0, 1)] = true, [L.key(0, -1)] = true}
-                for k, ore in pairs(weighted) do
-                    Assert.is_true(ore ~= 2 or seeded[k], 'a zero-weight ore was placed in room ' .. k .. ', not by the guaranteed seeding')
+        Declare.test(
+            'an ore with no weight is only placed next to spawn',
+            function()
+                -- Arrange
+                local seeded = {}
+                for _, room in ipairs(NEXT_TO_SPAWN) do
+                    seeded[L.key(room[1], room[2])] = true
+                end
+
+                -- Act
+                local room_ore = L.assign_ores(2, {1, 0}, seeded_random(7), fixed_shuffle)
+
+                -- Assert: weights only bias the rooms the guaranteed seeding doesn't place
+                for k, ore in pairs(room_ore) do
+                    Assert.is_true(ore ~= 2 or seeded[k], 'the zero-weight ore was placed in room ' .. k)
                 end
             end
         )
@@ -182,97 +273,110 @@ Declare.module(
         Declare.test(
             'corridors are curbed and their tracks sit on gravel',
             function()
-                -- Straight corridor: concrete curbs on both edges, concrete median between the
-                -- tracks, gravel rail bed everywhere else. The pattern runs across the corridor, so
-                -- for a vertical corridor it depends on x only.
-                Assert.equal('concrete', L.corridor_tile(0, 5, true, false), 'corridor edge is curbed')
-                Assert.equal('concrete', L.corridor_tile(1, 5, true, false), 'curb is 2 tiles wide')
-                Assert.equal('stone-path', L.corridor_tile(2, 5, true, false), 'rail bed is gravel')
-                Assert.equal('concrete', L.corridor_tile(15, 5, true, false), 'median between the tracks')
-                Assert.equal('concrete', L.corridor_tile(16, 5, true, false), 'median is 2 tiles wide')
-                Assert.equal('concrete', L.corridor_tile(31, 5, true, false), 'far edge is curbed')
-                -- A horizontal corridor is the same pattern rotated: it depends on y only.
-                Assert.equal('concrete', L.corridor_tile(5, 0, false, true), 'horizontal corridor edge is curbed')
-                Assert.equal('stone-path', L.corridor_tile(0, 5, false, true), 'horizontal corridor ignores x')
-
-                -- The tracks themselves must sit on rail bed, not on a curb, on both axes.
-                for _, offset in ipairs({L.RAIL_A, L.RAIL_B}) do
-                    Assert.equal('stone-path', L.corridor_tile(offset, 5, true, false), 'track at ' .. offset .. ' sits on gravel')
-                    Assert.equal('stone-path', L.corridor_tile(5, offset, false, true), 'horizontal track at ' .. offset .. ' sits on gravel')
+                -- Act: a vertical corridor's pattern runs across it, so depends on x only, and a
+                -- horizontal one on y only
+                local vertical, horizontal = {}, {}
+                for o = 0, 31 do
+                    vertical[o] = L.corridor_tile(o, 5, true, false)
+                    horizontal[o] = L.corridor_tile(5, o, false, true)
                 end
+                local horizontal_ignores_x = L.corridor_tile(0, 5, false, true)
 
-                -- Corner square is the inverse: a concrete frame around the gravel ring field.
-                Assert.equal('concrete', L.corridor_tile(0, 0, true, true), 'corner frame is concrete')
-                Assert.equal('stone-path', L.corridor_tile(16, 16, true, true), 'corner centre is gravel')
-                Assert.equal('concrete', L.corridor_tile(31, 31, true, true), 'far corner is framed too')
+                -- Assert: 2-tile concrete curbs on both edges and a 2-tile concrete median between
+                -- the tracks, gravel rail bed everywhere else, the tracks included
+                for o = 0, 31 do
+                    local expected = (o < 2 or o >= 30 or o == 15 or o == 16) and 'concrete' or 'stone-path'
+                    Assert.equal(expected, vertical[o], 'vertical corridor tile at offset ' .. o)
+                    Assert.equal(expected, horizontal[o], 'horizontal corridor tile at offset ' .. o)
+                end
+                Assert.equal('stone-path', horizontal_ignores_x, 'horizontal corridor tile at x 0')
+                for _, offset in ipairs({L.RAIL_A, L.RAIL_B}) do
+                    Assert.equal('stone-path', vertical[offset], 'tile under the track at ' .. offset)
+                end
+            end
+        )
+
+        Declare.test(
+            'a corner is a concrete frame round gravel',
+            function()
+                -- Act
+                local edge = L.corridor_tile(0, 0, true, true)
+                local centre = L.corridor_tile(16, 16, true, true)
+                local far_edge = L.corridor_tile(31, 31, true, true)
+
+                -- Assert: the inverse of a straight corridor, round the ring's field
+                Assert.equal('concrete', edge, 'corner tile at 0,0')
+                Assert.equal('stone-path', centre, 'corner tile at 16,16')
+                Assert.equal('concrete', far_edge, 'corner tile at 31,31')
             end
         )
 
         Declare.test(
             'trunks run on the rail grid and stop short of a corner',
             function()
-                -- A chunk with no corner next to it runs the full width, starting on an odd tile so
-                -- the rails land on Factorio's 2-tile grid.
+                -- Act
                 local from, to = L.trunk_range(64, 96, false, false)
-                Assert.is_true(from == 65 and to == 95, 'full-width trunk spans the chunk, got ' .. from .. '..' .. to)
-                Assert.equal(1, from % 2, 'trunk starts on the rail grid')
-
-                -- Next to a corner the ring overhangs, so the trunk stops short of RING_REACH and
-                -- picks up again on the next grid slot.
                 local near_from, near_to = L.trunk_range(64, 96, true, true)
-                Assert.equal(64 - 16 + L.RING_REACH + 1, near_from, 'trunk starts after the ring')
-                Assert.equal(96 + 16 - L.RING_REACH - 1, near_to, 'trunk ends before the next ring')
-                Assert.is_true(near_from > from and near_to < to, 'a neighbouring corner always shortens the trunk')
-                Assert.equal(0, (near_from - from) % 2, 'the shortened trunk stays on the same grid parity')
+
+                -- Assert: with no corner next to it a trunk runs the full width, starting on an
+                -- odd tile so the rails land on Factorio's 2-tile grid
+                Assert.equal(65, from, 'first rail of a full-width trunk')
+                Assert.equal(95, to, 'last rail of a full-width trunk')
+
+                -- next to a corner the ring overhangs, so the trunk stops short of RING_REACH and
+                -- picks up again on the next grid slot
+                Assert.equal(64 - 16 + L.RING_REACH + 1, near_from, 'first rail after the ring')
+                Assert.equal(96 + 16 - L.RING_REACH - 1, near_to, 'last rail before the next ring')
+                Assert.equal(0, (near_from - from) % 2, 'grid parity of the shortened trunk')
             end
         )
 
         Declare.test(
-            'the roundabout fits its corner and meets the trunks',
+            'every roundabout signal has a rail in its own chunk, listed before it',
             function()
-                -- Each chunk stamps only the pieces that fall inside it, so a signal whose chunk
-                -- holds no rail of its own would fail to place when that chunk generates first.
+                -- Act: which chunk each piece falls in
                 local rails_by_chunk = {}
                 local first_signal_index, last_rail_index
                 for i, e in ipairs(L.ROUNDABOUT) do
-                    local k = chunk_of(e.x) .. '/' .. chunk_of(e.y)
                     if L.SIGNAL_NAMES[e.name] then
                         first_signal_index = first_signal_index or i
                     else
                         last_rail_index = i
-                        rails_by_chunk[k] = (rails_by_chunk[k] or 0) + 1
+                        rails_by_chunk[piece_chunk(e)] = true
                     end
                 end
 
-                Assert.is_true(first_signal_index > last_rail_index, 'every rail is listed before the first signal')
-
+                -- Assert: each chunk stamps only its own pieces, so a signal whose chunk holds no
+                -- rail would fail to place when that chunk generates first
+                Assert.is_true(first_signal_index > last_rail_index, 'a rail is listed after the first signal')
                 for _, e in ipairs(L.ROUNDABOUT) do
                     if L.SIGNAL_NAMES[e.name] then
-                        local k = chunk_of(e.x) .. '/' .. chunk_of(e.y)
-                        Assert.is_true(rails_by_chunk[k], 'the signal at ' .. e.x .. ', ' .. e.y .. ' has no rail in its chunk')
+                        Assert.is_true(rails_by_chunk[piece_chunk(e)], 'the signal at ' .. e.x .. ', ' .. e.y .. ' has no rail in its chunk')
                     end
                 end
+            end
+        )
 
-                -- The ring must fit inside the reach the trunk rails are shortened to, or the trunk
-                -- would overlap it.
+        Declare.test(
+            'the roundabout fits inside RING_REACH and meets the trunks',
+            function()
+                -- Act
                 local max_reach = 0
-                for _, e in ipairs(L.ROUNDABOUT) do
-                    max_reach = math.max(max_reach, math.abs(e.x), math.abs(e.y))
-                end
-                Assert.is_true(max_reach <= L.RING_REACH, 'the ring fits within RING_REACH, max=' .. max_reach)
-
-                -- Approach lanes must line up with the trunk offsets, or trains cannot cross the
-                -- corner. Trunk offsets RAIL_A/RAIL_B are chunk-local; relative to the corner
-                -- midpoint they are -3/+3.
                 local approach = {}
                 for _, e in ipairs(L.ROUNDABOUT) do
+                    max_reach = math.max(max_reach, math.abs(e.x), math.abs(e.y))
                     if math.abs(e.x) == L.RING_REACH - 2 or math.abs(e.y) == L.RING_REACH - 2 then
                         approach[e.x] = true
                         approach[e.y] = true
                     end
                 end
+
+                -- Assert: the trunks are shortened to RING_REACH, so a ring past it would overlap
+                -- them, and its approach lanes have to meet the trunk offsets (chunk-local
+                -- RAIL_A/RAIL_B, -3/+3 from the corner's middle) for trains to cross
+                Assert.is_true(max_reach <= L.RING_REACH, 'the ring reaches ' .. max_reach .. ', past RING_REACH ' .. L.RING_REACH)
                 Assert.is_true(approach[L.RAIL_A - 16] and approach[L.RAIL_B - 16],
-                    'ring approach lanes sit on the trunk offsets (' .. (L.RAIL_A - 16) .. '/' .. (L.RAIL_B - 16) .. ')')
+                    'the ring\'s approach lanes are not on the trunk offsets (' .. (L.RAIL_A - 16) .. '/' .. (L.RAIL_B - 16) .. ')')
             end
         )
     end

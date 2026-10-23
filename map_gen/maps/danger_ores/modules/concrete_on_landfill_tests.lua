@@ -63,7 +63,8 @@ Declare.module(
             return chest.get_inventory(defines.inventory.chest).get_item_count(name)
         end
 
-        -- Does `act`, waits for `done`, then carries on with `after`.
+        -- Does `act`, waits for `done`, then carries on with `after`; fails the test if `done` never
+        -- comes, so each step asserts its own outcome.
         local function step(context, p, what, act, done, after)
             act()
             Helper.wait_until(context, ROBOT_TICKS, done, function(ok)
@@ -89,14 +90,19 @@ Declare.module(
         Declare.test(
             'landfill under refined concrete can be dug back up to the water',
             function(context)
+                -- Arrange
                 local p = {x = 10, y = 0}
                 surface.set_tiles {{name = 'water', position = p}}
 
+                -- Act: landfill, then refined concrete on it
                 step(context, p, 'lay landfill on the water', ghost(p, 'landfill'), is_tile(p, 'landfill'), function()
                     step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER), function()
+                        -- Assert: it became the marker, which can't be mined
                         Assert.is_true(not prototypes.tile[MARKER].mineable_properties.minable, MARKER .. ' can be mined')
                         Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, MARKER .. ' can be marked for deconstruction')
 
+                        -- Act and Assert: a floor over the marker hands the refined concrete back, and
+                        -- mining that floor and then the landfill gets back to the water
                         local function path_and_refund()
                             return is_tile(p, 'stone-path')() and in_chest(REFUND) == STOCK
                         end
@@ -114,15 +120,17 @@ Declare.module(
         Declare.test(
             'landfill with nothing under it ends up as it was, with nothing to mine',
             function(context)
-                -- landfill a map laid without anything under it can't be mined; refined concrete,
-                -- a floor over that and mining the floor must not change that
+                -- Arrange: landfill a map laid without anything under it can't be mined; refined
+                -- concrete, a floor over that and mining the floor must not change that
                 local p = {x = 10, y = 8}
                 surface.set_tiles {{name = 'landfill', position = p}}
                 surface.set_hidden_tile(p, nil)
 
+                -- Act: refined concrete, stone path over it, then mine the stone path
                 step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER), function()
                     step(context, p, 'build stone path over the ' .. MARKER, ghost(p, 'stone-path'), is_tile(p, 'stone-path'), function()
                         step(context, p, 'mine the stone path down to landfill', deconstruct(p), is_tile(p, 'landfill'), function()
+                            -- Assert
                             Assert.equal(nil, surface.get_hidden_tile(p), 'hidden tile under the landfill: ' .. layers(p))
                             Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, 'the landfill can be mined: ' .. layers(p))
                         end)
@@ -134,11 +142,15 @@ Declare.module(
         Declare.test(
             'refined concrete on ordinary ground stays refined concrete',
             function(context)
+                -- Arrange
                 local p = {x = 14, y = 0}
                 local function laid()
                     return surface.get_tile(p.x, p.y).name ~= 'grass-1'
                 end
+
+                -- Act
                 step(context, p, 'lay refined concrete on the grass', ghost(p, REFUND), laid, function()
+                    -- Assert
                     Assert.equal(REFUND, surface.get_tile(p.x, p.y).name, 'tile after laying refined concrete on grass')
                 end)
             end

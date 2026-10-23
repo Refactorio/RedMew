@@ -13,6 +13,7 @@ Declare.module(
             Declare.test(
                 'a destroyed ' .. name .. ' drops ' .. drop.count .. ' ' .. drop.name,
                 function(context)
+                    -- Arrange
                     local surface = RS.get_surface()
                     local p = H.dry_spot(surface, name)
                     Assert.is_true(p ~= nil, 'no room for a ' .. name .. ' near spawn')
@@ -30,10 +31,12 @@ Declare.module(
                     end
                     local before = get_dropped_count()
 
+                    -- Act
                     nest.die()
 
                     -- the drops are spilled a tick later
                     context:timeout(2, function()
+                        -- Assert
                         Assert.equal(drop.count, get_dropped_count() - before, drop.name .. ' dropped by the ' .. name)
                     end)
                 end

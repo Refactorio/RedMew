@@ -23,7 +23,10 @@ Declare.module(
         Declare.test(
             'spawn stays dry apart from its pond',
             function()
+                -- Act
                 local surface = H.generate_around(0, 0, start_radius + 32)
+
+                -- Assert
                 local wet = H.count_outside_spawn_pond(surface, start_radius - 1, water_names)
                 Assert.equal(0, wet, 'water tiles between the spawn pond and ' .. start_radius .. ' from spawn')
             end
@@ -32,9 +35,12 @@ Declare.module(
         Declare.test(
             'every river springs at spawn and flows out',
             function()
-                -- close to spawn, before any branch forks off, a circle crosses each river once
+                -- Act
                 local r = start_radius * 2
                 local surface = H.generate_around(0, 0, r + 32)
+
+                -- Assert: close to spawn, before any branch forks off, a circle crosses each river
+                -- once
                 local water = H.tile_set(surface, {{-r - 32, -r - 32}, {r + 32, r + 32}}, water_names)
                 local steps = 4096
                 local hits = H.band_hits(water, r, 0, steps)
@@ -45,13 +51,15 @@ Declare.module(
         Declare.test(
             'deep water is always banked by shallower water',
             function()
-                -- grow until there is a fair amount of deep water to look at
+                -- Act: grow until there is a fair amount of deep water to look at
                 local function deep(surface, half)
                     return surface.count_tiles_filtered {area = {{-half, -half}, {half, half}}, name = 'deepwater', limit = 500}
                 end
                 local surface, half = H.generate_until(0, 0, {128, 192, 256}, function(s, h)
                     return deep(s, h) >= 500
                 end)
+
+                -- Assert
                 Assert.is_true(deep(surface, half) > 0, 'no deep water within ' .. half .. ' of spawn')
                 local area = {{-half, -half}, {half, half}}
                 local wet = H.tile_set(surface, area, water_names)
@@ -72,11 +80,10 @@ Declare.module(
         Declare.test(
             'a stream near its spring can be crossed by an express underground belt',
             function()
+                -- Arrange: the narrowest axis crossing anywhere just downstream of the springs
                 local reach = start_radius + 48
                 local surface = H.generate_around(0, 0, reach + 16)
                 local water = H.tile_set(surface, {{-reach - 16, -reach - 16}, {reach + 16, reach + 16}}, water_names)
-
-                -- the narrowest axis crossing anywhere just downstream of the springs
                 local best
                 for r = start_radius + 2, reach, 2 do
                     local steps = floor(tau * r)
@@ -99,9 +106,12 @@ Declare.module(
                 local gap = H.underground_gap(name)
                 Assert.is_true(best.width <= gap, 'narrowest crossing near the springs is ' .. best.width .. ' tiles, an express underground spans ' .. gap)
 
+                -- Act
                 local a, b = H.build_underground_pair(surface, name, best.from, best.to, best.dx, best.dy)
                 local paired = H.connected(a, b)
                 H.destroy(a, b)
+
+                -- Assert
                 Assert.is_true(paired, 'express underground belts on either side of the stream at ' .. best.from.x .. ',' .. best.from.y .. ' did not pair')
             end
         )
@@ -109,8 +119,11 @@ Declare.module(
         Declare.test(
             'no ore is placed under water',
             function()
+                -- Act
                 local half = 192
                 local surface = H.generate_around(0, 0, half)
+
+                -- Assert
                 local area = {{-half, -half}, {half, half}}
                 local water = H.tile_set(surface, area, water_names)
                 local wet = 0

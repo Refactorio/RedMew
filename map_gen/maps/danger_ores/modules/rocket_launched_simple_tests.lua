@@ -72,12 +72,17 @@ Declare.module(
                 Assert.is_true(not ShareGlobals.data.map_won, 'the map was won after one satellite')
 
                 context:next(function()
-                    -- Act: one short of the win, then the last one
+                    -- Act: one short of the win
                     launch(surface, WIN - 2)
+
+                    -- Assert
                     Assert.equal(WIN - 1, satellites_launched(), 'satellites counted one short of the win')
                     Assert.is_true(not ShareGlobals.data.map_won, 'the map was won one satellite short')
 
+                    -- Act: the last one
                     launch(surface, 1)
+
+                    -- Assert
                     Assert.equal(WIN, satellites_launched(), 'satellites counted at the win')
                     Assert.is_true(ShareGlobals.data.map_won, 'the map was not won at ' .. WIN .. ' satellites')
                 end)

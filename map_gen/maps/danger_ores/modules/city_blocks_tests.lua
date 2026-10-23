@@ -83,8 +83,8 @@ Declare.module(
         Declare.test(
             'corridor chunks carry both trunk tracks, north-south and east-west',
             function()
+                -- Arrange: a north-south corridor (x is the corridor axis) and an east-west one
                 local surface = test_surface
-                -- a north-south corridor (x is the corridor axis) and an east-west one
                 local cases = {
                     {name = 'north-south', area = chunk_area(TRUNK_CHUNK, INTERIOR_CHUNK), vertical = true},
                     {name = 'east-west', area = chunk_area(INTERIOR_CHUNK, TRUNK_CHUNK), vertical = false}
@@ -289,10 +289,14 @@ Declare.module(
         Declare.test(
             'a corridor chunk only writes inside itself',
             function()
+                -- Arrange
                 local s = recording_surface()
                 local area = chunk_area(TRUNK_CHUNK, 0)
+
+                -- Act
                 CityBlocks.generate_chunk(s, area)
 
+                -- Assert
                 Assert.is_true(#s.entities > 0, 'the corridor chunk stamped nothing')
                 assert_inside(s, area, 'the corridor chunk')
             end
@@ -301,10 +305,14 @@ Declare.module(
         Declare.test(
             'a corner chunk stamps exactly the ring pieces inside it',
             function()
+                -- Arrange
                 local s = recording_surface()
                 local area = chunk_area(2, 2)
+
+                -- Act
                 CityBlocks.generate_chunk(s, area)
 
+                -- Assert
                 local expected_pieces = 0
                 for _, e in pairs(Layout.ROUNDABOUT) do
                     local x, y = area.left_top.x + 16 + e.x, area.left_top.y + 16 + e.y
@@ -320,10 +328,14 @@ Declare.module(
         Declare.test(
             'a chunk next to a corner shortens its trunk and stamps the ring overhang',
             function()
+                -- Arrange
                 local s = recording_surface()
                 local area = chunk_area(2, 1) -- local offset PITCH-2, so a corner sits to the south
+
+                -- Act
                 CityBlocks.generate_chunk(s, area)
 
+                -- Assert
                 local from, to = Layout.trunk_range(area.left_top.y, area.right_bottom.y, false, false)
                 local full_slots = math.floor((to - from) / 2) + 1
                 Assert.is_true(count(s, 'straight-rail') < full_slots * 2,

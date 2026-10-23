@@ -30,7 +30,10 @@ Declare.module(
         Declare.test(
             'spawn sits on dry land apart from its pond',
             function()
+                -- Act
                 local surface = H.generate_around(0, 0, spawn_island_radius + 32)
+
+                -- Assert
                 local wet = H.count_outside_spawn_pond(surface, spawn_island_radius - 1, sea_names)
                 Assert.equal(0, wet, 'sea tiles between the spawn pond and ' .. spawn_island_radius .. ' from spawn')
             end
@@ -39,9 +42,12 @@ Declare.module(
         Declare.test(
             'coasts shade from mud and shallows into open water',
             function()
+                -- Act
                 local surface, half = H.generate_until(0, 0, HALVES, function(s, half)
                     return has_tiles(s, half, sea_names)
                 end)
+
+                -- Assert
                 for _, name in pairs(sea_names) do
                     Assert.is_true(has_tiles(surface, half, {name}), 'no ' .. name .. ' within ' .. half .. ' of spawn')
                 end

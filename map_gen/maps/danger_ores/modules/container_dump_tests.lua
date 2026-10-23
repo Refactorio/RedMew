@@ -45,6 +45,7 @@ Declare.module(
         Declare.test(
             'a destroyed chest with items in it turns them into ore',
             function()
+                -- Arrange
                 local surface = spawn_surface()
                 local position = clear_spot(surface, {x = -30, y = -30})
                 Assert.is_true(position ~= nil, 'no room for a chest near spawn')
@@ -54,8 +55,10 @@ Declare.module(
                 local spot = {{position.x, position.y}, {position.x + 1, position.y + 1}}
                 Assert.equal(0, surface.count_entities_filtered {area = spot, type = 'resource'}, 'ore was already there')
 
+                -- Act
                 chest.die()
 
+                -- Assert
                 local ore = surface.find_entities_filtered {area = spot, name = ORE}[1]
                 Assert.is_true(ore ~= nil, 'no ' .. ORE .. ' where the chest stood')
                 Assert.equal(100, ore.amount, ORE .. ' left by a chest of 100 plates')
@@ -66,14 +69,17 @@ Declare.module(
             Declare.test(
                 'a destroyed empty chest leaves no ore',
                 function()
+                    -- Arrange
                     local surface = spawn_surface()
                     local position = clear_spot(surface, {x = -30, y = 30})
                     Assert.is_true(position ~= nil, 'no room for a chest near spawn')
                     local chest = surface.create_entity {name = 'iron-chest', position = {position.x + 0.5, position.y + 0.5}, force = 'player'}
                     Assert.valid(chest, 'the test chest was not created')
 
+                    -- Act
                     chest.die()
 
+                    -- Assert
                     Assert.equal(0, surface.count_entities_filtered {area = {{position.x, position.y}, {position.x + 1, position.y + 1}}, name = ORE}, ORE .. ' left by an empty chest')
                 end
             )

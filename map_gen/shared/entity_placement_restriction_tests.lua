@@ -164,7 +164,10 @@ Declare.module(
                 -- A real bot build needs a roboport, power, a logistic network and a good
                 -- many ticks of flying, so this raises the event the way Factorio would and
                 -- checks the two things that were broken: that the rule runs for robot
-                -- builds at all, and that the refund goes to the robot rather than nowhere. Real robots build it in the Safety Ores and allowed entities tests.
+                -- builds at all, and that the refund goes to the robot rather than nowhere. Real
+                -- robots build it in the Safety Ores and allowed entities tests.
+
+                -- Arrange
                 local position = {17, 17}
 
                 local robot = surface.create_entity {

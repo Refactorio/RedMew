@@ -53,7 +53,10 @@ Declare.module(
         Declare.test(
             'the land beyond the starting area is void',
             function()
+                -- Act
                 local surface = surface_around_start()
+
+                -- Assert
                 Assert.is_true(surface.get_tile(0, 0).name ~= 'out-of-map', 'spawn is void')
                 local edge
                 for x = 0, 1024 do
@@ -71,7 +74,10 @@ Declare.module(
         Declare.test(
             'hungry chests sit on the edge of the starting area',
             function()
+                -- Act
                 local surface = surface_around_start()
+
+                -- Assert
                 local chests = hungry_chests(surface)
                 Assert.is_true(#chests >= 4, 'only ' .. #chests .. ' hungry chests')
                 for _, chest in pairs(chests) do
@@ -87,17 +93,19 @@ Declare.module(
         Declare.test(
             'feeding a hungry chest opens the land behind it',
             function(context)
+                -- Arrange
                 local surface = surface_around_start()
                 local chest = hungry_chests(surface)[1]
                 Assert.valid(chest, 'no hungry chest')
                 local where = chest.position.x .. ',' .. chest.position.y
                 local cells = void_cells_by(surface, chest)
 
+                -- Act: everything it asks for
                 for _, filter in pairs(LP.get_filters(chest.get_logistic_point(defines.logistic_member_index.logistic_container))) do
                     chest.insert {name = filter.value.name, quality = filter.value.quality, count = filter.min}
                 end
 
-                -- expanse looks at one chest per tick; poll until it has got round to this one
+                -- Assert: expanse looks at one chest per tick; poll until it has got round to this one
                 local tries = 20
                 local function check()
                     local opened
@@ -123,14 +131,17 @@ Declare.module(
         Declare.test(
             'the Infinity Rock grows back when mined and drops ore',
             function()
+                -- Arrange
                 local surface = surface_around_start()
                 local rock = surface.find_entities_filtered {name = 'huge-rock', position = {0, 8}, radius = 1}[1]
                 Assert.valid(rock, 'no Infinity Rock at spawn')
                 local items = surface.count_entities_filtered {name = 'item-on-ground', position = rock.position, radius = 5}
 
+                -- Act: mine it the way a player does
                 EventFactory.raise {name = defines.events.on_pre_player_mined_item, tick = game.tick, player_index = 1, entity = rock}
                 rock.destroy()
 
+                -- Assert
                 local again = surface.find_entities_filtered {name = 'huge-rock', position = {0, 8}, radius = 1}[1]
                 Assert.valid(again, 'the Infinity Rock did not grow back')
                 Assert.is_true(not again.destructible, 'the Infinity Rock can be destroyed')
@@ -141,13 +152,16 @@ Declare.module(
         Declare.test(
             'the Elder Tree grows back when mined',
             function()
+                -- Arrange
                 local surface = surface_around_start()
                 local tree = surface.find_entities_filtered {type = 'tree', position = {0, -8}, radius = 1}[1]
                 Assert.valid(tree, 'no Elder Tree at spawn')
 
+                -- Act: mine it the way a player does
                 EventFactory.raise {name = defines.events.on_pre_player_mined_item, tick = game.tick, player_index = 1, entity = tree}
                 tree.destroy()
 
+                -- Assert
                 local again = surface.find_entities_filtered {type = 'tree', position = {0, -8}, radius = 1}[1]
                 Assert.valid(again, 'the Elder Tree did not grow back')
                 Assert.is_true(not again.destructible, 'the Elder Tree can be destroyed')
