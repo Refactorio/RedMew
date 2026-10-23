@@ -16,8 +16,11 @@ local PlayerStats = require 'features.player_stats'
 local Restart = require 'features.restart_command'
 local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.crash_site.map_poll'
+local RestartMessage = require 'utils.restart_message'
+local RS = require 'map_gen.shared.redmew_surface'
+local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
+local RPG = require 'features.gui.rpg_military'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local format_number = require 'util'.format_number
 
 -- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
@@ -33,7 +36,7 @@ local Public = {}
 function Public.control(config)
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'crashsite'})
 
-    local airstrike_data = {radius_level = 1, count_level = 1}
+    local airstrike_data = {radius_level = 1, count_level = 1, capsules_spent = 0}
     local barrage_data = {radius_level = 1, count_level = 1}
     local spy_message_cooldown = {false}
 
@@ -120,25 +123,48 @@ function Public.control(config)
         return true
     end
 
-    local places = {'1st','2nd','3rd','4th','5th'}
-
-    -- builds a message for top 3 or 4 etc players for a given stat to use in the embedded awards
-    local function get_top_players(players_as_array, statistic_name)
-        local return_message = ""
-        table.sort(players_as_array, function (a, b) return a[statistic_name] > b[statistic_name] end )
-        for i = 1, math.min(3, #players_as_array) do
-            local data = players_as_array[i]
-            if statistic_name == "time_played" then
-                return_message = return_message..places[i].." - "..data.name.." ("..Core.format_time(data[statistic_name]).."), "
-            elseif statistic_name == "fish_eaten" then
-                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).." fish eaten), "
-            else
-                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).."), "
-            end
-        end
-        return_message = return_message:sub(1, -3) -- remove the last ", "
-        return return_message
+    -- The end-game weapons, from the game's own statistics: fired ammo counts as consumed. Each
+    -- explosive rocket crafted also consumed a rocket, so those are taken off. (Outpost crafters
+    -- insert by script, which the statistics don't count.) Poison capsules are the thrown ones
+    -- plus those paid for airstrikes, which are taken from the chest by script.
+    local function get_end_game_statistics()
+        local surface = RS.get_surface()
+        local items = game.forces.player.get_item_production_statistics(surface)
+        local kills = game.forces.player.get_kill_count_statistics(surface)
+        local rockets_fired = items.get_output_count('rocket') - items.get_input_count('explosive-rocket')
+            + items.get_output_count('explosive-rocket')
+        return {
+            rockets_fired = math.max(0, rockets_fired),
+            artillery_shells_fired = items.get_output_count('artillery-shell'),
+            poison_capsules_used = items.get_output_count('poison-capsule') + airstrike_data.capsules_spent,
+            spidertrons_built = items.get_input_count('spidertron'),
+            spidertrons_lost = kills.get_output_count('spidertron')
+        }
     end
+
+    -- level -> rank of the players in the restart message, to name the highest one
+    local ranks_by_level = {}
+
+    -- {label, player_data key, format}; an award nobody earned is left out of the message
+    local awards = {
+        {'Most kills overall', 'total_kills'},
+        {'Most biters/spitters killed', 'units_killed'},
+        {'Most spawners killed', 'spawners_killed'},
+        {'Most worms killed', 'worms_killed'},
+        {'Most deaths', 'player_deaths'},
+        {'Most time played', 'time_played', Core.format_time},
+        {'Furthest walked', 'distance_walked'},
+        {'Most coins earned', 'coins_earned'},
+        {'Biggest spender', 'coins_spent'},
+        {'Most outposts captured', 'outposts_captured'},
+        {'Highest military rank', 'military_level', function(level)
+            return ranks_by_level[level] .. ', level ' .. level
+        end},
+        {'Seafood lover', 'fish_eaten', function(value)
+            return RestartMessage.format_count(value) .. ' fish eaten'
+        end},
+        {'Most talkative', 'console_chats'}
+    }
 
     local function restart_callback()
         local end_epoch = Server.get_current_time()
@@ -146,8 +172,12 @@ function Public.control(config)
             end_epoch = -1 -- end_epoch is nil if the restart command is used locally rather than on the server
         end
 
+        local outposts_captured, outposts_captured_by_player = OutpostBuilder.get_outposts_captured()
+
         local player_data = {}
         for _, p in pairs(game.players) do
+            local military_level, military_rank = RPG.manager.get_level(p.index)
+            ranks_by_level[military_level] = military_rank
             player_data[p.index] = {
                 name = p.name,
                 total_kills = ScoreTracker.get_for_player(p.index, PlayerStats.player_total_kills_name),
@@ -158,9 +188,14 @@ function Public.control(config)
                 distance_walked = ScoreTracker.get_for_player(p.index, PlayerStats.player_distance_walked_name),
                 player_deaths = ScoreTracker.get_for_player(p.index, PlayerStats.player_deaths_name),
                 coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
+                coins_spent = ScoreTracker.get_for_player(p.index, PlayerStats.coins_spent_name),
+                outposts_captured = outposts_captured_by_player[p.index] or 0,
+                -- level 1 is where everyone starts, so it doesn't win the award
+                military_level = military_level > 1 and military_level or 0,
                 entities_built = ScoreTracker.get_for_player(p.index, PlayerStats.player_entities_built_name),
                 entities_crafted = ScoreTracker.get_for_player(p.index, PlayerStats.player_items_crafted_name),
                 fish_eaten = ScoreTracker.get_for_player(p.index, PlayerStats.player_fish_eaten_name),
+                console_chats = ScoreTracker.get_for_player(p.index, PlayerStats.player_console_chats_name),
                 time_played = p.online_time
             }
         end
@@ -174,57 +209,56 @@ function Public.control(config)
             biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
             total_players = #game.players,
             entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
+            outposts_captured = outposts_captured,
+            end_game = get_end_game_statistics(),
+            coins_spent = ScoreTracker.get_for_global(PlayerStats.coins_spent_name),
             player_data = player_data
         }
 
-        local players_as_array = {}
-        for _, data in pairs(player_data) do
-            players_as_array[#players_as_array+1] = data
-        end
-
-        local statistics_message
-        local time_string = Core.format_time(game.ticks_played)
-        if statistics.enemy_entities < 1000 then
-            statistics_message = 'Crash Site map won!\\n\\n'
-            .. 'Statistics:\\n'
-            .. 'Map time: '..time_string..'\\n'
-            .. 'Total kills: '..statistics.biters_killed..'\\n'
-            .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
-            .. 'Players: '..statistics.total_players..'\\n'
-            .. 'Total entities built: '..statistics.entities_built..'\\n\\n'
-            .. 'Awards:\\n'
-            -- do the individual awards
-            .. 'Most kills overall: '..get_top_players(players_as_array, "total_kills")..'\\n'
-            .. 'Most biters/spitters killed: '..get_top_players(players_as_array, "units_killed")..'\\n'
-            .. 'Most spawners killed: '..get_top_players(players_as_array, "spawners_killed")..'\\n'
-            .. 'Most worms killed: '..get_top_players(players_as_array, "worms_killed")..'\\n'
-            .. 'Most deaths: '..get_top_players(players_as_array, "player_deaths")..'\\n'
-            .. 'Most items crafted: '..get_top_players(players_as_array, "entities_crafted")..'\\n'
-            .. 'Most entities built: '..get_top_players(players_as_array, "entities_built")..'\\n'
-            .. 'Most time played: '..get_top_players(players_as_array, "time_played")..'\\n'
-            .. 'Furthest walked: '..get_top_players(players_as_array, "distance_walked")..'\\n'
-            .. 'Most coins earned: '..get_top_players(players_as_array, "coins_earned")..'\\n'
-            .. 'Seafood lover: '..get_top_players(players_as_array, "fish_eaten")..'\\n'
-        else
-            statistics_message = 'Crash Site map failed!\\n\\n'
-            .. 'Statistics:\\n'
-            .. 'Map time: '..time_string..'\\n'
-            .. 'Total kills: '..statistics.biters_killed..'\\n'
-            .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
-            .. 'Players: '..statistics.total_players..'\\n'
-        end
-
-        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-
-        -- Uncomment to enable posting stats to crashsite channel.
-        -- Server.to_discord_named_embed(crash_site_channel, statistics_message)
-
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name
+        local map_display_name = scenario_display_name[config.scenario_name] or config.scenario_name or 'Crash Site'
+        local new_map_display_name = scenario_display_name[new_map_name] or new_map_name
+
+        local won = statistics.enemy_entities < 1000
+        local statistics_lines = {
+            RestartMessage.statistic('Map time', Core.format_time(game.ticks_played)),
+            RestartMessage.statistic('Total kills', RestartMessage.format_count(statistics.biters_killed)),
+            RestartMessage.statistic('Biters remaining on map', RestartMessage.format_count(statistics.enemy_entities)),
+            RestartMessage.statistic('Outposts captured', RestartMessage.format_count(statistics.outposts_captured)),
+            RestartMessage.statistic('Coins spent', RestartMessage.format_count(statistics.coins_spent)),
+            RestartMessage.statistic('Players', statistics.total_players)
+        }
+        local award_lines = {}
+        if won then
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Total entities built', RestartMessage.format_count(statistics.entities_built))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Rockets fired', RestartMessage.format_count(statistics.end_game.rockets_fired))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Artillery shells fired', RestartMessage.format_count(statistics.end_game.artillery_shells_fired))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Poison capsules used', RestartMessage.format_count(statistics.end_game.poison_capsules_used))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons built', RestartMessage.format_count(statistics.end_game.spidertrons_built))
+            statistics_lines[#statistics_lines + 1] = RestartMessage.statistic('Spidertrons lost', RestartMessage.format_count(statistics.end_game.spidertrons_lost))
+            for _, award in ipairs(awards) do
+                award_lines[#award_lines + 1] = RestartMessage.award(award[1], player_data, award[2], award[3])
+            end
+        end
+
+        local statistics_message = RestartMessage.build(
+            '**' .. map_display_name .. '** ' .. (won and 'won!' or 'failed!'),
+            {
+                {name = 'Statistics', lines = statistics_lines},
+                {name = 'Awards', lines = award_lines}
+            },
+            '**Next map:** ' .. new_map_display_name
+        )
+
+        Server.to_discord_named_embed_raw(map_promotion_channel, statistics_message)
+
+        -- Uncomment to enable posting stats to crashsite channel.
+        -- Server.to_discord_named_embed_raw(crash_site_channel, statistics_message)
 
         Server.to_discord_named_raw(map_promotion_channel,
-            crash_site_role_mention .. ' **' .. (scenario_display_name[config.scenario_name] or config.scenario_name) .. ' has just restarted!!\\n'
-                .. 'Next map: ' .. (scenario_display_name[new_map_name] or new_map_name) .. '**')
+            crash_site_role_mention .. ' **' .. map_display_name .. ' has just restarted!!\\n'
+                .. 'Next map: ' .. new_map_display_name .. '**')
 
         Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
     end
@@ -472,6 +506,7 @@ function Public.control(config)
             end
 
             inv.remove({name = "poison-capsule", count = strikeCost})
+            airstrike_data.capsules_spent = airstrike_data.capsules_spent + strikeCost
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             -- aim of anti-grief is to stop players accidentally using it on themselves.
