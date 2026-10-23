@@ -1,7 +1,7 @@
--- In-game tests for the Danger Ores building rule. These run under _DEBUG via /test-runner on
--- every Danger Ores map with it enabled (the default): a building that isn't allowed on ore is
--- removed when built on ore, its item handed back and its contents spilled, while the same
--- building off ore, and the allowed ones (belts, drills, poles...) on ore, stay.
+-- In-game tests for the Danger Ores building rule. These run on every Danger Ores map with it
+-- enabled (the default): a building that isn't allowed on ore is removed when built on ore, its
+-- item handed back and its contents spilled, while the same building off ore, and the allowed
+-- ones (belts, drills, poles...) on ore, stay.
 --
 -- They build on the real map's ore and raise the build event the way Factorio would. Refunds
 -- go to the builder, so the buildings are "built" by a stand-in construction robot whose

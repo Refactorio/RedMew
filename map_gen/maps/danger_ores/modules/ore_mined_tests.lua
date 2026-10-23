@@ -1,6 +1,6 @@
--- In-game tests for the ore mined score. These run under _DEBUG via /test-runner on every Danger
--- Ores map with it enabled (the default): ore produced on the map counts towards it, at every
--- quality, and other items don't.
+-- In-game tests for the ore mined score. These run on every Danger Ores map with it enabled
+-- (the default): ore produced on the map counts towards it, at every quality, and other items
+-- don't.
 --
 -- They add to the player force's production statistics directly, the way mining does.
 local Declare = require 'utils.test.declare'

@@ -1,6 +1,6 @@
--- In-game tests for the shared entity placement restriction module. These run under _DEBUG
--- via /test-runner on any map that loads the module (danger ores, concrete jungle, dino
--- island, rail grid, the crash site presets).
+-- In-game tests for the shared entity placement restriction module. These run on any map that
+-- loads the module (danger ores, concrete jungle, dino island, rail grid, the crash site
+-- presets).
 --
 -- The tests drive the banned and allowed lists rather than a keep_alive_callback, because
 -- the callback is a single global slot owned by whichever map is loaded and there is no way

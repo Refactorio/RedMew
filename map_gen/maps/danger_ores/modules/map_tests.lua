@@ -1,5 +1,5 @@
--- In-game tests for every Danger Ores map. These run under _DEBUG via /test-runner, and are
--- discovered on every Danger Ores map, since they all build their map with map.lua.
+-- In-game tests for every Danger Ores map. These are discovered on every Danger Ores map, since
+-- they all build their map with map.lua.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local DOC = require 'map_gen.maps.danger_ores.configuration'

@@ -1,5 +1,5 @@
--- In-game tests for terraforming. These run under _DEBUG via /test-runner on every Danger Ores
--- map that has terraforming enabled (the module is always loaded, but only started when enabled).
+-- In-game tests for terraforming. These run on every Danger Ores map that has terraforming
+-- enabled (the module is always loaded, but only started when enabled).
 --
 -- The locked chunks they use are far from spawn, so a played save is unlikely to have opened
 -- them already. Unlocking a chunk raises the pollution needed for the next one, so that test

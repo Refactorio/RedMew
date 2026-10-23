@@ -1,6 +1,6 @@
--- In-game tests for the Danger Ores maze. These run under _DEBUG via /test-runner on maps that
--- turn the maze on (Coal Maze, and the modded Scrap and Omnimatter mazes). They check the real
--- map, whatever its seed, around spawn: the whole maze is about 300 chunks across.
+-- In-game tests for the Danger Ores maze. These run on maps that turn the maze on (Coal Maze,
+-- and the modded Scrap and Omnimatter mazes). They check the real map, whatever its seed,
+-- around spawn: the whole maze is about 300 chunks across.
 --
 -- The maze is made of whole chunks, cell_size chunks per cell: a wall chunk is solid
 -- out-of-map, a corridor chunk is ordinary map.

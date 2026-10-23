@@ -1,7 +1,7 @@
--- In-game tests for replacing mining productivity. These run under _DEBUG via /test-runner on
--- every Danger Ores map with it enabled (the default): researching mining productivity gives
--- robot cargo size instead, and so does resetting the technology effects, which Factorio does
--- when mods or the game version change. With replace off, the research is disabled instead.
+-- In-game tests for replacing mining productivity. These run on every Danger Ores map with it
+-- enabled (the default): researching mining productivity gives robot cargo size instead, and so
+-- does resetting the technology effects, which Factorio does when mods or the game version
+-- change. With replace off, the research is disabled instead.
 --
 -- They research on the player force from script, which raises the research events like a lab.
 local Declare = require 'utils.test.declare'

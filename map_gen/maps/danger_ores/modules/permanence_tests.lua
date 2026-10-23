@@ -1,6 +1,6 @@
--- In-game tests for permanence. These run under _DEBUG via /test-runner on maps that use it
--- (DO/Permanence): a player building that isn't allowed on ore leaves ore in its footprint when
--- it is mined or destroyed, and one that is allowed on ore leaves none.
+-- In-game tests for permanence. These run on maps that use it (DO/Permanence): a player
+-- building that isn't allowed on ore leaves ore in its footprint when it is mined or destroyed,
+-- and one that is allowed on ore leaves none.
 --
 -- The tests destroy buildings with die(), which raises on_entity_died like any death; mining
 -- them would need a player. They build on dry ground in the ore-free spawn circle: the

@@ -1,8 +1,7 @@
--- In-game tests for the pure City Blocks lattice geometry. These run under _DEBUG via
--- /test-runner, and in CI, whenever city_blocks_layout.lua is loaded, i.e. on the
--- DO/City-Blocks preset. None of them touch the game: they run here, rather than on a
--- standalone Lua, so the arithmetic is checked on Factorio's own Lua (5.2, where every number
--- is a double).
+-- In-game tests for the pure City Blocks lattice geometry. These run whenever
+-- city_blocks_layout.lua is loaded, i.e. on the DO/City-Blocks preset. None of them touch the
+-- game: they run here, rather than on a standalone Lua, so the arithmetic is checked on
+-- Factorio's own Lua (5.2, where every number is a double).
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local L = require 'map_gen.maps.danger_ores.modules.city_blocks_layout'

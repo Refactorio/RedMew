@@ -1,7 +1,7 @@
--- In-game tests for expanse. These run under _DEBUG via /test-runner on maps that use it
--- (DO/Expanse): the land beyond the starting area is void, hungry chests sit on its edge, and
--- feeding one what it asks for opens the land behind it, with new chests on the far side. The
--- Elder Tree and the Infinity Rock at spawn grow back when mined.
+-- In-game tests for expanse. These run on maps that use it (DO/Expanse): the land beyond the
+-- starting area is void, hungry chests sit on its edge, and feeding one what it asks for opens
+-- the land behind it, with new chests on the far side. The Elder Tree and the Infinity Rock at
+-- spawn grow back when mined.
 --
 -- The chests are fed by inserting their request straight into them, as bots would. Mining
 -- needs a player, so the infinite resources are tested by raising the pre-mined event the way

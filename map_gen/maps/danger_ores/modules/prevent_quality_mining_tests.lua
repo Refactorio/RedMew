@@ -1,6 +1,6 @@
--- In-game tests for preventing quality mining. These run under _DEBUG via /test-runner on Danger
--- Ores maps with it enabled (the default) and quality in the game (Space Age): a mining drill
--- above normal quality is removed when built on ore, and a normal one stays.
+-- In-game tests for preventing quality mining. These run on Danger Ores maps with it enabled
+-- (the default) and quality in the game (Space Age): a mining drill above normal quality is
+-- removed when built on ore, and a normal one stays.
 --
 -- They build on the real map's ore and raise the build event the way Factorio would. One drill
 -- is built by real robots from a ghost, so the game's own build event and refund run too.

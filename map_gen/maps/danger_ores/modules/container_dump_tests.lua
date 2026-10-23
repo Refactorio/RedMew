@@ -1,6 +1,6 @@
--- In-game tests for container dump. These run under _DEBUG via /test-runner on every Danger
--- Ores map with it enabled (the default): a chest destroyed with items in it turns them into ore
--- in its place, and an empty one leaves nothing.
+-- In-game tests for container dump. These run on every Danger Ores map with it enabled (the
+-- default): a chest destroyed with items in it turns them into ore in its place, and an empty
+-- one leaves nothing.
 --
 -- They destroy the chests with die(), near spawn, clearing any ore off the chest's tile first
 -- (some maps put ore right up to spawn).

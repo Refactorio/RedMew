@@ -1,6 +1,6 @@
--- In-game tests for the extra technology unlocks. These run under _DEBUG via /test-runner on
--- every Danger Ores map with them enabled (the default): researching a technology in the list
--- (uranium mining, oil gathering...) also researches the ones it unlocks.
+-- In-game tests for the extra technology unlocks. These run on every Danger Ores map with them
+-- enabled (the default): researching a technology in the list (uranium mining, oil
+-- gathering...) also researches the ones it unlocks.
 --
 -- They research on the player force from script, which raises the research events like a lab.
 local Declare = require 'utils.test.declare'

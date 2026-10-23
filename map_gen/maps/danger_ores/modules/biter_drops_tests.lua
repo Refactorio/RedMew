@@ -1,5 +1,5 @@
--- In-game tests for biter drops. These run under _DEBUG via /test-runner on every Danger Ores
--- map with them enabled (the default): a destroyed biter or spitter nest drops fish.
+-- In-game tests for biter drops. These run on every Danger Ores map with them enabled (the
+-- default): a destroyed biter or spitter nest drops fish.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local BiterDrops = require 'map_gen.maps.danger_ores.modules.biter_drops'

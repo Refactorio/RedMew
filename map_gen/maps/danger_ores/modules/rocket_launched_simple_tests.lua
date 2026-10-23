@@ -1,6 +1,6 @@
--- In-game tests for the Danger Ores win condition. These run under _DEBUG via /test-runner on
--- every Danger Ores map with rocket_launched enabled: the first satellite kills all the
--- biters, and win_satellite_count satellites win the map.
+-- In-game tests for the Danger Ores win condition. These run on every Danger Ores map with
+-- rocket_launched enabled: the first satellite kills all the biters, and win_satellite_count
+-- satellites win the map.
 --
 -- A real launch needs a working silo and a long countdown, so the test raises the launch
 -- event the way Factorio would, with a stand-in rocket whose cargo pod is a chest of

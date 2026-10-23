@@ -1,6 +1,6 @@
--- In-game tests for the Archipelago overlay. These run under _DEBUG via /test-runner, and are
--- only discovered when archipelago.lua is loaded, i.e. when DO/Archipelago is the active map.
--- They check the real map, whatever its seed, generating chunks terraforming hasn't unlocked yet.
+-- In-game tests for the Archipelago overlay. These are only discovered when archipelago.lua is
+-- loaded, i.e. when DO/Archipelago is the active map. They check the real map, whatever its
+-- seed, generating chunks terraforming hasn't unlocked yet.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local DOC = require 'map_gen.maps.danger_ores.configuration'

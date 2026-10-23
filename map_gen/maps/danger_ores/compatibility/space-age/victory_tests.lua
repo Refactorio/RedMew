@@ -1,6 +1,6 @@
--- In-game tests for the Danger Ores Space Age win condition. These run under _DEBUG via
--- /test-runner on the Space Age preset: a rocket launch tells players the goal, crafting a
--- legendary mech armor wins the map, and a normal one doesn't.
+-- In-game tests for the Danger Ores Space Age win condition. These run on the Space Age preset:
+-- a rocket launch tells players the goal, crafting a legendary mech armor wins the map, and a
+-- normal one doesn't.
 --
 -- Crafting is read from the player force's production statistics, so the test records mech
 -- armor there the way crafting it would. The won map stays on the save it runs on.

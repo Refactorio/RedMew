@@ -1,6 +1,5 @@
--- In-game tests for City Blocks chunk generation. These run under _DEBUG via /test-runner,
--- and are only discovered when city_blocks.lua is loaded, i.e. when the DO/City-Blocks
--- preset is the active map.
+-- In-game tests for City Blocks chunk generation. These are only discovered when
+-- city_blocks.lua is loaded, i.e. when the DO/City-Blocks preset is the active map.
 --
 -- Everything here drives Public.generate_chunk directly on a scratch surface rather than
 -- waiting for real map generation, so a test can pick the exact chunk it wants to inspect.

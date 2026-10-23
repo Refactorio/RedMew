@@ -1,7 +1,7 @@
--- In-game tests for Safety Ores, the Danger Ores preset where buildings must stand on ore. These
--- run under _DEBUG via /test-runner when it is the active map: a building off ore is removed and
--- its item handed back, the same building on ore stays, poles stay anywhere but belts don't, and
--- a new pumpjack gets a square of stone round it so the oil can be defended.
+-- In-game tests for Safety Ores, the Danger Ores preset where buildings must stand on ore.
+-- These run when it is the active map: a building off ore is removed and its item handed back,
+-- the same building on ore stays, poles stay anywhere but belts don't, and a new pumpjack gets
+-- a square of stone round it so the oil can be defended.
 --
 -- They build on the real map and raise the build event the way Factorio would. The refund goes
 -- to a player, so it is read from the restriction module's pre-destroy event instead. One

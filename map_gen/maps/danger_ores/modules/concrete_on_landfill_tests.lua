@@ -1,9 +1,9 @@
--- In-game tests for concrete on landfill. These run under _DEBUG via /test-runner on every
--- Danger Ores map with it enabled (the default): refined concrete laid on landfill becomes the
--- marker tile, which can't be mined, building another floor over the marker hands the refined
--- concrete back, and mining that floor and then the landfill gets back to the water the landfill
--- was laid on. Landfill with nothing under it stays that way, and refined concrete on ordinary
--- ground stays refined concrete.
+-- In-game tests for concrete on landfill. These run on every Danger Ores map with it enabled
+-- (the default): refined concrete laid on landfill becomes the marker tile, which can't be
+-- mined, building another floor over the marker hands the refined concrete back, and mining
+-- that floor and then the landfill gets back to the water the landfill was laid on. Landfill
+-- with nothing under it stays that way, and refined concrete on ordinary ground stays refined
+-- concrete.
 --
 -- Real construction robots lay and mine the tiles on a scratch surface, so the game does what
 -- it does for a player: its own build checks, its own hidden tiles, its own events. The player
