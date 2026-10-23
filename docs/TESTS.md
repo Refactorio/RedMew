@@ -41,6 +41,13 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
 CI runs every template on each pull request. The *in-game test results* check lists every test
 grouped by map.
 
+## Startup and teardown
+
+A module's tests rely on its `Declare.module_startup`, and on those of the modules above it. When
+a startup fails, none of the tests below it run: each fails with `startup of <module> failed`, and
+neither the startups and teardowns below it nor the module's own teardown run. When a teardown
+fails, the tests below it that passed fail with `teardown of <module> failed`.
+
 ## Without a player
 
 A headless server has no player, so on a headless run `context.player` is nil. Tests that need

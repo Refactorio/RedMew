@@ -40,9 +40,10 @@ local Public = {}
 Public.events = {
     -- raised when a run ends, with `player` (who started it, if anyone) and `headless`
     tests_run_finished = Event.generate_event_name('test_run_finished'),
-    -- raised as each test finishes, with `path` (its module's, '/map_gen/maze' say), `test_name`,
-    -- `passed`, `error`, `ticks` (how long it took), `order` (how many tests have finished, this
-    -- one included) and `headless`
+    -- raised as each test finishes, with `id` (the test's), `path` (its module's, '/map_gen/maze'
+    -- say), `test_name`, `passed`, `error`, `ticks` (how long it took), `order` (how many tests have
+    -- finished, this one included) and `headless`. A test that passed is raised again, failed, if
+    -- the teardown of its module, or of a module above it, fails later in the run.
     test_finished = Event.generate_event_name('test_finished')
 }
 
@@ -163,6 +164,47 @@ local function record_hook_error_in_module(hook)
     end
 end
 
+local function raise_test_finished(test, data, order)
+    script.raise_event(Public.events.test_finished, {
+        id = test.id,
+        path = get_module_path(test.module),
+        test_name = test.name, -- `name` is the event's own
+        passed = test.passed,
+        error = test.error and tostring(test.error) or nil,
+        ticks = test.ticks,
+        order = order,
+        headless = data.headless
+    })
+end
+
+--- The module whose startup failed in this run, `module` or one above it, if any.
+local function get_failed_startup(module, data)
+    while module do
+        if data.failed_startups[module] then
+            return module
+        end
+        module = module.parent
+    end
+    return nil
+end
+
+--- Fails the tests in `module` and below it that passed in this run: the teardown of `module`
+-- failed.
+local function fail_passed_tests(module, data, error_message)
+    for _, test in pairs(module.tests) do
+        if test.passed == true then
+            test.passed = false
+            test.error = error_message
+            data.fail_count = data.fail_count + 1
+            print_error(data.player, test.name, error_message)
+            raise_test_finished(test, data)
+        end
+    end
+    for _, child in pairs(module.children) do
+        fail_passed_tests(child, data, error_message)
+    end
+end
+
 local function do_termination(data)
     if not data.stop_on_first_error then
         return false
@@ -237,10 +279,27 @@ local function run_hook(hook, player)
 end
 
 local function do_hook(hook, data)
+    -- A module's tests, and the modules below it, need its startup: when it failed, their hooks
+    -- don't run, and nor does its own teardown, which undoes a startup that worked.
+    if get_failed_startup(hook.module, data) then
+        data.index = data.index + 1
+        schedule(data, 1)
+        return
+    end
+
     local hook_success = run_hook(hook, data.player)
 
-    if hook_success == false and do_termination(data) then
-        return
+    if hook_success == false then
+        local message = table.concat {hook.name, ' of ', get_module_path(hook.module), ' failed: ', tostring(hook.error)}
+        if hook.name == 'startup' then
+            data.failed_startups[hook.module] = message
+        elseif hook.name == 'teardown' then
+            fail_passed_tests(hook.module, data, message)
+        end
+
+        if do_termination(data) then
+            return
+        end
     end
 
     if hook_success == nil then
@@ -296,19 +355,22 @@ local function run_test(test, player)
 end
 
 local function do_test(test, data)
-    local success = run_test(test, data.player)
+    local success
+    local failed_startup = get_failed_startup(test.module, data)
+    if failed_startup then
+        -- not run: its module's startup, or one above it, failed
+        test.started_tick = game.tick
+        test.passed = false
+        test.error = data.failed_startups[failed_startup]
+        print_error(data.player, test.name, test.error)
+        success = false
+    else
+        success = run_test(test, data.player)
+    end
 
     if success ~= nil then
         test.ticks = game.tick - test.started_tick
-        script.raise_event(Public.events.test_finished, {
-            path = get_module_path(test.module),
-            test_name = test.name, -- `name` is the event's own
-            passed = success,
-            error = test.error and tostring(test.error) or nil,
-            ticks = test.ticks,
-            order = data.count + 1,
-            headless = data.headless
-        })
+        raise_test_finished(test, data, data.count + 1)
     end
 
     if success == false then
@@ -378,7 +440,9 @@ local function run(runnables, player, options)
         count = 0,
         fail_count = 0,
         stop_on_first_error = options.stop_on_first_error,
-        headless = options.headless
+        headless = options.headless,
+        -- the modules whose startup failed in this run, to the message their tests fail with
+        failed_startups = {}
     }
     run_runnables({run_id = id})
 end
