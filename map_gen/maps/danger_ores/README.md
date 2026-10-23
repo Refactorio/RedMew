@@ -86,7 +86,8 @@ Turned on from `configuration.lua` (all on by default unless noted):
 3. An entry in `modules/map_poll.lua`'s `maps`, in alphabetical order:
    `{ name = 'danger-ore-<name>', display_name = '<Name> (short description)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} }`.
    The mod pack is the one the map runs with; the tags (`regular`, `overhaul`) decide which
-   servers offer it.
+   servers offer it. The display name is also what the end-of-map message on Discord calls the
+   map.
 4. A dated line at the end of `changelog.lua`, which shows in the in-game info window:
    `- [DO:<Name>] Added DO/<Name> preset`. Several map PRs open at once each add to it, so the
    later ones need rebasing.
