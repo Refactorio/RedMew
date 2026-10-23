@@ -1,8 +1,8 @@
--- In-game bootstrap tests for Crash Site. These run under _DEBUG via /test-runner, and are only
--- discovered when scenario.lua is loaded, i.e. when a Crash Site map is active. They check that
--- the map comes up with what the rest of the scenario relies on: the spawn market and payment
--- chests, the commands, the cutscene surface, and defended outposts around spawn. Past that, they
--- check outposts are captured and make things, and that market upgrades take.
+-- In-game bootstrap tests for Crash Site. These are only discovered when scenario.lua is
+-- loaded, i.e. when a Crash Site map is active. They check that the map comes up with what the
+-- rest of the scenario relies on: the spawn market and payment chests, the commands, the
+-- cutscene surface, and defended outposts around spawn. Past that, they check outposts are
+-- captured and make things, and that market upgrades take.
 --
 -- Upgrades are bought by raising the market purchase event the way the retailer does, with a
 -- stand-in buyer: the market itself needs a player and their coins. /strike and /barrage are
