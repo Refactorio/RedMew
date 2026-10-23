@@ -31,6 +31,8 @@ local START_TICK = 300 -- after the map's own setup
 local settings = rawget(_G, '_TESTS_HEADLESS')
 
 local results
+-- where each test's result is in results.tests, by the test's id
+local index_by_id
 
 local function log_result(result)
     local line = 'TESTRESULT ' .. result.result:upper() .. ' ' .. result.path .. ' :: ' .. result.name
@@ -45,8 +47,19 @@ end
 
 local count_names = {pass = 'passed', fail = 'failed', skip = 'skipped'}
 
-local function add_result(result)
-    results.tests[#results.tests + 1] = result
+local function add_result(result, id)
+    local index = id and index_by_id[id]
+    if index then
+        -- the test again: it passed, then a teardown after it failed
+        local old = results.tests[index].result
+        results[count_names[old]] = results[count_names[old]] - 1
+    else
+        index = #results.tests + 1
+        if id then
+            index_by_id[id] = index
+        end
+    end
+    results.tests[index] = result
     local count_name = count_names[result.result]
     results[count_name] = results[count_name] + 1
     log_result(result)
@@ -77,11 +90,13 @@ local function finish()
     log('TESTS DONE passed=' .. results.passed .. ' failed=' .. results.failed .. ' skipped=' .. results.skipped)
     helpers.write_file(Public.results_file, helpers.table_to_json(results))
     results = nil
+    index_by_id = nil
 end
 
 --- Starts a headless run of every test, printing progress to `player` if given.
 function Public.run(player)
     results = {passed = 0, failed = 0, skipped = 0, tests = {}}
+    index_by_id = {}
     Runner.run_module(nil, player, {headless = true})
 end
 
@@ -89,7 +104,7 @@ Event.add(Runner.events.test_finished, function(event)
     if not (event.headless and results) then
         return
     end
-    add_result({path = event.path, name = event.test_name, result = event.passed and 'pass' or 'fail', ticks = event.ticks, error = event.error})
+    add_result({path = event.path, name = event.test_name, result = event.passed and 'pass' or 'fail', ticks = event.ticks, error = event.error}, event.id)
 end)
 
 Event.add(Runner.events.tests_run_finished, function(event)

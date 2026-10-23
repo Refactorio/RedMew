@@ -151,20 +151,21 @@ function Public.modify_global(context, name, value)
     end)
 end
 
---- Calls `done` every 10 ticks until it returns true or `ticks` have passed, then calls
--- `after(true)`, or `after(false)` when it never did.
+--- Calls `done` every tick until it returns true or `ticks` have passed, then calls
+-- `after(true)`, or `after(false)` when it never did. context:wait_until does the same as a step
+-- of its own, so what follows can be chained after it rather than nested in `after`; use that.
 function Public.wait_until(context, ticks, done, after)
     local function check()
         if done() then
             return after(true)
         end
-        ticks = ticks - 10
+        ticks = ticks - 1
         if ticks <= 0 then
             return after(false)
         end
-        context:timeout(10, check)
+        context:next(check)
     end
-    context:timeout(10, check)
+    context:next(check)
 end
 
 --- Builds a logistic network near `position` for real construction robots: a powered roboport
