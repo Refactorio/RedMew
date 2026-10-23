@@ -2,6 +2,7 @@ local Config = require 'config'
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
+local table = require 'utils.table'
 
 ScenarioInfo.add_extra_rule({ 'info.rules_text_danger_ore' })
 ScenarioInfo.set_map_description([[
@@ -28,6 +29,9 @@ Config.dump_offline_inventories = {
   startup_gear_drop_hours = 24, -- time after which players will keep at least their armor when disconnecting
 }
 Config.market.enabled = false
+-- with no market and no rewards there are no coins to earn or spend, so don't show them; a map
+-- that gives coins can turn the column back on
+Config.player_list.show_coin_column = false
 Config.paint.enabled = false
 Config.permissions.presets.no_blueprints = false
 Config.player_create.starting_items = {
@@ -59,6 +63,10 @@ local Public = {}
 Public.register = function(danger_ores_config)
   local _C = danger_ores_config
 
+  -- coins are only spent at the market, so without one the score is always 0
+  if not Config.market.enabled then
+    table.remove_element(Config.score.global_to_show, 'coins-spent')
+  end
   if _C.allowed_entities.enabled then
     allowed_entities(_C.allowed_entities)
   end
