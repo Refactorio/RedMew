@@ -114,7 +114,10 @@ Declare.module(
         Declare.test(
             'spawn has its market with the airstrike, barrage and rocket tank upgrades',
             function()
+                -- Act
                 local surface = generate(32)
+
+                -- Assert
                 local market = spawn_market(surface)
                 local group = Retailer.get_market_group_name(market)
                 Assert.equal('Spawn', Retailer.get_market_group_label(group), 'spawn market label')
@@ -129,7 +132,10 @@ Declare.module(
         Declare.test(
             'the payment chests are where /strike and /barrage look for them',
             function()
+                -- Act
                 local surface = generate(32)
+
+                -- Assert
                 for name, position in pairs {airstrike = AIRSTRIKE_CHEST, barrage = BARRAGE_CHEST} do
                     local chest = surface.find_entities_filtered {position = position, type = 'logistic-container', limit = 1}[1]
                     Assert.is_true(chest ~= nil, 'no ' .. name .. ' payment chest at ' .. position[1] .. ',' .. position[2])
@@ -142,6 +148,7 @@ Declare.module(
         Declare.test(
             'the /spy, /strike and /barrage commands are registered',
             function()
+                -- Assert: the scenario registered them as it loaded
                 for _, name in pairs {'spy', 'strike', 'barrage'} do
                     Assert.is_true(commands.commands[name] ~= nil, '/' .. name .. ' is not registered')
                 end
@@ -151,6 +158,7 @@ Declare.module(
         Declare.test(
             'the cutscene surface exists and is hidden from players',
             function()
+                -- Assert: the scenario made them as it started
                 Assert.is_true(game.get_surface('cutscene') ~= nil, 'no cutscene surface')
                 Assert.is_true(game.forces.player.get_surface_hidden('cutscene'), 'the cutscene surface is visible to the player force')
                 Assert.is_true(game.forces['cutscene'] ~= nil, 'no cutscene force')
@@ -160,10 +168,12 @@ Declare.module(
         Declare.test(
             'outposts near spawn are defended and locked until captured',
             function()
+                -- Act
                 local surface = generate(OUTPOST_REACH)
+
+                -- Assert
                 local area = {{-OUTPOST_REACH, -OUTPOST_REACH}, {OUTPOST_REACH, OUTPOST_REACH}}
                 local spawn = spawn_market(surface)
-
                 local outposts = 0
                 for _, market in pairs(surface.find_entities_filtered {area = area, name = 'market'}) do
                     if market ~= spawn then
@@ -229,6 +239,7 @@ Declare.module(
         Declare.test(
             'outpost machines make their product over time',
             function(context)
+                -- Arrange
                 local surface = generate(OUTPOST_REACH)
                 local all = {}
                 for _, machines in pairs(outpost_machines(surface)) do
@@ -238,7 +249,9 @@ Declare.module(
                 end
                 Assert.is_true(#all > 0, 'no outpost machines within ' .. OUTPOST_REACH .. ' of spawn')
 
+                -- Act: let them run for 10 seconds
                 measure(context, {all = all}, 600, function(counts)
+                    -- Assert
                     Assert.is_true(counts.all > 0, 'the ' .. #all .. ' outpost machines near spawn made nothing in 10 seconds')
                 end)
             end
@@ -309,12 +322,15 @@ Declare.module(
                 local group = Retailer.get_market_group_name(spawn_market(surface))
                 local items = Retailer.get_items(group)
                 for _, key in pairs({'airstrike_damage', 'airstrike_radius', 'barrage_damage', 'barrage_radius'}) do
+                    -- Arrange
                     local item = items[key]
                     Assert.is_true(item ~= nil, 'no ' .. key .. ' at the spawn market')
                     local level, price = item.name_label[2], item.price
 
+                    -- Act
                     buy(group, item)
 
+                    -- Assert
                     item = Retailer.get_items(group)[key]
                     Assert.equal(level + 1, item.name_label[2], key .. ' level after buying it')
                     Assert.is_true(item.price > price, key .. ' price went from ' .. price .. ' to ' .. item.price)
@@ -467,14 +483,16 @@ Declare.module(
         Declare.test(
             'an outpost gun turret that runs dry gets its ammo back',
             function(context)
+                -- Arrange
                 local surface = generate(OUTPOST_REACH)
                 local turret = surface.find_entities_filtered {area = outpost_area(), force = 'enemy', type = 'ammo-turret', limit = 1}[1]
                 Assert.valid(turret, 'no enemy gun turrets within ' .. OUTPOST_REACH .. ' of spawn')
                 local ammo = turret.get_inventory(defines.inventory.turret_ammo)
                 Assert.is_true(not ammo.is_empty(), 'the turret at ' .. turret.position.x .. ',' .. turret.position.y .. ' started with no ammo')
+                -- Act
                 ammo.clear()
 
-                -- turrets are refilled one a tick, in turn
+                -- Assert: turrets are refilled one a tick, in turn
                 poll(context, 6000, function()
                     return not turret.valid or not ammo.is_empty()
                 end, function(ok)
@@ -499,7 +517,7 @@ Declare.module(
         Declare.test(
             'outpost laser turrets a pole reaches have power',
             function(context)
-                -- not every map has laser turrets a pole reaches in its first ring of outposts
+                -- Act: not every map has laser turrets a pole reaches in its first ring of outposts
                 local reach, surface, turrets
                 for _, r in pairs({OUTPOST_REACH, OUTPOST_REACH * 2, OUTPOST_REACH * 3}) do
                     reach, surface = r, generate(r)
@@ -513,7 +531,8 @@ Declare.module(
                     end
                 end
                 Assert.is_true(#turrets > 0, 'no enemy laser turrets within ' .. reach .. ' of spawn')
-                -- give any just built a moment to charge. A turret's pole is left out where
+
+                -- Assert: give any just built a moment to charge. A turret's pole is left out where
                 -- something was in its way when the outpost was built, or isn't there yet where it
                 -- is in a chunk not generated yet, which leaves the turret without power: only
                 -- turrets inside a pole's supply area are counted (a pole nearby may be another
@@ -602,7 +621,10 @@ Declare.module(
         Declare.test(
             'outpost markets have goods for sale',
             function()
+                -- Act
                 local surface = generate(OUTPOST_REACH)
+
+                -- Assert
                 local spawn = spawn_market(surface)
                 local checked = 0
                 for _, market in pairs(surface.find_entities_filtered {area = outpost_area(), name = 'market'}) do
@@ -625,7 +647,10 @@ Declare.module(
         Declare.test(
             'outposts have loot in their chests',
             function()
+                -- Act
                 local surface = generate(OUTPOST_REACH)
+
+                -- Assert
                 local chests, full = 0, 0
                 for _, chest in pairs(surface.find_entities_filtered {area = outpost_area(), type = 'container'}) do
                     local p = chest.position
