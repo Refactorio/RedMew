@@ -1,9 +1,9 @@
--- In-game bootstrap tests for Frontier. These run under _DEBUG via /test-runner, and are only
--- discovered when scenario.lua is loaded, i.e. when Frontier is the active map. They check the
--- ribbon world comes up as the scenario describes it: water to the west, a solid wall to the
--- east, and the rocket silo. Past that, they check the rules of the round: the kraken eats what
--- is built or driven too far west, the silo can't be crafted, and a launched rocket moves the silo east,
--- keeping what was left in it in a chest.
+-- In-game bootstrap tests for Frontier. These are only discovered when scenario.lua is loaded,
+-- i.e. when Frontier is the active map. They check the ribbon world comes up as the scenario
+-- describes it: water to the west, a solid wall to the east, and the rocket silo. Past that,
+-- they check the rules of the round: the kraken eats what is built or driven too far west, the
+-- silo can't be crafted, and a launched rocket moves the silo east, keeping what was left in it
+-- in a chest.
 --
 -- Rockets are launched by raising the event the way Factorio does, with a stand-in rocket whose
 -- cargo pod is an empty chest.
