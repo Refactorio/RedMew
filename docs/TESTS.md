@@ -41,6 +41,45 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
 CI runs every template on each pull request. The *in-game test results* check lists every test
 grouped by map.
 
+## Writing tests
+
+Mark each test's steps:
+
+```lua
+Declare.test('a destroyed chest with items in it turns them into ore', function()
+    -- Arrange
+    local chest = surface.create_entity {name = 'iron-chest', position = position, force = 'player'}
+    chest.insert {name = 'iron-plate', count = 100}
+
+    -- Act
+    chest.die()
+
+    -- Assert
+    local ore = surface.find_entities_filtered {area = spot, name = 'coal'}[1]
+    Assert.equal(100, ore.amount, 'coal left by a chest of 100 plates')
+end)
+```
+
+- **The Act is the thing under test:** the call for a pure function, generating the map for a
+  check on the map, the event or the robots' work for a feature. A test that only checks what
+  the scenario set up as it loaded just asserts. Words after a colon explain a step where it
+  needs it (`-- Act: a ghost for the robots to build`).
+- **Don't call what you test inside an assertion:** put the result in a local under Act, and
+  assert on it after. A test that checks many things reads better as several small tests.
+- **Test what our code decides, not Factorio's own behaviour.** Ask what change in our code
+  would make the test fail; if nothing would, the test isn't needed. Whether a character can
+  walk on shallow water is the game's business; whether the map puts shallow water between the
+  land and deep water is ours.
+- **Read values from the module rather than copying them into the test**, so the test can't
+  drift from what it checks. Expose them from the module if you have to.
+- **Say what the module's tests cover in the file's header**, and when they're discovered,
+  not how they run: every test runs the same way.
+- **`require` at the top of the file.** It only works while the scenario loads, never in a test.
+- **Pure logic is tested in game too**, so it runs on Factorio's Lua: every number is a double
+  (Lua 5.2), and `math.randomseed` does nothing. For repeatable randomness use
+  `game.create_random_generator(seed)`, with seeds above 341: every seed up to 341 gives the same
+  generator.
+
 ## Without a player
 
 A headless server has no player, so on a headless run `context.player` is nil. Tests that need
