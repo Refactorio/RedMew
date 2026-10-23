@@ -16,6 +16,7 @@ return function(config)
         end
 
         ShareGlobals.data.biters_disabled = true
+        ShareGlobals.data.first_satellite_ticks = game.ticks_played
         game.forces.enemy.kill_all_units()
         for _, enemy_entity in pairs(RS.get_surface().find_entities_filtered({force = 'enemy'})) do
             enemy_entity.destroy()
