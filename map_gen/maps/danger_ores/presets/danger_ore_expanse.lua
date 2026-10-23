@@ -35,6 +35,7 @@ ScenarioInfo.add_map_extra_info([[
 
 Config.market.enabled = false
 Config.player_rewards.enabled = true
+Config.player_list.show_coin_column = true -- coins from rewards and unlocked land count as earned
 Config.player_create.starting_items = {
   { count =  1, name = 'burner-mining-drill' },
   { count =  1, name = 'stone-furnace' },
