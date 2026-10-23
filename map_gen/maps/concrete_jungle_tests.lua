@@ -1,8 +1,7 @@
--- In-game tests for Concrete Jungle. These run under _DEBUG via /test-runner when it is the active
--- map: a building needs floor of its tier under it (stone path for most), so one built on bare
--- ground is removed and handed back, as is one robots upgrade to on a floor it doesn't allow,
--- and laying a lower floor over a higher one puts the higher one back and hands the lower one
--- back.
+-- In-game tests for Concrete Jungle. These run when it is the active map: a building needs
+-- floor of its tier under it (stone path for most), so one built on bare ground is removed and
+-- handed back, as is one robots upgrade to on a floor it doesn't allow, and laying a lower
+-- floor over a higher one puts the higher one back and hands the lower one back.
 --
 -- Real construction robots build on a scratch surface, so the game runs its own build events
 -- and the robots take back to storage whatever they are handed.
@@ -46,11 +45,15 @@ Declare.module(
         Declare.test(
             'a building robots build on bare ground is removed and goes back to storage',
             function(context)
+                -- Arrange
                 local p = {x = 12.5, y = 12.5}
                 storage.insert {name = BUILDING, count = 1}
+
+                -- Act: a ghost for the robots to build
                 Assert.valid(surface.create_entity {name = 'entity-ghost', inner_name = BUILDING, position = p, force = 'player'}, 'the ghost was not placed')
 
-                -- the robot takes the chest out of storage, builds it, and the chest is removed
+                -- Assert: the robot takes the chest out of storage, builds it, and the chest is
+                -- removed
                 Helper.wait_until(context, ROBOT_TICKS, function()
                     return surface.count_entities_filtered {position = p, radius = 0.5, name = 'entity-ghost'} == 0 and in_storage(BUILDING) == 1
                 end, function(ok)
@@ -64,11 +67,15 @@ Declare.module(
         Declare.test(
             'a building robots build on stone path stays',
             function(context)
+                -- Arrange
                 local p = {x = 14.5, y = 12.5}
                 surface.set_tiles {{name = 'stone-path', position = p}}
                 storage.insert {name = BUILDING, count = 1}
+
+                -- Act: a ghost for the robots to build
                 Assert.valid(surface.create_entity {name = 'entity-ghost', inner_name = BUILDING, position = p, force = 'player'}, 'the ghost was not placed')
 
+                -- Assert
                 Helper.wait_until(context, ROBOT_TICKS, function()
                     return chests_at(p) == 1
                 end, function(ok)
@@ -83,9 +90,9 @@ Declare.module(
         Declare.test(
             'an upgrade robots make to a building the floor does not allow is undone and both go back to storage',
             function(context)
-                -- Ordering an upgrade isn't checked, so the upgrade planner gets a steel furnace,
-                -- which needs concrete, built over a stone furnace on stone path. The rule removes
-                -- it once the robots have built it.
+                -- Arrange: ordering an upgrade isn't checked, so the upgrade planner gets a steel
+                -- furnace, which needs concrete, built over a stone furnace on stone path. The rule
+                -- removes it once the robots have built it.
                 local p = {x = 19, y = 13}
                 surface.set_tiles {
                     {name = 'stone-path', position = {18, 12}}, {name = 'stone-path', position = {19, 12}},
@@ -94,8 +101,11 @@ Declare.module(
                 local furnace = surface.create_entity {name = 'stone-furnace', position = p, force = 'player'}
                 Assert.valid(furnace, 'the stone furnace was not created')
                 storage.insert {name = 'steel-furnace', count = 1}
+
+                -- Act
                 Assert.is_true(furnace.order_upgrade {target = 'steel-furnace', force = 'player'}, 'the upgrade was not ordered')
 
+                -- Assert
                 local function furnaces()
                     return surface.count_entities_filtered {position = p, radius = 0.5, type = 'furnace'}
                 end
@@ -113,11 +123,15 @@ Declare.module(
         Declare.test(
             'stone path robots lay over concrete is undone and the stone brick goes back to storage',
             function(context)
+                -- Arrange
                 local p = {x = 16, y = 12}
                 surface.set_tiles {{name = 'concrete', position = p}}
                 storage.insert {name = 'stone-brick', count = 1}
+
+                -- Act: a ghost for the robots to build
                 Assert.valid(surface.create_entity {name = 'tile-ghost', inner_name = 'stone-path', position = p, force = 'player'}, 'the ghost was not placed')
 
+                -- Assert
                 Helper.wait_until(context, ROBOT_TICKS, function()
                     return surface.count_entities_filtered {position = {p.x + 0.5, p.y + 0.5}, radius = 0.5, name = 'tile-ghost'} == 0 and in_storage('stone-brick') == 1
                 end, function(ok)

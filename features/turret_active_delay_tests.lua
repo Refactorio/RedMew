@@ -1,5 +1,5 @@
--- In-game tests for turret_active_delay. These run under _DEBUG via /test-runner on every map with
--- it enabled (the default): a new turret stays switched off for its type's delay, then switches on.
+-- In-game tests for turret_active_delay. These run on every map with it enabled (the default):
+-- a new turret stays switched off for its type's delay, then switches on.
 --
 -- They are under map_gen in the test tree so the headless runs (utils/test/headless.lua) pick
 -- them up. Real construction robots build an artillery turret (the shortest delay, and it needs
@@ -35,6 +35,7 @@ Declare.module(
         Declare.test(
             'a turret robots build stays switched off for its delay, then switches on',
             function(context)
+                -- Arrange: robots, and ground the map lets a turret stand on
                 local delay = config.turret_active_delay.turret_types[prototypes.entity[TURRET].type]
                 Assert.is_true(delay and delay > 0, 'no delay for ' .. TURRET .. 's on this map')
                 local surface, delete_surface = Helper.create_test_surface(context)
@@ -57,11 +58,14 @@ Declare.module(
                         surface.create_entity {name = 'iron-ore', position = {POSITION.x - 0.5, POSITION.y - 0.5}, amount = 1000}
                     end
                     local before = #built
+
+                    -- Act: a ghost for the robots to build
                     Assert.valid(surface.create_entity {name = 'entity-ghost', inner_name = TURRET, position = POSITION, force = 'player'}, 'the ghost was not placed')
 
                     Helper.wait_until(context, 1800, function()
                         return #built > before
                     end, function(ok)
+                        -- Assert: off when built, then on after its delay
                         Assert.is_true(ok, 'the robots did not build the ' .. TURRET)
                         local turret, built_at = built[#built].entity, built[#built].tick
                         Assert.is_true(turret.valid, 'the ' .. TURRET .. ' was removed as soon as it was built, by the map\'s placement rules most likely')

@@ -25,8 +25,9 @@ function Public.chunk_map(radius)
     return land, mixed
 end
 
-function Public.assert_whole_chunks(radius)
-    local land, mixed = Public.chunk_map(radius)
+-- The checks take what chunk_map returned for `radius`.
+
+function Public.assert_whole_chunks(land, mixed, radius)
     Assert.equal(0, #mixed, 'chunks part land, part void: ' .. table.concat(mixed, ' '))
     local count = 0
     for _, is_land in pairs(land) do
@@ -36,8 +37,7 @@ function Public.assert_whole_chunks(radius)
     Assert.is_true(count > 0 and count < total, count .. ' of ' .. total .. ' chunks round spawn are land')
 end
 
-function Public.assert_thin_walls(radius)
-    local land = Public.chunk_map(radius)
+function Public.assert_thin_walls(land, radius)
     for cx = -radius, radius - 2 do
         for cy = -radius, radius - 2 do
             local block = not land[cx .. ',' .. cy] and not land[(cx + 1) .. ',' .. cy]
@@ -47,8 +47,7 @@ function Public.assert_thin_walls(radius)
     end
 end
 
-function Public.assert_corridors_lead_out(radius)
-    local land = Public.chunk_map(radius)
+function Public.assert_corridors_lead_out(land, radius)
     Assert.is_true(land['0,0'], 'spawn is not on land')
     local seen, queue = {['0,0'] = true}, {{0, 0}}
     while #queue > 0 do

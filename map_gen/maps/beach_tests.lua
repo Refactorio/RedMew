@@ -1,6 +1,6 @@
--- In-game tests for the Beach map. These run under _DEBUG via /test-runner when it is the active
--- map: the world is a band 384 tiles high with void beyond it, and going north from spawn it
--- runs grass, then a sand beach where all the ore is, then the sea.
+-- In-game tests for the Beach map. These run when it is the active map: the world is a band 384
+-- tiles high with void beyond it, and going north from spawn it runs grass, then a sand beach
+-- where all the ore is, then the sea.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local RS = require 'map_gen.shared.redmew_surface'
@@ -26,7 +26,10 @@ Declare.module(
         Declare.test(
             'the world is a band 384 tiles high, void beyond it',
             function()
+                -- Act
                 local s = surface()
+
+                -- Assert
                 for _, x in pairs(COLUMNS) do
                     Assert.equal('out-of-map', s.get_tile(x, NORTH - 2).name, 'tile north of the band at x ' .. x)
                     Assert.equal('out-of-map', s.get_tile(x, SOUTH + 2).name, 'tile south of the band at x ' .. x)
@@ -39,7 +42,10 @@ Declare.module(
         Declare.test(
             'going north from spawn: grass, a sand beach with the ore, then the sea',
             function()
+                -- Act
                 local s = surface()
+
+                -- Assert
                 Assert.equal('grass-1', s.get_tile(0, 0).name, 'tile at spawn')
                 for _, x in pairs(COLUMNS) do
                     local sand, sea
