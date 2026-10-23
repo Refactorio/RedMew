@@ -34,7 +34,15 @@ $ErrorActionPreference = 'Stop'
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $FactorioDir = (Resolve-Path $FactorioDir).Path
-# the game's executable and data; a macOS app keeps them in its Contents folder
+# the game's executable and data. A macOS app keeps them in its Contents folder. Take the game's
+# folder or app, the app's Contents folder, or the executable itself
+# (.../bin/x64/factorio(.exe), or .../factorio.app/Contents/MacOS/factorio).
+if (Test-Path -PathType Leaf $FactorioDir) {
+    $FactorioDir = Split-Path (Split-Path (Split-Path $FactorioDir))
+}
+if ((Split-Path -Leaf $FactorioDir) -eq 'Contents') {
+    $FactorioDir = Split-Path $FactorioDir
+}
 $contents = Join-Path $FactorioDir 'Contents'
 if (Test-Path (Join-Path $contents 'MacOS/factorio')) {
     $executable = Join-Path $contents 'MacOS/factorio'
