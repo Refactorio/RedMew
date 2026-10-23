@@ -74,7 +74,10 @@ Declare.module(
         Declare.test(
             'the starting zone is dug out and ringed by rocks',
             function()
+                -- Act
                 local surface = surface_around_spawn()
+
+                -- Assert
                 Assert.equal('stone-path', surface.get_tile(0, 0).name, 'tile at spawn')
                 -- nothing in the middle of the zone, rocks all round its edge
                 Assert.equal(0, surface.count_entities_filtered {position = {0, 0}, radius = 3, name = 'big-rock'}, 'rocks in the middle of the starting zone')
@@ -137,7 +140,10 @@ Declare.module(
         Declare.test(
             'the market is in the starting zone',
             function()
+                -- Act
                 local surface = surface_around_spawn()
+
+                -- Assert
                 local markets = surface.count_entities_filtered {position = {0, 0}, radius = 12, name = 'market'}
                 Assert.equal(1, markets, 'markets in the starting zone')
             end
@@ -254,6 +260,7 @@ Declare.module(
         Declare.test(
             'robots mining a floor laid on landfill leave the landfill',
             function(context)
+                -- Arrange: robots lay stone path on landfill
                 local surface = surface_around_spawn()
                 robot_network(context, surface, {{name = 'stone-brick', count = 10}})
                 local p = {x = 30, y = 6}
@@ -264,10 +271,13 @@ Declare.module(
                     return surface.get_tile(p.x, p.y).name == 'stone-path'
                 end, function(laid)
                     Assert.is_true(laid, 'the robots did not lay the stone path on the landfill')
+
+                    -- Act: the robots mine it
                     Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') ~= nil, 'the stone path could not be marked for deconstruction')
                     Helper.wait_until(context, ROBOT_TICKS, function()
                         return surface.get_tile(p.x, p.y).name ~= 'stone-path'
                     end, function(mined)
+                        -- Assert
                         Assert.is_true(mined, 'the robots did not mine the stone path')
                         Assert.equal('landfill', surface.get_tile(p.x, p.y).name, 'tile left after robots mined the stone path')
                     end)

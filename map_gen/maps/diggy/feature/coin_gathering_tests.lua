@@ -15,6 +15,7 @@ Declare.module(
         Declare.test(
             'enemies that die drop coins',
             function(context)
+                -- Arrange: open ground for the biters
                 local surface = RS.get_surface()
                 context:add_teardown(function()
                     D.clear_enemies(surface, {{SPOT[1][1] - 32, SPOT[1][2] - 32}, {SPOT[2][1] + 32, SPOT[2][2] + 32}})
@@ -31,12 +32,15 @@ Declare.module(
                         return count
                     end
                     local before = coins()
+
+                    -- Act
                     for i = 1, ALIENS do
                         local biter = surface.create_entity {name = 'small-biter', position = {SPOT[1][1] + 2 + (i % 6) * 2, SPOT[1][2] + 2 + math.floor(i / 6) * 2}, force = 'enemy'}
                         Assert.valid(biter, 'the test biter was not created')
                         biter.die()
                     end
-                    -- each has a 28% chance: none of 30 is about one in twenty thousand
+
+                    -- Assert: each has a 28% chance: none of 30 is about one in twenty thousand
                     Assert.is_true(coins() > before, 'no coins from ' .. ALIENS .. ' dead biters')
                 end)
             end

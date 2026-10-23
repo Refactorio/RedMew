@@ -28,6 +28,7 @@ Declare.module(
         Declare.test(
             'opening the void far from spawn raises evolution and lets aliens out',
             function(context)
+                -- Arrange
                 local surface = RS.get_surface()
                 local enemy = game.forces.enemy
                 -- evolution also rises with time: not while this test runs
@@ -40,7 +41,9 @@ Declare.module(
                     D.clear_enemies(surface, around(FAR, 32))
                 end)
 
+                -- Act
                 D.open(context, surface, FAR, function(opened)
+                    -- Assert
                     Assert.is_true(opened >= 300, 'only ' .. opened .. ' void tiles opened')
                     Assert.is_true(enemy.get_evolution_factor(surface) > evolution, 'evolution stayed at ' .. evolution .. ' after opening ' .. opened .. ' void tiles')
                     -- each tile has a 5% chance: none in 300 is about one in five million
@@ -52,8 +55,8 @@ Declare.module(
         Declare.test(
             'opening the void near spawn lets no aliens out',
             function(context)
+                -- Arrange: digging elsewhere can turn up a random room here: make it void again
                 local surface = RS.get_surface()
-                -- digging elsewhere can turn up a random room here: make it void again first
                 local void = {}
                 for x = NEAR[1][1], NEAR[2][1] - 1 do
                     for y = NEAR[1][2], NEAR[2][2] - 1 do
@@ -69,7 +72,9 @@ Declare.module(
                     D.clear_enemies(surface, around(NEAR, 32))
                 end)
 
+                -- Act
                 D.open(context, surface, NEAR, function(opened)
+                    -- Assert
                     Assert.is_true(opened >= 50, 'only ' .. opened .. ' void tiles opened')
                     Assert.equal(before, aliens_in(surface, NEAR), 'aliens near ' .. NEAR[1][1] .. ',' .. NEAR[1][2] .. ' after opening ' .. opened .. ' void tiles near spawn')
                 end)
