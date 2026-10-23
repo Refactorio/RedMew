@@ -8,11 +8,12 @@
     Mining quality ores using quality modules inside mining drills is still possible
 ]]
 local Event = require 'utils.event'
+local RobotRefund = require 'map_gen.shared.robot_refund'
 
--- Hands the drill back, at its quality, to the player that built it. Otherwise it is dropped where
--- it stood, marked for deconstruction so robots take it back: that covers a player with no room,
--- and robots, which can't take it while they build (they still hold the drill they built from).
-local function refund(entity, player)
+-- Hands the drill back, at its quality, to whoever built it: the robot's cargo, so it takes it back
+-- to storage, or the player. A player with no room gets it dropped where it stood, marked for
+-- deconstruction so robots take it back.
+local function refund(entity, player, robot)
   local items = entity.prototype.items_to_place_this
   local stack = items and items[1]
   if not stack then
@@ -20,6 +21,10 @@ local function refund(entity, player)
   end
   stack = { name = stack.name, count = stack.count, quality = entity.quality }
 
+  if robot and robot.valid then
+    RobotRefund.refund(robot, stack, entity.surface, entity.position, entity.force)
+    return
+  end
   if player and player.valid and player.can_insert(stack) then
     player.insert(stack)
     return
@@ -51,7 +56,7 @@ local function on_built(event)
     player.print('Only [quality=normal] drills can be built on top of resources!')
   end
   if not ghost then
-    refund(entity, player)
+    refund(entity, player, event.robot)
   end
   entity.destroy()
 end
