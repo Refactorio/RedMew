@@ -208,6 +208,8 @@ local function init(config)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
 
+    OutpostBuilder.set_flame_pipes(config.flame_pipes ~= false)
+
     if on_init then
         game.create_surface('cutscene', cutscene_surface_settings)
         game.surfaces.cutscene.always_day = true

@@ -66,6 +66,8 @@ local artillery_outposts = {index = 1}
 local outpost_count = 0
 local base_pollution_multiplier = 10
 local pollution_multiplier = {value = 10}
+-- oil pipes are laid to the flamethrower turrets as outposts generate, unless a preset turns it off
+local flame_pipes = true
 
 Global.register(
     {
@@ -1438,6 +1440,75 @@ local function register_entity(entity, outpost_id)
     turret_to_outpost[id] = outpost_id
 end
 
+--- Turns on or off the oil pipes fed to flamethrower turrets; on unless a preset says otherwise.
+function Public.set_flame_pipes(enabled)
+    flame_pipes = enabled ~= false
+end
+
+-- the flamethrower turret's two rear pipe ports, as offsets from its centre while facing north,
+-- with the direction each stub points: a pipe one tile on in that direction is what mates with
+-- the port and delivers fluid (tiles straight behind it don't connect; checked in game on 2.0)
+local flame_turret_ports = {
+    {x = -0.5, y = 1, dir = defines.direction.west},
+    {x = 0.5, y = 1, dir = defines.direction.east}
+}
+
+local cardinal_vectors = {
+    [defines.direction.north] = {x = 0, y = -1},
+    [defines.direction.east] = {x = 1, y = 0},
+    [defines.direction.south] = {x = 0, y = 1},
+    [defines.direction.west] = {x = -1, y = 0}
+}
+
+local function rotate_quarters(x, y, turns)
+    for _ = 1, turns % 4 do
+        x, y = -y, x
+    end
+    return x, y
+end
+
+local function create_pipe(surface, x, y, force, direction)
+    local data = {name = 'pipe', position = {x - 0.5, y - 0.5}, force = force}
+    if direction then
+        data.name = 'pipe-to-ground'
+        data.direction = direction
+    end
+    if surface.can_place_entity(data) then
+        return surface.create_entity(data)
+    end
+    return nil
+end
+
+-- lays the two stub pipes that feed the turret, then runs one of them a tile further on and
+-- into a pipe-to-ground, so the oil reads as coming up from underground rather than from nowhere
+local function place_oil_line(turret)
+    local pos = turret.position
+    local surface = turret.surface
+    local force = turret.force.name
+    -- template turrets face a cardinal direction; round any other to the nearest one
+    local turns = floor(((turret.direction or 0) + 2) / 4) % 4
+
+    local line_started = false
+
+    for i = 1, #flame_turret_ports do
+        local port = flame_turret_ports[i]
+        local px, py = rotate_quarters(port.x, port.y, turns)
+        local dir = (port.dir + turns * 4) % 16
+        local v = cardinal_vectors[dir]
+        local cx, cy = pos.x + px + v.x, pos.y + py + v.y
+
+        local pipe = create_pipe(surface, cx, cy, force)
+        if pipe and not line_started then
+            line_started = true
+
+            local ex, ey = cx + v.x, cy + v.y
+            if create_pipe(surface, ex, ey, force) then
+                create_pipe(surface, ex + v.x, ey + v.y, force, (dir + 8) % 16)
+            end
+        end
+    end
+end
+
 Public.refill_turret_callback =
     Token.register(
     function(turret, data)
@@ -1464,6 +1535,10 @@ Public.refill_liquid_turret_callback =
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
+
+        if flame_pipes and turret.name == 'flamethrower-turret' then
+            place_oil_line(turret)
+        end
     end
 )
 

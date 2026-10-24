@@ -214,6 +214,7 @@ pole_callback =
             data.surface.create_entity(
                 {
                     name = data.name,
+                    direction = data.direction,
                     force = 'enemy',
                     position = data.position
                 }
@@ -269,6 +270,46 @@ local function do_pole(entity)
         pole_callback,
         {
             name = entity.name,
+            position = position,
+            surface = surface,
+            tick = game.tick + pole_respawn_time,
+            turrets = turrets
+        }
+    )
+end
+
+local pipe_names = {
+    ['pipe'] = true,
+    ['pipe-to-ground'] = true
+}
+
+local pipe_filter = {area = nil, name = 'flamethrower-turret', force = 'enemy'}
+
+-- the oil pipes feeding the flamethrower turrets respawn like the power poles, and stop
+-- respawning once every turret they could feed is gone
+local function do_pipe(entity)
+    if not pipe_names[entity.name] then
+        return
+    end
+
+    local surface = entity.surface
+    local position = entity.position
+    local x, y = position.x, position.y
+    -- a pipe-to-ground caps a line about four tiles from its turret's centre, generous by a tile
+    pipe_filter.area = {{x - 5, y - 5}, {x + 5, y + 5}}
+
+    local turrets = surface.find_entities_filtered(pipe_filter)
+
+    if #turrets == 0 then
+        return
+    end
+
+    set_timeout_in_ticks(
+        update_rate,
+        pole_callback,
+        {
+            name = entity.name,
+            direction = entity.direction,
             position = position,
             surface = surface,
             tick = game.tick + pole_respawn_time,
@@ -560,6 +601,7 @@ Event.add(
 
         if entity_force.name == 'enemy' then
             do_pole(entity)
+            do_pipe(entity)
             do_evolution(entity, entity_name, entity_force)
             do_coin_drop(entity_name, entity, cause)
             do_bot_spawn(entity_name, entity, event)
