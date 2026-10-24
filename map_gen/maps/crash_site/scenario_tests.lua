@@ -367,23 +367,6 @@ Declare.module(
             return surface, nest
         end
 
-        -- Polls every 10 ticks, up to `ticks`, until `done` returns true, then calls `after`.
-        local function poll(context, ticks, done, after)
-            local function check()
-                if done() then
-                    after(true)
-                    return
-                end
-                ticks = ticks - 10
-                if ticks <= 0 then
-                    after(false)
-                    return
-                end
-                context:timeout(10, check)
-            end
-            context:timeout(10, check)
-        end
-
         local function payment_chest(surface, position, item, count)
             local chest = surface.find_entities_filtered {position = position, type = 'logistic-container', limit = 1}[1]
             Assert.valid(chest, 'no payment chest at ' .. position.x .. ',' .. position.y)
@@ -411,9 +394,7 @@ Declare.module(
                 local function gassed()
                     return surface.count_entities_filtered {position = target, radius = 40, name = 'poison-cloud'} > 0
                 end
-                poll(context, 600, gassed, function(ok)
-                    Assert.is_true(ok, 'no poison cloud near the target ' .. target.x .. ',' .. target.y .. ' 10 seconds after the airstrike')
-                end)
+                context:wait_until(600, gassed, 'no poison cloud near the target ' .. target.x .. ',' .. target.y .. ' after the airstrike')
             end
         )
 
@@ -435,9 +416,7 @@ Declare.module(
                 local function hit()
                     return not nest.valid or nest.health < nest.max_health
                 end
-                poll(context, 900, hit, function(ok)
-                    Assert.is_true(ok, 'the nest at ' .. target.x .. ',' .. target.y .. ' was not hit 15 seconds after the barrage')
-                end)
+                context:wait_until(900, hit, 'the nest at ' .. target.x .. ',' .. target.y .. ' was not hit after the barrage')
             end
         )
         Declare.test(
@@ -468,11 +447,9 @@ Declare.module(
                 EventFactory.raise {name = defines.events.on_built_entity, tick = game.tick, player_index = 1, entity = tank}
 
                 -- Assert: it fires every 2 seconds at this level
-                poll(context, 300, function()
+                context:wait_until(300, function()
                     return trunk.get_item_count('rocket') < 10
-                end, function(ok)
-                    Assert.is_true(ok, 'the tank fired no rockets at the nest ' .. math.floor(nest.position.x - p.x) .. ' tiles away in 5 seconds')
-                end)
+                end, 'the tank fired no rockets at the nest ' .. math.floor(nest.position.x - p.x) .. ' tiles away')
             end
         )
         local function outpost_area()
@@ -492,11 +469,10 @@ Declare.module(
                 ammo.clear()
 
                 -- Assert: turrets are refilled one a tick, in turn
-                poll(context, 6000, function()
+                local at = turret.position.x .. ',' .. turret.position.y
+                context:wait_until(6000, function()
                     return not turret.valid or not ammo.is_empty()
-                end, function(ok)
-                    Assert.is_true(ok, 'the turret at ' .. turret.position.x .. ',' .. turret.position.y .. ' got no ammo back in 100 seconds')
-                end)
+                end, 'the turret at ' .. at .. ' got no ammo back')
             end
         )
 
