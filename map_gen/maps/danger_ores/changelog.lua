@@ -182,4 +182,7 @@ return [[
       - [DO:FaultLines] Added DO/FaultLines preset
       - [DO:Omnimatter] Raised the win condition from 100 to 1000 satellites
       - [DO:Scrap] Lowered the win condition from 1000 to 750 satellites
+
+  2026-10-25:
+      - [DO:Riches] Added DO/Riches preset
 ]]
