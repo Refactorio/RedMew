@@ -9,7 +9,7 @@ local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
 
 local DRILL = 'burner-mining-drill'
-local ORE = 1
+local ORE_AMOUNT = 1
 
 Declare.module(
     {'map_gen', 'autodeconstruct'},
@@ -28,7 +28,7 @@ Declare.module(
                     local remove_network
                     storage, remove_network = Helper.robot_network(surface, {x = 0, y = 0})
                     context:add_teardown(remove_network)
-                    ore = surface.create_entity {name = 'iron-ore', position = {12.5, 12.5}, amount = ORE}
+                    ore = surface.create_entity {name = 'iron-ore', position = {12.5, 12.5}, amount = ORE_AMOUNT}
                     drill = surface.create_entity {name = DRILL, position = {13, 13}, force = 'player'}
                     Assert.valid(drill, 'the test drill was not built')
                     chest = surface.create_entity {name = 'iron-chest', position = drill.drop_position, force = 'player'}
@@ -43,7 +43,7 @@ Declare.module(
                 end):next(function()
                     -- Assert
                     Assert.is_true(not ore.valid, 'the ore was not mined out')
-                    Assert.equal(ORE, chest.get_item_count('iron-ore'), 'ore put out before the drill was taken away')
+                    Assert.equal(ORE_AMOUNT, chest.get_item_count('iron-ore'), 'ore put out before the drill was taken away')
                 end)
             end
         )

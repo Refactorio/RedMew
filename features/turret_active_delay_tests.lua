@@ -10,6 +10,7 @@ local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
 local Event = require 'utils.event'
+local Token = require 'utils.token'
 local config = require 'config'
 
 local TURRET = 'artillery-turret'
@@ -20,9 +21,9 @@ local function loaded(path)
     return package.loaded['__level__/' .. path .. '.lua'] ~= nil
 end
 
--- robot-built turrets, with the tick they were built
+-- turrets robots built while the module's tests run, with the tick they were built
 local built = {}
-Event.add(defines.events.on_robot_built_entity, function(event)
+local record_built = Token.register(function(event)
     local entity = event.entity
     if entity.valid and entity.name == TURRET then
         built[#built + 1] = {entity = entity, tick = event.tick}
@@ -32,6 +33,18 @@ end)
 Declare.module(
     {'map_gen', 'turret active delay'},
     function()
+        Declare.module_startup(
+            function()
+                Event.add_removable(defines.events.on_robot_built_entity, record_built)
+            end
+        )
+
+        Declare.module_teardown(
+            function()
+                Event.remove_removable(defines.events.on_robot_built_entity, record_built)
+            end
+        )
+
         Declare.test(
             'a turret robots build stays switched off for its delay, then switches on',
             function(context)
