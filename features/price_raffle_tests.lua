@@ -252,6 +252,7 @@ Declare.module(
                 local budget = 100003
                 local max_slots = 4
                 local values = PriceRaffle.get_unlocked_item_values()
+                Assert.equal(1, values['coal'], 'coal, worth 1, is not unlocked: rolls could overshoot the budget')
 
                 for _ = 1, 10 do
                     -- Act
