@@ -327,19 +327,47 @@ local function build(network)
         return f
     end
 
-    -- the tiles the turrets' pipe connections point at, which the tank mustn't cover
+    -- the tiles the turrets' pipe connections point at, which the tank mustn't cover, and how
+    -- many turrets point at each
     local ports = {}
     for _, turret in pairs(turrets) do
         for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
             local k = tile_of(connection.target_position)
             if k then
-                ports[k] = true
+                ports[k] = (ports[k] or 0) + 1
             end
         end
     end
 
+    -- the outpost's walls, to keep the tank inside them: the outpost's square is bigger than
+    -- its walls, by a random amount on each side
+    local walls = {}
+    for _, wall in pairs(surface.find_entities_filtered {area = area, type = 'wall'}) do
+        local k = tile_of(wall.position)
+        if k then
+            walls[k] = true
+        end
+    end
+    local function inside_walls(x, y)
+        for d = 1, 4 do
+            local wx, wy = x, y
+            local k = index(wx, wy)
+            while k and not walls[k] do
+                wx, wy = wx + DX[d], wy + DY[d]
+                k = index(wx, wy)
+            end
+            if not k then
+                return false
+            end
+        end
+        return true
+    end
+
     local tank_spec = {name = TANK, position = nil, force = 'enemy'}
     local function tank_fits(x, y)
+        if not inside_walls(x, y) then
+            return false
+        end
         for tx = x - 1, x + 1 do
             for ty = y - 1, y + 1 do
                 local k = index(tx, ty)
@@ -352,10 +380,15 @@ local function build(network)
         return surface.can_place_entity(tank_spec)
     end
 
-    -- the tank goes as near the middle as it fits, where none of its connections meets a machine
+    -- the tank goes as near the middle of the turrets as it fits, inside the walls, where none
+    -- of its connections meets a machine
     local tank
-    local cx, cy = left + floor(size / 2), top + floor(size / 2)
-    for r = 0, floor(size / 2) - 2 do
+    local cx, cy = 0, 0
+    for _, turret in pairs(turrets) do
+        cx, cy = cx + turret.position.x, cy + turret.position.y
+    end
+    cx, cy = floor(cx / #turrets), floor(cy / #turrets)
+    for r = 0, size do
         for dx = -r, r do
             for dy = -r, r do
                 if not tank and max(abs(dx), abs(dy)) == r and tank_fits(cx + dx, cy + dy) then
@@ -469,14 +502,17 @@ local function build(network)
             end
 
             local ahead, ax, ay = step(k, d ~= 0 and d or 1)
-            if jumps and d ~= 0 and not up and not underground[k] and ahead and not open(ahead, ax, ay) then
+            -- a pipe-to-ground on a turret's connection would shut it off, unless it is the start,
+            -- facing the turret being piped to, and no other turret points there
+            local may_dig = not ports[k] or (previous[state] == 0 and ports[k] == 1)
+            if jumps and may_dig and d ~= 0 and not up and not underground[k] and ahead and not open(ahead, ax, ay) then
                 local nk = ahead
                 for _ = 2, 10 do
                     if not nk or underground[nk] then
                         break
                     end
                     nk, ax, ay = step(nk, d)
-                    if nk and not underground[nk] and is_free(nk, ax, ay) and not joins[nk] then
+                    if nk and not underground[nk] and not ports[nk] and is_free(nk, ax, ay) and not joins[nk] then
                         local after, bx, by = step(nk, d)
                         if after and open(after, bx, by) then
                             push(nk, d, true, state, true)
@@ -496,12 +532,30 @@ local function build(network)
     -- a free tile a fed turret's connection points at -> the tile of the pipe that turret draws
     -- from: oil passes through a turret, so a pipe there joins the oil too
     local through_turret = {}
+    -- the pipe a turret draws from, or the turrets linked to it do
+    local function feed_of(turret)
+        local queue, seen, head = {turret}, {[turret] = true}, 1
+        while queue[head] do
+            local t = queue[head]
+            head = head + 1
+            if feeds_from[t] then
+                return feeds_from[t]
+            end
+            for _, connection in pairs(t.fluidbox.get_pipe_connections(1)) do
+                local beside = connection.target and connection.target.owner
+                if beside and beside.name == TURRET and not seen[beside] then
+                    seen[beside] = true
+                    queue[#queue + 1] = beside
+                end
+            end
+        end
+    end
     local function open_ports(turret)
         for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
             local k, x, y = tile_of(connection.target_position)
             if k and not piped[k] and not underground[k] and is_free(k, x, y) then
                 joins[k] = true
-                through_turret[k] = feeds_from[turret]
+                through_turret[k] = feed_of(turret)
             end
         end
     end
@@ -513,7 +567,19 @@ local function build(network)
             return (pa.x - tank_position.x) ^ 2 + (pa.y - tank_position.y) ^ 2 < (pb.x - tank_position.x) ^ 2 + (pb.y - tank_position.y) ^ 2
         end
     )
-    for _, turret in pairs(turrets) do
+    -- a turret whose free tiles only meet the network once pipes laid for turrets after it run
+    -- past is tried again, until a pass joins no more
+    local function pipe_to(turret)
+        -- linked to a turret already fed: it draws from the same pipe
+        for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
+            local beside = connection.target and connection.target.owner
+            if beside and beside.name == TURRET and feeds_from[beside] then
+                feeds_from[turret] = feeds_from[beside]
+                open_ports(turret)
+                return
+            end
+        end
+
         local starts = {}
         local joined = false
         for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
@@ -574,6 +640,26 @@ local function build(network)
             open_ports(turret)
         end
     end
+
+    local waiting = turrets
+    repeat
+        -- whatever way they were joined, turrets on the tank's oil pass it on at their free ports
+        local segment = tank.fluidbox.get_fluid_segment_id(1)
+        for _, turret in pairs(turrets) do
+            if turret.fluidbox.get_fluid_segment_id(1) == segment then
+                open_ports(turret)
+            end
+        end
+        local still = {}
+        for _, turret in pairs(waiting) do
+            pipe_to(turret)
+            if not feeds_from[turret] then
+                still[#still + 1] = turret
+            end
+        end
+        local progress = #still < #waiting
+        waiting = still
+    until not progress or #waiting == 0
 
     tank.fluidbox[1] = {name = OIL, amount = TANK_FILL}
     local segment = tank.fluidbox.get_fluid_segment_id(1)

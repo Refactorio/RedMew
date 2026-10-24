@@ -80,6 +80,87 @@ local function walled_in(surface, turret)
     return true
 end
 
+-- The flamethrower turrets of a network the tank doesn't feed although a way of free tiles leads
+-- from one of their connections to a tile where a pipe would join the oil: next to one of its
+-- pipes, or where the tank, one of its pipe-to-grounds or a fed turret connects. Its pipes are
+-- those holding the tank's oil: an outpost can have pipes of its own, for crude oil, say. Tiles
+-- another machine's connection points at don't count as free: a pipe there would mix its fluid in.
+local function reachable_unfed(surface, network)
+    local area = area_of(network)
+    local segment = network.tank.fluidbox.get_fluid_segment_id(1)
+    local function key(x, y)
+        return x .. ',' .. y
+    end
+
+    local blocked, joins = {}, {}
+    for _, entity in pairs(surface.find_entities_filtered {area = area}) do
+        local name = entity.name
+        local fluidbox = entity.fluidbox
+        local ours = (name == OilNetwork.pipe_name or name == OilNetwork.pipe_to_ground_name or name == OilNetwork.tank_name) and fluidbox.get_fluid_segment_id(1) == segment
+        if name == OilNetwork.pipe_name and ours then
+            local p = entity.position
+            for _, d in pairs({{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) do
+                joins[key(math.floor(p.x) + d[1], math.floor(p.y) + d[2])] = 'next to the pipe at ' .. p.x .. ',' .. p.y
+            end
+        elseif ours or (name == 'flamethrower-turret' and OilNetwork.is_fed(entity)) then
+            for _, connection in pairs(fluidbox.get_pipe_connections(1)) do
+                if connection.connection_type == 'normal' then
+                    local p = entity.position
+                    joins[key(math.floor(connection.target_position.x), math.floor(connection.target_position.y))] = 'at the ' .. name .. ' at ' .. p.x .. ',' .. p.y
+                end
+            end
+        elseif name ~= 'flamethrower-turret' then
+            for i = 1, #fluidbox do
+                for _, connection in pairs(fluidbox.get_pipe_connections(i)) do
+                    blocked[key(math.floor(connection.target_position.x), math.floor(connection.target_position.y))] = true
+                end
+            end
+        end
+    end
+
+    local free = {}
+    local function is_free(x, y)
+        local k = key(x, y)
+        if free[k] == nil then
+            free[k] = not blocked[k] and x >= area[1][1] and y >= area[1][2] and x < area[2][1] and y < area[2][2] and surface.can_place_entity {name = OilNetwork.pipe_name, position = {x + 0.5, y + 0.5}, force = 'enemy'}
+        end
+        return free[k]
+    end
+
+    local reachable = {}
+    for _, turret in pairs(network.turrets) do
+        if not OilNetwork.is_fed(turret) then
+            local queue, seen, found = {}, {}, nil
+            for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
+                local x, y = math.floor(connection.target_position.x), math.floor(connection.target_position.y)
+                if is_free(x, y) then
+                    queue[#queue + 1] = {x, y}
+                    seen[key(x, y)] = true
+                end
+            end
+            local head = 1
+            while queue[head] and not found do
+                local x, y = queue[head][1], queue[head][2]
+                head = head + 1
+                if joins[key(x, y)] then
+                    found = x .. ',' .. y .. ' ' .. joins[key(x, y)]
+                end
+                for _, d in pairs({{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) do
+                    local nx, ny = x + d[1], y + d[2]
+                    if not seen[key(nx, ny)] and is_free(nx, ny) then
+                        seen[key(nx, ny)] = true
+                        queue[#queue + 1] = {nx, ny}
+                    end
+                end
+            end
+            if found then
+                reachable[#reachable + 1] = turret.position.x .. ',' .. turret.position.y .. ' (to ' .. found .. ')'
+            end
+        end
+    end
+    return reachable
+end
+
 local function at(surface, name, position)
     return surface.find_entity(name, position)
 end
@@ -114,6 +195,30 @@ Declare.module(
                 Assert.equal(0, #loose, 'flamethrower turrets the tank at ' .. tank.position.x .. ',' .. tank.position.y .. ' does not feed: ' .. table.concat(loose, ' '))
                 Assert.equal(0, #walled, 'walled in flamethrower turrets taken as fed by the tank: ' .. table.concat(walled, ' '))
                 Assert.is_true(#pipes_at_tank(surface, tank) > 0, 'no pipe on the tank')
+            end
+        )
+
+        Declare.test(
+            'no flamethrower turret is left off its tank where a pipe could reach it',
+            function()
+                -- Act
+                local r = REACHES[#REACHES]
+                local surface = generate(r)
+
+                -- Assert: in every finished outpost whose flamethrower turrets all stand, a turret
+                -- the tank doesn't feed has no way of free tiles from its connections to the oil
+                local missed, outposts = {}, 0
+                for _, tank in pairs(surface.find_entities_filtered {area = {{-r, -r}, {r, r}}, name = OilNetwork.tank_name, force = 'enemy'}) do
+                    local network = OilNetwork.get_network(tank)
+                    if network and #OilNetwork.get_live_turrets(tank) == #network.turrets then
+                        outposts = outposts + 1
+                        for _, turret in pairs(reachable_unfed(surface, network)) do
+                            missed[#missed + 1] = turret
+                        end
+                    end
+                end
+                Assert.is_true(outposts > 0, 'no finished outpost with an oil tank within ' .. r .. ' tiles of spawn')
+                Assert.equal(0, #missed, 'flamethrower turrets free tiles lead from to the oil, left off the tank: ' .. table.concat(missed, ' '))
             end
         )
 
@@ -171,7 +276,12 @@ Declare.module(
                 -- Arrange
                 local surface, network = find_network()
                 local position = network.tank.position
-                local turret = network.turrets[1]
+                local turret
+                for _, t in pairs(network.turrets) do
+                    if not turret and OilNetwork.is_fed(t) then
+                        turret = t
+                    end
+                end
 
                 -- Act
                 network.tank.die()
