@@ -40,6 +40,7 @@ Declare.module(
                 Assert.is_true(delay and delay > 0, 'no delay for ' .. TURRET .. 's on this map')
                 local surface, delete_surface = Helper.create_test_surface(context)
                 context:add_teardown(delete_surface)
+                local before, turret, built_at, on_after
 
                 context:timeout(2, function()
                     local _, remove_network = Helper.robot_network(surface, {x = 0, y = 0}, {{name = TURRET, count = 1}})
@@ -57,29 +58,29 @@ Declare.module(
                     if loaded('map_gen/maps/danger_ores/presets/danger_ore_safety') then
                         surface.create_entity {name = 'iron-ore', position = {POSITION.x - 0.5, POSITION.y - 0.5}, amount = 1000}
                     end
-                    local before = #built
+                    before = #built
 
                     -- Act: a ghost for the robots to build
                     Assert.valid(surface.create_entity {name = 'entity-ghost', inner_name = TURRET, position = POSITION, force = 'player'}, 'the ghost was not placed')
 
-                    Helper.wait_until(context, 1800, function()
-                        return #built > before
-                    end, function(ok)
-                        -- Assert: off when built, then on after its delay
-                        Assert.is_true(ok, 'the robots did not build the ' .. TURRET)
-                        local turret, built_at = built[#built].entity, built[#built].tick
-                        Assert.is_true(turret.valid, 'the ' .. TURRET .. ' was removed as soon as it was built, by the map\'s placement rules most likely')
-                        Assert.is_true(not turret.active, 'the ' .. TURRET .. ' was on as soon as it was built')
-
-                        Helper.wait_until(context, delay + 60, function()
-                            return turret.active
-                        end, function(on)
-                            local after = game.tick - built_at
-                            Assert.is_true(on, 'the ' .. TURRET .. ' was still off ' .. after .. ' ticks after it was built, with a delay of ' .. delay)
-                            Assert.is_true(after >= delay, 'the ' .. TURRET .. ' switched on after ' .. after .. ' ticks, with a delay of ' .. delay)
-                            Assert.is_true(after <= delay + 20, 'the ' .. TURRET .. ' switched on only after ' .. after .. ' ticks, with a delay of ' .. delay)
-                        end)
-                    end)
+                end):wait_until(1800, function()
+                    return #built > before
+                end, 'the robots did not build the ' .. TURRET):next(function()
+                    -- Assert: off when built, then on after its delay
+                    turret, built_at = built[#built].entity, built[#built].tick
+                    Assert.is_true(turret.valid, 'the ' .. TURRET .. ' was removed as soon as it was built, by the map\'s placement rules most likely')
+                    Assert.is_true(not turret.active, 'the ' .. TURRET .. ' was on as soon as it was built')
+                end):wait_until(delay + 60, function()
+                    -- the tick it switched on; the step after this one runs a tick later
+                    if turret.active then
+                        on_after = game.tick - built_at
+                        return true
+                    end
+                end, function()
+                    return 'the ' .. TURRET .. ' was still off ' .. (game.tick - built_at) .. ' ticks after it was built, with a delay of ' .. delay
+                end):next(function()
+                    Assert.is_true(on_after >= delay, 'the ' .. TURRET .. ' switched on after ' .. on_after .. ' ticks, with a delay of ' .. delay)
+                    Assert.is_true(on_after <= delay + 20, 'the ' .. TURRET .. ' switched on only after ' .. on_after .. ' ticks, with a delay of ' .. delay)
                 end)
             end
         )

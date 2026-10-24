@@ -22,26 +22,28 @@ Declare.module(
                 local surface, delete_surface = Helper.create_test_surface(context)
                 context:add_teardown(delete_surface)
 
+                local storage, ore, drill, chest
+
                 context:timeout(2, function()
-                    local storage, remove_network = Helper.robot_network(surface, {x = 0, y = 0})
+                    local remove_network
+                    storage, remove_network = Helper.robot_network(surface, {x = 0, y = 0})
                     context:add_teardown(remove_network)
-                    local ore = surface.create_entity {name = 'iron-ore', position = {12.5, 12.5}, amount = ORE}
-                    local drill = surface.create_entity {name = DRILL, position = {13, 13}, force = 'player'}
+                    ore = surface.create_entity {name = 'iron-ore', position = {12.5, 12.5}, amount = ORE}
+                    drill = surface.create_entity {name = DRILL, position = {13, 13}, force = 'player'}
                     Assert.valid(drill, 'the test drill was not built')
-                    local chest = surface.create_entity {name = 'iron-chest', position = drill.drop_position, force = 'player'}
+                    chest = surface.create_entity {name = 'iron-chest', position = drill.drop_position, force = 'player'}
                     Assert.valid(chest, 'the chest at the drill output was not built')
 
                     -- Act: fuel it, and let it mine the ore out
                     drill.insert {name = 'coal', count = 5}
-
-                    Helper.wait_until(context, 3600, function()
-                        return not drill.valid and storage.get_item_count(DRILL) == 1
-                    end, function(ok)
-                        -- Assert
-                        Assert.is_true(not ore.valid, 'the ore was not mined out')
-                        Assert.is_true(ok, 'the drill on mined out ore did not come back to storage: still there ' .. tostring(drill.valid) .. ', marked ' .. tostring(drill.valid and drill.to_be_deconstructed()))
-                        Assert.equal(ORE, chest.get_item_count('iron-ore'), 'ore put out before the drill was taken away')
-                    end)
+                end):wait_until(3600, function()
+                    return not drill.valid and storage.get_item_count(DRILL) == 1
+                end, function()
+                    return 'the drill on mined out ore did not come back to storage: ore left ' .. tostring(ore.valid) .. ', drill still there ' .. tostring(drill.valid) .. ', marked ' .. tostring(drill.valid and drill.to_be_deconstructed())
+                end):next(function()
+                    -- Assert
+                    Assert.is_true(not ore.valid, 'the ore was not mined out')
+                    Assert.equal(ORE, chest.get_item_count('iron-ore'), 'ore put out before the drill was taken away')
                 end)
             end
         )

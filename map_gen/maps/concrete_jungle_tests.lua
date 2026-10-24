@@ -54,11 +54,12 @@ Declare.module(
 
                 -- Assert: the robot takes the chest out of storage, builds it, and the chest is
                 -- removed
-                Helper.wait_until(context, ROBOT_TICKS, function()
+                context:wait_until(ROBOT_TICKS, function()
                     return surface.count_entities_filtered {position = p, radius = 0.5, name = 'entity-ghost'} == 0 and in_storage(BUILDING) == 1
-                end, function(ok)
+                end, function()
+                    return 'the ' .. BUILDING .. ' built on bare ground did not come back to storage: ' .. in_storage(BUILDING) .. ' there, ' .. chests_at(p) .. ' on the ground'
+                end):next(function()
                     Assert.equal(0, chests_at(p), BUILDING .. 's on bare ground')
-                    Assert.is_true(ok, 'the ' .. BUILDING .. ' built on bare ground did not come back to storage: ' .. in_storage(BUILDING) .. ' there')
                     storage.remove_item {name = BUILDING, count = 1}
                 end)
             end
@@ -76,13 +77,10 @@ Declare.module(
                 Assert.valid(surface.create_entity {name = 'entity-ghost', inner_name = BUILDING, position = p, force = 'player'}, 'the ghost was not placed')
 
                 -- Assert
-                Helper.wait_until(context, ROBOT_TICKS, function()
+                context:wait_until(ROBOT_TICKS, function()
                     return chests_at(p) == 1
-                end, function(ok)
-                    Assert.is_true(ok, 'no ' .. BUILDING .. ' stood on stone path')
-                    context:timeout(60, function()
-                        Assert.equal(1, chests_at(p), BUILDING .. 's on stone path a second later')
-                    end)
+                end, 'no ' .. BUILDING .. ' stood on stone path'):timeout(60, function()
+                    Assert.equal(1, chests_at(p), BUILDING .. 's on stone path a second later')
                 end)
             end
         )
@@ -109,11 +107,11 @@ Declare.module(
                 local function furnaces()
                     return surface.count_entities_filtered {position = p, radius = 0.5, type = 'furnace'}
                 end
-                Helper.wait_until(context, ROBOT_TICKS, function()
+                context:wait_until(ROBOT_TICKS, function()
                     return furnaces() == 0 and in_storage('steel-furnace') == 1 and in_storage('stone-furnace') == 1
-                end, function(ok)
-                    local summary = 'furnaces there ' .. furnaces() .. ', steel furnaces in storage ' .. in_storage('steel-furnace') .. ', stone furnaces in storage ' .. in_storage('stone-furnace')
-                    Assert.is_true(ok, 'the upgrade was not undone with both furnaces back in storage: ' .. summary)
+                end, function()
+                    return 'the upgrade was not undone with both furnaces back in storage: furnaces there ' .. furnaces() .. ', steel furnaces in storage ' .. in_storage('steel-furnace') .. ', stone furnaces in storage ' .. in_storage('stone-furnace')
+                end):next(function()
                     storage.remove_item {name = 'steel-furnace', count = 1}
                     storage.remove_item {name = 'stone-furnace', count = 1}
                 end)
@@ -132,16 +130,18 @@ Declare.module(
                 Assert.valid(surface.create_entity {name = 'tile-ghost', inner_name = 'stone-path', position = p, force = 'player'}, 'the ghost was not placed')
 
                 -- Assert
-                Helper.wait_until(context, ROBOT_TICKS, function()
+                local function summary()
+                    return 'tile ' .. surface.get_tile(p.x, p.y).name .. ', stone brick in storage ' .. in_storage('stone-brick') .. ', concrete in storage ' .. in_storage('concrete')
+                end
+                context:wait_until(ROBOT_TICKS, function()
                     return surface.count_entities_filtered {position = {p.x + 0.5, p.y + 0.5}, radius = 0.5, name = 'tile-ghost'} == 0 and in_storage('stone-brick') == 1
-                end, function(ok)
-                    local summary = 'tile ' .. surface.get_tile(p.x, p.y).name .. ', stone brick in storage ' .. in_storage('stone-brick') .. ', concrete in storage ' .. in_storage('concrete')
-                    Assert.is_true(ok, 'the stone brick did not come back to storage: ' .. summary)
+                end, function()
+                    return 'the stone brick did not come back to storage: ' .. summary()
+                end):next(function()
                     Assert.equal('concrete', surface.get_tile(p.x, p.y).name, 'tile after stone path was laid over concrete')
-                    context:timeout(120, function()
-                        Assert.equal(0, in_storage('concrete'), 'concrete in storage, which had none: ' .. summary)
-                        Assert.equal(1, in_storage('stone-brick'), 'stone brick in storage a while later: ' .. summary)
-                    end)
+                end):timeout(120, function()
+                    Assert.equal(0, in_storage('concrete'), 'concrete in storage, which had none: ' .. summary())
+                    Assert.equal(1, in_storage('stone-brick'), 'stone brick in storage a while later: ' .. summary())
                 end)
             end
         )
