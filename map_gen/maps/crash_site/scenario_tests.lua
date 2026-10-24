@@ -17,9 +17,8 @@ local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
 local Retailer = require 'features.retailer'
 local RS = require 'map_gen.shared.redmew_surface'
 
--- where commands.lua looks for the payment chests
-local AIRSTRIKE_CHEST = {3.5, -7.5}
-local BARRAGE_CHEST = {-4.5, -7.5}
+local AIRSTRIKE_CHEST = CSCommands.airstrike_chest_position
+local BARRAGE_CHEST = CSCommands.barrage_chest_position
 
 -- the first ring of outposts sits one grid block (180 tiles) from spawn, give or take 59, and an
 -- outpost reaches up to 33 tiles from its middle: 272 at most, so 9 chunks
@@ -138,7 +137,7 @@ Declare.module(
                 -- Assert
                 for name, position in pairs {airstrike = AIRSTRIKE_CHEST, barrage = BARRAGE_CHEST} do
                     local chest = surface.find_entities_filtered {position = position, type = 'logistic-container', limit = 1}[1]
-                    Assert.is_true(chest ~= nil, 'no ' .. name .. ' payment chest at ' .. position[1] .. ',' .. position[2])
+                    Assert.is_true(chest ~= nil, 'no ' .. name .. ' payment chest at ' .. position.x .. ',' .. position.y)
                     Assert.is_true(not chest.minable, 'the ' .. name .. ' payment chest can be mined')
                     Assert.is_true(not chest.destructible, 'the ' .. name .. ' payment chest can be destroyed')
                 end
@@ -387,7 +386,7 @@ Declare.module(
 
         local function payment_chest(surface, position, item, count)
             local chest = surface.find_entities_filtered {position = position, type = 'logistic-container', limit = 1}[1]
-            Assert.valid(chest, 'no payment chest at ' .. position[1] .. ',' .. position[2])
+            Assert.valid(chest, 'no payment chest at ' .. position.x .. ',' .. position.y)
             local inventory = chest.get_inventory(defines.inventory.chest)
             inventory.clear()
             inventory.insert {name = item, count = count}
