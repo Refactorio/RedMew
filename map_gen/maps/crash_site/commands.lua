@@ -581,14 +581,6 @@ function Public.control(config)
         -- Since time has elapsed, filter again for valid entites with health
         local valid_targets = barrage_filter_targets(data.nests)
         if (#valid_targets >= 1) then
-            -- Prioritize nests with lower health remaining
-            local function get_remaining_health(entity)
-                return entity.health - entity.get_damage_to_be_taken()
-            end
-            table.sort(valid_targets, function (a, b)
-                return get_remaining_health(a) < get_remaining_health(b)
-            end)
-
             data.s.create_entity {
                 name = "artillery-projectile", --"explosive-rocket",
                 position = {0, 0},
