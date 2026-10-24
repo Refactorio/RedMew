@@ -7,7 +7,8 @@
 #   e.g. run-tests.ps1 ~/factorio danger-ore-rivers
 #        run-tests.ps1 ~/factorio map_gen.maps.danger_ores.presets.danger_ore_rivers
 #
-# <factorio dir> is an unpacked Factorio (the headless download, or an installed game). A
+# <factorio dir> is an unpacked Factorio (the headless download, or an installed game; on macOS,
+# the game's .app). A
 # template is a folder in scenario_templates: its files are put over the scenario as on the
 # servers, and its optional test-settings.json says which of the expansion mods that come with
 # the server it needs ({"mods": ["space-age", "quality", "elevated-rails"]}), or that it can't be
@@ -33,6 +34,23 @@ $ErrorActionPreference = 'Stop'
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $FactorioDir = (Resolve-Path $FactorioDir).Path
+# the game's executable and data. A macOS app keeps them in its Contents folder. Take the game's
+# folder or app, the app's Contents folder, or the executable itself
+# (.../bin/x64/factorio(.exe), or .../factorio.app/Contents/MacOS/factorio).
+if (Test-Path -PathType Leaf $FactorioDir) {
+    $FactorioDir = Split-Path (Split-Path (Split-Path $FactorioDir))
+}
+if ((Split-Path -Leaf $FactorioDir) -eq 'Contents') {
+    $FactorioDir = Split-Path $FactorioDir
+}
+$contents = Join-Path $FactorioDir 'Contents'
+if (Test-Path (Join-Path $contents 'MacOS/factorio')) {
+    $executable = Join-Path $contents 'MacOS/factorio'
+    $dataDir = Join-Path $contents 'data'
+} else {
+    $executable = Join-Path $FactorioDir ($IsWindows ? 'bin/x64/factorio.exe' : 'bin/x64/factorio')
+    $dataDir = Join-Path $FactorioDir 'data'
+}
 $timeoutSeconds = [int]($env:TIMEOUT_SECONDS ?? 600)
 $seed = $env:SEED ?? '1'
 if ($seed -eq 'random') {
@@ -40,7 +58,7 @@ if ($seed -eq 'random') {
 }
 $seed = [long]$seed
 # the game's version, for the results
-$factorioVersion = (Get-Content -Raw (Join-Path $FactorioDir 'data/base/info.json') | ConvertFrom-Json).version
+$factorioVersion = (Get-Content -Raw (Join-Path $dataDir 'base/info.json') | ConvertFrom-Json).version
 
 $templateDir = Join-Path $repo "scenario_templates/$Target"
 $settingsFile = Join-Path $templateDir 'test-settings.json'
@@ -83,7 +101,7 @@ try {
     New-Item -ItemType Directory -Force $scenario, (Join-Path $write 'mods') | Out-Null
 
     $config = Join-Path $work 'config.ini'
-    "[path]`nread-data=$(Join-Path $FactorioDir 'data')`nwrite-data=$write`n" | Set-Content $config
+    "[path]`nread-data=$dataDir`nwrite-data=$write`n" | Set-Content $config
     # auto_pause off, or the server waits at tick 0 for a player
     $serverSettings = Join-Path $work 'server-settings.json'
     '{"name": "redmew-test", "description": "", "auto_pause": false, "visibility": {"public": false, "lan": false}, "require_user_verification": false, "autosave_interval": 0}' | Set-Content $serverSettings
@@ -110,7 +128,6 @@ try {
     # stdin from an empty file: the server reads stdin as console input
     $stdin = Join-Path $work 'stdin'
     New-Item -ItemType File $stdin | Out-Null
-    $executable = Join-Path $FactorioDir ($IsWindows ? 'bin/x64/factorio.exe' : 'bin/x64/factorio')
     $timer = [Diagnostics.Stopwatch]::StartNew()
     $process = Start-Process $executable -PassThru -NoNewWindow `
         -RedirectStandardInput $stdin -RedirectStandardOutput $serverOut -RedirectStandardError (Join-Path $work 'server.err') `
