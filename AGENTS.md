@@ -31,8 +31,27 @@ Never open or read files under `map_gen/data/` (especially `map_gen/data/presets
 - Define chat commands with `Command.add` from `utils/command.lua` (handles ranks, locales, server flags) rather than raw `commands.add_command`; build GUIs with the helpers in `utils/gui.lua`.
 - Player-facing strings should be translatable: add keys to `locale/en/*.cfg` (the source of truth) and keep keys in sync across locales — the CI pipeline (`.github/workflows/CI.yml`, run before PRs to `develop` are merged) checks for missing/misplaced keys and rejects duplicate keys or sections.
 - Whenever adding, editing, or translating strings in `locale/`, follow `docs/LOCALE.md`.
-- Tests run inside Factorio using the framework in `utils/test/`: create a `<module>_tests.lua` next to the code (see `utils/core_tests.lua`) and run the `/test-runner` command in game (`_DEBUG = true` in `config.lua`). CI runs them on headless servers for every scenario template, where tests needing a player are skipped; see `docs/TESTS.md`.
+- Tests run inside Factorio using the framework in `utils/test/`: create a `<module>_tests.lua` next to the code (see `utils/core_tests.lua`) and run the `/test-runner` command in game (`_DEBUG = true` in `config.lua`). CI runs them on headless servers for every scenario template, where tests needing a player are skipped. To run them the same way, use PowerShell 7 (`pwsh`, on Linux, macOS or Windows) with a Factorio install or the free headless server: `pwsh .github/scripts/run-tests.ps1 <factorio> <template>` for one scenario template, or `run-all.ps1 <factorio>` for all of them. See `docs/TESTS.md` for the details, including its "Writing tests" section: mark each test's Arrange, Act and Assert, and test what our code decides, not Factorio's own behaviour.
 - Keep changes surgical; feature modules should be independently disableable through `config.lua`.
+
+## How the code behaves
+
+- `require` only works while the scenario loads (while `control.lua` is parsed). A `require` inside an event handler, or inside a function called later, fails with "Require can't be used outside of control.lua parsing"; put requires at the top of the file.
+- A map module (what `map_selection.lua` returns) is either a shape function, `function(x, y, world)`, that `map_gen/shared/generate.lua` fills chunks from, or `true` when the map generates itself (the game modes do). Anything else is an error.
+- Map generation runs as each chunk is generated under `_DEBUG` and on tick 0, but is queued and spread over later ticks otherwise, so what a test sees at once a server sees later. Entities that can't be placed are silently skipped.
+- Use `RS.get_surface()` (`map_gen/shared/redmew_surface.lua`) for the map's surface, not `game.surfaces.nauvis`; while `RS.is_clearing()`, chunk handlers must skip it.
+- Event handlers run in reverse order of registration. Under `_DEBUG` an error in a handler stops the game; otherwise it is caught and only logged, and the other handlers still run, so on a server a broken handler looks like "nothing happens": look for `stack traceback` in `factorio-current.log`.
+- `script.raise_event` copies its event table, so it can't carry functions or `game`.
+- To hand an item back to a construction robot, use `map_gen/shared/robot_refund.lua`: inside a build event, `robot.insert` takes nothing.
+
+## Factorio version
+
+The scenario targets Factorio 2.0; CI tests it on the version in `.github/workflows/CI.yml`. Use `helpers.write_file`, not `game.write_file`, and the global `prototypes` for prototypes. Many old single-file maps in `map_gen/maps/` that no scenario template selects don't load in 2.0.
+
+## Pull requests
+
+- Open pull requests against `develop`, one fix or feature per pull request, each branched from the current `develop`.
+- A game mode's `README.md` says what adding a map to it takes (for Danger Ores: a poll entry and a changelog line).
 
 ## Game modes
 
