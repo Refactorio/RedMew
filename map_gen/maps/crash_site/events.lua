@@ -477,6 +477,17 @@ local function do_coin_drop(entity_name, entity, cause)
         end
     end
 
+    local chest = entity.surface.find_entities_filtered{position = {-0.5, -4.5}, radius = 0.1, name = 'requester-chest'}
+    if chest[1] then
+        local coins = {name = "coin", count = count}
+        local actual_count = chest[1].insert(coins)
+        if actual_count > 0 then
+            Game.create_local_flying_text{surface = entity.surface, position = chest[1].position, text = "+" .. actual_count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}}
+            return
+        end
+        -- If insertion failed, don't return and try other methods
+    end
+
     -- spill them on the floor
     set_timeout_in_ticks(
         1,
