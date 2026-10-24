@@ -25,6 +25,8 @@ local TURRET = 'flamethrower-turret'
 local OIL = 'light-oil'
 -- the tank is topped up to this every second
 local TANK_FILL = 2000
+-- a straight run of at least this many pipes goes under ground
+local MIN_RUN = 4
 
 Public.tank_name = TANK
 Public.pipe_name = PIPE
@@ -170,6 +172,100 @@ local DY = {0, 1, 0, -1}
 local DIRECTIONS = {defines.direction.east, defines.direction.south, defines.direction.west, defines.direction.north}
 local OPPOSITE = {3, 4, 1, 2}
 local DIRECTION_INDEX = {['1,0'] = 1, ['0,1'] = 2, ['-1,0'] = 3, ['0,-1'] = 4}
+
+-- What each pipe feeds, by its tile: the fed turrets whose way to the tank runs through it.
+local function record_serves(surface, turrets, feeds_from, towards_tank)
+    -- a turret with no pipe of its own draws from the pipe of the turret beside it
+    for _ = 1, #turrets do
+        local changed = false
+        for _, turret in pairs(turrets) do
+            if not feeds_from[turret] and fed[turret.unit_number] then
+                for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
+                    local beside = surface.find_entity(TURRET, connection.target_position)
+                    if beside and feeds_from[beside] then
+                        feeds_from[turret] = feeds_from[beside]
+                        changed = true
+                        break
+                    end
+                end
+            end
+        end
+        if not changed then
+            break
+        end
+    end
+
+    -- what each pipe feeds: the turrets whose way to the tank runs through it
+    local serves = {}
+    for turret, k in pairs(feeds_from) do
+        if fed[turret.unit_number] then
+            while k and k ~= 0 do
+                local list = serves[k]
+                if not list then
+                    list = {}
+                    serves[k] = list
+                end
+                list[#list + 1] = turret
+                k = towards_tank[k]
+            end
+        end
+    end
+    return serves
+end
+
+-- Long straight runs of pipe go under ground: a pipe-to-ground at each end, up to 10 apart, in
+-- place of pipes joined only to the pipes either side of them. Pipes over another pair's gap are
+-- left alone, so no pair meets the wrong partner.
+local function bury_straight_runs(surface, pipes, underground, tile_of, step, coords)
+    -- tile -> the way its run is walked: 1 east, 2 south
+    local along = {}
+    local pipe_at = {}
+    for _, pipe in pairs(pipes) do
+        if pipe.valid and pipe.name == PIPE then
+            local k = tile_of(pipe.position)
+            if not underground[k] then
+                local ends = {}
+                for _, connection in pairs(pipe.fluidbox.get_pipe_connections(1)) do
+                    if connection.target then
+                        ends[#ends + 1] = connection.target_position
+                    end
+                end
+                local p = pipe.position
+                if #ends == 2 and ends[1].y == p.y and ends[2].y == p.y then
+                    along[k] = 1
+                elseif #ends == 2 and ends[1].x == p.x and ends[2].x == p.x then
+                    along[k] = 2
+                end
+                pipe_at[k] = pipe
+            end
+        end
+    end
+
+    for k, d in pairs(along) do
+        local before = step(k, OPPOSITE[d])
+        -- from the first pipe of each run
+        if not (before and along[before] == d) then
+            local run = {k}
+            local nk = step(k, d)
+            while nk and along[nk] == d do
+                run[#run + 1] = nk
+                nk = step(nk, d)
+            end
+            local i = 1
+            while #run - i + 1 >= MIN_RUN do
+                local n = math.min(11, #run - i + 1)
+                for j = i, i + n - 1 do
+                    pipe_at[run[j]].destroy()
+                end
+                for j, facing in pairs({[i] = OPPOSITE[d], [i + n - 1] = d}) do
+                    local x, y = coords(run[j])
+                    surface.create_entity {name = PIPE_TO_GROUND, position = {x + 0.5, y + 0.5}, direction = DIRECTIONS[facing], force = 'enemy'}
+                end
+                i = i + n
+            end
+        end
+    end
+end
 
 local function build(network)
     network.built = true
@@ -397,6 +493,18 @@ local function build(network)
     local towards_tank = {}
     -- each turret -> the tile of the pipe it draws from
     local feeds_from = {}
+    -- a free tile a fed turret's connection points at -> the tile of the pipe that turret draws
+    -- from: oil passes through a turret, so a pipe there joins the oil too
+    local through_turret = {}
+    local function open_ports(turret)
+        for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
+            local k, x, y = tile_of(connection.target_position)
+            if k and not piped[k] and not underground[k] and is_free(k, x, y) then
+                joins[k] = true
+                through_turret[k] = feeds_from[turret]
+            end
+        end
+    end
     local tank_position = tank.position
     table.sort(
         turrets,
@@ -439,7 +547,7 @@ local function build(network)
                         if pipe then
                             pipes[#pipes + 1] = pipe
                             piped[k] = true
-                            towards_tank[k] = path[i - 1] and path[i - 1].k or 0
+                            towards_tank[k] = path[i - 1] and path[i - 1].k or through_turret[k] or 0
                             if entry.direction then
                                 underground[k] = true
                             else
@@ -462,6 +570,9 @@ local function build(network)
                 feeds_from[turret] = path[#path].k
             end
         end
+        if feeds_from[turret] then
+            open_ports(turret)
+        end
     end
 
     tank.fluidbox[1] = {name = OIL, amount = TANK_FILL}
@@ -482,41 +593,9 @@ local function build(network)
         return
     end
 
-    -- a turret with no pipe of its own draws from the pipe of the turret beside it
-    for _ = 1, #turrets do
-        local changed = false
-        for _, turret in pairs(turrets) do
-            if not feeds_from[turret] and fed[turret.unit_number] then
-                for _, connection in pairs(turret.fluidbox.get_pipe_connections(1)) do
-                    local beside = surface.find_entity(TURRET, connection.target_position)
-                    if beside and feeds_from[beside] then
-                        feeds_from[turret] = feeds_from[beside]
-                        changed = true
-                        break
-                    end
-                end
-            end
-        end
-        if not changed then
-            break
-        end
-    end
+    local serves = record_serves(surface, turrets, feeds_from, towards_tank)
 
-    -- what each pipe feeds: the turrets whose way to the tank runs through it
-    local serves = {}
-    for turret, k in pairs(feeds_from) do
-        if fed[turret.unit_number] then
-            while k and k ~= 0 do
-                local list = serves[k]
-                if not list then
-                    list = {}
-                    serves[k] = list
-                end
-                list[#list + 1] = turret
-                k = towards_tank[k]
-            end
-        end
-    end
+    bury_straight_runs(surface, pipes, underground, tile_of, step, coords)
 
     network.tank = tank
     network.serves = serves

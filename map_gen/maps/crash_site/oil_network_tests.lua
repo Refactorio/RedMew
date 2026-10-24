@@ -16,6 +16,8 @@ local RESPAWN_TICKS = 60 * 60 + 60
 -- long enough for the refill round robin to have reached every turret
 local REFILL_TICKS = 3000
 
+local PIPES = {OilNetwork.pipe_name, OilNetwork.pipe_to_ground_name}
+
 local function generate(radius)
     local surface = RS.get_surface()
     surface.request_to_generate_chunks({0, 0}, math.ceil(radius / 32))
@@ -55,11 +57,11 @@ local function drain(surface, network)
     end
 end
 
--- the pipes on the tank's connections
+-- the pipes (or pipe-to-grounds) on the tank's connections
 local function pipes_at_tank(surface, tank)
     local pipes = {}
     for _, connection in pairs(tank.fluidbox.get_pipe_connections(1)) do
-        local pipe = surface.find_entity(OilNetwork.pipe_name, connection.target_position)
+        local pipe = surface.find_entities_filtered {position = connection.target_position, name = PIPES, force = 'enemy', limit = 1}[1]
         if pipe then
             pipes[#pipes + 1] = pipe
         end
@@ -80,6 +82,10 @@ end
 
 local function at(surface, name, position)
     return surface.find_entity(name, position)
+end
+
+local function pipe_at(surface, position)
+    return surface.find_entities_filtered {position = position, name = PIPES, force = 'enemy', limit = 1}[1]
 end
 
 Declare.module(
@@ -118,17 +124,24 @@ Declare.module(
                 local r = REACHES[#REACHES]
                 local surface = generate(r)
 
-                -- Assert: a pipe-to-ground short of either is a gap in the line
+                -- Assert: a pipe-to-ground short of either is a gap in the line. Only outposts
+                -- whose flamethrower turrets all stand: other tests destroy some, which leaves the
+                -- pipes that fed them meeting nothing.
                 local loose = {}
-                for _, pipe in pairs(surface.find_entities_filtered {area = {{-r, -r}, {r, r}}, name = OilNetwork.pipe_to_ground_name, force = 'enemy'}) do
-                    local ends = {}
-                    for _, connection in pairs(pipe.fluidbox.get_pipe_connections(1)) do
-                        if connection.target then
-                            ends[connection.connection_type] = true
+                for _, tank in pairs(surface.find_entities_filtered {area = {{-r, -r}, {r, r}}, name = OilNetwork.tank_name, force = 'enemy'}) do
+                    local network = OilNetwork.get_network(tank)
+                    if network and #OilNetwork.get_live_turrets(tank) == #network.turrets then
+                        for _, pipe in pairs(surface.find_entities_filtered {area = area_of(network), name = OilNetwork.pipe_to_ground_name, force = 'enemy'}) do
+                            local ends = {}
+                            for _, connection in pairs(pipe.fluidbox.get_pipe_connections(1)) do
+                                if connection.target then
+                                    ends[connection.connection_type] = true
+                                end
+                            end
+                            if not (ends.normal and ends.underground) then
+                                loose[#loose + 1] = pipe.position.x .. ',' .. pipe.position.y
+                            end
                         end
-                    end
-                    if not (ends.normal and ends.underground) then
-                        loose[#loose + 1] = pipe.position.x .. ',' .. pipe.position.y
                     end
                 end
                 Assert.equal(0, #loose, 'pipe-to-grounds short of a connection: ' .. table.concat(loose, ' '))
@@ -189,7 +202,7 @@ Declare.module(
 
                 -- Assert
                 context:wait_until(RESPAWN_TICKS, function()
-                    return at(surface, OilNetwork.pipe_name, position) ~= nil
+                    return pipe_at(surface, position) ~= nil
                 end, 'the pipe at ' .. position.x .. ',' .. position.y .. ' did not come back')
             end
         )
@@ -200,7 +213,7 @@ Declare.module(
                 -- Arrange: the pipe feeding the fewest turrets, and those turrets destroyed
                 local surface, network = find_network()
                 local pipe, turrets
-                for _, p in pairs(surface.find_entities_filtered {area = area_of(network), name = OilNetwork.pipe_name, force = 'enemy'}) do
+                for _, p in pairs(surface.find_entities_filtered {area = area_of(network), name = PIPES, force = 'enemy'}) do
                     local fed = OilNetwork.get_live_turrets(p)
                     if #fed > 0 and (not turrets or #fed < #turrets) then
                         pipe, turrets = p, fed
@@ -218,7 +231,7 @@ Declare.module(
 
                 -- Assert
                 context:timeout(RESPAWN_TICKS, function()
-                    Assert.is_true(at(surface, OilNetwork.pipe_name, position) == nil, 'the pipe at ' .. position.x .. ',' .. position.y .. ' came back with no turret to feed')
+                    Assert.is_true(pipe_at(surface, position) == nil, 'the pipe at ' .. position.x .. ',' .. position.y .. ' came back with no turret to feed')
                 end)
             end
         )
