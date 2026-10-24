@@ -76,6 +76,7 @@ local function init_weapon_damage()
     local forces = game.forces
     local p_force = forces.player
     local e_force = forces.enemy
+    local n_force = forces.neutral
 
     for k, v in pairs(player_ammo_starting_modifiers) do
         p_force.set_ammo_damage_modifier(k, v)
@@ -85,11 +86,7 @@ local function init_weapon_damage()
         e_force.set_ammo_damage_modifier(k, v)
     end
 
-    -- Disable defender tech until we figure out what do with bot spawn that is affected by follower count.
-    local defender_tech = p_force.technologies['defender']
-    if defender_tech and defender_tech.valid then
-        defender_tech.enabled = false
-    end
+    n_force.maximum_following_robot_count = 1000000
 end
 
 local function enemy_weapon_damage()

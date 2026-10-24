@@ -305,29 +305,11 @@ local bot_cause_whitelist = {
     ['spidertron'] = true
 }
 
--- https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions
--- math.sqrt is computationally expensive so we compare to the distance squared instead
-local function euclidean_distance_squared(p, q)
-    local distance = (p.x-q.x)^2 + (p.y-q.y)^2
-    return distance
-end
-
-local destroyer_callback
-destroyer_callback =
-    Token.register(
-    function(data)
-        local entity = data.entity
-        local destroyer = data.destroyer
-        if not destroyer or not destroyer.valid or not entity or not entity.valid then
-            return
-        end
-        local distance = 10
-        if euclidean_distance_squared(destroyer.position, entity.position) < distance^2 then
-            entity.surface.create_entity{name = "laser", position=destroyer.position, target=entity, speed=1}
-        end
-        set_timeout_in_ticks(30, destroyer_callback, data)
-    end
-)
+-- Derive this from prototypes
+local maximum_robot_time_to_live = math.max(
+    prototypes.entity["defender"].time_to_live,
+    prototypes.entity["distractor"].time_to_live,
+    prototypes.entity["destroyer"].time_to_live)
 
 local artillery_cooldown_callback
 artillery_cooldown_callback =
@@ -341,31 +323,114 @@ artillery_cooldown_callback =
     end
 )
 
+local respawn_combat_robot_callback
+respawn_combat_robot_callback =
+    Token.register(
+    function(data)
+        -- Spawn a combat robot matching whats given in data
+        -- data is a dict with name, target, health, position, force, time_to_live, speed, and direction
+        -- data.target must be a character
+        if not data.target then
+            return
+        end
+
+        if game.forces.neutral.maximum_following_robot_count < 1 then
+            -- We set this in init, but if it's been changed this function will freeze the game
+            return
+        end
+
+        data.target.force = 'neutral'
+        local new_robot = data.target.surface.create_entity({
+            name = data.name,
+            target = data.target,
+            health = data.health,
+            position = data.position,
+            force = data.force
+        })
+        new_robot.time_to_live = data.time_to_live
+        if data.speed > 0 then
+            new_robot.set_movement(data.direction, data.speed)
+        end
+        data.target.force = 'player'
+    end
+)
+
+Event.add(
+    defines.events.on_combat_robot_expired,
+    function(event)
+        -- Our goal here is to allow the player to spawn their own bots using their limit, while keeping the enemy
+        -- robots we have spawned alive. Enemy robots, when spawned, can exceed the player's limit but are counted
+        -- against it. Without this check, a player can spawn robots to effectively destroy enemy robots.
+        -- In Factorio, when each combat robot is spawned, the game checks how many robots need to be purged to meet
+        -- the limit. It then iterates that many number of times, finding the bot with the lowest time_to_live and
+        -- killing it. As a result:
+        -- 1. If we spawn our replacement robot in this function, it will be killed again by the next iteration.
+        -- 2. If a player spawns defenders, they can be killed in favor of an existing enemy destroyer with more time
+        -- remaining. We must prevent this, but only up to the actual player robot limit.
+        local robot = event.robot
+
+        if not robot or
+           not robot.combat_robot_owner or
+           robot.combat_robot_owner.type ~= 'character' or
+           -- Robots that expire from time have inf time_to_live, not 0. Don't ask.
+           robot.time_to_live > maximum_robot_time_to_live then
+            return
+        end
+
+        local character = robot.combat_robot_owner
+
+        if robot.force == game.forces['enemy'] then
+            -- For enemy robots, always respawn them exactly as they were.
+            local movement_x = robot.get_movement()[1]
+            local movement_y = robot.get_movement()[2]
+            local speed = math.sqrt(movement_x ^ 2 + movement_y ^ 2)
+            -- direction is normalized by set_movement
+            local direction = {movement_x, movement_y}
+            set_timeout_in_ticks(0, respawn_combat_robot_callback, {
+                name = robot.name,
+                target = character,
+                health = robot.health,
+                position = robot.position,
+                time_to_live = robot.time_to_live,
+                force = 'enemy',
+                speed = speed,
+                direction = direction
+            })
+        elseif robot.force == game.forces['player'] then
+            -- For player robots, we need to determine if they are expiring even though we are under our own limit.
+            local limit = game.forces['player'].maximum_following_robot_count + character.character_maximum_following_robot_count_bonus
+            local player_follower_count = 0
+            for i = 1, #character.following_robots do
+                if character.following_robots[i].force == game.forces['player'] then
+                    player_follower_count = player_follower_count + 1
+                end
+            end
+            -- Respawn robots that were killed senselessly
+            if player_follower_count < limit then
+                set_timeout_in_ticks(0, respawn_combat_robot_callback, {
+                    name = robot.name,
+                    target = character,
+                    health = robot.health,
+                    position = robot.position,
+                    time_to_live = robot.time_to_live,
+                    force = 'player',
+                    speed = 0
+                })
+            end
+        end
+    end
+)
+
 local function do_bot_spawn(entity_name, entity, event)
     -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
-            return
-    end
-
-    -- Return if the evolution is too low
-    local entity_force = entity.force
-    local ef = entity_force.get_evolution_factor(entity.surface)
-    if ef <= 0.2 then
         return
     end
 
+    -- Check if there is a cause for the entity's death
+    -- If there is no cause then the player probably picked up an artillery turret before the projectile hit.
+    -- This causes no bots to spawn because that's the way it's always been.
     local cause = event.cause
-    local create_entity = entity.surface.create_entity
-
-    local spawn_entity = {
-        position = entity.position,
-        target = cause,
-        force = entity_force
-    }
-
-    -- Cbeck if there is a cause for the entity's death
-    -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
-    -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
         return
     end
@@ -375,75 +440,69 @@ local function do_bot_spawn(entity_name, entity, event)
         return
     end
 
-    local repeat_cycle = 1 -- The number of times a squad of robots are spawned default must be 1
-    if ef > .95 then
-        repeat_cycle = 2
+    -- Return if the evolution is too low
+    local entity_force = entity.force
+    local ef = entity_force.get_evolution_factor(entity.surface)
+    if ef <= 0.2 then
+        return
     end
 
-    if cause.name ~= 'character' then
-        if (entity_name == 'artillery-turret') then
-            repeat_cycle = 8
-        else
-            repeat_cycle = 4
+    local create_entity = entity.surface.create_entity
+
+    local function spawn_robot(name)
+        create_entity({
+            position = entity.position,
+            target = cause,
+            name = name,
+            speed = 0
+        })
+    end
+
+    -- Some shorthand to make the code below more readable
+    local function spawn_robot_squad(defender_count, distractor_capsule_count, destroyer_count)
+        for i = 1, defender_count do
+            spawn_robot('defender')
         end
-        for i = 1, repeat_cycle do
-            if (cause.name == 'artillery-turret') then
-                cause.minable_flag = false
-                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
-                spawn_entity.name = 'defender'
-                create_entity(spawn_entity)
-                create_entity(spawn_entity)
+        for i = 1, distractor_capsule_count do
+            spawn_robot('distractor-capsule')
+        end
+        for i = 1, destroyer_count do
+            spawn_robot('destroyer')
+        end
+    end
 
-                spawn_entity.name = 'destroyer'
-                create_entity(spawn_entity)
-                create_entity(spawn_entity)
-
-            elseif (cause.name == 'artillery-wagon') then
-                cause.minable_flag = false
-                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
-                spawn_entity.name = 'defender'
-                create_entity(spawn_entity)
-                create_entity(spawn_entity)
-
-                spawn_entity.name = 'destroyer'
-                local destroyer = create_entity(spawn_entity)
-                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
-                destroyer = create_entity(spawn_entity)
-                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
+    if cause.name == 'character' then
+        cause.force = 'neutral' -- Workaround for the player's robot limit
+        if entity_name == 'gun-turret' then
+            if ef <= .95 then
+                spawn_robot_squad(2, 0, 1)
             else
-                spawn_entity.name = 'defender'
-                create_entity(spawn_entity)
-                create_entity(spawn_entity)
-
-                spawn_entity.name = 'destroyer'
-                create_entity(spawn_entity)
-                create_entity(spawn_entity)
+                spawn_robot_squad(4, 0, 2)
+            end
+        elseif entity_name == 'laser-turret' then
+            if ef <= .95 then
+                spawn_robot_squad(2, 0, 1)
+            else
+                spawn_robot_squad(4, 0, 2)
+            end
+        elseif entity_name == 'flamethrower-turret' or entity_name == 'artillery-turret' then
+            if ef <= .95 then
+                spawn_robot_squad(0, 1, 0)
+            else
+                spawn_robot_squad(0, 2, 0)
             end
         end
-    elseif entity_name == 'gun-turret' then
-        for i = 1, repeat_cycle do
-            spawn_entity.name = 'defender'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
-
-            spawn_entity.name = 'destroyer'
-            create_entity(spawn_entity)
-        end
-    elseif entity_name == 'laser-turret' then
-        for i = 1, repeat_cycle do
-            spawn_entity.name = 'defender'
-            create_entity(spawn_entity)
-
-            spawn_entity.name = 'destroyer'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
-        end
-    else
-        for i = 1, repeat_cycle do
-            spawn_entity.name = 'distractor-capsule'
-            spawn_entity.speed = 0
-            create_entity(spawn_entity)
-        end
+        cause.force = 'player'
+    elseif cause.name == 'artillery-turret' then
+        cause.minable_flag = false
+        set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
+        spawn_robot_squad(16, 0 , 16)
+    elseif cause.name == 'artillery-wagon' then
+        cause.minable_flag = false
+        set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
+        spawn_robot_squad(10, 0, 10)
+    elseif cause.name == 'spidertron' then
+        spawn_robot_squad(8, 0, 8)
     end
 end
 
