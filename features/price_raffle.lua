@@ -247,12 +247,18 @@ function Public.is_unlocked(name)
   return item_unlocked[name] ~= nil
 end
 
+-- Adds an item to the raffle once: a second listing would be drawn twice as often, and left
+-- behind with no worth when the item is locked again.
+local function list_item(name)
+  if not table.contains(item_names, name) then
+    table_insert(item_names, name)
+  end
+end
+
 function Public.set_unlocked(name, unlocked, value)
   if unlocked then
     item_unlocked[name] = value or item_worths[name] or 64
-    if not table.contains(item_names, name) then
-      table_insert(item_names, name)
-    end
+    list_item(name)
   else
     item_unlocked[name] = nil
     table.remove_element(item_names, name)
@@ -368,8 +374,8 @@ local function add_recipe_products(recipe)
 
     if prototypes.item[name] ~= nil then
       item_unlocked[name] = item_worths[name]
-      if item_unlocked[name] ~= nil and not table.contains(item_names, name) then
-        table_insert(item_names, name)
+      if item_unlocked[name] ~= nil then
+        list_item(name)
       end
     end
   end
@@ -402,7 +408,7 @@ Event.on_init(function()
   }) do
     item_unlocked[name] = item_worths[name]
     if item_unlocked[name] ~= nil then
-      table_insert(item_names, name)
+      list_item(name)
     end
   end
 end)

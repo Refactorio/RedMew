@@ -6,7 +6,8 @@
 --
 -- Research unlocking a recipe's products is raised as on_research_finished with a stand-in for
 -- the research: a plain table, not a real technology, so handlers acting on real research
--- (Frontier researches it for the enemy force too) skip it.
+-- (Frontier researches it for the enemy force too) skip it. It is marked as research by script,
+-- which the research printer can be set to ignore.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local EventFactory = require 'utils.test.event_factory'
@@ -60,7 +61,8 @@ local function raise_research_of(recipe)
             name = 'price raffle tests',
             force = game.forces.player,
             prototype = {effects = {{type = 'unlock-recipe', recipe = recipe}}}
-        }
+        },
+        by_script = true
     }
 end
 
