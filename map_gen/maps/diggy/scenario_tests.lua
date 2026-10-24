@@ -266,20 +266,20 @@ Declare.module(
                 surface.set_tiles {{name = 'landfill', position = p}}
                 Assert.valid(surface.create_entity {name = 'tile-ghost', inner_name = 'stone-path', position = p, force = 'player'}, 'the stone path ghost was not placed')
 
-                Helper.wait_until(context, ROBOT_TICKS, function()
+                context:wait_until(ROBOT_TICKS, function()
                     return surface.get_tile(p.x, p.y).name == 'stone-path'
-                end, function(laid)
-                    Assert.is_true(laid, 'the robots did not lay the stone path on the landfill')
+                end, 'the robots did not lay the stone path on the landfill')
 
-                    -- Act: the robots mine it
+                -- Act: the robots mine it
+                context:next(function()
                     Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') ~= nil, 'the stone path could not be marked for deconstruction')
-                    Helper.wait_until(context, ROBOT_TICKS, function()
-                        return surface.get_tile(p.x, p.y).name ~= 'stone-path'
-                    end, function(mined)
-                        -- Assert
-                        Assert.is_true(mined, 'the robots did not mine the stone path')
-                        Assert.equal('landfill', surface.get_tile(p.x, p.y).name, 'tile left after robots mined the stone path')
-                    end)
+                end):wait_until(ROBOT_TICKS, function()
+                    return surface.get_tile(p.x, p.y).name ~= 'stone-path'
+                end, 'the robots did not mine the stone path')
+
+                -- Assert
+                context:next(function()
+                    Assert.equal('landfill', surface.get_tile(p.x, p.y).name, 'tile left after robots mined the stone path')
                 end)
             end
         )
@@ -317,10 +317,11 @@ Declare.module(
                 rock.order_deconstruction('player')
 
                 -- Assert: it took more than one trip, then the void beside it was dug into
-                Helper.wait_until(context, ROBOT_TICKS * 2, function()
+                context:wait_until(ROBOT_TICKS * 2, function()
                     return surface.count_entities_filtered {position = at, radius = 0.5, name = ROCKS} == 0 and surface.get_tile(void.x, void.y).name ~= 'out-of-map'
-                end, function(dug)
-                    Assert.is_true(dug, 'the robots did not break the rock at ' .. key .. ' and dig in: ' .. trips() .. ' trips, tile beside it ' .. surface.get_tile(void.x, void.y).name)
+                end, function()
+                    return 'the robots did not break the rock at ' .. key .. ' and dig in: ' .. trips() .. ' trips, tile beside it ' .. surface.get_tile(void.x, void.y).name
+                end):next(function()
                     Assert.equal(3, trips(), 'robot trips to break a rock with 50 health')
                     local name = surface.get_tile(void.x, void.y).name
                     Assert.is_true(name:sub(1, 5) == 'dirt-', 'tile dug into at ' .. void.x .. ',' .. void.y .. ': ' .. name)
