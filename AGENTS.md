@@ -53,6 +53,20 @@ The scenario targets Factorio 2.0; CI tests it on the version in `.github/workfl
 - Open pull requests against `develop`, one fix or feature per pull request, each branched from the current `develop`.
 - A game mode's `README.md` says what adding a map to it takes (for Danger Ores: a poll entry and a changelog line).
 
+## Game modes
+
+Most maps the servers run belong to one of four game modes, each a folder in `map_gen/maps/`
+with a `README.md` (what the mode is, how it fits together, what adding a map takes) and an
+`AGENTS.md` (how the code behaves, the rules that are easy to break, how its tests work). Read
+both before changing a game mode:
+
+- [Danger Ores](map_gen/maps/danger_ores/AGENTS.md): build only on ground cleared of ore; many
+  map presets, a next-map poll and a changelog.
+- [Crash Site](map_gen/maps/crash_site/AGENTS.md): capture enemy outposts and their factories.
+- [Diggy](map_gen/maps/diggy/AGENTS.md): dig through an underground world that can cave in.
+- [Frontier](map_gen/maps/frontier/AGENTS.md): push a rocket silo east along a ribbon world, in
+  rounds.
+
 ## Scenario templates (`scenario_templates/`)
 
 If the map should be a standalone scenario, add a folder in `scenario_templates/` named after the scenario. It may contain

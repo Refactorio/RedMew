@@ -2,7 +2,10 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 
-local entity_drop_amount = {
+local Public = {}
+
+-- what each entity drops when it dies
+Public.drops = {
     ['biter-spawner'] = {
         name = 'raw-fish',
         count = 5
@@ -29,7 +32,7 @@ Event.add(defines.events.on_entity_died, function(event)
     end
 
     local entity_name = entity.name
-    local stack = entity_drop_amount[entity_name]
+    local stack = Public.drops[entity_name]
     if not stack then
         return
     end
@@ -40,3 +43,5 @@ Event.add(defines.events.on_entity_died, function(event)
         position = entity.position
     })
 end)
+
+return Public
