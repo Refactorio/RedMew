@@ -475,15 +475,15 @@ local function do_bot_spawn(entity_name, entity, event)
         cause.force = 'neutral' -- Workaround for the player's robot limit
         if entity_name == 'gun-turret' then
             if ef <= .95 then
-                spawn_robot_squad(2, 0, 1)
+                spawn_robot_squad(1, 0, 0)
             else
-                spawn_robot_squad(4, 0, 2)
+                spawn_robot_squad(2, 0, 0)
             end
         elseif entity_name == 'laser-turret' then
             if ef <= .95 then
-                spawn_robot_squad(2, 0, 1)
+                spawn_robot_squad(1, 0, 0)
             else
-                spawn_robot_squad(4, 0, 2)
+                spawn_robot_squad(2, 0, 0)
             end
         elseif entity_name == 'flamethrower-turret' or entity_name == 'artillery-turret' then
             if ef <= .95 then
