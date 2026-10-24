@@ -35,7 +35,7 @@ local function build(seed, rotate, split_count)
         main_ores_rotate = rotate,
         main_ores_split_count = split_count
     }
-    return MainOresRadial(config)(tile_builder, ore_builder, b.empty_shape, b.empty_shape, game.create_random_generator(1000 + seed))
+    return MainOresRadial(config)(tile_builder, ore_builder, b.empty_shape, b.empty_shape, game.create_random_generator(seed < 1000 and 1000 + seed or seed))
 end
 
 -- The share of a circle of radius d that each ore takes.
@@ -64,6 +64,20 @@ local function sectors_round(map, d)
         names[#names] = nil -- the sector the circle started in
     end
     return names
+end
+
+-- Whether two maps put the same ore everywhere on circles inside, across and past the blend.
+local function same_map(a, b2)
+    for k = 0, 359 do
+        local angle = math.rad(k)
+        for _, d in ipairs {100, 250, 800} do
+            local x, y = d * math.cos(angle), d * math.sin(angle)
+            if a(x, y, {}).entities[1].name ~= b2(x, y, {}).entities[1].name then
+                return false
+            end
+        end
+    end
+    return true
 end
 
 local function assert_shares(shares, weights, label)
@@ -119,19 +133,28 @@ Declare.module(
         )
 
         Declare.test(
-            'the same seed builds the same map',
+            'the same seed builds the same map and other seeds build others',
             function()
-                -- Arrange
-                local a, b2 = build(7, 30), build(7, 30)
+                -- Arrange: spread out like real map seeds; neighbouring seeds draw nearly the same
+                -- first numbers, and the shuffle only draws two. Three sectors can only be ordered
+                -- a few ways, so a single pair could match by chance: check six.
+                local seeds = {12345, 987654, 4242424, 31337, 2718281, 1618033}
+                local maps = {}
 
-                -- Act / Assert
-                for k = 0, 359 do
-                    local angle = math.rad(k)
-                    for _, d in ipairs {100, 250, 800} do
-                        local x, y = d * math.cos(angle), d * math.sin(angle)
-                        Assert.equal(a(x, y, {}).entities[1].name, b2(x, y, {}).entities[1].name)
-                    end
+                -- Act
+                local same = true
+                for i, seed in ipairs(seeds) do
+                    maps[i] = build(seed, 30)
+                    same = same and same_map(maps[i], build(seed, 30))
                 end
+                local differs = false
+                for i = 2, #seeds do
+                    differs = differs or not same_map(maps[1], maps[i])
+                end
+
+                -- Assert
+                Assert.is_true(same, 'a seed built two different maps')
+                Assert.is_true(differs, 'every seed built the same map')
             end
         )
     end
