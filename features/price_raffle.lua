@@ -368,7 +368,7 @@ local function add_recipe_products(recipe)
 
     if prototypes.item[name] ~= nil then
       item_unlocked[name] = item_worths[name]
-      if item_unlocked[name] ~= nil then
+      if item_unlocked[name] ~= nil and not table.contains(item_names, name) then
         table_insert(item_names, name)
       end
     end
