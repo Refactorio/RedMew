@@ -21,16 +21,18 @@ Declare.module(
                     D.clear_enemies(surface, {{SPOT[1][1] - 32, SPOT[1][2] - 32}, {SPOT[2][1] + 32, SPOT[2][2] + 32}})
                 end)
 
-                D.open(context, surface, SPOT, function()
-                    local function coins()
-                        local count = 0
-                        for _, item in pairs(surface.find_entities_filtered {area = SPOT, name = 'item-on-ground'}) do
-                            if item.stack.name == 'coin' then
-                                count = count + item.stack.count
-                            end
+                D.open(context, surface, SPOT)
+                local function coins()
+                    local count = 0
+                    for _, item in pairs(surface.find_entities_filtered {area = SPOT, name = 'item-on-ground'}) do
+                        if item.stack.name == 'coin' then
+                            count = count + item.stack.count
                         end
-                        return count
                     end
+                    return count
+                end
+
+                context:next(function()
                     local before = coins()
 
                     -- Act

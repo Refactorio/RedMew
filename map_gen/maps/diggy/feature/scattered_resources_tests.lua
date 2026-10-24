@@ -13,6 +13,9 @@ local FAR = {{-240, -160}, {-176, -96}}
 Declare.module(
     {'map_gen', 'diggy', 'scattered resources'},
     function()
+        Declare.module_startup(D.count_opened_startup)
+        Declare.module_teardown(D.count_opened_teardown)
+
         Declare.test(
             'ore turns up in the void opened far from spawn',
             function(context)
@@ -24,11 +27,13 @@ Declare.module(
                 end)
 
                 -- Act
-                D.open(context, surface, FAR, function(opened)
-                    -- Assert
-                    Assert.is_true(opened >= 3000, 'only ' .. opened .. ' void tiles opened')
+                local opened = D.open(context, surface, FAR)
+
+                -- Assert
+                context:next(function()
+                    Assert.is_true(opened() >= 3000, 'only ' .. opened() .. ' void tiles opened')
                     local ore = surface.count_entities_filtered {area = FAR, type = 'resource'} - before
-                    Assert.is_true(ore > 0, 'no ore in ' .. opened .. ' void tiles opened far from spawn')
+                    Assert.is_true(ore > 0, 'no ore in ' .. opened() .. ' void tiles opened far from spawn')
                 end)
             end
         )

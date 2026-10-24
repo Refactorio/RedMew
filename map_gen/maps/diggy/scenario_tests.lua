@@ -6,15 +6,17 @@ local Assert = require 'utils.test.assert'
 local EventFactory = require 'utils.test.event_factory'
 local Helper = require 'utils.test.helper'
 local Event = require 'utils.event'
+local Token = require 'utils.token'
 local DiggyCaveCollapse = require 'map_gen.maps.diggy.feature.diggy_cave_collapse'
 local RS = require 'map_gen.shared.redmew_surface'
 
--- collapses seen, by when they were triggered and where the rock came down
+-- collapses seen while the module's tests run, by when they were triggered and where the rock
+-- came down
 local collapses = {triggered = 0, done = 0, at = {}}
-Event.add(DiggyCaveCollapse.events.on_collapse_triggered, function()
+local count_triggered = Token.register(function()
     collapses.triggered = collapses.triggered + 1
 end)
-Event.add(DiggyCaveCollapse.events.on_collapse, function(event)
+local record_collapse = Token.register(function(event)
     collapses.done = collapses.done + 1
     collapses.at[#collapses.at + 1] = event.position
 end)
@@ -33,12 +35,18 @@ end
 
 local ROCKS = {'big-rock', 'huge-rock'}
 
--- how many times robots have mined something (a rock's entity is replaced by the time this
--- sees it, so it can't tell what)
+-- how many times robots have mined something while the module's tests run (a rock's entity is
+-- replaced by the time this sees it, so it can't tell what)
 local robot_mined = 0
-Event.add(defines.events.on_robot_mined_entity, function()
+local count_robot_mined = Token.register(function()
     robot_mined = robot_mined + 1
 end)
+
+local handlers = {
+    {DiggyCaveCollapse.events.on_collapse_triggered, count_triggered},
+    {DiggyCaveCollapse.events.on_collapse, record_collapse},
+    {defines.events.on_robot_mined_entity, count_robot_mined}
+}
 
 -- Real construction robots, on a pad of dirt east of the starting zone (out-of-map takes no
 -- buildings). They reach the starting zone and its ring of rocks from there.
@@ -70,6 +78,22 @@ end
 Declare.module(
     {'map_gen', 'diggy'},
     function()
+        Declare.module_startup(
+            function()
+                for _, handler in pairs(handlers) do
+                    Event.add_removable(handler[1], handler[2])
+                end
+            end
+        )
+
+        Declare.module_teardown(
+            function()
+                for _, handler in pairs(handlers) do
+                    Event.remove_removable(handler[1], handler[2])
+                end
+            end
+        )
+
         Declare.test(
             'the starting zone is dug out and ringed by rocks',
             function()

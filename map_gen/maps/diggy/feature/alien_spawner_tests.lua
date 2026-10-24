@@ -25,6 +25,9 @@ end
 Declare.module(
     {'map_gen', 'diggy', 'alien spawner'},
     function()
+        Declare.module_startup(D.count_opened_startup)
+        Declare.module_teardown(D.count_opened_teardown)
+
         Declare.test(
             'opening the void far from spawn raises evolution and lets aliens out',
             function(context)
@@ -42,12 +45,14 @@ Declare.module(
                 end)
 
                 -- Act
-                D.open(context, surface, FAR, function(opened)
-                    -- Assert
-                    Assert.is_true(opened >= 300, 'only ' .. opened .. ' void tiles opened')
-                    Assert.is_true(enemy.get_evolution_factor(surface) > evolution, 'evolution stayed at ' .. evolution .. ' after opening ' .. opened .. ' void tiles')
+                local opened = D.open(context, surface, FAR)
+
+                -- Assert
+                context:next(function()
+                    Assert.is_true(opened() >= 300, 'only ' .. opened() .. ' void tiles opened')
+                    Assert.is_true(enemy.get_evolution_factor(surface) > evolution, 'evolution stayed at ' .. evolution .. ' after opening ' .. opened() .. ' void tiles')
                     -- each tile has a 5% chance: none in 300 is about one in five million
-                    Assert.is_true(aliens_in(surface, FAR) > 0, 'no aliens came out of ' .. opened .. ' void tiles opened far from spawn')
+                    Assert.is_true(aliens_in(surface, FAR) > 0, 'no aliens came out of ' .. opened() .. ' void tiles opened far from spawn')
                 end)
             end
         )
@@ -73,10 +78,12 @@ Declare.module(
                 end)
 
                 -- Act
-                D.open(context, surface, NEAR, function(opened)
-                    -- Assert
-                    Assert.is_true(opened >= 50, 'only ' .. opened .. ' void tiles opened')
-                    Assert.equal(before, aliens_in(surface, NEAR), 'aliens near ' .. NEAR[1][1] .. ',' .. NEAR[1][2] .. ' after opening ' .. opened .. ' void tiles near spawn')
+                local opened = D.open(context, surface, NEAR)
+
+                -- Assert
+                context:next(function()
+                    Assert.is_true(opened() >= 50, 'only ' .. opened() .. ' void tiles opened')
+                    Assert.equal(before, aliens_in(surface, NEAR), 'aliens near ' .. NEAR[1][1] .. ',' .. NEAR[1][2] .. ' after opening ' .. opened() .. ' void tiles near spawn')
                 end)
             end
         )
