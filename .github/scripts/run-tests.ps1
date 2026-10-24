@@ -57,6 +57,8 @@ if ($seed -eq 'random') {
     $seed = Get-Random -Minimum 0 -Maximum 1073741824
 }
 $seed = [long]$seed
+# the game's version, for the results
+$factorioVersion = (Get-Content -Raw (Join-Path $FactorioDir 'data/base/info.json') | ConvertFrom-Json).version
 
 $templateDir = Join-Path $repo "scenario_templates/$Target"
 $settingsFile = Join-Path $templateDir 'test-settings.json'
@@ -71,7 +73,7 @@ if (Test-Path $settingsFile) {
 # the result for test-summary.ps1: the run's own, or one made up for a run that didn't give any
 function Save-Result($result, [int] $seconds) {
     if (-not $Results) { return }
-    $saved = [ordered]@{ map = $Target; seed = $seed; seconds = $seconds }
+    $saved = [ordered]@{ map = $Target; seed = $seed; seconds = $seconds; factorio = $factorioVersion }
     foreach ($property in $result.PSObject.Properties) {
         $saved[$property.Name] = $property.Value
     }
@@ -84,7 +86,7 @@ function Get-Tests($result) {
     @(if ($result.tests -is [array]) { $result.tests })
 }
 
-"== $Target (seed $seed)"
+"== $Target (seed $seed, Factorio $factorioVersion)"
 if ($skip) {
     "skipped: $skip"
     Save-Result ([pscustomobject]@{ skipped_map = $skip; passed = 0; failed = 0; skipped = 0; tests = @() }) 0

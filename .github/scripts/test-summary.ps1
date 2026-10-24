@@ -40,6 +40,11 @@ function Get-Tests($result) {
     @(if ($result.tests -is [array]) { $result.tests })
 }
 
+# the Factorio versions the maps ran on: one, unless a release came out between runs
+$versions = @($all | ForEach-Object factorio | Where-Object { $_ } | Sort-Object -Unique)
+$on = $versions ? " on Factorio $($versions -join ', ')" : ''
+if ($on) { "Factorio $($versions -join ', ')" }
+
 # a map failed if a test failed or its run didn't finish
 foreach ($result in $all) {
     if ($result.skipped_map) {
@@ -64,7 +69,7 @@ if ($env:GITHUB_STEP_SUMMARY) {
     $fence = '```'
     $icons = @{ pass = '✅'; fail = '❌'; skip = '⏭️' }
     $tested = @($all | Where-Object { -not $_.skipped_map })
-    $lines = @("### In-game tests: $(@($tested | Where-Object failed -eq 0).Count) of $($tested.Count) maps passed`n")
+    $lines = @("### In-game tests: $(@($tested | Where-Object failed -eq 0).Count) of $($tested.Count) maps passed$on`n")
     foreach ($result in $all) {
         if ($result.skipped_map) {
             $lines += "⏭️ **$($result.map)**: skipped, $($result.skipped_map)`n"

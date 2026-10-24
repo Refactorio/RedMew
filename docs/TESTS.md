@@ -50,7 +50,18 @@ module is loaded. They only load with `_DEBUG = true` (in `config.lua`, or `map_
   before running.
 
 CI runs every template on each pull request. The *in-game test results* check lists every test
-grouped by map.
+grouped by map, and the Factorio version they ran on.
+
+CI runs the latest stable release of the Factorio version in `FACTORIO_LINE`
+(`.github/workflows/CI.yml`), such as `2.0`, so it picks up patch releases by itself. Change it
+in the pull request that moves the scenario to a new version.
+
+## Startup and teardown
+
+A module's tests rely on its `Declare.module_startup`, and on those of the modules above it. When
+a startup fails, none of the tests below it run: each fails with `startup of <module> failed`, and
+neither the startups and teardowns below it nor the module's own teardown run. When a teardown
+fails, the tests below it that passed fail with `teardown of <module> failed`.
 
 ## Writing tests
 
