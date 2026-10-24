@@ -593,6 +593,201 @@ Declare.module(
             end
         )
 
+        -- the flamethrower turrets near spawn, searching wider where the closer rings have none:
+        -- only some of the outpost templates carry them, and which outposts appear is up to the seed
+        -- @return LuaSurface, LuaEntity[], number surface, turrets and how far they were searched
+        local function plumbed_reach()
+            for _, r in pairs({OUTPOST_REACH, OUTPOST_REACH * 2, OUTPOST_REACH * 3}) do
+                local surface = generate(r)
+                local turrets =
+                    surface.find_entities_filtered {area = {{-r, -r}, {r, r}}, name = 'flamethrower-turret', force = 'enemy'}
+                if #turrets > 0 then
+                    return surface, turrets, r
+                end
+            end
+            return RS.get_surface(), {}, OUTPOST_REACH * 3
+        end
+
+        -- where the builder lays the stub at each rear port of a flamethrower turret: one tile on
+        -- in the direction that port faces, from the port's offset off the turret's centre
+        -- @return table[] the two tile centres
+        local function stub_tiles(turret)
+            local vectors = {
+                [defines.direction.north] = {x = 0, y = -1},
+                [defines.direction.east] = {x = 1, y = 0},
+                [defines.direction.south] = {x = 0, y = 1},
+                [defines.direction.west] = {x = -1, y = 0}
+            }
+            local turns = math.floor(((turret.direction or 0) + 2) / 4) % 4
+            local p = turret.position
+            local tiles = {}
+            for _, port in pairs({{x = -0.5, y = 1, dir = defines.direction.west}, {x = 0.5, y = 1, dir = defines.direction.east}}) do
+                local x, y = port.x, port.y
+                for _ = 1, turns do
+                    x, y = -y, x
+                end
+                local v = vectors[(port.dir + turns * 4) % 16]
+                -- the game snaps a pipe onto tile centres, which is where it ends up rather than at
+                -- the coordinates it was placed with
+                tiles[#tiles + 1] = {
+                    x = math.floor(p.x + x + v.x - 0.5) + 0.5,
+                    y = math.floor(p.y + y + v.y - 0.5) + 0.5
+                }
+            end
+            return tiles
+        end
+
+        Declare.test(
+            'the oil pipes at the flamethrower turrets mate with them and carry their oil',
+            function(context)
+                -- Act
+                local surface, turrets, reach = plumbed_reach()
+                Assert.is_true(#turrets > 0, 'no flamethrower turrets within ' .. reach .. ' of spawn')
+
+                -- The outposts refill one turret a tick in turn, so on a map with hundreds of them
+                -- a given turret waits a long while for its first oil: pour it in here instead, so
+                -- a pipe that mates with a turret has oil to pass on.
+                for _, turret in pairs(turrets) do
+                    if turret.valid then
+                        turret.fluidbox[1] = {name = 'light-oil', amount = 100}
+                    end
+                end
+
+                -- Assert: every stub laid at a port carries the turret's oil, which only happens if
+                -- it mates with the turret rather than sitting beside it. Only ports that got a pipe
+                -- are checked, and only turrets that still hold oil: map generation skips a stub
+                -- something was in the way of (turrets two tiles apart leave no room for one), and a
+                -- turret that has been shooting burns its oil off.
+                context:timeout(300, function()
+                    local unshared, connected, checked = {}, 0, 0
+                    for _, turret in pairs(turrets) do
+                        local p = turret.valid and turret.position
+                        local fluid = p and turret.fluidbox[1]
+                        if fluid then
+                            for _, tile in pairs(stub_tiles(turret)) do
+                                for _, pipe in pairs(surface.find_entities_filtered {position = tile, radius = 0.25, name = 'pipe', force = 'enemy'}) do
+                                    checked = checked + 1
+                                    local pf = pipe.fluidbox[1]
+                                    if pf then
+                                        connected = connected + 1
+                                    else
+                                        unshared[#unshared + 1] = tile.x .. ',' .. tile.y .. ' at turret ' .. p.x .. ',' .. p.y
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    Assert.is_true(checked > 0, 'no stub pipes at any flamethrower turret within ' .. reach .. ' of spawn')
+                    Assert.is_true(connected > 0, 'none of the ' .. checked .. ' stub pipes at the flamethrower turrets carries oil')
+                    Assert.equal(0, #unshared, 'stub pipes at the flamethrower turrets carrying none of their oil: ' .. table.concat(unshared, ' '))
+                end)
+            end
+        )
+
+        Declare.test(
+            'outpost oil pipes come back a minute after they are destroyed',
+            function(context)
+                -- Arrange
+                local surface, turrets, reach = plumbed_reach()
+                Assert.is_true(#turrets > 0, 'no flamethrower turrets within ' .. reach .. ' of spawn')
+
+                -- Act: one pipe and one pipe-to-ground off the lines, where the map has them
+                local killed = {}
+                for _, wanted in pairs({'pipe', 'pipe-to-ground'}) do
+                    for _, turret in pairs(turrets) do
+                        local p = turret.position
+                        local near =
+                            surface.find_entities_filtered {
+                            area = {{p.x - 4.5, p.y - 4.5}, {p.x + 4.5, p.y + 4.5}},
+                            name = wanted,
+                            force = 'enemy'
+                        }
+                        if #near > 0 then
+                            local pipe = near[1]
+                            killed[#killed + 1] = {name = pipe.name, position = pipe.position}
+                            pipe.die()
+                            break
+                        end
+                    end
+                end
+                Assert.is_true(#killed > 0, 'no pipes to destroy near the flamethrower turrets')
+
+                -- Assert: back where they were after the minute the poles take
+                context:wait_until(
+                    60 * 60 + 120,
+                    function()
+                        for _, k in pairs(killed) do
+                            if surface.count_entities_filtered {position = k.position, radius = 0.5, name = k.name, force = 'enemy'} == 0 then
+                                return false
+                            end
+                        end
+                        return true
+                    end,
+                    'of ' .. #killed .. ' oil pipes destroyed, at least one had not come back after a minute'
+                )
+            end
+        )
+
+        Declare.test(
+            'oil pipes stop coming back once the turret they feed is gone',
+            function(context)
+                -- Arrange: a pipe with exactly one flamethrower turret in the five tiles a dead
+                -- pipe looks at, so killing that turret leaves the pipe with nothing to respawn for
+                local surface, turret, pipe
+                for _, r in pairs({OUTPOST_REACH, OUTPOST_REACH * 2, OUTPOST_REACH * 3}) do
+                    surface = generate(r)
+                    for _, candidate in pairs(surface.find_entities_filtered {area = {{-r, -r}, {r, r}}, name = 'flamethrower-turret', force = 'enemy'}) do
+                        local p = candidate.position
+                        local near =
+                            surface.find_entities_filtered {
+                            area = {{p.x - 4.5, p.y - 4.5}, {p.x + 4.5, p.y + 4.5}},
+                            name = 'pipe',
+                            force = 'enemy'
+                        }
+                        for _, candidate_pipe in pairs(near) do
+                            local q = candidate_pipe.position
+                            if
+                                surface.count_entities_filtered {
+                                    area = {{q.x - 5, q.y - 5}, {q.x + 5, q.y + 5}},
+                                    name = 'flamethrower-turret',
+                                    force = 'enemy'
+                                } == 1
+                             then
+                                turret, pipe = candidate, candidate_pipe
+                                break
+                            end
+                        end
+                        if turret then
+                            break
+                        end
+                    end
+                    if turret then
+                        break
+                    end
+                end
+                -- where no turret stands away from its neighbours, there is nothing to check: the
+                -- pipes near every turret would respawn for a turret that is still alive
+                if not turret then
+                    return
+                end
+                local position = pipe.position
+
+                -- Act
+                turret.die()
+                pipe.die()
+
+                -- Assert
+                context:timeout(
+                    60 * 60 + 120,
+                    function()
+                        local back =
+                            surface.count_entities_filtered {position = position, radius = 0.5, name = 'pipe', force = 'enemy'}
+                        Assert.equal(0, back, 'the pipe at ' .. position.x .. ',' .. position.y .. ' came back after its turret was destroyed')
+                    end
+                )
+            end
+        )
+
         Declare.test(
             'outpost markets have goods for sale',
             function()
