@@ -81,6 +81,7 @@ end
 
 local function prepare_pre_module_hooks(module, runnables, player)
     local startup_func = module.startup_func
+    module.startup_error = nil
     if startup_func then
         runnables[#runnables + 1] = {
             is_hook = true,
@@ -105,6 +106,7 @@ end
 
 local function prepare_post_module_hooks(module, runnables, player)
     local teardown_func = module.teardown_func
+    module.teardown_error = nil
     if teardown_func then
         runnables[#runnables + 1] = {
             is_hook = true,

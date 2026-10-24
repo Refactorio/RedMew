@@ -36,7 +36,9 @@ jobs:
     name: in-game tests (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     env:
-      FACTORIO_VERSION: "2.0.77"
+      # the Factorio version the scenario is written for, without the patch number: CI runs its
+      # latest stable release
+      FACTORIO_LINE: "2.0"
     strategy:
       fail-fast: false
       matrix:
@@ -44,6 +46,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+
+    # the latest stable release in FACTORIO_LINE, from the list of headless releases (newer ones
+    # than stable are experimental)
+    - name: Find the Factorio version
+      shell: pwsh
+      run: |
+        $available = (Invoke-RestMethod 'https://updater.factorio.com/get-available-versions?apiVersion=2').'core-linux_headless64'
+        $stable = [version]($available | Where-Object stable).stable
+        $version = $available.to | Where-Object { $_ -like "$env:FACTORIO_LINE.*" -and [version]$_ -le $stable } |
+            Sort-Object { [version]$_ } | Select-Object -Last 1
+        if (-not $version) { throw "no stable Factorio $env:FACTORIO_LINE release" }
+        "Factorio $version"
+        "FACTORIO_VERSION=$version" >> $env:GITHUB_ENV
 
     - name: Cache Factorio headless
       id: cache-factorio
