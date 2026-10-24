@@ -1364,8 +1364,8 @@ local function do_magic_crafters()
                 local output_inv = entity.get_output_inventory()
                 if output_inv.can_insert(data.item) then -- No pollution if full. Taking items out of crafters makes pollution
                     local pollution_amount = pollution_multiplier.value * 0.01
-                    local pollution_x = math.random(0,1)*2 - 1 -- -1 or 1
-                    local pollution_y = math.random(0,1)*2 - 1
+                    local pollution_x = math.random(0, 1) * 2 - 1 -- -1 or 1
+                    local pollution_y = math.random(0, 1) * 2 - 1
                     local pollution_position = {pollution_x, pollution_y}
                     entity.surface.pollute(pollution_position, pollution_amount)
                     output_inv.insert {name = data.item, count = fcount}
