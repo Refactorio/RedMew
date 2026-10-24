@@ -63,13 +63,11 @@ Declare.module(
             return chest.get_inventory(defines.inventory.chest).get_item_count(name)
         end
 
-        -- Does `act`, waits for `done`, then carries on with `after`; fails the test if `done` never
-        -- comes, so each step asserts its own outcome.
-        local function step(context, p, what, act, done, after)
-            act()
-            Helper.wait_until(context, ROBOT_TICKS, done, function(ok)
-                Assert.is_true(ok, 'the robots did not ' .. what .. ' at ' .. p.x .. ',' .. p.y .. ': ' .. layers(p))
-                after()
+        -- Does `act` the next tick, then waits for `done`; the test fails if it never comes, so each
+        -- step asserts its own outcome.
+        local function step(context, p, what, act, done)
+            return context:next(act):wait_until(ROBOT_TICKS, done, function()
+                return 'the robots did not ' .. what .. ' at ' .. p.x .. ',' .. p.y .. ': ' .. layers(p)
             end)
         end
 
@@ -95,25 +93,23 @@ Declare.module(
                 surface.set_tiles {{name = 'water', position = p}}
 
                 -- Act: landfill, then refined concrete on it
-                step(context, p, 'lay landfill on the water', ghost(p, 'landfill'), is_tile(p, 'landfill'), function()
-                    step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER), function()
-                        -- Assert: it became the marker, which can't be mined
-                        Assert.is_true(not prototypes.tile[MARKER].mineable_properties.minable, MARKER .. ' can be mined')
-                        Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, MARKER .. ' can be marked for deconstruction')
+                step(context, p, 'lay landfill on the water', ghost(p, 'landfill'), is_tile(p, 'landfill'))
+                step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER))
 
-                        -- Act and Assert: a floor over the marker hands the refined concrete back, and
-                        -- mining that floor and then the landfill gets back to the water
-                        local function path_and_refund()
-                            return is_tile(p, 'stone-path')() and in_chest(REFUND) == STOCK
-                        end
-                        step(context, p, 'build stone path over the ' .. MARKER .. ' and hand the ' .. REFUND .. ' back', ghost(p, 'stone-path'), path_and_refund, function()
-                            step(context, p, 'mine the stone path down to landfill', deconstruct(p), is_tile(p, 'landfill'), function()
-                                step(context, p, 'mine the landfill down to water', deconstruct(p), is_tile(p, 'water'), function()
-                                end)
-                            end)
-                        end)
-                    end)
+                -- Assert: it became the marker, which can't be mined
+                context:next(function()
+                    Assert.is_true(not prototypes.tile[MARKER].mineable_properties.minable, MARKER .. ' can be mined')
+                    Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, MARKER .. ' can be marked for deconstruction')
                 end)
+
+                -- Act and Assert: a floor over the marker hands the refined concrete back, and mining
+                -- that floor and then the landfill gets back to the water
+                local function path_and_refund()
+                    return is_tile(p, 'stone-path')() and in_chest(REFUND) == STOCK
+                end
+                step(context, p, 'build stone path over the ' .. MARKER .. ' and hand the ' .. REFUND .. ' back', ghost(p, 'stone-path'), path_and_refund)
+                step(context, p, 'mine the stone path down to landfill', deconstruct(p), is_tile(p, 'landfill'))
+                step(context, p, 'mine the landfill down to water', deconstruct(p), is_tile(p, 'water'))
             end
         )
 
@@ -127,14 +123,14 @@ Declare.module(
                 surface.set_hidden_tile(p, nil)
 
                 -- Act: refined concrete, stone path over it, then mine the stone path
-                step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER), function()
-                    step(context, p, 'build stone path over the ' .. MARKER, ghost(p, 'stone-path'), is_tile(p, 'stone-path'), function()
-                        step(context, p, 'mine the stone path down to landfill', deconstruct(p), is_tile(p, 'landfill'), function()
-                            -- Assert
-                            Assert.equal(nil, surface.get_hidden_tile(p), 'hidden tile under the landfill: ' .. layers(p))
-                            Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, 'the landfill can be mined: ' .. layers(p))
-                        end)
-                    end)
+                step(context, p, 'lay refined concrete on the landfill', ghost(p, REFUND), is_tile(p, MARKER))
+                step(context, p, 'build stone path over the ' .. MARKER, ghost(p, 'stone-path'), is_tile(p, 'stone-path'))
+                step(context, p, 'mine the stone path down to landfill', deconstruct(p), is_tile(p, 'landfill'))
+
+                -- Assert
+                context:next(function()
+                    Assert.equal(nil, surface.get_hidden_tile(p), 'hidden tile under the landfill: ' .. layers(p))
+                    Assert.is_true(surface.get_tile(p.x, p.y).order_deconstruction('player') == nil, 'the landfill can be mined: ' .. layers(p))
                 end)
             end
         )
@@ -149,8 +145,10 @@ Declare.module(
                 end
 
                 -- Act
-                step(context, p, 'lay refined concrete on the grass', ghost(p, REFUND), laid, function()
-                    -- Assert
+                step(context, p, 'lay refined concrete on the grass', ghost(p, REFUND), laid)
+
+                -- Assert
+                context:next(function()
                     Assert.equal(REFUND, surface.get_tile(p.x, p.y).name, 'tile after laying refined concrete on grass')
                 end)
             end

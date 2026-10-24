@@ -157,13 +157,17 @@ Declare.module(
                 -- Act: a ghost for the robots to build
                 local ghost = build(surface, 'entity-ghost', p, {inner_name = BUILDING})
 
-                Helper.wait_until(context, 1800, function()
+                local function built()
+                    return surface.count_entities_filtered {area = area, name = BUILDING}
+                end
+
+                -- Assert
+                context:wait_until(1800, function()
                     return not ghost.valid and storage.get_item_count(BUILDING) == 1
-                end, function(ok)
-                    -- Assert
-                    local built = surface.count_entities_filtered {area = area, name = BUILDING}
-                    Assert.is_true(ok, 'the ' .. BUILDING .. ' robots built on ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built .. ', in storage ' .. storage.get_item_count(BUILDING))
-                    Assert.equal(0, built, BUILDING .. 's left on ore')
+                end, function()
+                    return 'the ' .. BUILDING .. ' robots built on ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built() .. ', in storage ' .. storage.get_item_count(BUILDING)
+                end):next(function()
+                    Assert.equal(0, built(), BUILDING .. 's left on ore')
                 end)
             end
         )

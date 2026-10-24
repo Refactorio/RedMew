@@ -151,23 +151,6 @@ function Public.modify_global(context, name, value)
     end)
 end
 
---- Calls `done` every tick until it returns true or `ticks` have passed, then calls
--- `after(true)`, or `after(false)` when it never did. context:wait_until does the same as a step
--- of its own, so what follows can be chained after it rather than nested in `after`; use that.
-function Public.wait_until(context, ticks, done, after)
-    local function check()
-        if done() then
-            return after(true)
-        end
-        ticks = ticks - 1
-        if ticks <= 0 then
-            return after(false)
-        end
-        context:next(check)
-    end
-    context:next(check)
-end
-
 --- Builds a logistic network near `position` for real construction robots: a powered roboport
 -- with robots in it, and a storage chest holding `items` ({name, count, quality?} stacks). The
 -- game then carries out the ghosts and deconstruction orders a test places within its reach

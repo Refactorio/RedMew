@@ -85,13 +85,17 @@ Declare.module(
                 local ghost = surface.create_entity {name = 'entity-ghost', inner_name = 'iron-chest', position = p, force = 'player'}
                 Assert.valid(ghost, 'the test iron chest ghost was not placed')
 
-                Helper.wait_until(context, 1800, function()
+                local function built()
+                    return surface.count_entities_filtered {area = area, name = 'iron-chest'}
+                end
+
+                -- Assert
+                context:wait_until(1800, function()
                     return not ghost.valid and storage.get_item_count('iron-chest') == 1
-                end, function(ok)
-                    -- Assert
-                    local built = surface.count_entities_filtered {area = area, name = 'iron-chest'}
-                    Assert.is_true(ok, 'the iron chest robots built off ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built .. ', in storage ' .. storage.get_item_count('iron-chest'))
-                    Assert.equal(0, built, 'iron chests left off ore')
+                end, function()
+                    return 'the iron chest robots built off ore at ' .. p.x .. ',' .. p.y .. ' did not come back: ghost there ' .. tostring(ghost.valid) .. ', built ' .. built() .. ', in storage ' .. storage.get_item_count('iron-chest')
+                end):next(function()
+                    Assert.equal(0, built(), 'iron chests left off ore')
                 end)
             end
         )
