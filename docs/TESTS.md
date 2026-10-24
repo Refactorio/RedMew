@@ -102,6 +102,37 @@ end)
   `game.create_random_generator(seed)`, with seeds above 341: every seed up to 341 gives the same
   generator.
 
+## Tests that take ticks
+
+A test that has to let the game run (robots building, a timer running out) adds steps to its
+`context`: `next` runs a function the next tick, `timeout(ticks, func)` after that many, and
+`wait_until(ticks, done, message)` checks `done` every tick until it returns true, failing the
+test with `message` if it doesn't within `ticks`. They chain, so what happens next follows the
+wait instead of nesting in it:
+
+```lua
+Declare.test('a building robots build off ore goes back to storage', function(context)
+    -- Arrange
+    local storage, remove_network = Helper.robot_network(surface, {x = 0, y = 0}, {{name = 'iron-chest', count = 1}})
+    context:add_teardown(remove_network)
+
+    -- Act: a ghost for the robots to build
+    surface.create_entity {name = 'entity-ghost', inner_name = 'iron-chest', position = p, force = 'player'}
+
+    -- Assert
+    context:wait_until(1800, function()
+        return storage.get_item_count('iron-chest') == 1
+    end, function()
+        return 'the iron chest did not come back: ' .. storage.get_item_count('iron-chest') .. ' in storage'
+    end):next(function()
+        Assert.equal(0, surface.count_entities_filtered {position = p, radius = 0.5, name = 'iron-chest'}, 'iron chests left')
+    end)
+end)
+```
+
+`message` can be a function, called when the wait fails, to say what was there instead. The
+step after a wait runs the tick after `done` held. Module startups can wait too.
+
 ## Without a player
 
 A headless server has no player, so on a headless run `context.player` is nil. Tests that need

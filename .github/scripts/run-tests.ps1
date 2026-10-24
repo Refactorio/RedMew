@@ -58,7 +58,7 @@ if ($seed -eq 'random') {
 }
 $seed = [long]$seed
 # the game's version, for the results
-$factorioVersion = (Get-Content -Raw (Join-Path $FactorioDir 'data/base/info.json') | ConvertFrom-Json).version
+$factorioVersion = (Get-Content -Raw (Join-Path $dataDir 'base/info.json') | ConvertFrom-Json).version
 
 $templateDir = Join-Path $repo "scenario_templates/$Target"
 $settingsFile = Join-Path $templateDir 'test-settings.json'
