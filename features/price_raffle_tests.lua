@@ -3,11 +3,20 @@
 -- Frontier. Rolls use math.random, so the tests check properties (the budget always covers what
 -- comes back, blacklisted items never show up) over repeated rolls, not exact stacks. Nothing
 -- leaves an item unlocked: each test that unlocks one restores the state it found.
+--
+-- Research unlocking a recipe's products is raised as on_research_finished with a stand-in for
+-- the research: a plain table, not a real technology, so handlers acting on real research
+-- (Frontier researches it for the enemy force too) skip it.
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
+local EventFactory = require 'utils.test.event_factory'
 local PriceRaffle = require 'features.price_raffle'
 
 local WORTHS = PriceRaffle.get_items_worth()
+
+-- an enabled recipe whose product has a worth
+local RESEARCHED_RECIPE = 'wooden-chest'
+local RESEARCHED_PRODUCT = 'wooden-chest'
 
 -- unlocks restore their prior state afterwards, so the roll tests see the map's own unlocks
 local function restore_unlocked(context, name)
@@ -31,6 +40,28 @@ local function name_listing_count(name)
         end
     end
     return count
+end
+
+-- enables the recipe for the test, as research would have
+local function enable_recipe(context, name)
+    local recipe = game.forces.player.recipes[name]
+    local was_enabled = recipe.enabled
+    recipe.enabled = true
+    context:add_teardown(function()
+        recipe.enabled = was_enabled
+    end)
+end
+
+local function raise_research_of(recipe)
+    EventFactory.raise {
+        name = defines.events.on_research_finished,
+        tick = game.tick,
+        research = {
+            name = 'price raffle tests',
+            force = game.forces.player,
+            prototype = {effects = {{type = 'unlock-recipe', recipe = recipe}}}
+        }
+    }
 end
 
 Declare.module(
@@ -290,6 +321,62 @@ Declare.module(
                 Assert.is_true(#stack_set >= 1 and #stack_set <= 3, 'the roll filled ' .. #stack_set .. ' slots, expected 1 to 3')
                 Assert.is_true(total > 0, 'the rolled stacks are worth nothing')
                 Assert.is_true(total <= budget, 'the rolled stacks are worth ' .. total .. ', above the budget of ' .. budget)
+            end
+        )
+
+        Declare.test(
+            'every unlocked item is listed once',
+            function()
+                -- Assert: what the module unlocked from the map's enabled recipes, where a product
+                -- of several recipes (petroleum-gas-barrel on Expanse) used to be listed twice
+                local counts = {}
+                for _, name in pairs(PriceRaffle.get_unlocked_item_names()) do
+                    counts[name] = (counts[name] or 0) + 1
+                end
+                local listed_more_than_once = {}
+                for name, count in pairs(counts) do
+                    if count > 1 then
+                        listed_more_than_once[#listed_more_than_once + 1] = name .. ' x' .. count
+                    end
+                end
+                Assert.equal(0, #listed_more_than_once, 'listed more than once: ' .. table.concat(listed_more_than_once, ', '))
+            end
+        )
+
+        Declare.test(
+            'a product researched twice is listed once',
+            function(context)
+                -- Arrange
+                restore_unlocked(context, RESEARCHED_PRODUCT)
+                enable_recipe(context, RESEARCHED_RECIPE)
+
+                -- Act
+                raise_research_of(RESEARCHED_RECIPE)
+                raise_research_of(RESEARCHED_RECIPE)
+                local count = name_listing_count(RESEARCHED_PRODUCT)
+
+                -- Assert
+                Assert.equal(1, count, RESEARCHED_PRODUCT .. ' is listed ' .. count .. ' times after two researches of its recipe')
+            end
+        )
+
+        Declare.test(
+            'locking a researched product leaves no name behind',
+            function(context)
+                -- Arrange: research unlocks the product, twice
+                restore_unlocked(context, RESEARCHED_PRODUCT)
+                enable_recipe(context, RESEARCHED_RECIPE)
+                raise_research_of(RESEARCHED_RECIPE)
+                raise_research_of(RESEARCHED_RECIPE)
+
+                -- Act
+                PriceRaffle.set_unlocked(RESEARCHED_PRODUCT, false)
+                local unlocked = PriceRaffle.is_unlocked(RESEARCHED_PRODUCT)
+                local count = name_listing_count(RESEARCHED_PRODUCT)
+
+                -- Assert: a name left behind has no value, and rolls fail comparing it with the budget
+                Assert.equal(false, unlocked, RESEARCHED_PRODUCT .. ' is still unlocked after locking')
+                Assert.equal(0, count, RESEARCHED_PRODUCT .. ' is still listed ' .. count .. ' times after locking, with no value')
             end
         )
     end
