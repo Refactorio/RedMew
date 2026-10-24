@@ -244,28 +244,29 @@ Declare.module(
         )
 
         Declare.test(
-            'roll fills the slots within budget',
+            'roll fills every slot unless it spends the whole budget',
             function()
-                -- Arrange: 100003 is prime, so no listed worth divides it and no slot can spend
-                -- the budget down to exactly zero; all four slots always fill
+                -- Arrange: a roll stops early only once it has spent the budget exactly, which items
+                -- worth 1 (coal, ore) can do with whatever the other stacks left. Rolled again and
+                -- again, so a roll that loses a slot can't pass on a lucky one
                 local budget = 100003
                 local max_slots = 4
-
-                -- Act
-                local stack_set = PriceRaffle.roll(budget, max_slots)
                 local values = PriceRaffle.get_unlocked_item_values()
-                local total = 0
-                if stack_set then
-                    for _, stack in ipairs(stack_set) do
+
+                for _ = 1, 10 do
+                    -- Act
+                    local stack_set = PriceRaffle.roll(budget, max_slots)
+                    local total = 0
+                    for _, stack in ipairs(stack_set or {}) do
                         total = total + stack.count * values[stack.name]
                     end
-                end
 
-                -- Assert
-                Assert.is_true(stack_set ~= nil, 'no stack set came back for a budget of ' .. budget)
-                Assert.equal(max_slots, #stack_set, 'the roll filled ' .. #stack_set .. ' slots instead of ' .. max_slots)
-                Assert.is_true(total > 0, 'the rolled stacks are worth nothing')
-                Assert.is_true(total <= budget, 'the rolled stacks are worth ' .. total .. ', above the budget of ' .. budget)
+                    -- Assert
+                    Assert.is_true(stack_set ~= nil, 'no stack set came back for a budget of ' .. budget)
+                    Assert.is_true(#stack_set == max_slots or total == budget, 'the roll filled ' .. #stack_set .. ' of ' .. max_slots .. ' slots, leaving ' .. (budget - total) .. ' of the budget of ' .. budget)
+                    Assert.is_true(total > 0, 'the rolled stacks are worth nothing')
+                    Assert.is_true(total <= budget, 'the rolled stacks are worth ' .. total .. ', above the budget of ' .. budget)
+                end
             end
         )
 
