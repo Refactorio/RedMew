@@ -371,13 +371,16 @@ local function draw_main_frame(player)
             enabled = enabled,
         }
 
+        -- read-only text that still lets players select and copy it, links and all
         local announcements_textbox = inner.add {
             type = 'text-box',
             text = announcements.text,
+            style = 'notice_textbox',
         }
         announcements_textbox.read_only = true
         announcements_textbox.word_wrap = true
-        Gui.set_style(announcements_textbox, STYLES.textbox)
+        -- a text box doesn't grow to fit its text, so it needs a height of its own
+        Gui.set_style(announcements_textbox, { horizontally_stretchable = true, maximal_width = 1e6, minimal_height = 100, maximal_height = 200, padding = 8 })
 
         data.announcements_textbox = announcements_textbox
     end
@@ -402,7 +405,8 @@ local function draw_main_frame(player)
         }
 
         local tasks_scroll_pane = inner.add { type = 'scroll-pane', direction = 'vertical' }
-        Gui.set_style(tasks_scroll_pane, { horizontally_stretchable = true, maximal_height = 250 })
+        -- a fixed width: the task names are wrapping labels, which need one
+        Gui.set_style(tasks_scroll_pane, { width = 450, maximal_height = 250 })
 
         local tasks_content = tasks_scroll_pane.add { type = 'table', column_count = 2 }
         Gui.set_style(tasks_content, { horizontal_spacing = 0, vertical_spacing = 0, padding = 8 })
@@ -570,22 +574,21 @@ local function draw_create_task_frame(player, previous_task)
         confirm_button_caption = 'Create task'
     end
 
-    local frame, title_close_button = Gui.add_window(player, { name = create_task_frame_name, caption = frame_caption, close_button_name = create_task_close_button_name })
-    Gui.set_style(frame, { width = 470 })
+    local frame, content, title_close_button = Gui.add_dialog(player, { name = create_task_frame_name, caption = frame_caption, close_button_name = create_task_close_button_name })
+    Gui.set_style(frame, { minimal_width = 470 })
     Gui.set_data(title_close_button, frame)
 
-    local textbox = frame.add { type = 'textfield', text = text }
-    Gui.set_style(textbox, { width = 450 })
+    local textbox = content.add { type = 'textfield', text = text }
+    Gui.set_style(textbox, { horizontally_stretchable = true, maximal_width = 1e6 })
 
-    local bottom_flow = frame.add { type = 'flow' }
+    local buttons = Gui.add_dialog_buttons(frame, {
+        { name = create_task_clear_button_name, caption = 'Clear' },
+    }, {
+        { name = confirm_button_name, caption = confirm_button_caption },
+    })
 
-    local clear_button = bottom_flow.add { type = 'button', name = create_task_clear_button_name, caption = 'Clear' }
-    Gui.set_data(clear_button, textbox)
-
-    bottom_flow.add({ type = 'flow' }).style.horizontally_stretchable = true
-
-    local confirm_button = bottom_flow.add { type = 'button', name = confirm_button_name, caption = confirm_button_caption, style = 'confirm_button' }
-    Gui.set_data(confirm_button, { frame = frame, textbox = textbox, previous_task = previous_task })
+    Gui.set_data(buttons[create_task_clear_button_name], textbox)
+    Gui.set_data(buttons[confirm_button_name], { frame = frame, textbox = textbox, previous_task = previous_task })
 end
 
 local function player_created(event)
@@ -694,19 +697,19 @@ Gui.on_click(announcements_edit_button_name, function(event)
 
     local data = {}
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, { name = edit_announcements_frame_name, caption = 'Edit announcements', close_button_name = edit_close_button_name })
+    local content, title_close_button
+    frame, content, title_close_button = Gui.add_dialog(player, { name = edit_announcements_frame_name, caption = 'Edit announcements', close_button_name = edit_close_button_name })
     -- at least as wide as the panel, wider if its buttons need it
     Gui.set_style(frame, { minimal_width = 470 })
     Gui.set_data(title_close_button, frame)
 
     Gui.set_data(frame, data)
 
-    local top_flow = frame.add { type = 'flow' }
+    local top_flow = content.add { type = 'flow' }
     local last_edit_player_label = top_flow.add { type = 'label' }
     local editing_players_label = top_flow.add { type = 'label' }
 
-    local textbox = frame.add {
+    local textbox = content.add {
         type = 'text-box',
         name = edit_announcements_textbox_name,
         text = announcements.edit_text,
@@ -715,16 +718,16 @@ Gui.on_click(announcements_edit_button_name, function(event)
     Gui.set_style(textbox, STYLES.textbox)
     data.textbox = textbox
 
-    local bottom_flow = frame.add { type = 'flow' }
+    local buttons = Gui.add_dialog_buttons(frame, {
+        { name = edit_clear_button_name, caption = 'Clear' },
+        { name = edit_reset_button_name, caption = 'Reset' },
+    }, {
+        { name = edit_confirm_button_name, caption = 'Confirm' },
+    })
 
-    local clear_button = bottom_flow.add { type = 'button', name = edit_clear_button_name, caption = 'Clear' }
-    local reset_button = bottom_flow.add { type = 'button', name = edit_reset_button_name, caption = 'Reset' }
-    bottom_flow.add({ type = 'flow' }).style.horizontally_stretchable = true
-    local confirm_button = bottom_flow.add { type = 'button', name = edit_confirm_button_name, caption = 'Confirm', style = 'confirm_button' }
-
-    Gui.set_data(clear_button, textbox)
-    Gui.set_data(reset_button, textbox)
-    Gui.set_data(confirm_button, frame)
+    Gui.set_data(buttons[edit_clear_button_name], textbox)
+    Gui.set_data(buttons[edit_reset_button_name], textbox)
+    Gui.set_data(buttons[edit_confirm_button_name], frame)
 
     announcements.editing_players[player.index] = {
         textbox = textbox,

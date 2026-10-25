@@ -235,11 +235,6 @@ local function draw_filters_table(event)
         button.style = 'slot_button'
     end
 
-    local flow = frame.add { type = 'flow' }
-
-    local close_button = Gui.make_close_button(flow, filter_table_close_button_name)
-    Gui.set_data(close_button, frame)
-
     event.player.opened = frame
 
     Gui.set_data(frame, event.element)

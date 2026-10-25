@@ -281,6 +281,56 @@ function Gui.add_window(player, spec)
     return frame, close_button
 end
 
+--- Adds a dialog: a window (see Gui.add_window) with its content in a padded inner frame, for
+--- Gui.add_dialog_buttons to put its buttons under.
+---@param player LuaPlayer
+---@param spec { name: string?, caption: LocalisedString, close_button_name: string?, direction: string? }
+---@return LuaGuiElement frame
+---@return LuaGuiElement content
+---@return LuaGuiElement? close_button
+function Gui.add_dialog(player, spec)
+    local frame, close_button = Gui.add_window(player, spec)
+    local content = frame.add { type = 'frame', style = 'inside_shallow_frame_with_padding', direction = 'vertical' }
+    return frame, content, close_button
+end
+
+--- Adds the row of buttons along the bottom of a dialog, laid out like Factorio's own: `left` (the
+--- likes of Clear) on the left, `right` (the likes of Delete, then the confirming button last) on
+--- the right, and space between them to drag the window by. A dialog has no Close button: its X
+--- closes it. Each entry is the spec of a button; without a style of its own, the last one on the
+--- right is a confirm_button and the rest dialog_buttons, so they all line up.
+---@param frame LuaGuiElement
+---@param left table[]?
+---@param right table[]?
+---@return table<string, LuaGuiElement> buttons by name
+function Gui.add_dialog_buttons(frame, left, right)
+    local flow = frame.add { type = 'flow', direction = 'horizontal', style = 'dialog_buttons_horizontal_flow' }
+    local buttons = {}
+
+    local function add(spec, default_style)
+        spec.type = spec.type or 'button'
+        spec.style = spec.style or default_style
+        buttons[spec.name] = flow.add(spec)
+    end
+
+    left = left or {}
+    for _, spec in ipairs(left) do
+        add(spec, 'dialog_button')
+    end
+
+    -- never narrower than this, so every dialog shows somewhere to drag it by
+    local filler = flow.add { type = 'empty-widget', style = 'draggable_space' }
+    Gui.set_style(filler, { horizontally_stretchable = true, minimal_width = 24, height = 32 })
+    filler.drag_target = frame
+
+    right = right or {}
+    for i, spec in ipairs(right) do
+        add(spec, i == #right and 'confirm_button' or 'dialog_button')
+    end
+
+    return buttons
+end
+
 local function handler_factory(event_id)
     local handlers = {}
     local registered = false
@@ -561,6 +611,9 @@ function Gui.add_panel(player, spec)
         frame = Gui.get_left_flow(player).add { type = 'frame', name = name, direction = 'vertical' }
     end
     frame.tags = { redmew_panel = true, redmew_floating_panel = floating or nil, toggle_name = spec.toggle_name }
+    -- docked panels sit side by side, and the row scrolls when they don't fit: keep each whole
+    -- rather than squash the last one into scroll bars of its own
+    Gui.set_style(frame, { horizontally_squashable = false })
     if spec.width then
         Gui.set_style(frame, { width = Styles.panel_width[spec.width] })
     else

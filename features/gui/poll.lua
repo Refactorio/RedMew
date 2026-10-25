@@ -508,8 +508,10 @@ local function redraw_create_poll_content(data)
     grid.add { type = 'flow' }
     local question_label = grid.add({ type = 'flow' }).add { type = 'label', name = create_poll_label_name, caption = 'Question:' }
 
-    local question_textfield = grid.add({ type = 'flow' }).add { type = 'textfield', name = create_poll_question_name, text = data.question }
-    Gui.set_style(question_textfield, { width = 215 })
+    local question_flow = grid.add { type = 'flow' }
+    Gui.set_style(question_flow, { horizontally_stretchable = true })
+    local question_textfield = question_flow.add { type = 'textfield', name = create_poll_question_name, text = data.question }
+    Gui.set_style(question_textfield, { minimal_width = 215, maximal_width = 1e6, horizontally_stretchable = true })
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -540,9 +542,10 @@ local function redraw_create_poll_content(data)
         }
 
         local textfield_flow = grid.add { type = 'flow' }
+        Gui.set_style(textfield_flow, { horizontally_stretchable = true })
 
         local textfield = textfield_flow.add { type = 'textfield', name = create_poll_answer_name, text = answer.text }
-        Gui.set_style(textfield, { width = 215 })
+        Gui.set_style(textfield, { minimal_width = 215, maximal_width = 1e6, horizontally_stretchable = true })
         Gui.set_data(textfield, { answers = answers, count = count })
 
         if delete_button then
@@ -591,13 +594,14 @@ local function draw_create_poll_frame(player, previous_data)
     end
 
     -- as wide as the dialog buttons along the bottom need
-    local frame, title_close_button = Gui.add_window(player, { name = create_poll_frame_name, caption = title_text, close_button_name = create_poll_close_name })
+    local frame, content, title_close_button = Gui.add_dialog(player, { name = create_poll_frame_name, caption = title_text, close_button_name = create_poll_close_name })
     Gui.set_data(title_close_button, frame)
 
-    local scroll_pane = frame.add { type = 'scroll-pane', vertical_scroll_policy = 'always', style = 'notice_scroll_pane', horizontal_scroll_policy = 'never' }
-    Gui.set_style(scroll_pane, { maximal_height = 250, minimal_width = 360, horizontally_stretchable = true, padding = 4 })
+    local scroll_pane = content.add { type = 'scroll-pane', vertical_scroll_policy = 'auto', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never' }
+    Gui.set_style(scroll_pane, { maximal_height = 250, minimal_width = 360, horizontally_stretchable = true })
 
     local grid = scroll_pane.add { type = 'table', column_count = 3 }
+    Gui.set_style(grid, { horizontally_stretchable = true })
 
     local data = {
         frame = frame,
@@ -623,24 +627,21 @@ local function draw_create_poll_frame(player, previous_data)
     Gui.set_style(add_answer_button, STYLES.default_button)
     Gui.set_data(add_answer_button, data)
 
-    local bottom_flow = frame.add { type = 'flow', direction = 'horizontal' }
-
-    local left_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
-
-    local clear_button = left_flow.add { type = 'button', name = create_poll_clear_name, caption = 'Clear' }
-    Gui.set_data(clear_button, data)
-
-    local right_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(right_flow, { horizontal_align = 'right' })
-
+    local right = {}
     if edit_mode then
-        local delete_button = right_flow.add { type = 'button', name = create_poll_delete_name, caption = { 'common.delete' }, style = 'red_back_button' }
-        Gui.set_data(delete_button, data)
+        right[#right + 1] = { name = create_poll_delete_name, caption = { 'common.delete' }, style = 'red_back_button' }
     end
+    right[#right + 1] = { name = confirm_name, caption = confirm_text }
 
-    local confirm_button = right_flow.add { type = 'button', name = confirm_name, caption = confirm_text, style = 'confirm_button' }
-    Gui.set_data(confirm_button, data)
+    local buttons = Gui.add_dialog_buttons(frame, {
+        { name = create_poll_clear_name, caption = 'Clear' },
+    }, right)
+
+    Gui.set_data(buttons[create_poll_clear_name], data)
+    if edit_mode then
+        Gui.set_data(buttons[create_poll_delete_name], data)
+    end
+    Gui.set_data(buttons[confirm_name], data)
 end
 
 local function show_new_poll(poll_data)
