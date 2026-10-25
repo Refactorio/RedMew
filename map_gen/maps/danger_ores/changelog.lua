@@ -185,4 +185,5 @@ return [[
 
   2026-10-25:
       - [DO:Petals] Added DO/Petals preset
+      - [DO:Riches] Added DO/Riches preset
 ]]
