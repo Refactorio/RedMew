@@ -1,4 +1,3 @@
-local Color = require 'resources.color_presets'
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
@@ -9,8 +8,6 @@ local Ranks = require 'resources.ranks'
 local Settings = require 'utils.redmew_settings'
 local Utils = require 'utils.core'
 
-local normal_color = Color.white
-local focus_color = Color.dark_orange
 local label_max_length = 80
 
 local notify_name = 'notify_task'
@@ -81,33 +78,6 @@ local create_task_close_button_name = Gui.uid_name()
 local create_task_clear_button_name = Gui.uid_name()
 local create_task_confirm_button_name = Gui.uid_name()
 local create_task_edit_button_name = Gui.uid_name()
-
-local STYLES = {
-    count_button = {
-        height = 26,
-        width = 26,
-        padding = 0,
-        font = 'default-small',
-    },
-    default_button = {
-        width = 26,
-        height = 26,
-        padding = 2,
-    },
-    direction_button = {
-        width = 26,
-        height = 26,
-        padding = 0,
-        font = 'default-listbox',
-    },
-    textbox = {
-        maximal_width = 1e6,
-        maximal_height = 1e6,
-        minimal_width = 450,
-        minimal_height = 100,
-        horizontally_stretchable = true,
-    },
-}
 
 local function get_task_id()
     local count = tasks_counter[1] + 1
@@ -238,11 +208,8 @@ local function update_volunteer_button(button, task)
         button.tooltip = table.concat(tooltip)
     end
 
-    if volunteers[button.player_index] then
-        button.style.font_color = focus_color
-    else
-        button.style.font_color = normal_color
-    end
+    -- lit for a player who has volunteered
+    button.toggled = volunteers[button.player_index] ~= nil
 end
 
 local function update_top_gui(player)
@@ -286,7 +253,6 @@ local function redraw_tasks(data, enabled)
             style = 'tool_button_red',
         }
         delete_button.enabled = enabled
-        Gui.set_style(delete_button, STYLES.default_button)
         Gui.set_data(delete_button, task_index)
 
         local edit_button = buttons_flow.add {
@@ -294,10 +260,9 @@ local function redraw_tasks(data, enabled)
             name = edit_task_button_name,
             sprite = 'utility/rename_icon',
             tooltip = edit_button_tooltip,
-            style = 'green_button',
+            style = 'tool_button',
         }
         edit_button.enabled = enabled
-        Gui.set_style(edit_button, STYLES.default_button)
         Gui.set_data(edit_button, task)
 
         local up_button = buttons_flow.add {
@@ -305,9 +270,9 @@ local function redraw_tasks(data, enabled)
             name = move_task_up_button_name,
             caption = '▲',
             tooltip = up_button_tooltip,
+            style = 'tool_button',
         }
         up_button.enabled = enabled and task_index ~= 1
-        Gui.set_style(up_button, STYLES.direction_button)
         Gui.set_data(up_button, task_index)
 
         local down_button = buttons_flow.add {
@@ -315,16 +280,16 @@ local function redraw_tasks(data, enabled)
             name = move_task_down_button_name,
             caption = '▼',
             tooltip = down_button_tooltip,
+            style = 'tool_button',
         }
         down_button.enabled = enabled and task_index ~= task_count
-        Gui.set_style(down_button, STYLES.direction_button)
         Gui.set_data(down_button, task_index)
 
         local volunteer_button = buttons_flow.add {
             type = 'button',
             name = volunteer_task_button_name,
+            style = 'tool_button',
         }
-        Gui.set_style(volunteer_button, STYLES.count_button)
         Gui.set_data(volunteer_button, task)
         update_volunteer_button(volunteer_button, task)
 
@@ -715,7 +680,7 @@ Gui.on_click(announcements_edit_button_name, function(event)
         text = announcements.edit_text,
     }
     textbox.word_wrap = true
-    Gui.set_style(textbox, STYLES.textbox)
+    Gui.set_style(textbox, { minimal_width = 450, minimal_height = 100, maximal_width = 1e6, maximal_height = 1e6, horizontally_stretchable = true })
     data.textbox = textbox
 
     local buttons = Gui.add_dialog_buttons(frame, {

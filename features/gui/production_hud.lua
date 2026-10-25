@@ -184,22 +184,22 @@ Public.get_main_frame = function(player)
                 type = 'sprite-button',
                 name = action_scroll_precision_index,
                 caption = to_time[settings.precision_index],
-                style = 'frame_button',
+                style = 'frame_action_button',
             }
             data.action_scroll_precision_index = button
-            Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
+            Gui.set_style(button, { width = 48, font_color = { 255, 255, 255 } })
             Gui.set_data(button, data)
 
             --- Add new
             button = header.add {
                 type = 'choose-elem-button',
                 name = action_add_item,
-                style = 'frame_button',
+                style = 'frame_action_button',
                 tooltip = { 'production_hud.new_item_tooltip' },
                 elem_type = 'signal',
                 signal = { type = 'virtual', name = 'shape-cross' },
             }
-            Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
+            Gui.set_style(button, { font_color = { 255, 255, 255 } })
             Gui.set_data(button, data)
         end,
     })
