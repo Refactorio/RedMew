@@ -15,8 +15,11 @@ Declare.module({'features', 'retailer'}, function()
         local character = player.character
         Assert.is_true(character ~= nil, 'the player needs a character')
 
+        -- on a tile centre, so the market, which snaps to the tile grid, lands where it is put
         local half_width = prototypes.entity['market'].selection_box.right_bottom.x
         local position = character.position
+        position = {x = math.floor(position.x) + 0.5, y = math.floor(position.y) + 0.5}
+        character.teleport(position)
         local market = character.surface.create_entity {
             name = 'market',
             position = {position.x + edge_distance + half_width, position.y},
@@ -44,9 +47,12 @@ Declare.module({'features', 'retailer'}, function()
         -- Arrange: past 1.05 times the reach from the market's centre, but its edge is within reach
         local reach = context.player.character.reach_distance
 
-        open_market_at(context, reach - 0.5, function(player)
+        open_market_at(context, reach - 0.5, function(player, market)
             -- Assert
-            Assert.equal(defines.gui_type.custom, player.opened_gui_type, 'the market window should be open')
+            local distance = market.position.x - player.character.position.x
+            Assert.equal(defines.gui_type.custom, player.opened_gui_type,
+                'the market window should be open (centre ' .. distance .. ' tiles away, character can reach it: '
+                    .. tostring(player.character.can_reach_entity(market)) .. ')')
         end)
     end)
 
