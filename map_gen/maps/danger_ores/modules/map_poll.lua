@@ -82,6 +82,7 @@ local maps = {
     { name = 'danger-ore-one-direction-wide', display_name = 'One Direction Wide (wide right ribbon world)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-patches', display_name = 'Patches (ore islands in coal)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-permanence', display_name = 'Permanence (rebuilding penalty)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
+    { name = 'danger-ore-petals', display_name = 'Petals (iron near spawn, copper further out)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     --{ name = 'danger-ore-poor-mans-coal-fields', display_name = 'Poor Man\'s Coal Fields (Alex Gaming\'s map)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-pyfe', display_name = 'Pyanodon Short (PyFe)', mod_pack = mod_packs.danger_ore_py_short, tags = {tags.overhaul} },
     { name = 'danger-ore-rivers', display_name = 'Rivers (flowing out from spawn)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
