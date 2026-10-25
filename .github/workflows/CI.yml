@@ -38,7 +38,7 @@ jobs:
     env:
       # the Factorio version the scenario is written for, without the patch number: CI runs its
       # latest stable release
-      FACTORIO_LINE: "2.0"
+      FACTORIO_LINE: "2.1"
     strategy:
       fail-fast: false
       matrix:
