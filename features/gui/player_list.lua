@@ -125,10 +125,12 @@ local function do_poke_spam_protection(player)
     end
 end
 
-local function apply_heading_style(style)
+-- A heading lines up with its column's cells: names and ranks are left-aligned so a list of them
+-- reads level, everything else is centred.
+local function apply_heading_style(style, horizontal_align)
     style.font_color = focus_color
     style.font = 'default-semibold'
-    style.horizontal_align = 'center'
+    style.horizontal_align = horizontal_align or 'center'
 end
 
 local column_builders = {
@@ -175,7 +177,7 @@ local column_builders = {
             local caption = { 'player_list.name_caption', sort_symbol }
             local label = parent.add { type = 'label', name = player_name_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'left')
             label_style.width = 150
 
             return label
@@ -219,7 +221,7 @@ local column_builders = {
 
             local label = parent.add { type = 'label', name = time_cell_name, caption = text }
             local label_style = label.style
-            label_style.horizontal_align = 'left'
+            label_style.horizontal_align = 'center'
             label_style.width = 70
 
             return label
@@ -244,7 +246,7 @@ local column_builders = {
             local caption = { 'player_list.rank_caption', sort_symbol }
             local label = parent.add { type = 'label', name = rank_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'left')
             label_style.width = rank_column_width
 
             return label
@@ -557,7 +559,7 @@ local function redraw_title(data)
     local online_count = #game.connected_players
     local total_count = get_for_global(player_count_name)
 
-    frame.caption = { 'player_list.title', online_count, total_count }
+    Gui.set_panel_caption(frame, { 'player_list.title', online_count, total_count })
 end
 
 local function redraw_headings(data)
@@ -630,17 +632,11 @@ local function redraw_cells(data)
     end
 end
 
-local function draw_main_frame(left, player)
+local function draw_main_frame(player)
     local player_index = player.index
-    local frame = left.add {
-        type = 'frame',
-        name = main_frame_name,
-        direction = 'vertical',
-        style = 'non_draggable_frame',
-    }
-
-    local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
-    Gui.set_style(inner, { padding = 8, right_padding = 0 })
+    -- the title, with the player count, is set by redraw_title below
+    local frame, inner = Gui.add_panel(player, { name = main_frame_name, caption = '', toggle_name = main_button_name })
+    Gui.set_style(inner, { right_padding = 0 })
 
     local heading_table_flow = inner.add { type = 'flow' }
 
@@ -648,15 +644,13 @@ local function draw_main_frame(left, player)
     Gui.set_style(cell_table_scroll_pane, { maximal_height = 400 })
 
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = frame.add {
+    local notify_checkbox = inner.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
         caption = { 'player_list.poke_notify_caption' },
         tooltip = { 'player_list.poke_notify_tooltip' },
     }
-
-    Gui.make_close_button(frame, main_button_name)
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
@@ -684,21 +678,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = Gui.get_left_flow(player)
-    local main_frame = left[main_frame_name]
+    local main_frame = Gui.get_panel(player, main_frame_name)
 
     if main_frame then
         remove_main_frame(main_frame, player)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        draw_main_frame(left, player)
+        draw_main_frame(player)
     end
 end
 
 local function tick()
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -731,7 +724,7 @@ end
 
 local function update_player_list()
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -813,7 +806,7 @@ Gui.on_click(poke_cell_name, function(event)
     local message = { 'player_list.poke_message', player.name, poke_player.name, poke_str }
 
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local frame_data = Gui.get_data(frame)
             local poke_bottons = frame_data.poke_buttons
@@ -928,7 +921,7 @@ Event.add(Settings.events.on_setting_set, function(event)
 
     no_notify_players[player_index] = no_notify
 
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if not frame then
         return
     end

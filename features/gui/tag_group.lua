@@ -227,29 +227,48 @@ local function draw_main_frame_content(parent)
 end
 
 local function draw_main_frame(player)
-    local main_frame = Gui.add_left_element(player, {
-        type = 'frame',
+    local main_frame, inner_frame = Gui.add_panel(player, {
         name = main_frame_name,
         caption = {'tag_group.choose_your_tag'},
-        direction = 'vertical'
+        toggle_name = main_button_name,
+        width = 'narrow',
+        add_header_buttons = function(header)
+            header.add {
+                type = 'sprite-button',
+                name = clear_button_name,
+                sprite = 'utility/trash_white',
+                hovered_sprite = 'utility/trash',
+                clicked_sprite = 'utility/trash',
+                style = 'frame_action_button',
+                tooltip = {'tag_group.clear_tag'}
+            }
+            if Rank.equal_or_greater_than(player.name, Ranks.regular) then
+                header.add {
+                    type = 'sprite-button',
+                    name = create_tag_button_name,
+                    sprite = 'utility/add_white',
+                    hovered_sprite = 'utility/add',
+                    clicked_sprite = 'utility/add',
+                    style = 'frame_action_button',
+                    tooltip = {'tag_group.create_tag'}
+                }
+            end
+        end
     })
-    Gui.set_style(main_frame, { maximal_height = 320, maximal_width = 500, natural_width = 320 })
-
-    local inner_frame = main_frame.add { type = 'frame', style = 'inside_shallow_frame', name = 'inner' }
 
     local scroll_pane =
         inner_frame.add {
         type = 'scroll-pane',
         name = main_frame_content_name,
-        vertical_scroll_policy = 'always'
+        vertical_scroll_policy = 'auto-and-reserve-space'
     }
-    Gui.set_style(scroll_pane, { horizontally_stretchable = true, padding = 4 })
+    Gui.set_style(scroll_pane, { horizontally_stretchable = true, maximal_height = 400 })
 
     draw_main_frame_content(scroll_pane)
 
     local state = Settings.get(player.index, notify_name)
     local notify_checkbox =
-        main_frame.add {
+        inner_frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
@@ -257,29 +276,14 @@ local function draw_main_frame(player)
         tooltip = {'tag_group.notify_tooltip'}
     }
 
-    local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
-
-    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
-    Gui.make_close_button(left_flow, main_button_name)
-
-    local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align = 'right'
-
-    right_flow.add {type = 'button', name = clear_button_name, caption = {'tag_group.clear_tag'}}
-
-    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
-        right_flow.add {type = 'button', name = create_tag_button_name, caption = {'tag_group.create_tag'}}
-    end
-
-    Gui.set_data(main_frame, notify_checkbox)
+    Gui.set_data(main_frame, { notify_checkbox = notify_checkbox, content = scroll_pane })
 end
 
 local function redraw_main_frame()
     for _, p in pairs(game.players) do
-        local main_frame = Gui.get_left_element(p, main_frame_name)
-        if main_frame and main_frame.valid then
-            local content = main_frame.inner[main_frame_content_name]
+        local main_frame = Gui.get_panel(p, main_frame_name)
+        if main_frame then
+            local content = Gui.get_data(main_frame).content
 
             Gui.remove_data_recursively(content)
             content.clear()
@@ -303,7 +307,7 @@ end
 
 local function toggle(event)
     local player = event.player
-    local main_frame = Gui.get_left_element(player, main_frame_name)
+    local main_frame = Gui.get_panel(player, main_frame_name)
 
     if main_frame then
         Gui.destroy(main_frame)
@@ -775,12 +779,12 @@ Event.add(
 
         no_notify_players[player_index] = no_notify
 
-        local frame = Gui.get_left_element(player, main_frame_name)
+        local frame = Gui.get_panel(player, main_frame_name)
         if not frame then
             return
         end
 
-        local checkbox = Gui.get_data(frame)
+        local checkbox = Gui.get_data(frame).notify_checkbox
         checkbox.state = state
     end
 )
