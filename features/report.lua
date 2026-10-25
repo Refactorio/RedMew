@@ -106,19 +106,12 @@ end
 Module.show_reports = function(player)
     local reports = report_data
 
-    local center = player.gui.center
-
-    local report_frame = center[report_frame_name]
+    local report_frame = player.gui.screen[report_frame_name]
     if report_frame and report_frame.valid then
         Gui.destroy(report_frame)
     end
 
-    report_frame = center.add {
-        type = 'frame',
-        name = report_frame_name,
-        direction = 'vertical',
-        caption = 'User reports'
-    }
+    report_frame = Gui.add_window(player, {name = report_frame_name, caption = 'User reports', close_button_name = report_close_button_name})
     report_frame.style.maximal_width = 700
     player.opened = report_frame
 
@@ -539,7 +532,7 @@ Gui.on_custom_close(report_frame_name, function(event)
 end)
 
 Gui.on_click(report_close_button_name, function(event)
-    Gui.destroy(event.element.parent)
+    Gui.destroy(event.player.gui.screen[report_frame_name])
 end)
 
 Gui.on_click(jail_offender_button_name, function(event)
@@ -559,8 +552,7 @@ Gui.on_click(jail_offender_button_name, function(event)
 end)
 
 Gui.on_click(report_tab_button_name, function(event)
-    local center = event.player.gui.center
-    local report_frame = center[report_frame_name]
+    local report_frame = event.player.gui.screen[report_frame_name]
     local report_uid_str = string.sub(event.element.parent.caption, 10)
     local report_uid = tonumber(report_uid_str)
     draw_report(report_frame[report_body_name], report_uid)
@@ -572,18 +564,16 @@ local reporting_submit_button_name = Gui.uid_name()
 local reporting_input_name = Gui.uid_name()
 
 Module.spawn_reporting_popup = function(player, reported_player)
-    local center = player.gui.center
-
-    local reporting_popup = center[reporting_popup_name]
+    local reporting_popup = player.gui.screen[reporting_popup_name]
     if reporting_popup and reporting_popup.valid then
         Gui.destroy(reporting_popup)
     end
-    reporting_popup = center.add {
-        type = 'frame',
+    -- the X shares the Cancel button's handler, which finds the window two levels up from either
+    reporting_popup = Gui.add_window(player, {
         name = reporting_popup_name,
-        direction = 'vertical',
-        caption = 'Report player ' .. reported_player.name
-    }
+        caption = 'Report player ' .. reported_player.name,
+        close_button_name = reporting_cancel_button_name
+    })
     Gui.set_data(reporting_popup, {reported_player_index = reported_player.index})
 
     reporting_popup.style.maximal_width = 500
@@ -663,7 +653,7 @@ Event.add(defines.events.on_player_joined_game, function(event)
         return
     end
 
-    local report_frame = player.gui.center[report_frame_name]
+    local report_frame = player.gui.screen[report_frame_name]
     if report_frame and report_frame.valid then
         Module.show_reports(player)
     end

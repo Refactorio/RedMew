@@ -36,6 +36,13 @@ Public.default_pusher = {
     }
 }
 
+-- on top of vanilla's frame_header_flow, which spaces the title bar like Factorio's own windows
+Public.default_title_bar = {
+    style = {
+        vertical_align = 'center',
+    }
+}
+
 Public.default_dragger = {
     style = {
         vertically_stretchable = true,

@@ -841,7 +841,7 @@ Gui.on_click(poke_cell_name, function(event)
 end)
 
 local function close_jail_popup(player)
-    local popup = player.gui.center[jail_popup_name]
+    local popup = player.gui.screen[jail_popup_name]
     if popup and popup.valid then
         Gui.destroy(popup)
     end
@@ -850,12 +850,11 @@ end
 local function draw_jail_popup(player, target)
     close_jail_popup(player)
 
-    local popup = player.gui.center.add {
-        type = 'frame',
+    local popup = Gui.add_window(player, {
         name = jail_popup_name,
-        direction = 'vertical',
         caption = { 'player_list.jail_confirm_title', target.name },
-    }
+        close_button_name = jail_cancel_button_name,
+    })
 
     local message = popup.add { type = 'label', caption = { 'player_list.jail_confirm_message', target.name } }
     Gui.set_style(message, { single_line = false, maximal_width = 400 })

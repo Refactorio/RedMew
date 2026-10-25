@@ -32,35 +32,18 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
         sprite_path = (sprite_path ~= nil) and sprite_path or icons[4]
     end
 
-    local frame
+    local name
     if popup_name ~= nil then
-        local center = player.gui.center
-        local popup = center['Popup.' .. popup_name]
+        name = 'Popup.' .. popup_name
+        local popup = player.gui.screen[name]
         if (popup) then
             Gui.destroy(popup)
         end
-        frame = player.gui.center.add {name = 'Popup.' .. popup_name, type = 'frame', direction = 'vertical' }
-    else
-        frame = player.gui.center.add {type = 'frame', direction = 'vertical' }
     end
 
+    local frame, title_close_button = Gui.add_window(player, {name = name, caption = title_text, close_button_name = close_name})
+    Gui.set_data(title_close_button, frame)
     frame.style.minimal_width = 300
-
-    local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    top_flow.style.horizontal_align = 'center'
-    top_flow.style.horizontally_stretchable = true
-
-    local title_flow = top_flow.add {type = 'flow'}
-    title_flow.style.horizontal_align  = 'center'
-    title_flow.style.left_padding = 32
-    title_flow.style.top_padding = 8
-    title_flow.style.horizontally_stretchable = false
-
-    local title = title_flow.add {type = 'label', caption = title_text}
-    title.style.font = 'default-large-bold'
-
-    local close_button_flow = top_flow.add {type = 'flow'}
-    close_button_flow.style.horizontal_align  = 'right'
 
     local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     content_flow.style.top_padding = 16

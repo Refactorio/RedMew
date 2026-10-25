@@ -23,16 +23,16 @@ local function draw_rich_text(event)
     local sprite_type = choices[1]
     local frame_caption = 'Rich Text'
     local player = event.player
-    local center = player.gui.center
-
-    local frame = center[rich_text_frame]
+    local frame = player.gui.screen[rich_text_frame]
     if frame then
         Gui.remove_data_recursively(frame)
         frame.destroy()
         return
     end
 
-    frame = center.add {type = 'frame', name = rich_text_frame, caption = frame_caption, direction = 'vertical'}
+    local title_close_button
+    frame, title_close_button = Gui.add_window(player, {name = rich_text_frame, caption = frame_caption, close_button_name = close_rich_text})
+    Gui.set_data(title_close_button, frame)
 
     local main_table = frame.add {type = 'table', column_count = 1}
 

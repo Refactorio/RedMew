@@ -205,19 +205,16 @@ local function player_removed(event)
 end
 
 local function draw_filters_table(event)
-    local center = event.player.gui.center
-
-    if center[filters_table_name] then
+    if event.player.gui.screen[filters_table_name] then
         return
     end
 
-    local frame = center.add {
-        type = 'frame',
+    local frame, title_close_button = Gui.add_window(event.player, {
         name = filters_table_name,
-        direction = 'vertical',
         caption = { 'paint.palette' },
-        style = 'non_draggable_frame',
-    }
+        close_button_name = filter_table_close_button_name,
+    })
+    Gui.set_data(title_close_button, frame)
 
     local inner = frame.add { type = 'frame', style = 'inside_deep_frame' }.add { type = 'frame', style = 'filter_frame' }.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }
 
