@@ -184,5 +184,6 @@ return [[
       - [DO:Scrap] Lowered the win condition from 1000 to 750 satellites
 
   2026-10-25:
+      - [DO:Petals] Added DO/Petals preset
       - [DO:Riches] Added DO/Riches preset
 ]]
