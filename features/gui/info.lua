@@ -251,7 +251,7 @@ local pages = {
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
-            parent_style.vertically_stretchable = false
+            parent_style.vertically_stretchable = true
 
             header_label(parent, {'info.welcome_header'})
             centered_label(parent, {'info.welcome_text'})
