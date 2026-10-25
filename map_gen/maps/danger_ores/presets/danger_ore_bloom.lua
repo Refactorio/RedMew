@@ -1,7 +1,6 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
-local b = require 'map_gen.shared.builders'
 local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
 local RadialRichness = require 'map_gen.maps.danger_ores.modules.radial_richness'
 
@@ -32,9 +31,8 @@ DOC.map_config.main_ores_radial = {
 -- Two of each sector: the sizes change half as much as on Petals, so wider sectors stay spokes.
 DOC.map_config.main_ores_split_count = 2
 
-local base = b.exponential_value(0, 0.07, 1.45) -- the canonical richness curve
 local function richness(inner, outer)
-    return RadialRichness.curve {base = base, inner = inner, outer = outer, from = FROM, to = TO}
+    return RadialRichness.curve {inner = inner, outer = outer, from = FROM, to = TO}
 end
 
 DOC.map_config.main_ores = Factory.default()
