@@ -10,7 +10,14 @@ local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
 local MainOresRadial = require 'map_gen.maps.danger_ores.modules.main_ores_radial'
 
-local SAMPLES = 3600
+local SAMPLES = 3600 -- points round each circle
+-- Each sampled border can be a point off, so a ring's total can come out a little over 1.
+local SAMPLING_SLACK = 0.005
+local TOLERANCE = 1 -- percentage points from the fitted share
+local MAX_DIP = 0.06 -- how much less ore than the standard map a ring in the blend may hold
+local RING_STEP = 10 -- tiles between the rings checked in the blend
+-- Any seed: the shuffle only reorders the sectors, which doesn't change their shares.
+local SEED = 1
 
 -- The fitted share of each ore, in percent: near spawn for research and building, far out for rockets.
 local FITTED = {
@@ -37,7 +44,7 @@ local function build_sectors()
         main_ores_radial = config.main_ores_radial,
         main_ores_split_count = config.main_ores_split_count
     }
-    return MainOresRadial(radial)(tile_builder, ore_builder, b.empty_shape, b.empty_shape, game.create_random_generator(1))
+    return MainOresRadial(radial)(tile_builder, ore_builder, b.empty_shape, b.empty_shape, game.create_random_generator(SEED))
 end
 
 -- The share of a circle of radius d that each ore's sectors take.
@@ -81,15 +88,17 @@ Declare.module(
             function()
                 -- Arrange
                 local map = build_sectors()
+                local radial = DOC.map_config.main_ores_radial
+                local near, far = radial.from / 2, radial.to * 2
 
-                for _, case in ipairs {{100, FITTED.inner}, {600, FITTED.outer}} do
+                for _, case in ipairs {{near, FITTED.inner}, {far, FITTED.outer}} do
                     -- Act
                     local supply = supply_at(map, case[1])
 
                     -- Assert
                     for name, percent in pairs(case[2]) do
                         local actual = supply[name] * 100
-                        Assert.is_true(math.abs(actual - percent) < 1, name .. ' at ' .. case[1] .. ' is ' .. actual .. '%, expected ' .. percent .. '%')
+                        Assert.is_true(math.abs(actual - percent) < TOLERANCE, name .. ' at ' .. case[1] .. ' is ' .. actual .. '%, expected ' .. percent .. '%')
                     end
                 end
             end
@@ -100,8 +109,9 @@ Declare.module(
             function()
                 -- Arrange
                 local map = build_sectors()
+                local radial = DOC.map_config.main_ores_radial
 
-                for d = 200, 350, 10 do
+                for d = radial.from, radial.to, RING_STEP do
                     -- Act
                     local total = 0
                     for _, s in pairs(supply_at(map, d)) do
@@ -109,7 +119,7 @@ Declare.module(
                     end
 
                     -- Assert
-                    Assert.is_true(total > 0.94 and total < 1.005, 'the ring at ' .. d .. ' holds ' .. total .. ' of the standard ore')
+                    Assert.is_true(total > 1 - MAX_DIP and total < 1 + SAMPLING_SLACK, 'the ring at ' .. d .. ' holds ' .. total .. ' of the standard ore')
                 end
             end
         )
