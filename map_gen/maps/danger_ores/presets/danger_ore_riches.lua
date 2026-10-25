@@ -1,7 +1,6 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
-local b = require 'map_gen.shared.builders'
 local Factory = require 'map_gen.maps.danger_ores.config.main_ores_factory'
 local RadialRichness = require 'map_gen.maps.danger_ores.modules.radial_richness'
 
@@ -20,9 +19,8 @@ DOC.scenario_name = 'danger-ore-riches'
 -- tiles of spawn; rockets on a half-moduled, coal-powered factory use mostly copper and coal,
 -- out to ~410 tiles. The multipliers average 1 at every distance, so each ring holds as much
 -- ore as on the standard map. The thin sectors are cheap ground to clear for building.
-local base = b.exponential_value(0, 0.07, 1.45) -- the canonical richness curve
 local function richness(inner, outer)
-    return RadialRichness.curve {base = base, inner = inner, outer = outer, from = 200, to = 350}
+    return RadialRichness.curve {inner = inner, outer = outer, from = 200, to = 350}
 end
 
 DOC.map_config.main_ores = Factory.default()

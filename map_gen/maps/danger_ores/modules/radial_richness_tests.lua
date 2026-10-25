@@ -58,6 +58,27 @@ Declare.module(
         )
 
         Declare.test(
+            'without a base the curve scales the standard richness',
+            function()
+                -- Arrange
+                local standard = Factory.default()
+                local config = Factory.default():richness(RadialRichness.curve {inner = 2, outer = 3, from = 200, to = 300}, 'iron-ore')
+
+                -- Act / Assert
+                for i, entry in ipairs(config) do
+                    if entry.name == 'iron-ore' then
+                        for _, y in ipairs {100, 1000} do
+                            local world = {x = 0, y = y}
+                            local amount = entry.ratios[1].resource(0, y, world).amount
+                            local expected = standard[i].ratios[1].resource(0, y, world).amount * (y < 200 and 2 or 3)
+                            near(amount, expected, 'iron sector at ' .. y)
+                        end
+                    end
+                end
+            end
+        )
+
+        Declare.test(
             'a sector given the curve applies it to every ore in its mix, and other sectors keep theirs',
             function()
                 -- Arrange

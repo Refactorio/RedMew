@@ -39,6 +39,7 @@ Public.mixes = mixes
 -- The canonical richness curves.
 local default_start = b.euclidean_value(0, 0.35)
 local default_value = b.exponential_value(0, 0.07, 1.45)
+Public.default_value = default_value
 
 -- Fresh copy per call: the runtime must never share mutable tables between entries.
 -- Unknown (modded) ores have no canonical tile set and return nil.
