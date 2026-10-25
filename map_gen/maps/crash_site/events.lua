@@ -7,6 +7,7 @@ local math = require 'utils.math'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
 local RS = require 'map_gen.shared.redmew_surface'
+local OilNetwork = require 'map_gen.maps.crash_site.oil_network'
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
@@ -211,13 +212,18 @@ pole_callback =
         local now = game.tick
 
         if now >= tick then
-            data.surface.create_entity(
+            local entity =
+                data.surface.create_entity(
                 {
                     name = data.name,
+                    direction = data.direction,
                     force = 'enemy',
                     position = data.position
                 }
             )
+            if entity and data.on_created then
+                Token.get(data.on_created)(entity)
+            end
             return
         end
 
@@ -273,6 +279,40 @@ local function do_pole(entity)
             surface = surface,
             tick = game.tick + pole_respawn_time,
             turrets = turrets
+        }
+    )
+end
+
+local oil_names = {
+    [OilNetwork.pipe_name] = true,
+    [OilNetwork.pipe_to_ground_name] = true,
+    [OilNetwork.tank_name] = true
+}
+
+-- an outpost's oil pipes and tank come back like the power poles, while a flamethrower turret
+-- they feed still stands
+local function do_oil(entity)
+    if not oil_names[entity.name] then
+        return
+    end
+
+    local turrets = OilNetwork.get_live_turrets(entity)
+
+    if #turrets == 0 then
+        return
+    end
+
+    set_timeout_in_ticks(
+        update_rate,
+        pole_callback,
+        {
+            name = entity.name,
+            direction = entity.direction,
+            position = entity.position,
+            surface = entity.surface,
+            tick = game.tick + pole_respawn_time,
+            turrets = turrets,
+            on_created = OilNetwork.respawned
         }
     )
 end
@@ -560,6 +600,7 @@ Event.add(
 
         if entity_force.name == 'enemy' then
             do_pole(entity)
+            do_oil(entity)
             do_evolution(entity, entity_name, entity_force)
             do_coin_drop(entity_name, entity, cause)
             do_bot_spawn(entity_name, entity, event)

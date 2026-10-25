@@ -10,6 +10,7 @@ local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
+local OilNetwork = require 'map_gen.maps.crash_site.oil_network'
 local RPG = require 'features.gui.rpg_military'
 
 local table = require 'utils.table'
@@ -736,6 +737,8 @@ local function to_shape(blocks, part_size, on_init)
             return false
         end
 
+        OilNetwork.record_area(outpost_id, world, x, y, t_size)
+
         local x2, y2 = floor(x * inv_part_size), floor(y * inv_part_size)
 
         local template = blocks[y2 * size + x2 + 1]
@@ -1179,9 +1182,15 @@ local function do_refill_turrets()
         return
     end
 
+    local data = turret_data.data
+    if data.liquid and OilNetwork.is_fed(turret) then
+        -- its outpost's tank feeds it now
+        fast_remove(refill_turrets, index)
+        return
+    end
+
     refill_turrets.index = index + 1
 
-    local data = turret_data.data
     if data.liquid then
         turret.fluidbox[1] = data
     elseif data then
@@ -1466,6 +1475,10 @@ Public.refill_liquid_turret_callback =
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
+
+        if turret.name == 'flamethrower-turret' then
+            OilNetwork.add_turret(outpost_id, turret)
+        end
     end
 )
 

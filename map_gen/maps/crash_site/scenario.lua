@@ -10,6 +10,7 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
+local OilNetwork = require 'map_gen.maps.crash_site.oil_network'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local math = require 'utils.math'
@@ -207,6 +208,8 @@ local function init(config)
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
+
+    OilNetwork.set_enabled(config.flame_pipes ~= false)
 
     if on_init then
         game.create_surface('cutscene', cutscene_surface_settings)
