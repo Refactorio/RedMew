@@ -208,7 +208,13 @@ end
 
 --- Whether two built underground entities are paired with each other.
 function Public.connected(a, b)
-    return a ~= nil and b ~= nil and contains(a.neighbours, b)
+    if a == nil or b == nil then
+        return false
+    end
+    if a.type == 'underground-belt' then
+        return a.underground_belt_neighbour == b
+    end
+    return contains(a.fluidbox_neighbours, b)
 end
 
 function Public.destroy(...)
