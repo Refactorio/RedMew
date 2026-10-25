@@ -187,4 +187,15 @@ return [[
       - [DO:Petals] Added DO/Petals preset
       - [DO:Riches] Added DO/Riches preset
       - [DO:Bloom] Added DO/Bloom preset
+      - [DO] Updated for Factorio 2.1 compatibility
+      - [DO] Rewrote biters-drop-resources loot to new ItemProductPrototype format
+      - [DO] Fixed MineEntityTechnologyTrigger entity field renamed to entities (array) in milestones triggers
+      - [DO] Added ModCompatibility module for minimum mod requirements for modded scenarios
+      - [DO:SA] Replaced removed "chemistry-or-cryogenics" recipe category with categories = {"chemistry", "cryogenics"} in coal-gasification
+      - [DO:SA] Replaced custom solar-system-edge-discovery technology with a modified vanilla stellar-discovery-solar-system-edge
+      - [DO:SA] Updated coal-gasification recipe unlock to reference stellar-discovery-solar-system-edge
+      - [DO:SA] Fixed MineEntityTechnologyTrigger entity field renamed to entities (array) in holmium-processing triggers
+      - [DO:SA] Fixed startup crash from invalid decorative name 'fulgoran-gravewort'
+      - [DO:SA] Fixed startup crash from dangling unlock-recipe effects left by removed ore-recycling recipes
+      - [DO:Scrap] Fixed danger-ores package dependency: replaced obsolete 'quality' mod with 'recycler'
 ]]
