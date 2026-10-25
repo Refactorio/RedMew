@@ -1,7 +1,12 @@
 local B = require 'map_gen.shared.builders'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check {
+  dependencies = {{ name = 'gridlocked' }}
+}
 
 ScenarioInfo.set_map_name('Danger Ores - Gridlocked')
 ScenarioInfo.add_map_extra_info([[

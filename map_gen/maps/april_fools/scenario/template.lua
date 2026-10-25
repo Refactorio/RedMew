@@ -173,20 +173,20 @@ function Template.resources(surface, resources)
 end
 
 Template.diggy_rocks = {
-  'rock-huge-volcanic',
-  'rock-big-volcanic',
-  'rock-huge-black',
-  'rock-big-black',
-  'rock-huge-grey',
-  'rock-big-grey',
-  'rock-huge-red',
-  'rock-big-red',
-  'rock-huge-white',
-  'rock-big-white',
-  'rock-huge-brown',
-  'rock-big-brown',
-  'rock-huge-dustyrose',
-  'rock-big-dustyrose',
+  'huge-rock-volcanic',
+  'big-rock-volcanic',
+  'huge-rock-black',
+  'big-rock-black',
+  'huge-rock-grey',
+  'big-rock-grey',
+  'huge-rock-red',
+  'big-rock-red',
+  'huge-rock-white',
+  'big-rock-white',
+  'huge-rock-brown',
+  'big-rock-brown',
+  'huge-rock-dustyrose',
+  'big-rock-dustyrose',
 }
 Template.diggy_rocks_map = util.list_to_map(Template.diggy_rocks)
 

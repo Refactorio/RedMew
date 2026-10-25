@@ -1,8 +1,11 @@
 
 local H = require 'map_gen.maps.danger_ores.modules.helper'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local ModCompatibility = require 'utils.mod_compatibility'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
+
+ModCompatibility.check(require 'map_gen.maps.danger_ores.compatibility.space-age.mod-list')
 
 ScenarioInfo.set_map_name('Danger Ores - Space Age')
 ScenarioInfo.add_map_extra_info([[

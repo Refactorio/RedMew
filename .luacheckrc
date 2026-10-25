@@ -1219,6 +1219,7 @@ stds.factorio_defines = {
                         'on_gui_inventory_action',
                         'on_gui_leave',
                         'on_gui_location_changed',
+                        'on_gui_inventory_action',
                         'on_gui_opened',
                         'on_gui_selected_tab_changed',
                         'on_gui_selection_state_changed',
