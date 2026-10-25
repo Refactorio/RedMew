@@ -483,6 +483,9 @@ local function do_coin_drop(entity_name, entity, cause)
         local actual_count = chest[1].insert(coins)
         if actual_count > 0 then
             Game.create_local_flying_text{surface = entity.surface, position = chest[1].position, text = "+" .. actual_count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}}
+        end
+        count = count - actual_count
+        if count <= 0 then
             return
         end
         -- If insertion failed, don't return and try other methods
