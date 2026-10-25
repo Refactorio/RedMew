@@ -33,7 +33,7 @@ entity_built_callback =
         end
 
         if entity.health == 0 then
-            entity.active = true
+            entity.disabled_by_script = false
             entity.die('neutral')
             return
         end
@@ -41,7 +41,7 @@ entity_built_callback =
         local tick = data.tick
         local now = game.tick
         if now >= tick then
-            entity.active = true
+            entity.disabled_by_script = false
             return
         end
 
@@ -76,7 +76,7 @@ local function entity_built(event)
         return
     end
 
-    entity.active = false
+    entity.disabled_by_script = true
     set_timeout_in_ticks(
         update_rate,
         entity_built_callback,

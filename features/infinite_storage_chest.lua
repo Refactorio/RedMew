@@ -37,7 +37,7 @@ local function built_entity(event)
         return
     end
 
-    entity.active = false
+    entity.disabled_by_script = true
 
     chests[entity.unit_number] = {entity = entity, storage = {}}
 end

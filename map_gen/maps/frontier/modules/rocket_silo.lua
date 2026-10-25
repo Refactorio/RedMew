@@ -177,7 +177,7 @@ function RocketSilo.move_silo(position)
   if new_silo and new_silo.valid then
     new_silo.destructible = false
     new_silo.minable_flag = false
-    new_silo.active = true
+    new_silo.disabled_by_script = false
     new_silo.get_output_inventory().clear()
     this.rocket_silo = new_silo
     this.x = new_silo.position.x
@@ -276,7 +276,7 @@ function RocketSilo.on_rocket_launched(event)
   Task.set_timeout(25, RocketSilo.bard_message_token, bard_messages_2[3])
   Task.set_timeout_in_ticks(ticks + 30, RocketSilo.move_silo_token)
   local silo = event.rocket_silo
-  if silo then silo.active = false end
+  if silo then silo.disabled_by_script = true end
 end
 
 function RocketSilo.on_player_died(event)

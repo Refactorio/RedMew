@@ -71,7 +71,7 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
         inventory_size = #inv_contents,
         player_index = player_index
     }
-    corpse.active = false
+    corpse.disabled_by_script = true
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
     for _, item_stack in pairs(inv_contents) do
