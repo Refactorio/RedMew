@@ -516,6 +516,17 @@ local function whitelist()
   this.init_whitelist = true
 end
 
+-- The item a quick bar slot holds: a filter for an item kind, or one item such as a blueprint.
+local function quick_bar_slot_name(slot)
+  if not slot then
+    return nil
+  end
+  if slot.filter then
+    return slot.filter.name
+  end
+  return slot.item and slot.item.name
+end
+
 function Public.auto_stash(player, event)
   if not this.init_whitelist then
     whitelist()
@@ -574,9 +585,9 @@ function Public.auto_stash(player, event)
   for i = 1, 100, 1 do
     local page = math.ceil(i / quick_bar_width)
     local slot = i - (page - 1) * quick_bar_width
-    local prototype = player.get_quick_bar_slot(page, slot)
-    if prototype then
-      hotbar_items[prototype.name] = true
+    local name = quick_bar_slot_name(player.get_quick_bar_slot(page, slot))
+    if name then
+      hotbar_items[name] = true
     end
   end
 

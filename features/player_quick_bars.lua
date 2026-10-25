@@ -36,6 +36,18 @@ local function quick_bar_page_slot(player, i)
     return page, slot
 end
 
+--- The name of the item a quick bar slot holds (a filter for an item kind, or one item such as a
+-- blueprint), or nil.
+local function quick_bar_slot_name(slot)
+    if not slot then
+        return nil
+    end
+    if slot.filter then
+        return slot.filter.name
+    end
+    return slot.item and slot.item.name
+end
+
 --- Scans all quickbar_slots into a table, then saves that table server-side
 local function save_bars(_, player)
     if not primitives.server_available then
@@ -47,10 +59,7 @@ local function save_bars(_, player)
 
     for i = 1, quickbar_slots do
         local page, slot = quick_bar_page_slot(player, i)
-        local item_prot = player.get_quick_bar_slot(page, slot)
-        if item_prot then
-            bars[i] = item_prot.name
-        end
+        bars[i] = quick_bar_slot_name(player.get_quick_bar_slot(page, slot))
     end
 
     Server.set_data(data_set_name, player.name, bars)
