@@ -341,7 +341,7 @@ local function redraw_tasks(data, enabled)
     end
 end
 
-local function draw_main_frame(left, player)
+local function draw_main_frame(player)
     local enabled = Rank.equal_or_greater_than(player.name, Ranks.regular)
 
     local data = {}
@@ -349,12 +349,8 @@ local function draw_main_frame(left, player)
     local edit_announcements_button_tooltip = enabled and { 'announcement.edit_tooltip' } or { 'announcement.regular_required' }
     local add_task_button_tooltip = enabled and { 'task.create_tooltip' } or { 'task.regular_required' }
 
-    local frame = left.add { type = 'frame', name = main_frame_name, direction = 'vertical' }
-    Gui.set_style(frame, { width = 470 })
+    local frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = { 'tasklist.frame_title' }, toggle_name = main_button_name, width = 'wide', sections = true })
     Gui.set_data(frame, data)
-
-    local canvas = frame.add { type = 'flow', direction = 'vertical' }
-    Gui.set_style(canvas, { vertical_spacing = 8 })
 
     do -- Announcements
         local inner = canvas.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
@@ -406,7 +402,7 @@ local function draw_main_frame(left, player)
         }
 
         local tasks_scroll_pane = inner.add { type = 'scroll-pane', direction = 'vertical' }
-        Gui.set_style(tasks_scroll_pane, { width = 450, maximal_height = 250 })
+        Gui.set_style(tasks_scroll_pane, { horizontally_stretchable = true, maximal_height = 250 })
 
         local tasks_content = tasks_scroll_pane.add { type = 'table', column_count = 2 }
         Gui.set_style(tasks_content, { horizontal_spacing = 0, vertical_spacing = 0, padding = 8 })
@@ -416,7 +412,7 @@ local function draw_main_frame(left, player)
     end
 
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = frame.add {
+    local notify_checkbox = canvas.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
@@ -424,8 +420,6 @@ local function draw_main_frame(left, player)
         tooltip = { 'tasklist.notify_tooltip' },
     }
     data.notify_checkbox = notify_checkbox
-
-    Gui.make_close_button(frame, main_button_name)
 end
 
 local function close_edit_announcements_frame(frame)
@@ -446,25 +440,18 @@ local function close_edit_announcements_frame(frame)
     end
 end
 
+-- The task and announcement editors are windows of their own and stay open: the pin closes and
+-- reopens the panel.
 local function toggle(event)
     local player = event.player
-    local left = Gui.get_left_flow(player)
-    local frame = left[main_frame_name]
+    local frame = Gui.get_panel(player, main_frame_name)
 
-    if frame and frame.valid then
+    if frame then
         Gui.destroy(frame)
-        frame = left[edit_announcements_frame_name]
-        if frame and frame.valid then
-            close_edit_announcements_frame(frame)
-        end
-        frame = left[create_task_frame_name]
-        if frame and frame.valid then
-            Gui.destroy(frame)
-        end
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        draw_main_frame(left, player)
+        draw_main_frame(player)
     end
 end
 
@@ -508,15 +495,14 @@ local function update_announcements(player)
             p.print(update_message)
         end
 
-        local left = Gui.get_left_flow(p)
-        local frame = left[main_frame_name]
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             data.announcements_textbox.text = text
 
             set_updated_by(data.announcements_updated_label, 'Announcements')
         elseif notify then
-            draw_main_frame(left, p)
+            draw_main_frame(p)
         end
     end
 end
@@ -548,8 +534,7 @@ local function create_new_tasks(task_name, player)
 
     for _, p in ipairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
-        local left = Gui.get_left_flow(p)
-        local frame = left[main_frame_name]
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local frame_data = Gui.get_data(frame)
             set_updated_by(frame_data.tasks_updated_label, 'Tasks')
@@ -557,7 +542,7 @@ local function create_new_tasks(task_name, player)
             local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(frame_data, enabled)
         elseif notify then
-            draw_main_frame(left, p)
+            draw_main_frame(p)
         end
 
         update_top_gui(p)
@@ -568,7 +553,7 @@ local function create_new_tasks(task_name, player)
     end
 end
 
-local function draw_create_task_frame(left, previous_task)
+local function draw_create_task_frame(player, previous_task)
     local frame_caption
     local confirm_button_name
     local confirm_button_caption
@@ -585,8 +570,9 @@ local function draw_create_task_frame(left, previous_task)
         confirm_button_caption = 'Create task'
     end
 
-    local frame = left.add { type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical', style = 'non_draggable_frame' }
+    local frame, title_close_button = Gui.add_window(player, { name = create_task_frame_name, caption = frame_caption, close_button_name = create_task_close_button_name })
     Gui.set_style(frame, { width = 470 })
+    Gui.set_data(title_close_button, frame)
 
     local textbox = frame.add { type = 'textfield', text = text }
     Gui.set_style(textbox, { width = 450 })
@@ -601,7 +587,7 @@ local function draw_create_task_frame(left, previous_task)
 
     bottom_flow.add({ type = 'flow' }).style.horizontally_stretchable = true
 
-    local confirm_button = bottom_flow.add { type = 'button', name = confirm_button_name, caption = confirm_button_caption }
+    local confirm_button = bottom_flow.add { type = 'button', name = confirm_button_name, caption = confirm_button_caption, style = 'confirm_button' }
     Gui.set_data(confirm_button, { frame = frame, textbox = textbox, previous_task = previous_task })
 end
 
@@ -627,7 +613,7 @@ local function player_joined(event)
         return
     end
 
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if frame and frame.valid then
         local text = announcements.edit_text
 
@@ -644,7 +630,7 @@ local function player_joined(event)
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
         for _, p in ipairs(game.connected_players) do
-            local main_frame = Gui.get_left_element(p, main_frame_name)
+            local main_frame = Gui.get_panel(p, main_frame_name)
             if main_frame then
                 local data = Gui.get_data(main_frame)
                 local volunteer_buttons = data.volunteer_buttons
@@ -662,7 +648,7 @@ local function player_left(event)
     if not (player and player.valid) then
         return
     end
-    local frame = Gui.get_left_element(player, edit_announcements_frame_name)
+    local frame = player.gui.screen[edit_announcements_frame_name]
     if frame and frame.valid then
         close_edit_announcements_frame(frame)
     end
@@ -676,7 +662,7 @@ end
 
 local function on_tick()
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
 
         if frame then
             local data = Gui.get_data(frame)
@@ -704,20 +690,18 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(announcements_edit_button_name, function(event)
     local player = event.player
 
-    local frame = Gui.get_left_element(player, edit_announcements_frame_name)
+    local frame = player.gui.screen[edit_announcements_frame_name]
     if frame then
         return
     end
 
     local data = {}
 
-    frame = Gui.add_left_element(player, {
-        type = 'frame',
-        name = edit_announcements_frame_name,
-        caption = 'Edit announcements',
-        direction = 'vertical',
-    })
-    frame.style.width = 470
+    local title_close_button
+    frame, title_close_button = Gui.add_window(player, { name = edit_announcements_frame_name, caption = 'Edit announcements', close_button_name = edit_close_button_name })
+    -- at least as wide as the panel, wider if its four buttons need it
+    Gui.set_style(frame, { minimal_width = 470 })
+    Gui.set_data(title_close_button, frame)
 
     Gui.set_data(frame, data)
 
@@ -740,7 +724,7 @@ Gui.on_click(announcements_edit_button_name, function(event)
     local clear_button = bottom_flow.add { type = 'button', name = edit_clear_button_name, caption = 'Clear' }
     local reset_button = bottom_flow.add { type = 'button', name = edit_reset_button_name, caption = 'Reset' }
     bottom_flow.add({ type = 'flow' }).style.horizontally_stretchable = true
-    local confirm_button = bottom_flow.add { type = 'button', name = edit_confirm_button_name, caption = 'Confirm' }
+    local confirm_button = bottom_flow.add { type = 'button', name = edit_confirm_button_name, caption = 'Confirm', style = 'confirm_button' }
 
     Gui.set_data(close_button, frame)
     Gui.set_data(clear_button, textbox)
@@ -835,14 +819,13 @@ Gui.on_click(delete_task_button_name, function(event)
 
     for _, p in ipairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
-        local left = Gui.get_left_flow(p)
-        local frame = left[main_frame_name]
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(data, enabled)
         elseif notify then
-            draw_main_frame(left, p)
+            draw_main_frame(p)
         end
 
         update_top_gui(p)
@@ -855,14 +838,13 @@ end)
 
 Gui.on_click(edit_task_button_name, function(event)
     local previous_task = Gui.get_data(event.element)
-    local left = Gui.get_left_flow(event.player)
-    local frame = left[create_task_frame_name]
+    local frame = event.player.gui.screen[create_task_frame_name]
 
     if frame then
         Gui.destroy(frame)
     end
 
-    draw_create_task_frame(left, previous_task)
+    draw_create_task_frame(event.player, previous_task)
 end)
 
 local function do_direction(event, sign)
@@ -889,7 +871,7 @@ local function do_direction(event, sign)
     table.insert(tasks, new_index, task)
 
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
@@ -932,7 +914,7 @@ Gui.on_click(volunteer_task_button_name, function(event)
     end
 
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             local volunteer_buttons = data.volunteer_buttons
@@ -943,14 +925,13 @@ Gui.on_click(volunteer_task_button_name, function(event)
 end)
 
 Gui.on_click(add_task_button_name, function(event)
-    local left = Gui.get_left_flow(event.player)
-    local frame = left[create_task_frame_name]
+    local frame = event.player.gui.screen[create_task_frame_name]
 
     if frame then
         Gui.destroy(frame)
     end
 
-    draw_create_task_frame(left)
+    draw_create_task_frame(event.player)
 end)
 
 Gui.on_click(create_task_close_button_name, function(event)
@@ -1039,8 +1020,7 @@ Gui.on_click(create_task_edit_button_name, function(event)
 
     for _, p in ipairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
-        local left = Gui.get_left_flow(p)
-        local main_frame = left[main_frame_name]
+        local main_frame = Gui.get_panel(p, main_frame_name)
 
         if main_frame then
             local main_frame_data = Gui.get_data(main_frame)
@@ -1049,7 +1029,7 @@ Gui.on_click(create_task_edit_button_name, function(event)
             local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(main_frame_data, enabled)
         elseif notify then
-            draw_main_frame(left, p)
+            draw_main_frame(p)
         end
 
         if notify then
@@ -1081,7 +1061,7 @@ Event.add(Settings.events.on_setting_set, function(event)
 
     no_notify_players[player_index] = no_notify
 
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if not frame then
         return
     end

@@ -527,16 +527,17 @@ end
 --- A docked panel closes from its top button, so only a floating one has an X; the X and the pin
 --- both go through the click handler of toggle_name, the panel's top button, which must open the
 --- panel when it is closed and close it when it is open. A panel with buttons of its own in the
---- header adds them in add_header_buttons(header), which puts them before the pin. Find it again
---- with Gui.get_panel.
+--- header adds them in add_header_buttons(header), which puts them before the pin. A panel made of
+--- sections, each an inner frame with its own subheader, passes sections = true and gets a flow to
+--- add them to instead of the padded inner frame. Find it again with Gui.get_panel.
 --- The title gives way to the header's buttons rather than push them out of a fixed-width panel
 --- when a translation is longer. deep puts the content in a dark inner frame, which numbers read
 --- better on. With side_dragger, a floating panel is dragged by a strip down its right side rather
 --- than by a space in its header, so the header keeps its width.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, deep: boolean?, side_dragger: boolean? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, sections: boolean?, deep: boolean?, side_dragger: boolean? }
 ---@return LuaGuiElement frame
----@return LuaGuiElement content the padded inner frame to add the panel's elements to
+---@return LuaGuiElement content the padded inner frame (or with sections, the flow) to add the panel's elements to
 function Gui.add_panel(player, spec)
     local name = spec.name
     local floating = is_panel_floating(player, name)
@@ -611,8 +612,14 @@ function Gui.add_panel(player, spec)
         }
     end
 
-    local content = body.add { type = 'frame', style = spec.deep and 'inside_deep_frame' or 'inside_shallow_frame', direction = 'vertical' }
-    Gui.set_style(content, { padding = 8 })
+    local content
+    if spec.sections then
+        content = body.add { type = 'flow', direction = 'vertical' }
+        Gui.set_style(content, { vertical_spacing = 8 })
+    else
+        content = body.add { type = 'frame', style = spec.deep and 'inside_deep_frame' or 'inside_shallow_frame', direction = 'vertical' }
+        Gui.set_style(content, { padding = 8 })
+    end
 
     if side_dragger then
         local dragger = frame.add { type = 'empty-widget', style = 'draggable_space' }
