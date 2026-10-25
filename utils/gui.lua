@@ -17,13 +17,19 @@ local Gui = {}
 
 local data = {}
 local element_map = {}
+-- where each player last left each floating side panel: [player index][panel name]
+local panel_locations = {}
+-- side panels each player has floating rather than docked: [player index][panel name] = true
+local floating_panels = {}
 
 Gui.token =
     Global.register(
-    {data = data, element_map = element_map},
+    {data = data, element_map = element_map, panel_locations = panel_locations, floating_panels = floating_panels},
     function(tbl)
         data = tbl.data
         element_map = tbl.element_map
+        panel_locations = tbl.panel_locations
+        floating_panels = tbl.floating_panels
     end
 )
 
@@ -276,7 +282,8 @@ function Gui.add_window(player, spec)
 end
 
 local function handler_factory(event_id)
-    local handlers
+    local handlers = {}
+    local registered = false
 
     local function on_event(event)
         local element = event.element
@@ -299,13 +306,13 @@ local function handler_factory(event_id)
     end
 
     return function(element_name, handler)
-        if not handlers then
-            handlers = {}
+        if not registered then
+            registered = true
             Event.add(event_id, on_event)
         end
 
         handlers[element_name] = handler
-    end
+    end, handlers
 end
 
 local function custom_handler_factory(handlers)
@@ -333,7 +340,8 @@ Gui.on_checked_state_changed = handler_factory(defines.events.on_gui_checked_sta
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
 -- Adds a player field to the event table.
-Gui.on_click = handler_factory(defines.events.on_gui_click)
+local click_handlers
+Gui.on_click, click_handlers = handler_factory(defines.events.on_gui_click)
 
 -- Register a handler for the on_gui_closed event for a custom LuaGuiElements with element_name.
 -- Can only have one handler per element name.
@@ -463,6 +471,177 @@ end)
 
 Event.add(defines.events.on_player_removed, function(event)
     data[event.player_index] = nil
+    panel_locations[event.player_index] = nil
+    floating_panels[event.player_index] = nil
+end)
+
+-- How much of a floating panel must be on the screen for it to reopen where it was left, in
+-- pixels at the player's UI scale: enough of the header to drag it back.
+local panel_on_screen_margin = 64
+
+--- Where the player last left a floating panel, or nil if it was never moved or that spot is now
+--- off their screen (they changed resolution or UI scale since).
+local function saved_panel_location(player, name)
+    local locations = panel_locations[player.index]
+    local location = locations and locations[name]
+    if not location then
+        return nil
+    end
+
+    local resolution = player.display_resolution
+    local margin = panel_on_screen_margin * player.display_scale
+    if location.x < 0 or location.y < 0 or location.x > resolution.width - margin or location.y > resolution.height - margin then
+        return nil
+    end
+    return location
+end
+
+-- Remembers where a player drags a floating panel, for the next time it opens. Windows open in the
+-- middle every time, like Factorio's own; a floating panel is part of the player's screen layout.
+local function remember_panel_location(event)
+    local element = event.element
+    if not (element and element.valid) or not element.tags.redmew_floating_panel then
+        return
+    end
+
+    local player_index = event.player_index
+    local locations = panel_locations[player_index]
+    if not locations then
+        locations = {}
+        panel_locations[player_index] = locations
+    end
+    local location = element.location
+    locations[element.name] = { x = location.x, y = location.y }
+end
+Event.add(defines.events.on_gui_location_changed, remember_panel_location)
+
+local panel_pin_button_name = Gui.uid_name()
+
+local function is_panel_floating(player, name)
+    local panels = floating_panels[player.index]
+    return panels ~= nil and panels[name] == true
+end
+
+--- Adds a side panel: docked in the left column under the top buttons, or, once the player has
+--- floated it with the pin in its header, a window they can drag anywhere (see Gui.add_window).
+--- A docked panel closes from its top button, so only a floating one has an X; the X and the pin
+--- both go through the click handler of toggle_name, the panel's top button, which must open the
+--- panel when it is closed and close it when it is open. A panel with buttons of its own in the
+--- header adds them in add_header_buttons(header), which puts them before the pin. Find it again
+--- with Gui.get_panel.
+---@param player LuaPlayer
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|nil, add_header_buttons: fun(header: LuaGuiElement)? }
+---@return LuaGuiElement frame
+---@return LuaGuiElement content the padded inner frame to add the panel's elements to
+function Gui.add_panel(player, spec)
+    local name = spec.name
+    local floating = is_panel_floating(player, name)
+
+    local frame
+    if floating then
+        frame = player.gui.screen.add { type = 'frame', name = name, direction = 'vertical' }
+        local location = saved_panel_location(player, name)
+        if location then
+            frame.location = location
+        else
+            frame.auto_center = true
+        end
+    else
+        frame = Gui.get_left_flow(player).add { type = 'frame', name = name, direction = 'vertical' }
+    end
+    frame.tags = { redmew_panel = true, redmew_floating_panel = floating or nil, toggle_name = spec.toggle_name }
+    if spec.width then
+        Gui.set_style(frame, { width = Styles.panel_width[spec.width] })
+    end
+
+    local header = frame.add { type = 'flow', direction = 'horizontal', style = 'frame_header_flow' }
+    Gui.set_style(header, Styles.default_title_bar.style)
+
+    local title = header.add { type = 'label', caption = spec.caption, style = 'frame_title' }
+    if floating then
+        title.drag_target = frame
+        local dragger = Gui.add_dragger(header, frame)
+        Gui.set_style(dragger, { height = 24 })
+    else
+        Gui.add_pusher(header)
+    end
+
+    if spec.add_header_buttons then
+        spec.add_header_buttons(header)
+    end
+
+    header.add {
+        type = 'sprite-button',
+        name = panel_pin_button_name,
+        sprite = 'utility/track_button_white',
+        hovered_sprite = 'utility/track_button',
+        clicked_sprite = 'utility/track_button',
+        style = 'frame_action_button',
+        toggled = not floating,
+        tooltip = { floating and 'gui_util.panel_dock_tooltip' or 'gui_util.panel_float_tooltip' }
+    }
+
+    if floating then
+        header.add {
+            type = 'sprite-button',
+            name = spec.toggle_name,
+            sprite = 'utility/close',
+            clicked_sprite = 'utility/close_black',
+            style = 'close_button',
+            tooltip = { 'gui.close-instruction' }
+        }
+    end
+
+    local content = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
+    Gui.set_style(content, { padding = 8 })
+
+    return frame, content
+end
+
+--- The side panel named `name` (see Gui.add_panel), docked or floating, or nil if it isn't open.
+---@param player LuaPlayer
+---@param name string
+---@return LuaGuiElement?
+function Gui.get_panel(player, name)
+    local frame = Gui.get_left_flow(player)[name]
+    if frame and frame.valid then
+        return frame
+    end
+    frame = player.gui.screen[name]
+    if frame and frame.valid and frame.tags.redmew_panel then
+        return frame
+    end
+    return nil
+end
+
+-- The pin floats a docked panel or docks a floating one: the panel's own top button handler
+-- closes it, and opens it again where it now belongs.
+Gui.on_click(panel_pin_button_name, function(event)
+    local player = event.player
+    local frame = event.element.parent.parent
+    local name = frame.name
+    local toggle_name = frame.tags.toggle_name
+    local toggle = toggle_name and click_handlers[toggle_name]
+    if not toggle then
+        return
+    end
+
+    local button = Gui.get_top_element(player, toggle_name)
+    local toggle_event = { name = event.name, tick = event.tick, player_index = player.index, player = player, element = button }
+
+    toggle(toggle_event)
+
+    local panels = floating_panels[player.index]
+    if not panels then
+        panels = {}
+        floating_panels[player.index] = panels
+    end
+    panels[name] = not panels[name] or nil
+
+    toggle(toggle_event)
+    if button and button.valid then
+        button.toggled = true
+    end
 end)
 
 Gui.on_click(
@@ -572,6 +751,14 @@ if _DEBUG then
 
     function Gui.element_map()
         return element_map
+    end
+
+    function Gui.panel_locations()
+        return panel_locations
+    end
+
+    function Gui.floating_panels()
+        return floating_panels
     end
 end
 

@@ -43,6 +43,12 @@ Public.default_title_bar = {
     }
 }
 
+-- the two widths of side panels (see Gui.add_panel)
+Public.panel_width = {
+    narrow = 400,
+    wide = 470,
+}
+
 Public.default_dragger = {
     style = {
         vertically_stretchable = true,
