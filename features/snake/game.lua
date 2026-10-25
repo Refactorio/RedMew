@@ -110,7 +110,7 @@ local function spawn_food()
 
             entity =
                 surface.create_entity({name = 'compilatron', position = pos, force = 'neutral', direction = random(7)})
-            entity.active = false
+            entity.disabled_by_script = true
             entity.destructible = false
             food_count = food_count + 1
 
@@ -213,8 +213,8 @@ local function tick_snake(index, snake)
     player.character = nil
     player.character = tail_entity
     tail_entity.walking_state = walking_state
-    head.entity.active = false
-    tail_entity.active = true
+    head.entity.disabled_by_script = true
+    tail_entity.disabled_by_script = false
 
     local entity = find_entity('compilatron', new_head_position)
     if entity and entity.valid then
@@ -224,7 +224,7 @@ local function tick_snake(index, snake)
             surface.create_entity {name = 'character', position = cords_map[tail_cord.x][tail_cord.y], force = 'player'}
         entity.character_running_speed_modifier = -1
         entity.color = player.color
-        entity.active = false
+        entity.disabled_by_script = true
         entity.destructible = false
         push_to_end(snake_queue, {entity = entity, cord = tail_cord})
 

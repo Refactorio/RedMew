@@ -53,7 +53,7 @@ CI runs every template on each pull request. The *in-game test results* check li
 grouped by map, and the Factorio version they ran on.
 
 CI runs the latest stable release of the Factorio version in `FACTORIO_LINE`
-(`.github/workflows/CI.yml`), such as `2.0`, so it picks up patch releases by itself. Change it
+(`.github/workflows/CI.yml`), such as `2.1`, so it picks up patch releases by itself. Change it
 in the pull request that moves the scenario to a new version.
 
 ## Startup and teardown

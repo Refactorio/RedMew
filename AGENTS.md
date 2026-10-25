@@ -46,7 +46,7 @@ Never open or read files under `map_gen/data/` (especially `map_gen/data/presets
 
 ## Factorio version
 
-The scenario targets Factorio 2.0; CI tests it on the version in `.github/workflows/CI.yml`. Use `helpers.write_file`, not `game.write_file`, and the global `prototypes` for prototypes. Many old single-file maps in `map_gen/maps/` that no scenario template selects don't load in 2.0.
+The scenario targets Factorio 2.1; CI tests it on the version in `.github/workflows/CI.yml`. Use `helpers.write_file`, not `game.write_file`, and the global `prototypes` for prototypes. 2.1 removed some 2.0 API, and writing a removed field is an error only when that line runs: use `entity.disabled_by_script`, not `entity.active = ...`; `get_fluid`, `set_fluid` and `get_fluid_capacity`, not `entity.fluidbox`; `defines.inventory.crafter_*`, not `furnace_*` or `assembling_machine_*`; `underground_belt_neighbour` or `fluidbox_neighbours`, not `neighbours`. Quick bar slots take a page and a slot, and `get_quick_bar_slot` returns a table (`filter` or `item`), not a prototype. Many old single-file maps in `map_gen/maps/` that no scenario template selects don't load in 2.0 or 2.1.
 
 ## Pull requests
 

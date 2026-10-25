@@ -100,7 +100,7 @@ function Public.register(entity, refill_name)
   if data.is_fluid then
     data.fluid_stack = {
       name = data.refill,
-      amount = data.entity.fluidbox.get_capacity(1) or 100
+      amount = data.entity.get_fluid_capacity(1) or 100
     }
   else
     data.item_stack = {
