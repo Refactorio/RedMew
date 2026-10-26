@@ -986,8 +986,9 @@ local function update_market_upgrade_disabled_state(outpost_data)
     local outpost_id = outpost_data.outpost_id
     local prototype = Retailer.get_items(outpost_id)['upgrade']
 
-    local outpost_magic_crafters = outpost_data.magic_crafters
-    if #outpost_magic_crafters == 0 then
+    local crafters_count = outpost_data.magic_crafters and #outpost_data.magic_crafters or 0
+    local fluid_crafters_count = outpost_data.magic_fluid_crafters and #outpost_data.magic_fluid_crafters or 0
+    if (crafters_count + fluid_crafters_count) == 0 then
         prototype.disabled = true
         prototype.disabled_reason = 'No machines to upgrade.'
     elseif outpost_data.turret_count > 0 then
