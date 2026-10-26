@@ -24,6 +24,7 @@ Global.register(
 
 local chest_gui_frame_name = Gui.uid_name()
 local chest_content_table_name = Gui.uid_name()
+local chest_gui_close_button_name = Gui.uid_name()
 
 function Module.create_chest(surface, position, storage)
     local entity = surface.create_entity {name = 'infinity-chest', position = position, force = 'player'}
@@ -209,13 +210,7 @@ local function gui_opened(event)
         return
     end
 
-    local frame =
-        player.gui.center.add {
-        type = 'frame',
-        name = chest_gui_frame_name,
-        caption = 'Infinite Storage Chest',
-        direction = 'vertical'
-    }
+    local frame = Gui.add_window(player, {name = chest_gui_frame_name, caption = 'Infinite Storage Chest', close_button_name = chest_gui_close_button_name})
 
     local text =
         frame.add {
@@ -246,7 +241,7 @@ Event.add(
             return
         end
 
-        local element = player.gui.center
+        local element = player.gui.screen
 
         if element and element.valid then
             element = element[chest_gui_frame_name]
@@ -261,6 +256,16 @@ Gui.on_custom_close(
     chest_gui_frame_name,
     function(event)
         event.element.destroy()
+    end
+)
+
+Gui.on_click(
+    chest_gui_close_button_name,
+    function(event)
+        local frame = event.player.gui.screen[chest_gui_frame_name]
+        if frame and frame.valid then
+            frame.destroy()
+        end
     end
 )
 

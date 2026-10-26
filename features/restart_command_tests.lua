@@ -9,7 +9,7 @@ local function test_teardown(context)
     RestartCommand.set_start_game_data({type = RestartCommand.game_types.scenario, name = '', mod_pack = nil})
 
     context:add_teardown(function()
-        local main_frame = context.player.gui.center[RestartCommand._main_frame_name]
+        local main_frame = context.player.gui.screen[RestartCommand._main_frame_name]
         if main_frame and main_frame.valid then
             Gui.destroy(main_frame)
         end
@@ -26,12 +26,12 @@ local function declare_test(name, func)
 end
 
 local function assert_view_matches_start_game_data(player, is_save, is_scenario, name, is_mod_pack_set, mod_pack_name)
-    local center = player.gui.center
-    local scenario_radio_button = Helper.get_gui_element_by_name(center, RestartCommand._scenario_radio_button_name)
-    local save_radio_button = Helper.get_gui_element_by_name(center, RestartCommand._save_radio_button_name)
-    local name_textfield = Helper.get_gui_element_by_name(center, RestartCommand._name_textfield_name)
-    local set_mod_pack_checkbox = Helper.get_gui_element_by_name(center, RestartCommand._set_mod_pack_checkbox_name)
-    local mod_pack_name_textfield = Helper.get_gui_element_by_name(center, RestartCommand._mod_pack_name_textfield_name)
+    local screen = player.gui.screen
+    local scenario_radio_button = Helper.get_gui_element_by_name(screen, RestartCommand._scenario_radio_button_name)
+    local save_radio_button = Helper.get_gui_element_by_name(screen, RestartCommand._save_radio_button_name)
+    local name_textfield = Helper.get_gui_element_by_name(screen, RestartCommand._name_textfield_name)
+    local set_mod_pack_checkbox = Helper.get_gui_element_by_name(screen, RestartCommand._set_mod_pack_checkbox_name)
+    local mod_pack_name_textfield = Helper.get_gui_element_by_name(screen, RestartCommand._mod_pack_name_textfield_name)
 
     Assert.equal(is_scenario, scenario_radio_button.state)
     Assert.equal(is_save, save_radio_button.state)
@@ -151,8 +151,8 @@ Declare.module({'features', 'restart_command'}, function()
         run_config_command(player)
 
         -- Assert.
-        local center = player.gui.center
-        local main_frame = Helper.get_gui_element_by_name(center, RestartCommand._main_frame_name)
+        local screen = player.gui.screen
+        local main_frame = Helper.get_gui_element_by_name(screen, RestartCommand._main_frame_name)
         Assert.is_nil(main_frame)
     end)
 
@@ -220,8 +220,8 @@ Mod Pack: some_mod_pack]]
         local player = context.player
         run_config_command(player)
 
-        local center = player.gui.center
-        local close_button = Helper.get_gui_element_by_name(center, RestartCommand._close_button_name)
+        local screen = player.gui.screen
+        local close_button = Helper.get_gui_element_by_name(screen, RestartCommand._close_button_name)
 
         -- Act.
         context:next(function()
@@ -230,7 +230,7 @@ Mod Pack: some_mod_pack]]
 
         -- Assert
         context:next(function()
-            local main_frame = Helper.get_gui_element_by_name(center, RestartCommand._main_frame_name)
+            local main_frame = Helper.get_gui_element_by_name(screen, RestartCommand._main_frame_name)
             Assert.is_nil(main_frame)
         end)
     end)
@@ -240,11 +240,11 @@ Mod Pack: some_mod_pack]]
         local player = context.player
         run_config_command(player)
 
-        local center = player.gui.center
-        local save_radio_button = Helper.get_gui_element_by_name(center, RestartCommand._save_radio_button_name)
-        local name_textfield = Helper.get_gui_element_by_name(center, RestartCommand._name_textfield_name)
-        local mod_pack_checkbox = Helper.get_gui_element_by_name(center, RestartCommand._set_mod_pack_checkbox_name)
-        local mod_pack_name_textfield = Helper.get_gui_element_by_name(center,
+        local screen = player.gui.screen
+        local save_radio_button = Helper.get_gui_element_by_name(screen, RestartCommand._save_radio_button_name)
+        local name_textfield = Helper.get_gui_element_by_name(screen, RestartCommand._name_textfield_name)
+        local mod_pack_checkbox = Helper.get_gui_element_by_name(screen, RestartCommand._set_mod_pack_checkbox_name)
+        local mod_pack_name_textfield = Helper.get_gui_element_by_name(screen,
             RestartCommand._mod_pack_name_textfield_name)
 
         -- Act.
@@ -265,8 +265,8 @@ Mod Pack: some_mod_pack]]
         local player = context.player
         run_config_command(player)
 
-        local center = player.gui.center
-        local scenario_radio_button = Helper.get_gui_element_by_name(center, RestartCommand._scenario_radio_button_name)
+        local screen = player.gui.screen
+        local scenario_radio_button = Helper.get_gui_element_by_name(screen, RestartCommand._scenario_radio_button_name)
 
         -- Act.
         Helper.click(scenario_radio_button)
@@ -283,9 +283,9 @@ Mod Pack: some_mod_pack]]
         local player = context.player
         run_config_command(player)
 
-        local center = player.gui.center
-        local mod_pack_checkbox = Helper.get_gui_element_by_name(center, RestartCommand._set_mod_pack_checkbox_name)
-        local mod_pack_name_textfield = Helper.get_gui_element_by_name(center,
+        local screen = player.gui.screen
+        local mod_pack_checkbox = Helper.get_gui_element_by_name(screen, RestartCommand._set_mod_pack_checkbox_name)
+        local mod_pack_name_textfield = Helper.get_gui_element_by_name(screen,
             RestartCommand._mod_pack_name_textfield_name)
 
         -- Act.
@@ -304,9 +304,9 @@ Mod Pack: some_mod_pack]]
         local player = context.player
         run_config_command(player)
 
-        local center = player.gui.center
-        local mod_pack_checkbox = Helper.get_gui_element_by_name(center, RestartCommand._set_mod_pack_checkbox_name)
-        local close_button = Helper.get_gui_element_by_name(center, RestartCommand._close_button_name)
+        local screen = player.gui.screen
+        local mod_pack_checkbox = Helper.get_gui_element_by_name(screen, RestartCommand._set_mod_pack_checkbox_name)
+        local close_button = Helper.get_gui_element_by_name(screen, RestartCommand._close_button_name)
 
         Helper.set_checkbox(mod_pack_checkbox, false)
 
@@ -314,7 +314,7 @@ Mod Pack: some_mod_pack]]
             Helper.click(close_button)
         end):next(function()
             -- Make sure gui closed
-            local main_frame = Helper.get_gui_element_by_name(center, RestartCommand._main_frame_name)
+            local main_frame = Helper.get_gui_element_by_name(screen, RestartCommand._main_frame_name)
             Assert.is_nil(main_frame)
         end):next(function()
             -- Reopen gui.
@@ -322,17 +322,17 @@ Mod Pack: some_mod_pack]]
         end):next(function()
             assert_start_game_data(RestartCommand.game_types.scenario, '', nil)
 
-            local mod_pack_name_textfield = Helper.get_gui_element_by_name(center,
+            local mod_pack_name_textfield = Helper.get_gui_element_by_name(screen,
                 RestartCommand._mod_pack_name_textfield_name)
             Assert.equal('some_mod_pack', mod_pack_name_textfield.text)
 
             -- Re-enable mod pack
-            mod_pack_checkbox = Helper.get_gui_element_by_name(center, RestartCommand._set_mod_pack_checkbox_name)
+            mod_pack_checkbox = Helper.get_gui_element_by_name(screen, RestartCommand._set_mod_pack_checkbox_name)
             Helper.set_checkbox(mod_pack_checkbox, true)
         end):next(function()
             assert_start_game_data(RestartCommand.game_types.scenario, '', 'some_mod_pack')
 
-            local mod_pack_name_textfield = Helper.get_gui_element_by_name(center,
+            local mod_pack_name_textfield = Helper.get_gui_element_by_name(screen,
                 RestartCommand._mod_pack_name_textfield_name)
             Assert.equal('some_mod_pack', mod_pack_name_textfield.text)
         end)

@@ -357,30 +357,12 @@ local function do_coin_label(coin_count, label)
 end
 
 local function draw_market_frame(player, group_name)
-    local frame = player.gui.center.add({
-        type = 'frame',
+    local frame, close_button = Gui.add_window(player, {
         name = market_frame_name,
-        direction = 'vertical',
-        style = 'non_draggable_frame'
+        caption = Retailer.get_market_group_label(group_name),
+        close_button_name = market_frame_close_button_name
     })
-
-    do -- Header
-        local header = frame.add { type = 'flow', direction = 'horizontal' }
-        Gui.set_style(header, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
-
-        header.add { type = 'label', caption = Retailer.get_market_group_label(group_name), style = 'frame_title' }
-        Gui.add_pusher(header)
-
-        local button = header.add {
-            type = 'sprite-button',
-            name = market_frame_close_button_name,
-            sprite = 'utility/close',
-            clicked_sprite = 'utility/close_black',
-            style = 'close_button',
-            tooltip = {'gui.close-instruction'}
-        }
-        Gui.set_data(button, frame)
-    end
+    Gui.set_data(close_button, frame)
 
     local inner = frame.add { type = 'frame', style = 'entity_frame', direction = 'vertical' }
     Gui.set_style(inner, { padding = 0 })
@@ -460,7 +442,7 @@ local function set_market_group_name(position, group_name)
 end
 
 local function close_market_gui(player)
-    local element = player.gui.center
+    local element = player.gui.screen
     memory.players_in_market_view[player.index] = nil
 
     if element and element.valid then
@@ -742,7 +724,7 @@ do_update_market_gui = Token.register(function(params)
         if group_name == view_data.group_name then
             local player = game.get_player(player_index)
             if player and player.valid then
-                local frame = player.gui.center[market_frame_name]
+                local frame = player.gui.screen[market_frame_name]
                 if not frame or not frame.valid then
                     -- player already closed the market GUI and somehow this was not reported
                     memory.players_in_market_view[player_index] = nil

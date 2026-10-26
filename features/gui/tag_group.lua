@@ -360,15 +360,15 @@ local function draw_create_tag_frame(event, tag_data)
     end
 
     local player = event.player
-    local center = player.gui.center
-
-    local frame = center[create_tag_frame_name]
+    local frame = player.gui.screen[create_tag_frame_name]
     if frame then
         Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 
-    frame = center.add({type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical'})
+    local title_close_button
+    frame, title_close_button = Gui.add_window(player, {name = create_tag_frame_name, caption = frame_caption, close_button_name = close_create_tag_name})
+    Gui.set_data(title_close_button, frame)
     local inner = frame.add { type = 'frame', style = 'inside_shallow_frame_with_padding', direction = 'vertical', name = 'inner' }
 
     if tag_data then

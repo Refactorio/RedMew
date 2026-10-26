@@ -225,6 +225,56 @@ Gui.add_dragger = function(parent, target)
     return dragger
 end
 
+--- Adds a title bar to a window in player.gui.screen: its caption, if it has one, and a space to
+--- drag the window by, and with close_button_name, an X with that name at the end. A window with a
+--- Close button of its own gives its X the same name, so one click handler serves both.
+---@param frame LuaGuiElement
+---@param caption LocalisedString?
+---@param close_button_name? string
+---@return LuaGuiElement title_bar
+---@return LuaGuiElement? close_button
+function Gui.add_title_bar(frame, caption, close_button_name)
+    local title_bar = frame.add { type = 'flow', direction = 'horizontal', style = 'frame_header_flow' }
+    Gui.set_style(title_bar, Styles.default_title_bar.style)
+
+    if caption then
+        local title = title_bar.add { type = 'label', caption = caption, style = 'frame_title' }
+        title.drag_target = frame
+    end
+
+    local dragger = Gui.add_dragger(title_bar, frame)
+    Gui.set_style(dragger, { height = 24 })
+
+    local close_button
+    if close_button_name then
+        close_button = title_bar.add {
+            type = 'sprite-button',
+            name = close_button_name,
+            sprite = 'utility/close',
+            clicked_sprite = 'utility/close_black',
+            style = 'close_button',
+            tooltip = { 'gui.close-instruction' }
+        }
+    end
+
+    return title_bar, close_button
+end
+
+--- Adds a window to player.gui.screen, with a title bar to drag it by (see Gui.add_title_bar).
+--- Like Factorio's own windows, it opens in the middle of the screen every time. Find it again
+--- with player.gui.screen[spec.name].
+---@param player LuaPlayer
+---@param spec { name: string?, caption: LocalisedString?, close_button_name: string?, direction: string? }
+---@return LuaGuiElement frame
+---@return LuaGuiElement? close_button
+function Gui.add_window(player, spec)
+    local frame = player.gui.screen.add { type = 'frame', name = spec.name, direction = spec.direction or 'vertical' }
+    frame.auto_center = true
+
+    local _, close_button = Gui.add_title_bar(frame, spec.caption, spec.close_button_name)
+    return frame, close_button
+end
+
 local function handler_factory(event_id)
     local handlers
 

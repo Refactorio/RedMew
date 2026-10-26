@@ -247,11 +247,17 @@ local pages = {
 
             parent = parent.add {
                 type = 'scroll-pane',
-                vertical_scroll_policy = 'auto-and-reserve-space',
+                -- bare, as it fills the content frame: its scroll bar sits at the frame's edge
+                style = 'naked_scroll_pane',
+                vertical_scroll_policy = 'auto',
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
             parent_style.vertically_stretchable = true
+            -- the content's full width, with no right padding, so the scroll bar sits at its edge: a
+            -- scroll pane that never scrolls sideways keeps its content's width and won't stretch
+            parent_style.width = 634
+            parent_style.right_padding = 0
 
             header_label(parent, {'info.welcome_header'})
             centered_label(parent, {'info.welcome_text'})
@@ -330,13 +336,18 @@ local pages = {
 
             parent = parent.add {
                 type = 'scroll-pane',
-                vertical_scroll_policy = 'auto-and-reserve-space',
+                -- bare, as it fills the content frame: its scroll bar sits at the frame's edge
+                style = 'naked_scroll_pane',
+                vertical_scroll_policy = 'auto',
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
-            parent_style.right_padding = 8
             parent_style.left_padding = 8
             parent_style.vertically_stretchable = true
+            -- the content's full width, with no right padding, so the scroll bar sits at its edge: a
+            -- scroll pane that never scrolls sideways keeps its content's width and won't stretch
+            parent_style.width = 634
+            parent_style.right_padding = 0
 
             header_label(parent, {'info.rules_header'})
 
@@ -439,13 +450,18 @@ local pages = {
 
             parent = parent.add {
                 type = 'scroll-pane',
-                vertical_scroll_policy = 'auto-and-reserve-space',
+                -- bare, as it fills the content frame: its scroll bar sits at the frame's edge
+                style = 'naked_scroll_pane',
+                vertical_scroll_policy = 'auto',
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
-            parent_style.right_padding = 8
             parent_style.left_padding = 8
             parent_style.vertically_stretchable = true
+            -- the content's full width, with no right padding, so the scroll bar sits at its edge: a
+            -- scroll pane that never scrolls sideways keeps its content's width and won't stretch
+            parent_style.width = 634
+            parent_style.right_padding = 0
 
             header_label(parent, {'info.softmods_header'})
 
@@ -592,6 +608,7 @@ local pages = {
 
             local new_info_flow = parent.add {name = 'whatsNew_new_info_flow', type = 'flow'}
             new_info_flow.style.horizontal_align = 'center'
+            new_info_flow.style.horizontally_stretchable = true
 
             local new_info_textbox = new_info_flow.add {
                 type = 'text-box',
@@ -601,23 +618,21 @@ local pages = {
             new_info_textbox.read_only = read_only
 
             local new_info_textbox_style = new_info_textbox.style
-            new_info_textbox_style.width = 590
+            -- the content's width less its padding: a text box left to stretch collapses
+            new_info_textbox_style.width = 618
             new_info_textbox_style.height = 360
-            new_info_textbox_style.left_margin = 2
 
             Gui.set_data(new_info_textbox, new_info_key)
         end
     }
 }
 
-local function draw_main_frame(center, player)
-    local frame = center.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
-    local frame_style = frame.style
-    frame_style.height = 600
-    frame_style.width = 650
-    frame_style.left_padding = 16
-    frame_style.right_padding = 16
-    frame_style.top_padding = 16
+local function draw_main_frame(player)
+    -- a window like the others, without a title: RedMew's logo heads it
+    local frame = Gui.add_window(player, {
+        name = main_frame_name,
+        close_button_name = main_button_name,
+    })
 
     local top_flow = frame.add {type = 'flow'}
     local top_flow_style = top_flow.style
@@ -677,8 +692,9 @@ local function draw_main_frame(center, player)
 
     local content = frame.add {type = 'frame', direction = 'vertical', style = 'inside_shallow_frame'}
     local content_style = content.style
-    content_style.horizontally_stretchable = true
-    content_style.vertically_stretchable = true
+    -- the content sets the window's size, as in the other windows, so its padding is even
+    content_style.width = 634
+    content_style.height = 410
     content_style.left_padding = 8
     content_style.right_padding = 8
     content_style.top_padding = 4
@@ -687,6 +703,7 @@ local function draw_main_frame(center, player)
 
     data.content = content
 
+    -- the first window a new player sees keeps a Close button they can't miss, as well as the X
     local bottom_flow = frame.add {type = 'flow'}
     local bottom_flow_style = bottom_flow.style
     bottom_flow_style.horizontal_align = 'center'
@@ -728,16 +745,14 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local center = gui.center
-    local main_frame = center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
 
     if main_frame then
         close_main_frame(main_frame, player)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        draw_main_frame(center, player)
+        draw_main_frame(player)
     end
 end
 

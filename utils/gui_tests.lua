@@ -67,4 +67,37 @@ Declare.module({'utils', 'Gui'}, function()
             end)
         end
     end)
+
+    Declare.module('windows', function()
+        -- uses a player's GUI
+        Declare.tags('skip-headless')
+
+        local WINDOW = 'gui_tests_window'
+        local CLOSE = 'gui_tests_window_close'
+
+        local function open(context)
+            local frame, close_button = Gui.add_window(context.player, { name = WINDOW, caption = 'Test window', close_button_name = CLOSE })
+            context:add_teardown(function()
+                if frame.valid then
+                    frame.destroy()
+                end
+            end)
+            return frame, close_button
+        end
+
+        Declare.test('a window opens in the middle of the screen with a title bar to drag it by', function(context)
+            -- Act
+            local frame, close_button = open(context)
+
+            -- Assert
+            Assert.equal(context.player.gui.screen, frame.parent)
+            Assert.is_true(frame.auto_center, 'the window should open in the middle')
+            local title_bar = frame.children[1]
+            local title = title_bar.children[1]
+            Assert.equal('Test window', title.caption)
+            Assert.equal(frame, title.drag_target, 'the title should drag the window')
+            Assert.equal(title_bar, close_button.parent, 'the X should be in the title bar')
+            Assert.equal(CLOSE, close_button.name)
+        end)
+    end)
 end)

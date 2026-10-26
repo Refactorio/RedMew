@@ -289,18 +289,12 @@ local function draw_main_frame(player)
         return
     end
 
-    local center = player.gui.center
-    local main_frame = center[main_frame_name]
+    local main_frame = player.gui.screen[main_frame_name]
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
     end
 
-    main_frame = center.add {
-        type = 'frame',
-        name = main_frame_name,
-        caption = 'Configure Restart',
-        direction = 'vertical'
-    }
+    main_frame = Gui.add_window(player, {name = main_frame_name, caption = 'Configure Restart', close_button_name = close_button_name})
 
     local is_scenario = start_game_data.type == game_types.scenario
     local radio_button_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
@@ -379,7 +373,7 @@ local function draw_main_frame(player)
 end
 
 Gui.on_click(close_button_name, function(event)
-    local main_frame = event.player.gui.center[main_frame_name]
+    local main_frame = event.player.gui.screen[main_frame_name]
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
     end

@@ -128,16 +128,16 @@ local map_desc = Scenario_Info.get_map_description()
 local function draw_gui(event)
     local frame_caption = 'Server browser text generator'
     local player = event.player
-    local center = player.gui.center
-
-    local frame = center[gui_frame]
+    local frame = player.gui.screen[gui_frame]
     if frame then
         Gui.remove_data_recursively(frame)
         frame.destroy()
         return
     end
 
-    frame = center.add {type = 'frame', name = gui_frame, caption = frame_caption, direction = 'vertical'}
+    local title_close_button
+    frame, title_close_button = Gui.add_window(player, {name = gui_frame, caption = frame_caption, close_button_name = close_gui})
+    Gui.set_data(title_close_button, frame)
 
     local main_table = frame.add {type = 'table', column_count = 1}
 

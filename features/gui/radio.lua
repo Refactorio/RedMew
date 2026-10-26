@@ -80,16 +80,16 @@ local function draw_radio(event)
 
     frame_caption = 'Radio'
     local player = event.player
-    local center = player.gui.center
-
-    local frame = center[radio_frame]
+    local frame = player.gui.screen[radio_frame]
     if frame then
         Gui.remove_data_recursively(frame)
         frame.destroy()
         return
     end
 
-    frame = center.add {type = 'frame', name = radio_frame, caption = frame_caption, direction = 'vertical'}
+    local title_close_button
+    frame, title_close_button = Gui.add_window(player, {name = radio_frame, caption = frame_caption, close_button_name = close_radio})
+    Gui.set_data(title_close_button, frame)
     local scroll_pane =
         frame.add {
         type = 'scroll-pane',
