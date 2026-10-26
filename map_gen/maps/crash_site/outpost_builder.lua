@@ -98,6 +98,7 @@ Global.register(
 ---@field item string
 ---@field last_tick number
 ---@field rate number
+---@field mapview_str string, one line of text to display when mousing over this crafter in map view
 
 ---@class MagicFluidCrafter
 ---@field base_rate number
@@ -105,14 +106,14 @@ Global.register(
 ---@field item string
 ---@field last_tick number
 ---@field rate number
----@field fluidbox_index
+---@field fluidbox_index number
+---@field mapview_str string, one line of text to display when mousing over this crafter in map view
 
 ---@class OutpostData
 ---@field outpost_id number, unique identifier for the outpost
 ---@field area BoundingBox, area covered by the outpost
 ---@field artillery_area? BoundingBox, area covered by artillery
 ---@field artillery_turrets? LuaEntity[], table of artillery turrets
----@field base_outputs table<string, number>, outputs produced by the outpost for upgrades
 ---@field last_fire_tick? number, last tick when artillery fired
 ---@field level number, current level of the outpost
 ---@field magic_crafters MagicCrafter[], table of magic crafters
@@ -975,14 +976,65 @@ function Public.extend_walls(data, tbl)
     return setmetatable(copy, base)
 end
 
-local function update_market_upgrade_description(outpost_data)
-    local outpost_id = outpost_data.outpost_id
+local function update_market_upgrade_disabled_state(outpost_data)
+    -- Disables a market and updates its disable reason if:
+    -- - There are no magic crafters in the outpost
+    -- - The outpost is not captured
+    -- - The outpost is at max level
+    -- Otherwise, enable the market upgrade item
 
+    local outpost_id = outpost_data.outpost_id
+    local prototype = Retailer.get_items(outpost_id)['upgrade']
+
+    local crafters_count = outpost_data.magic_crafters and #outpost_data.magic_crafters or 0
+    local fluid_crafters_count = outpost_data.magic_fluid_crafters and #outpost_data.magic_fluid_crafters or 0
+    if (crafters_count + fluid_crafters_count) == 0 then
+        prototype.disabled = true
+        prototype.disabled_reason = 'No machines to upgrade.'
+    elseif outpost_data.turret_count > 0 then
+        -- turret_count == 0 is used for "is captured"
+        prototype.disabled = true
+        prototype.disabled_reason = 'Outpost must be captured first.'
+    elseif outpost_data.maximum_level and (outpost_data.level >= outpost_data.maximum_level) then
+        prototype.disabled = true
+        prototype.disabled_reason = 'Max level reached.'
+    else
+        prototype.disabled = false
+    end
+    Retailer.set_item(outpost_id, prototype)
+end
+
+local function update_outpost_magic_crafter_text(outpost_data)
+    local outpost_magic_crafters = outpost_data.magic_crafters
+    for _, crafter in ipairs(outpost_magic_crafters) do
+        local item_name = prototypes.item[crafter.item] or prototypes.fluid[crafter.item]
+        local localised_name = item_name.localised_name
+        local rate_per_s = format(': %.2f/s', crafter.rate * 60)
+        crafter.mapview_str = {'', localised_name, rate_per_s}
+    end
+end
+
+local function update_market_upgrade(outpost_data)
+
+    local function calculate_base_outputs()
+        local outpost_magic_crafters = outpost_data.magic_crafters
+        local base_outputs = {}
+
+        for _, crafter in ipairs(outpost_magic_crafters) do
+            local item = crafter.item
+            local count = base_outputs[item] or 0
+            count = count + crafter.base_rate
+
+            base_outputs[item] = count
+        end
+        return base_outputs
+    end
+
+    local outpost_id = outpost_data.outpost_id
     local upgrade_rate = outpost_data.upgrade_rate
     local upgrade_base_cost = outpost_data.upgrade_base_cost
     local upgrade_cost_base = outpost_data.upgrade_cost_base
     local level = outpost_data.level
-    local base_outputs = outpost_data.base_outputs
     local outpost_magic_crafters = outpost_data.magic_crafters
     local prototype = Retailer.get_items(outpost_id)['upgrade']
 
@@ -992,6 +1044,7 @@ local function update_market_upgrade_description(outpost_data)
     local tooltip_str = {''}
     local mapview_str = {''}
     local count = 2
+    local base_outputs = calculate_base_outputs(outpost_data)
     for k, v in pairs(base_outputs) do
         local base_rate = v * 60
         local upgrade_per_level = base_rate * upgrade_rate
@@ -1014,7 +1067,7 @@ local function update_market_upgrade_description(outpost_data)
         end
         count = count + 1
 
-        local str = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
+        local str = format(': %.2f -> %.2f/s', current_rate, next_rate)
 
         tooltip_str[count] = str
         tooltip_str[count + 1] = '\n'
@@ -1028,15 +1081,10 @@ local function update_market_upgrade_description(outpost_data)
     mapview_str[count - 1] = nil
 
     prototype.description = tooltip_str
-    prototype.disabled = false
     prototype.mapview_description = mapview_str
-
-    if outpost_data.maximum_level and (outpost_data.level >= outpost_data.maximum_level) then
-        prototype.disabled = true
-        prototype.disabled_reason = 'Max level reached.'
-    end
-
     Retailer.set_item(outpost_id, prototype)
+
+    update_market_upgrade_disabled_state(outpost_data)
 end
 
 local function do_outpost_upgrade(event)
@@ -1070,43 +1118,13 @@ local function do_outpost_upgrade(event)
         crafter.rate = rate + upgrade_amount
     end
 
-    update_market_upgrade_description(outpost_data)
-end
-
-local function activate_market_upgrade(outpost_data)
-    local outpost_magic_crafters = outpost_data.magic_crafters
-
-    if #outpost_magic_crafters == 0 then
-        local outpost_id = outpost_data.outpost_id
-
-        local prototype = Retailer.get_items(outpost_id)['upgrade']
-        prototype.disabled_reason = 'No machines to upgrade.'
-
-        Retailer.set_item(outpost_id, prototype)
-
-        return
-    end
-
-    local base_outputs = {}
-
-    for i = 1, #outpost_magic_crafters do
-        local crafter = outpost_magic_crafters[i]
-        local item = crafter.item
-
-        local count = base_outputs[item] or 0
-        count = count + crafter.rate
-
-        base_outputs[item] = count
-    end
-
-    outpost_data.base_outputs = base_outputs
-
-    update_market_upgrade_description(outpost_data)
+    update_outpost_magic_crafter_text(outpost_data)
+    update_market_upgrade(outpost_data)
 end
 
 function Public.activate_market_upgrade(outpost_id)
     local outpost_data = outposts[outpost_id]
-    activate_market_upgrade(outpost_data)
+    update_market_upgrade(outpost_data)
 end
 
 local function find_nearest_player(position)
@@ -1160,7 +1178,7 @@ local function do_capture_outpost(outpost_data)
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
-    activate_market_upgrade(outpost_data)
+    update_market_upgrade_disabled_state(outpost_data)
 end
 
 local function do_refill_turrets()
@@ -1530,14 +1548,20 @@ Public.worm_turret_callback =
 
 local function add_magic_crafter_output(entity, output, distance, outpost_id)
     local rate = output.min_rate + output.distance_factor * distance
-
     local fluidbox_index = output.fluidbox_index
+
+    local item_name = prototypes.item[output.item] or prototypes.fluid[output.item]
+    local localised_name = item_name.localised_name
+    local rate_per_s = format(': %.2f/s', rate * 60)
+    local mapview_str = {'', localised_name, rate_per_s}
+
     local data = {
         entity = entity,
         last_tick = game.tick,
         base_rate = rate,
         rate = rate,
         item = output.item,
+        mapview_str = mapview_str,
         fluidbox_index = fluidbox_index
     }
 
@@ -1549,6 +1573,11 @@ local function add_magic_crafter_output(entity, output, distance, outpost_id)
 
     local outpost_magic_crafters = outposts[outpost_id].magic_crafters
     outpost_magic_crafters[#outpost_magic_crafters + 1] = data
+
+    -- if the market upgrade has been generated, it now needs to be updated
+    if Retailer.get_items(outpost_id)['upgrade'] then
+        update_market_upgrade(outposts[outpost_id])
+    end
 end
 
 local set_inactive_token =
@@ -1804,11 +1833,11 @@ Public.market_set_items_callback =
                 sprite = 'item-group/production',
                 price = 0,
                 stack_limit = 1,
-                disabled = true,
-                disabled_reason = 'Outpost must be captured first.',
                 description = 'Increases output.'
             }
         )
+
+        update_market_upgrade(outpost_data)
 
         local p = entity.position
         local x, y = p.x, p.y
@@ -1976,7 +2005,7 @@ function Public.do_factory_loot(entity, weights, loot)
     entity.get_output_inventory().insert {name = name, count = count}
 end
 
-local function market_selected(event)
+local function outpost_building_selected(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
@@ -1988,14 +2017,7 @@ local function market_selected(event)
 
     local selected = player.selected
 
-    if not selected or not selected.valid or selected.name ~= 'market' then
-        return
-    end
-
-    local group = Retailer.get_market_group_name(selected)
-    local prototype = Retailer.get_items(group)['upgrade']
-
-    if prototype.disabled then
+    if not selected or not selected.valid then
         return
     end
 
@@ -2014,17 +2036,61 @@ local function market_selected(event)
         time_to_live = 180
     }
 
-    args.text = prototype.name_label
-    args.target.offset = {0, -6.5}
-    draw_text(args)
+    -- Render the market text showing the next available upgrade (and total rate)
+    if selected.name == 'market' then
+        local group = Retailer.get_market_group_name(selected)
+        local prototype = Retailer.get_items(group)['upgrade']
 
-    args.text = 'Price: ' .. prototype.price
-    args.target.offset = {0, -5}
-    draw_text(args)
+        args.text = prototype.name_label
+        args.target.offset = {0, -5}
+        draw_text(args)
 
-    args.text = prototype.mapview_description
-    args.target.offset = {0, -3.5}
-    draw_text(args)
+        args.text = 'Price: ' .. prototype.price
+        args.target.offset = {0, -3.5}
+        draw_text(args)
+
+        args.text = prototype.mapview_description
+        args.target.offset = {0, -2}
+        draw_text(args)
+    end
+
+    -- Render the text per magic craft to show its individual rate
+    if selected.type == 'assembling-machine' or
+       selected.type == 'furnace' then
+        -- Find the magic crafter for this entity
+        local crafters = {}
+
+        if selected.name ~= 'oil-refinery' then
+            -- Regular crafter, only 1 to find
+            for i = 1, #magic_crafters do
+                if magic_crafters[i].entity == selected then
+                    crafters[1] = magic_crafters[i]
+                    break
+                end
+            end
+        else
+            -- Fluid crafter, can have up to 3 to find
+            for i = 1, #magic_fluid_crafters do
+                if magic_fluid_crafters[i].entity == selected then
+                    crafters[#crafters + 1] = magic_fluid_crafters[i]
+                end
+            end
+        end
+
+        if #crafters == 0 then
+            return
+        end
+
+        -- Vertically center the text
+        local offset = -2.75 - ((#crafters - 1) * 0.75)
+
+        for _,crafter in pairs(crafters) do
+            args.text = crafter.mapview_str
+            args.target.offset = {0, offset}
+            draw_text(args)
+            offset = offset + 1.5
+        end
+    end
 end
 
 Event.add(defines.events.on_tick, tick)
@@ -2038,7 +2104,7 @@ Event.on_init(
 
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
-Event.add(defines.events.on_selected_entity_changed, market_selected)
+Event.add(defines.events.on_selected_entity_changed, outpost_building_selected)
 
 Command.add(
     'set-pollution-multiplier',
