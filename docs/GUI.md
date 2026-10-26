@@ -17,7 +17,7 @@ own styles rather than setting sizes and colours.
   - Width: `width = 'narrow'` (400) or `'wide'` (470), from `Styles.panel_width`. The production
     HUD's is `'minimap'` (256), the minimap's, so players can float it under the minimap as one.
     Leave it out only for compact panels sized by their contents (shortcuts, the player list's
-    table).
+    table, paint).
   - The panel's own buttons go in its header, through `add_header_buttons`, before the pin. The
     title gives way to them, so a longer translation is cut short rather than push them out; a
     panel with a fixed width wants a word that fits in every language (the HUD's "Stats").

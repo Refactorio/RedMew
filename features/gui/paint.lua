@@ -261,7 +261,7 @@ local function toggle(event)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        local _, inner_frame = Gui.add_panel(player, { name = main_frame_name, caption = { 'paint.frame_name' }, toggle_name = main_button_name, width = 'narrow' })
+        local _, inner_frame = Gui.add_panel(player, { name = main_frame_name, caption = { 'paint.frame_name' }, toggle_name = main_button_name })
 
         local top_flow = inner_frame.add { type = 'flow', direction = 'horizontal' }
         Gui.set_style(top_flow, { vertical_align = 'center' })
@@ -284,7 +284,7 @@ local function toggle(event)
         show_brush(brush, paint_brushes_by_player[event.player_index])
 
         local label = top_flow.add { type = 'label', caption = { 'paint.instructions' } }
-        Gui.set_style(label, { font = 'default-bold', single_line = false, left_padding = 10 })
+        Gui.set_style(label, { font = 'default-bold', single_line = false, left_padding = 10, width = 220 })
     end
 end
 
