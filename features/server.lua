@@ -702,14 +702,24 @@ end
 --- Sets the server time as the scenario version. Imperfect since we ideally want the commit,
 -- but an easy way to at least establish a baseline.
 local function set_scenario_version()
+    -- The web server sends the time before it starts the server; a start raised by hand in a local
+    -- game (ServerCommands.server_started()) comes without one, and then there is no version.
+    local now = Public.get_current_time()
+    if now == nil then
+        return
+    end
+
     -- A 1 hour buffer is in place to account for potential playtime pre-upload.
     if game.tick < 216000 and not storage.redmew_version then
-        local time_string = Timestamp.to_string(Public.get_current_time())
+        local time_string = Timestamp.to_string(now)
         storage.redmew_version = string.format('Time of map launch: %s UTC', time_string)
     end
 end
 
 Event.add(Public.events.on_server_started, set_scenario_version)
+
+--- The on_server_started handler that sets the scenario version, exposed for tests.
+Public._set_scenario_version = set_scenario_version
 
 --- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
 --  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
