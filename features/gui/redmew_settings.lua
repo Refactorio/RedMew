@@ -10,6 +10,7 @@ local floor = math.floor
 local main_button_name = Gui.uid_name()
 local save_changes_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
+local fraction_slider_name = Gui.uid_name()
 
 local Public = {}
 
@@ -74,6 +75,11 @@ local function get_element_value(element_data)
     end
 end
 
+-- the percentage next to a fraction's slider
+local function show_fraction(slider)
+    Gui.get_data(slider).caption = floor(slider.slider_value * 100 + 0.5) .. ' %'
+end
+
 local function set_element_value(element, value)
     if element.type == 'text-box' then
         element.text = tostring(value)
@@ -81,6 +87,7 @@ local function set_element_value(element, value)
     end
     if element.type == 'slider' then
         element.slider_value = value
+        show_fraction(element)
         return
     end
     if element.type == 'checkbox' then
@@ -91,7 +98,10 @@ end
 
 local function create_input_element(frame, _type, value)
     if _type == 'fraction' then
-        return frame.add { type = 'slider', value = value, minimum_value = 0, maximum_value = 1 }
+        local slider = frame.add { type = 'slider', name = fraction_slider_name, value = value, minimum_value = 0, maximum_value = 1 }
+        Gui.set_data(slider, frame.add { type = 'label' })
+        show_fraction(slider)
+        return slider
     end
     if _type == 'boolean' then
         return frame.add { type = 'checkbox', state = value }
@@ -101,23 +111,15 @@ local function create_input_element(frame, _type, value)
     return frame.add { type = 'text-box', text = tostring(value) }
 end
 
-local function draw_main_frame(screen, player)
+local function draw_main_frame(player)
     local settings = Settings.get_setting_metadata()
-    local settings_frame = screen.add({
-        type = 'frame',
+    -- the X closes it like Cancel does, through the top button's handler
+    local settings_frame = Gui.add_window(player, {
         name = main_frame_name,
-        direction = 'vertical',
+        caption = { 'redmew_settings_gui.frame_title' },
+        close_button_name = main_button_name,
     })
     Gui.set_style(settings_frame, { width = 500 })
-    settings_frame.auto_center = true
-
-    -- a title bar to drag the window by
-    local title_bar = settings_frame.add { type = 'flow', direction = 'horizontal' }
-    Gui.set_style(title_bar, { horizontal_spacing = 8, vertical_align = 'center' })
-    local title = title_bar.add { type = 'label', caption = { 'redmew_settings_gui.frame_title' }, style = 'frame_title' }
-    title.drag_target = settings_frame
-    local dragger = Gui.add_dragger(title_bar, settings_frame)
-    Gui.set_style(dragger, { height = 24, horizontally_stretchable = true })
 
     local inner = settings_frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
 
@@ -177,18 +179,13 @@ local function draw_main_frame(screen, player)
         }
     end
 
-    local bottom_flow = settings_frame.add { type = 'flow', direction = 'horizontal' }
+    local buttons = Gui.add_dialog_buttons(
+        settings_frame,
+        { { name = main_button_name, caption = { 'redmew_settings_gui.button_cancel' } } },
+        { { name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' } } }
+    )
 
-    local left_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
-
-    left_flow.add { type = 'button', name = main_button_name, caption = { 'redmew_settings_gui.button_cancel' }, style = 'back_button' }
-
-    local right_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(right_flow, { horizontal_align = 'right' })
-    local save_button = right_flow.add { type = 'button', name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' }, style = 'confirm_button' }
-
-    Gui.set_data(save_button, data)
+    Gui.set_data(buttons[save_changes_button_name], data)
     Gui.set_data(settings_frame, data)
 
     player.opened = settings_frame
@@ -204,7 +201,7 @@ local function toggle(event)
         main_button.toggled = false
         Gui.destroy(main_frame)
     else
-        draw_main_frame(screen, player)
+        draw_main_frame(player)
         main_button.toggled = true
     end
 end
@@ -309,6 +306,9 @@ Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Gui.on_click(main_button_name, toggle)
 Gui.on_click(save_changes_button_name, save_changes)
+Gui.on_value_changed(fraction_slider_name, function(event)
+    show_fraction(event.element)
+end)
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(Settings.events.on_setting_set, setting_set)
