@@ -22,11 +22,16 @@ local time_to_live = update_rate + 1
 local pole_respawn_time = 60 * 60
 
 local no_coin_entity = {}
+local coin_chest
 
 Global.register(
-    {no_coin_entity = no_coin_entity},
+    {
+        no_coin_entity = no_coin_entity,
+        coin_chest = coin_chest
+    },
     function(tbl)
         no_coin_entity = tbl.no_coin_entity
+        coin_chest = tbl.coin_chest
     end
 )
 
@@ -477,12 +482,18 @@ local function do_coin_drop(entity_name, entity, cause)
         end
     end
 
-    local chest = entity.surface.find_entities_filtered{position = {-0.5, -4.5}, radius = 0.1, name = 'requester-chest'}
-    if chest[1] then
+    if not coin_chest or not coin_chest.valid then
+        local found_chests = entity.surface.find_entities_filtered{position = {-0.5, -4.5}, name = 'requester-chest', limit = 1}
+        if found_chests and found_chests[1] and found_chests[1].valid then
+            coin_chest = found_chests[1]
+        end
+    end
+
+    if coin_chest and coin_chest.valid then
         local coins = {name = "coin", count = count}
-        local actual_count = chest[1].insert(coins)
+        local actual_count = coin_chest.insert(coins)
         if actual_count > 0 then
-            Game.create_local_flying_text{surface = entity.surface, position = chest[1].position, text = "+" .. actual_count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}}
+            Game.create_local_flying_text{surface = entity.surface, position = coin_chest.position, text = "+" .. actual_count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}}
         end
         count = count - actual_count
         if count <= 0 then
