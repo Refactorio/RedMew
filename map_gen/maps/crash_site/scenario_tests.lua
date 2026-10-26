@@ -192,6 +192,33 @@ Declare.module(
         )
 
         Declare.test(
+            'outpost markets sell their goods before the outpost is captured',
+            function()
+                -- Act
+                local surface = generate(OUTPOST_REACH)
+
+                -- Assert: anyone who can reach the market can buy; only the upgrade waits for the
+                -- capture
+                local area = {{-OUTPOST_REACH, -OUTPOST_REACH}, {OUTPOST_REACH, OUTPOST_REACH}}
+                local spawn = spawn_market(surface)
+                local goods = 0
+                for _, market in pairs(surface.find_entities_filtered {area = area, name = 'market'}) do
+                    local group = market ~= spawn and Retailer.get_market_group_name(market)
+                    if group and Retailer.get_items(group)['upgrade'].disabled then
+                        local name = tostring(Retailer.get_market_group_label(group))
+                        for item_name, item in pairs(Retailer.get_items(group)) do
+                            if item_name ~= 'upgrade' then
+                                Assert.is_true(not item.disabled, name .. ' does not sell ' .. item_name .. ' before it is captured: ' .. tostring(item.disabled_reason))
+                                goods = goods + 1
+                            end
+                        end
+                    end
+                end
+                Assert.is_true(goods > 0, 'no uncaptured outpost within ' .. OUTPOST_REACH .. ' of spawn sells anything')
+            end
+        )
+
+        Declare.test(
             'killing every defender captures the outpost',
             function(context)
                 -- Arrange: the outpost nearest to spawn. Outposts are at most 66 tiles across

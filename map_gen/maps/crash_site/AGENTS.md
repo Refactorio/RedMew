@@ -31,6 +31,11 @@ takes. This adds how the code behaves and what is easy to break.
   outposts. The layout is random per game, seeded from the map seed.
 - **Not every outpost has a market**, and a factory outpost can have machines without a market of
   its own.
+- **An outpost's market sells before capture**, to anyone whose character can reach it (from
+  just outside the walls, under fire), and players rely on it: they buy poison capsules from the
+  first chemical factories (the sulfur and plastic outposts) before killing their flamethrower
+  turrets. Only the upgrade waits for the capture. It has worked this way since the markets
+  were added in 2018.
 - **Capture:** every turret and worm of an outpost is registered with
   `script.register_on_object_destroyed`; when the last one is gone, the outpost is captured. Its
   walls become the player's, the market is renamed after a random donator, a message goes out,

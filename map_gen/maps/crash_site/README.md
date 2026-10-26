@@ -1,8 +1,8 @@
 # Crash Site
 
 Players crash at spawn in the middle of a grid of enemy outposts. Each outpost is defended by
-turrets and worms; killing them all captures it, and a captured outpost's machines keep
-producing for the team, its market sells to them, and its production can be upgraded. Biters
+turrets and worms; killing them all captures it. An outpost's market sells to anyone who can
+reach it, and its machines keep producing; once captured, its production can be upgraded. Biters
 are active. Spawn has a market of its own, where players buy airstrikes, artillery barrages and
 rocket-firing tanks to use against them.
 
