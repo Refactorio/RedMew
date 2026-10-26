@@ -386,8 +386,8 @@ Event.add(
 
         if robot.force == game.forces['enemy'] then
             -- For enemy robots, always respawn them exactly as they were.
-            local movement_x = robot.get_movement()[1]
-            local movement_y = robot.get_movement()[2]
+            local movement = robot.get_movement()
+            local movement_x, movement_y = movement[1], movement[2]
             local speed = math.sqrt(movement_x ^ 2 + movement_y ^ 2)
             -- direction is normalized by set_movement, so just send it as-is
             local direction = {movement_x, movement_y}
