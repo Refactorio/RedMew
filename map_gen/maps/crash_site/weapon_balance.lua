@@ -86,6 +86,7 @@ local function init_weapon_damage()
         e_force.set_ammo_damage_modifier(k, v)
     end
 
+    -- Used for enemy bot spawning, see do_bot_spawn()
     n_force.maximum_following_robot_count = 1000000
 end
 

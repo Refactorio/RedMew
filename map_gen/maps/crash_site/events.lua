@@ -321,7 +321,7 @@ local respawn_combat_robot_callback
 respawn_combat_robot_callback =
     Token.register(
     function(data)
-        -- Spawn a combat robot matching whats given in data
+        -- Spawn a combat robot matching what's given in data
         -- data is a dict with name, target, health, position, force, time_to_live, speed, and direction
         -- data.target must be a character
         if not data.target or 
@@ -335,6 +335,8 @@ respawn_combat_robot_callback =
             return
         end
 
+        -- Changing the character's force to neutral allows us to spawn the robot using the neutral force's limit
+        -- See do_bot_spawn for more info
         data.target.force = 'neutral'
         local new_robot = data.target.surface.create_entity({
             name = data.name,
@@ -356,9 +358,12 @@ respawn_combat_robot_callback =
 Event.add(
     defines.events.on_combat_robot_expired,
     function(event)
+        -- Prevents player robots' spawning from killing enemy robots.
+        --
         -- Our goal here is to allow the player to spawn their own bots using their limit, while keeping the enemy
         -- robots we have spawned alive. Enemy robots, when spawned, can exceed the player's limit but are counted
-        -- against it. Without this check, a player can spawn robots to effectively destroy enemy robots.
+        -- against it. Without this check, a player can spawn robots past their total limit to effectively destroy
+        -- enemy robots.
         -- In Factorio, when each combat robot is spawned, the game checks how many robots need to be purged to meet
         -- the limit. It then iterates that many number of times, finding the bot with the lowest time_to_live and
         -- killing it. As a result:
@@ -384,7 +389,7 @@ Event.add(
             local movement_x = robot.get_movement()[1]
             local movement_y = robot.get_movement()[2]
             local speed = math.sqrt(movement_x ^ 2 + movement_y ^ 2)
-            -- direction is normalized by set_movement
+            -- direction is normalized by set_movement, so just send it as-is
             local direction = {movement_x, movement_y}
             set_timeout_in_ticks(0, respawn_combat_robot_callback, {
                 name = robot.name,
@@ -398,6 +403,8 @@ Event.add(
             })
         elseif robot.force == game.forces['player'] then
             -- For player robots, we need to determine if they are expiring even though we are under our own limit.
+            -- Because defenders have lower maximum time_to_live, it's possible for a new player defender to be killed
+            -- instead of an older enemy destroyer.
             local limit = game.forces['player'].maximum_following_robot_count + character.character_maximum_following_robot_count_bonus
             local player_follower_count = 0
             for i = 1, #character.following_robots do
@@ -472,6 +479,9 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 
     if cause.name == 'character' then
+        -- Changing the character's force to neutral allows us to spawn the robot using the neutral force's limit
+        -- This removes an exploit where not researching defender would cause these robots to never spawn.
+        -- It also prevents these robots' spawns from destroying player robots.
         cause.force = 'neutral' -- Workaround for the player's robot limit
         if entity_name == 'gun-turret' then
             if ef <= .95 then
