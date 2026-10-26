@@ -550,7 +550,7 @@ local pages = {
             end
 
             if config.player_shortcuts.enabled then
-                softmod_sprite(grid, 'utility/hand_black')
+                softmod_sprite(grid, 'item/selector-combinator')
                 local poll = grid.add {type = 'label', caption = {'info.softmods_shortcuts_label'}, style = 'heading_2_label'}
                 poll.style.font = 'var'
                 local poll_label = grid.add {type = 'label', caption = {'info.softmods_shortcuts_text'}}
@@ -558,7 +558,7 @@ local pages = {
             end
 
             if config.paint.enabled then
-                softmod_sprite(grid, 'utility/spray_icon')
+                softmod_sprite(grid, 'item/refined-hazard-concrete')
                 local poll = grid.add {type = 'label', caption = {'info.softmods_paint_brush_label'}, style = 'heading_2_label'}
                 poll.style.font = 'var'
                 local poll_label = grid.add {type = 'label', caption = {'info.softmods_paint_brush_text'}}
