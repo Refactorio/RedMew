@@ -2055,36 +2055,25 @@ local function outpost_building_selected(event)
     end
 
     -- Render the text per magic craft to show its individual rate
-    if selected.name == 'assembling-machine-2' or
-       selected.name == 'assembling-machine-3' or
-       selected.name == 'chemical-plant' or
-       selected.name == 'electric-furnace' or
-       selected.name == 'centrifuge' then
+    if selected.type == 'assembling-machine' or
+       selected.type == 'furnace' then
         -- Find the magic crafter for this entity
-        local crafter = nil
-        for i = 1, #magic_crafters do
-            if magic_crafters[i].entity == selected then
-                crafter = magic_crafters[i]
-                break
-            end
-        end
-
-        if not crafter then
-            return
-        end
-
-        args.text = crafter.mapview_str
-        args.target.offset = {0, -2.75}
-        draw_text(args)
-    end
-
-    if selected.name == 'oil-refinery' then
-        -- Find the magic fluid crafters for this entity
-        -- Fluids can use up to 3 crafters for advanced oil processing
         local crafters = {}
-        for i = 1, #magic_fluid_crafters do
-            if magic_fluid_crafters[i].entity == selected then
-                crafters[#crafters + 1] = magic_fluid_crafters[i]
+
+        if selected.name ~= 'oil-refinery' then
+            -- Regular crafter, only 1 to find
+            for i = 1, #magic_crafters do
+                if magic_crafters[i].entity == selected then
+                    crafters[1] = magic_crafters[i]
+                    break
+                end
+            end
+        else
+            -- Fluid crafter, can have up to 3 to find
+            for i = 1, #magic_fluid_crafters do
+                if magic_fluid_crafters[i].entity == selected then
+                    crafters[#crafters + 1] = magic_fluid_crafters[i]
+                end
             end
         end
 
