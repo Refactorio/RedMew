@@ -579,7 +579,8 @@ end
 --- when it is closed and close it when it is open. A panel with buttons of its own in the
 --- header adds them in add_header_buttons(header), which puts them before the pin. A panel made of
 --- sections, each an inner frame with its own subheader, passes sections = true and gets a flow to
---- add them to instead of the padded inner frame. With footer = true it also gets a footer along
+--- add them to instead of the padded inner frame; so does a panel whose elements bring their own
+--- frame, like a slot bar, with frameless = true. With footer = true it also gets a footer along
 --- the bottom of its inner frame (with sections, under them), for a setting such as its
 --- notifications. Find it again with Gui.get_panel.
 --- The title gives way to the header's buttons rather than push them out of a fixed-width panel
@@ -587,9 +588,9 @@ end
 --- better on. With side_dragger, a floating panel is dragged by a strip down its right side rather
 --- than by a space in its header, so the header keeps its width.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, sections: boolean?, footer: boolean?, deep: boolean?, side_dragger: boolean? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, sections: boolean?, frameless: boolean?, footer: boolean?, deep: boolean?, side_dragger: boolean? }
 ---@return LuaGuiElement frame
----@return LuaGuiElement content the padded inner frame (or with sections, the flow) to add the panel's elements to
+---@return LuaGuiElement content the padded inner frame (or with sections or frameless, the flow) to add the panel's elements to
 ---@return LuaGuiElement? footer with footer, the footer to add to
 function Gui.add_panel(player, spec)
     local name = spec.name
@@ -667,7 +668,7 @@ function Gui.add_panel(player, spec)
     }
 
     local content, footer
-    if spec.sections then
+    if spec.sections or spec.frameless then
         content = body.add { type = 'flow', direction = 'vertical' }
         Gui.set_style(content, { vertical_spacing = 8 })
         if spec.footer then

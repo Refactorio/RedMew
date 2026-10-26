@@ -26,6 +26,9 @@ own styles rather than setting sizes and colours.
     floating panel is dragged by a strip down its right side rather than its header, so it
     doesn't grow wider (Shortcuts, the HUD).
   - A panel made of sections, each with its own subheader (tasks), passes `sections = true`.
+    One whose elements bring their own frame, like the shortcuts' slot bar, passes
+    `frameless = true`. A list that fills the inner frame (tags) sets the frame's padding to 0,
+    uses a `naked_scroll_pane`, and puts anything under it in a `subfooter_frame`.
 - **Windows** are everything opened for a moment: editors, confirmations, tools, markets.
   `Gui.add_window` opens one in the middle of the screen every time, like Factorio's own windows,
   with a title bar to drag it by and an X. `Gui.add_dialog` is a window with its content in a

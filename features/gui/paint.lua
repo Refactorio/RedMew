@@ -266,9 +266,9 @@ local function toggle(event)
         local top_flow = inner_frame.add { type = 'flow', direction = 'horizontal' }
         Gui.set_style(top_flow, { vertical_align = 'center' })
 
-        local brush = top_flow.add({ type = 'flow' }).add {
+        local brush = top_flow.add {
             type = 'sprite-button',
-            style = 'slot_button_in_shallow_frame',
+            style = 'slot_sized_button',
             name = filter_button_name,
         }
 
