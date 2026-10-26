@@ -324,7 +324,7 @@ respawn_combat_robot_callback =
         -- Spawn a combat robot matching what's given in data
         -- data is a dict with name, target, health, position, force, time_to_live, speed, and direction
         -- data.target must be a character
-        if not data.target or 
+        if not data.target or
            not data.target.valid or
            data.target.type ~= 'character' then
             return
