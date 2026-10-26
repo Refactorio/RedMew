@@ -341,11 +341,11 @@ respawn_combat_robot_callback =
         local new_robot = data.target.surface.create_entity({
             name = data.name,
             target = data.target,
-            health = data.health,
             position = data.position,
             force = data.force
         })
         if new_robot and new_robot.valid then
+            new_robot.health = data.health
             new_robot.time_to_live = data.time_to_live
             if data.speed > 0 then
                 new_robot.set_movement(data.direction, data.speed)
