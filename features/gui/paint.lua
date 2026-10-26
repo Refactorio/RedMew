@@ -28,7 +28,6 @@ local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local filter_button_name = Gui.uid_name()
-local filter_clear_name = Gui.uid_name()
 local filter_element_name = Gui.uid_name()
 local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
@@ -240,18 +239,12 @@ local function draw_filters_table(event)
     Gui.set_data(frame, event.element)
 end
 
--- Shows the player's brush tile on the brush button, or an empty slot, and lets the clear button
--- clear it only while there is one. How painting works is in the brush's tooltip, so it doesn't
--- take more room in the panel than the brush itself.
+-- Shows the player's brush tile on the brush button, or an empty slot. How painting works, and
+-- that a right click clears the brush, is in its tooltip, so the panel is only the brush.
 local function show_brush(brush, tile_name)
     brush.sprite = tile_name and 'tile/' .. tile_name or nil
     local tooltip = tile_name and { 'paint.brush_tooltip', get_tile_localised_name(tile_name) } or { 'paint.select_brush' }
     brush.tooltip = { '', tooltip, '\n\n', { 'paint.instructions' } }
-
-    local clear_button = Gui.get_data(brush)
-    if clear_button and clear_button.valid then
-        clear_button.enabled = tile_name ~= nil
-    end
 end
 
 local function toggle(event)
@@ -265,24 +258,11 @@ local function toggle(event)
     else
         local _, inner_frame = Gui.add_panel(player, { name = main_frame_name, caption = { 'paint.frame_name' }, toggle_name = main_button_name })
 
-        local top_flow = inner_frame.add { type = 'flow', direction = 'horizontal' }
-        Gui.set_style(top_flow, { vertical_align = 'center' })
-
-        local brush = top_flow.add {
+        local brush = inner_frame.add {
             type = 'sprite-button',
             style = 'slot_sized_button',
             name = filter_button_name,
         }
-
-        local clear_brush = top_flow.add {
-            type = 'sprite-button',
-            name = filter_clear_name,
-            sprite = 'utility/trash',
-            style = 'tool_button',
-            tooltip = { 'paint.clear_brush' },
-        }
-        Gui.set_data(clear_brush, brush)
-        Gui.set_data(brush, clear_brush)
         show_brush(brush, paint_brushes_by_player[event.player_index])
     end
 end
@@ -296,13 +276,6 @@ Gui.on_click(filter_button_name, function(event)
     else
         draw_filters_table(event)
     end
-end)
-
-Gui.on_click(filter_clear_name, function(event)
-    local brush = Gui.get_data(event.element)
-
-    paint_brushes_by_player[event.player_index] = nil
-    show_brush(brush, nil)
 end)
 
 Gui.on_click(filter_element_name, function(event)
