@@ -192,7 +192,7 @@ local function player_created(event)
     local b = Gui.add_top_element(player, {
         name = main_button_name,
         type = 'sprite-button',
-        sprite = 'utility/spray_icon',
+        sprite = 'item/refined-hazard-concrete',
         tooltip = { 'paint.tooltip' },
         auto_toggle = true,
     })
