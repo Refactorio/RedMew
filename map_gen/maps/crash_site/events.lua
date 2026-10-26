@@ -305,12 +305,6 @@ local bot_cause_whitelist = {
     ['spidertron'] = true
 }
 
--- Derive this from prototypes
-local maximum_robot_time_to_live = math.max(
-    prototypes.entity["defender"].time_to_live,
-    prototypes.entity["distractor"].time_to_live,
-    prototypes.entity["destroyer"].time_to_live)
-
 local artillery_cooldown_callback
 artillery_cooldown_callback =
     Token.register(
@@ -373,7 +367,7 @@ Event.add(
            not robot.combat_robot_owner or
            robot.combat_robot_owner.type ~= 'character' or
            -- Robots that expire from time have inf time_to_live, not 0. Don't ask.
-           robot.time_to_live > maximum_robot_time_to_live then
+           robot.time_to_live == math.huge then
             return
         end
 
