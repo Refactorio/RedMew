@@ -85,21 +85,7 @@ Declare.module({'utils', 'Gui'}, function()
             return frame, close_button
         end
 
-        -- Sets where the player last left the test window (nil: never moved), and forgets it after.
-        local function set_saved_location(context, location)
-            local locations = Gui.window_locations()
-            local player_index = context.player.index
-            locations[player_index] = locations[player_index] or {}
-            locations[player_index][WINDOW] = location
-            context:add_teardown(function()
-                locations[player_index][WINDOW] = nil
-            end)
-        end
-
         Declare.test('a window opens in the middle of the screen with a title bar to drag it by', function(context)
-            -- Arrange
-            set_saved_location(context, nil)
-
             -- Act
             local frame, close_button = open(context)
 
@@ -112,35 +98,6 @@ Declare.module({'utils', 'Gui'}, function()
             Assert.equal(frame, title.drag_target, 'the title should drag the window')
             Assert.equal(title_bar, close_button.parent, 'the X should be in the title bar')
             Assert.equal(CLOSE, close_button.name)
-        end)
-
-        Declare.test('a window the player moved reopens where they left it', function(context)
-            -- Arrange
-            set_saved_location(context, nil)
-            local frame = open(context)
-            frame.location = { x = 40, y = 50 }
-            Gui._remember_window_location({ element = frame, player_index = context.player.index })
-            frame.destroy()
-
-            -- Act
-            frame = open(context)
-
-            -- Assert
-            Assert.equal(40, frame.location.x)
-            Assert.equal(50, frame.location.y)
-            Assert.is_true(not frame.auto_center, 'the window should not move back to the middle')
-        end)
-
-        Declare.test('a window left where it is now off the screen reopens in the middle', function(context)
-            -- Arrange: a spot past the right edge, as after a change to a smaller resolution
-            local resolution = context.player.display_resolution
-            set_saved_location(context, { x = resolution.width + 100, y = 50 })
-
-            -- Act
-            local frame = open(context)
-
-            -- Assert
-            Assert.is_true(frame.auto_center, 'the window should open in the middle')
         end)
     end)
 end)

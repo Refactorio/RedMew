@@ -17,16 +17,13 @@ local Gui = {}
 
 local data = {}
 local element_map = {}
--- where each player last left each window made by Gui.add_window: [player index][window name]
-local window_locations = {}
 
 Gui.token =
     Global.register(
-    {data = data, element_map = element_map, window_locations = window_locations},
+    {data = data, element_map = element_map},
     function(tbl)
         data = tbl.data
         element_map = tbl.element_map
-        window_locations = tbl.window_locations
     end
 )
 
@@ -261,47 +258,16 @@ function Gui.add_title_bar(frame, caption, close_button_name)
     return title_bar, close_button
 end
 
--- How much of a window must be on the screen for it to reopen where it was left, in pixels at
--- the player's UI scale: enough of the title bar to drag it back.
-local window_on_screen_margin = 64
-
---- Where the player last left a window, or nil if it was never moved or that spot is now off
---- their screen (they changed resolution or UI scale since).
-local function saved_window_location(player, name)
-    local locations = window_locations[player.index]
-    local location = locations and locations[name]
-    if not location then
-        return nil
-    end
-
-    local resolution = player.display_resolution
-    local margin = window_on_screen_margin * player.display_scale
-    if location.x < 0 or location.y < 0 or location.x > resolution.width - margin or location.y > resolution.height - margin then
-        return nil
-    end
-    return location
-end
-
 --- Adds a window to player.gui.screen, with a title bar to drag it by (see Gui.add_title_bar).
---- It opens where the player last left it, or in the middle of the screen. Find it again with
---- player.gui.screen[spec.name]. A window without a name always opens in the middle.
+--- Like Factorio's own windows, it opens in the middle of the screen every time. Find it again
+--- with player.gui.screen[spec.name].
 ---@param player LuaPlayer
 ---@param spec { name: string?, caption: LocalisedString, close_button_name: string?, direction: string? }
 ---@return LuaGuiElement frame
 ---@return LuaGuiElement? close_button
 function Gui.add_window(player, spec)
-    local name = spec.name
-    local frame = player.gui.screen.add { type = 'frame', name = name, direction = spec.direction or 'vertical' }
-
-    local location = name and saved_window_location(player, name)
-    if location then
-        frame.location = location
-    else
-        frame.auto_center = true
-    end
-    if name then
-        frame.tags = { redmew_window = true }
-    end
+    local frame = player.gui.screen.add { type = 'frame', name = spec.name, direction = spec.direction or 'vertical' }
+    frame.auto_center = true
 
     local _, close_button = Gui.add_title_bar(frame, spec.caption, spec.close_button_name)
     return frame, close_button
@@ -495,27 +461,7 @@ end)
 
 Event.add(defines.events.on_player_removed, function(event)
     data[event.player_index] = nil
-    window_locations[event.player_index] = nil
 end)
-
--- Remembers where a player drags a window made by Gui.add_window, for the next time it opens.
-local function remember_window_location(event)
-    local element = event.element
-    if not (element and element.valid) or not element.tags.redmew_window then
-        return
-    end
-
-    local player_index = event.player_index
-    local locations = window_locations[player_index]
-    if not locations then
-        locations = {}
-        window_locations[player_index] = locations
-    end
-    local location = element.location
-    locations[element.name] = { x = location.x, y = location.y }
-end
-Gui._remember_window_location = remember_window_location
-Event.add(defines.events.on_gui_location_changed, remember_window_location)
 
 Gui.on_click(
     toggle_button_name,
@@ -624,10 +570,6 @@ if _DEBUG then
 
     function Gui.element_map()
         return element_map
-    end
-
-    function Gui.window_locations()
-        return window_locations
     end
 end
 
