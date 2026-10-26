@@ -324,7 +324,9 @@ respawn_combat_robot_callback =
         -- Spawn a combat robot matching whats given in data
         -- data is a dict with name, target, health, position, force, time_to_live, speed, and direction
         -- data.target must be a character
-        if not data.target then
+        if not data.target or 
+           not data.target.valid or
+           data.target.type ~= 'character' then
             return
         end
 
@@ -341,9 +343,11 @@ respawn_combat_robot_callback =
             position = data.position,
             force = data.force
         })
-        new_robot.time_to_live = data.time_to_live
-        if data.speed > 0 then
-            new_robot.set_movement(data.direction, data.speed)
+        if new_robot and new_robot.valid then
+            new_robot.time_to_live = data.time_to_live
+            if data.speed > 0 then
+                new_robot.set_movement(data.direction, data.speed)
+            end
         end
         data.target.force = 'player'
     end
@@ -364,7 +368,9 @@ Event.add(
         local robot = event.robot
 
         if not robot or
+           not robot.valid or
            not robot.combat_robot_owner or
+           not robot.combat_robot_owner.valid or
            robot.combat_robot_owner.type ~= 'character' or
            -- Robots that expire from time have inf time_to_live, not 0. Don't ask.
            robot.time_to_live == math.huge then
