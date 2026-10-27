@@ -43,18 +43,15 @@ end
 local function toggle_main_frame(event)
     local player = event.player
     local player_index = player.index
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
 
     if frame then
         Gui.destroy(frame)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = { 'autofill.frame_name' }, direction = 'vertical' })
-        Gui.set_style(frame, { width = 376 })
-
-        local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
-        Gui.set_style(inner, { padding = 8 })
+        local inner
+        frame, inner = Gui.add_panel(player, { name = main_frame_name, caption = { 'autofill.frame_name' }, toggle_name = main_button_name, width = 'narrow' })
 
         local enabled_checkbox = inner.add {
             type = 'checkbox',
@@ -79,7 +76,9 @@ local function toggle_main_frame(event)
         local enabled_ammos_label = enabled_ammos_flow.add { type = 'label', caption = { 'autofill.enabled_ammos' } }
         Gui.set_style(enabled_ammos_label, { minimal_width = 140 })
 
-        local grid = enabled_ammos_flow.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane' }.add { type = 'table', column_count = 5, style = 'filter_slot_table' }
+        -- no scroll bars: they would cover the slots, and there are only a few ammo types
+        local slots = enabled_ammos_flow.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'never' }
+        local grid = slots.add { type = 'table', column_count = 5, style = 'filter_slot_table' }
 
         for name, enabled in pairs(Autofill.get_player_ammos(player_index)) do
             local button = grid.add({ type = 'flow' }).add({
@@ -91,8 +90,6 @@ local function toggle_main_frame(event)
 
             Gui.set_data(button, name)
         end
-
-        Gui.make_close_button(frame, main_button_name)
 
         local data = {
             enabled_checkbox = enabled_checkbox,
@@ -158,7 +155,7 @@ local function settings_changed(event)
             return
         end
 
-        local frame = Gui.get_left_element(player, main_frame_name)
+        local frame = Gui.get_panel(player, main_frame_name)
         if not frame then
             return
         end
@@ -174,7 +171,7 @@ local function settings_changed(event)
             return
         end
 
-        local frame = Gui.get_left_element(player, main_frame_name)
+        local frame = Gui.get_panel(player, main_frame_name)
         if not frame then
             return
         end

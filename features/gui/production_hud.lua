@@ -79,6 +79,8 @@ end
 -- == GUI =====================================================================
 
 local main_frame_name = Gui.uid_name()
+--- The HUD panel's name, for tests.
+Public._main_frame_name = main_frame_name
 local main_button_name = Gui.uid_name()
 local action_scroll_precision_index = Gui.uid_name()
 local action_add_item = Gui.uid_name()
@@ -145,11 +147,11 @@ end
 
 ---@param player LuaPlayer
 Public.toggle_main_button = function(player)
-    local frame = player.gui.screen[main_frame_name]
+    local frame = Gui.get_panel(player, main_frame_name)
     local button = Gui.get_top_element(player, main_button_name)
-    if frame and frame.valid then
-        frame.visible = not frame.visible
-        button.toggled = frame.visible
+    if frame then
+        Gui.destroy(frame)
+        button.toggled = false
     else
         button.toggled = true
         Public.get_main_frame(player)
@@ -158,71 +160,61 @@ end
 
 ---@param player LuaPlayer
 Public.get_main_frame = function(player)
-    local frame = player.gui.screen[main_frame_name]
-    if frame and frame.valid then
+    local frame = Gui.get_panel(player, main_frame_name)
+    if frame then
         return Public.update_main_frame(player)
     end
 
     local data = {}
     local settings = player_settings[player.index]
 
-    frame = player.gui.screen.add {
-        type = 'frame',
+    local content
+    frame, content = Gui.add_panel(player, {
         name = main_frame_name,
-        direction = 'vertical',
-    }
-    Gui.set_style(frame, { padding = 4, width = 256 })
+        caption = { 'production_hud.frame_title' },
+        toggle_name = main_button_name,
+        width = 'minimap',
+        -- floating, dragged by a strip down its side, so its header has room for the title
+        side_dragger = true,
+        -- green and red numbers read better on dark
+        deep = true,
+        add_header_buttons = function(header)
+            --- Display time
+            local button = header.add {
+                type = 'sprite-button',
+                name = action_scroll_precision_index,
+                caption = to_time[settings.precision_index],
+                style = 'frame_button',
+            }
+            data.action_scroll_precision_index = button
+            Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
+            Gui.set_data(button, data)
 
-    do -- header
-        local flow, label, button
-        flow = frame.add { type = 'flow', direction = 'horizontal' }
-        flow.drag_target = frame
+            --- Add new
+            button = header.add {
+                type = 'choose-elem-button',
+                name = action_add_item,
+                style = 'frame_button',
+                tooltip = { 'production_hud.new_item_tooltip' },
+                elem_type = 'signal',
+                signal = { type = 'virtual', name = 'shape-cross' },
+            }
+            Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
+            Gui.set_data(button, data)
+        end,
+    })
 
-        label = flow.add({ type = 'label', style = 'subheader_caption_label', caption = 'Production' })
-        label.drag_target = frame
-        Gui.set_style(label, { left_padding = 0 })
-
-        Gui.add_pusher(flow).drag_target = frame
-
-        --- Display time
-        button = flow.add {
-            type = 'sprite-button',
-            name = action_scroll_precision_index,
-            caption = to_time[settings.precision_index],
-            style = 'frame_button',
-        }
-        data.action_scroll_precision_index = button
-        Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
-        Gui.set_data(button, data)
-
-        --- Add new
-        button = flow.add {
-            type = 'choose-elem-button',
-            name = action_add_item,
-            style = 'frame_button',
-            tooltip = { 'production_hud.new_item_tooltip' },
-            elem_type = 'signal',
-            signal = { type = 'virtual', name = 'shape-cross' },
-        }
-        Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
-        Gui.set_data(button, data)
-    end
-
-    do -- body
-        local panel = frame.add { type = 'frame', style = 'quick_bar_inner_panel' }
-        local tbl = panel.add { type = 'table', column_count = 2, draw_horizontal_lines = true }
-        data.table = tbl
-    end
+    local tbl = content.add { type = 'table', column_count = 2, draw_horizontal_lines = true }
+    data.table = tbl
 
     Gui.set_data(frame, data)
     Public.update_main_frame(player)
-    frame.force_auto_center()
 end
 
 ---@param player LuaPlayer
 Public.update_main_frame = function(player)
-    local frame = player.gui.screen[main_frame_name]
-    if not (frame and frame.valid and frame.visible) then
+    local frame = Gui.get_panel(player, main_frame_name)
+    if not frame then
         return
     end
 
@@ -343,3 +335,5 @@ Event.on_configuration_changed(function()
 end)
 
 -- ============================================================================
+
+return Public

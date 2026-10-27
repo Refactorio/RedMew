@@ -104,11 +104,11 @@ function Public.on_player_created(player)
 end
 
 function Public.toggle_main_button(player)
-  local main_frame = player.gui.screen[main_frame_name]
+  local main_frame = Gui.get_panel(player, main_frame_name)
   local button = Gui.get_top_element(player, main_button_name)
   if main_frame then
     button.toggled = false
-    main_frame.destroy()
+    Gui.destroy(main_frame)
   else
     button.toggled = true
     Public.get_main_frame(player)
@@ -116,103 +116,71 @@ function Public.toggle_main_button(player)
 end
 
 function Public.toggle_shortcuts_settings(player)
-  local frame = Public.get_main_frame(player)
-  frame.children[1].qbip.qbsp.visible = not frame.children[1].qbip.qbsp.visible
+  local settings_pane = Gui.get_data(Public.get_main_frame(player)).settings_pane
+  settings_pane.visible = not settings_pane.visible
 end
 
 function Public.get_main_frame(player)
-  local main_frame = player.gui.screen[main_frame_name]
-  if main_frame and main_frame.valid then
+  local main_frame = Gui.get_panel(player, main_frame_name)
+  if main_frame then
     return main_frame
   end
 
-  main_frame = player.gui.screen.add {
-    type = 'frame',
+  local content
+  main_frame, content = Gui.add_panel(player, {
     name = main_frame_name,
-    direction = 'horizontal',
-    style = 'quick_bar_slot_window_frame',
-  }
-  main_frame.auto_center = true
-  Gui.set_style(main_frame, { minimal_width = 20 })
-
-  do -- shortcuts
-    local left_flow = main_frame.add { type = 'flow', direction = 'vertical' }
-    Gui.set_style(left_flow, { horizontally_stretchable = true })
-
-    local settings_scroll_pane = left_flow
-    .add {
-      type = 'frame',
-      name = 'qbip',
-      style = 'quick_bar_inner_panel'
-    }.
-    add {
-      type = 'scroll-pane',
-      name = 'qbsp',
-      style = 'shortcut_bar_selection_scroll_pane',
-    }
-    Gui.set_style(settings_scroll_pane, { horizontally_squashable = false, minimal_width = 40 * table_size(enabled_shortcuts()) })
-
-    for _, s in pairs(enabled_shortcuts()) do
-      add_shortcut_selection_row(player, settings_scroll_pane, s)
-    end
-    settings_scroll_pane.visible = false
-
-    local table_frame = left_flow.add {
-      type = 'frame',
-      name = 'table_frame',
-      direction = 'horizontal',
-      style = 'quick_bar_inner_panel',
-    }
-    Gui.set_style(table_frame, { horizontally_stretchable = true, margin = 0 })
-
-    local table = table_frame.add {
-      type = 'table',
-      name = 'table',
-      column_count = table_size(enabled_shortcuts()),
-      style = 'filter_slot_table',
-    }
-    Gui.set_style(table, { horizontally_stretchable = true })
-
-    local button
-    local player_data = get_player_preferences(player)
-    for button_name, s in pairs(enabled_shortcuts()) do
-      button = table.add {
+    caption = {'player_shortcuts.frame_title'},
+    toggle_name = main_button_name,
+    -- floating, it's dragged by a strip down its side, as the bar was, rather than growing wider
+    side_dragger = true,
+    add_header_buttons = function(header)
+      header.add {
         type = 'sprite-button',
-        style = 'slot_button', --quick_bar_page_button
-        sprite = s.sprite,
-        hovered_sprite = s.hovered_sprite,
-        tooltip = s.tooltip,
-        tags = { action = shortcut_action_name, name = button_name },
+        name = settings_button_name,
+        style = 'frame_action_button',
+        sprite = 'utility/expand_dots',
+        tooltip = {'player_shortcuts.settings_tooltip'},
+        mouse_button_filter = { 'left' },
+        auto_toggle = true,
       }
-      Gui.set_style(button, { font_color = { 165, 165, 165 } })
-      if player_data[button_name] == nil then
-        player_data[button_name] = true
-      end
-      button.visible = player_data[button_name]
-    end
+    end,
+  })
+
+  local settings_pane = content.add {
+    type = 'scroll-pane',
+    style = 'shortcut_bar_selection_scroll_pane',
+  }
+  Gui.set_style(settings_pane, { horizontally_squashable = false, minimal_width = 40 * table_size(enabled_shortcuts()) })
+
+  for _, s in pairs(enabled_shortcuts()) do
+    add_shortcut_selection_row(player, settings_pane, s)
   end
+  settings_pane.visible = false
 
-  do -- settings
-    local right_flow = main_frame.add {
-      type = 'flow',
-      direction = 'vertical',
-    }
-    Gui.set_style(right_flow, { horizontal_align = 'center', padding = 0 })
-    right_flow.drag_target = main_frame
+  local table = content.add {
+    type = 'table',
+    column_count = table_size(enabled_shortcuts()),
+    style = 'filter_slot_table',
+  }
 
-    right_flow.add {
+  local player_data = get_player_preferences(player)
+  for button_name, s in pairs(enabled_shortcuts()) do
+    local button = table.add {
       type = 'sprite-button',
-      name = settings_button_name,
-      style = 'shortcut_bar_expand_button',
-      sprite = 'utility/expand_dots',
-      tooltip = {'player_shortcuts.settings_tooltip'},
-      mouse_button_filter = { 'left' },
-      auto_toggle = true,
+      style = 'slot_button', --quick_bar_page_button
+      sprite = s.sprite,
+      hovered_sprite = s.hovered_sprite,
+      tooltip = s.tooltip,
+      tags = { action = shortcut_action_name, name = button_name },
     }
-
-    local widget = right_flow.add { type = 'empty-widget', style = 'draggable_space', ignored_by_interaction = true }
-    Gui.set_style(widget, { vertically_stretchable = true, width = 8, margin = 0 })
+    Gui.set_style(button, { font_color = { 165, 165, 165 } })
+    if player_data[button_name] == nil then
+      player_data[button_name] = true
+    end
+    button.visible = player_data[button_name]
   end
+
+  Gui.set_data(main_frame, { settings_pane = settings_pane, table = table })
 
   return main_frame
 end
@@ -242,7 +210,7 @@ Event.add(defines.events.on_gui_checked_state_changed, function(event)
   if action_name and action_name == checkbox_action_name then
     local name = element.tags.name
     local frame = Public.get_main_frame(player)
-    for _, button in pairs(frame.children[1].table_frame.table.children) do
+    for _, button in pairs(Gui.get_data(frame).table.children) do
       if button.tags.name == name then
         local player_data = get_player_preferences(player)
         player_data[name] = element.state
