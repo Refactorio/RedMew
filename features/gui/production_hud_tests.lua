@@ -7,8 +7,6 @@ local ProductionHud = require 'features.gui.production_hud'
 
 -- Factorio's minimap, top right, is this wide: a floating HUD dragged under it lines up with it.
 local MINIMAP_WIDTH = 256
--- what the header leaves the title beside the time span, the add button, the pin and the X
-local TITLE_WIDTH = 64
 
 Declare.module({ 'features', 'gui', 'production hud' }, function()
     -- uses a player's GUI
@@ -37,6 +35,14 @@ Declare.module({ 'features', 'gui', 'production hud' }, function()
         return Gui.get_panel(player, name)
     end
 
+    -- Floating with its side strip, the header and content are in a column beside the strip.
+    local function body_of(panel)
+        if panel.direction == 'horizontal' then
+            return panel.children[1]
+        end
+        return panel
+    end
+
     for _, floating in pairs({ false, true }) do
         local where = floating and 'floating' or 'docked'
 
@@ -49,22 +55,22 @@ Declare.module({ 'features', 'gui', 'production hud' }, function()
             Assert.equal(MINIMAP_WIDTH, panel.style.maximal_width, 'maximal width')
         end)
 
-        Declare.test('the HUD caps its title, so a longer translation keeps its buttons inside that width, ' .. where, function(context)
-            -- Act
-            local panel = open(context, floating)
-
-            -- Assert
-            local title = panel.children[1].children[1]
-            local width = title.style.maximal_width
-            Assert.is_true(width ~= nil and width <= TITLE_WIDTH, 'the title should be at most ' .. TITLE_WIDTH .. ' wide, it can be ' .. tostring(width))
-        end)
-
         Declare.test('the HUD shows its numbers on a dark inner frame, ' .. where, function(context)
             -- Act
             local panel = open(context, floating)
 
             -- Assert
-            Assert.equal('inside_deep_frame', panel.children[2].style.name, 'inner frame')
+            Assert.equal('inside_deep_frame', body_of(panel).children[2].style.name, 'inner frame')
         end)
     end
+
+    Declare.test('the floating HUD is dragged by a strip down its side, which leaves its title room', function(context)
+        -- Act
+        local panel = open(context, true)
+
+        -- Assert
+        local strip = panel.children[#panel.children]
+        Assert.equal('empty-widget', strip.type, 'the last element should be the strip')
+        Assert.equal(panel, strip.drag_target, 'the strip should drag the HUD')
+    end)
 end)

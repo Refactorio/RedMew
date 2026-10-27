@@ -529,12 +529,12 @@ end
 --- panel when it is closed and close it when it is open. A panel with buttons of its own in the
 --- header adds them in add_header_buttons(header), which puts them before the pin. Find it again
 --- with Gui.get_panel.
---- title_width caps the title's width, so a longer translation can't push the header's buttons out
---- of a panel with a fixed width. deep puts the content in a dark inner frame, which numbers read
+--- The title gives way to the header's buttons rather than push them out of a fixed-width panel
+--- when a translation is longer. deep puts the content in a dark inner frame, which numbers read
 --- better on. With side_dragger, a floating panel is dragged by a strip down its right side rather
 --- than by a space in its header, so the header keeps its width.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, title_width: number?, deep: boolean?, side_dragger: boolean? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, deep: boolean?, side_dragger: boolean? }
 ---@return LuaGuiElement frame
 ---@return LuaGuiElement content the padded inner frame to add the panel's elements to
 function Gui.add_panel(player, spec)
@@ -574,9 +574,7 @@ function Gui.add_panel(player, spec)
     Gui.set_style(header, Styles.default_title_bar.style)
 
     local title = header.add { type = 'label', caption = spec.caption, style = 'frame_title' }
-    if spec.title_width then
-        Gui.set_style(title, { maximal_width = spec.title_width })
-    end
+    Gui.set_style(title, { horizontally_squashable = true })
     if floating then
         title.drag_target = frame
     end

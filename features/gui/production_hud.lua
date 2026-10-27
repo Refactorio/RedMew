@@ -174,8 +174,8 @@ Public.get_main_frame = function(player)
         caption = { 'production_hud.frame_title' },
         toggle_name = main_button_name,
         width = 'minimap',
-        -- the title, time span, add button, pin and a floating panel's X share the minimap's width
-        title_width = 56,
+        -- floating, dragged by a strip down its side, so its header has room for the title
+        side_dragger = true,
         -- green and red numbers read better on dark
         deep = true,
         add_header_buttons = function(header)

@@ -170,6 +170,15 @@ Declare.module({'utils', 'Gui'}, function()
             Assert.equal(panel, Gui.get_panel(context.player, TEST_PANEL))
         end)
 
+        Declare.test('a panel\'s title gives way to its buttons, so a long translation can\'t push them out', function(context)
+            -- Act
+            local panel = open_docked(context)
+
+            -- Assert
+            local title = panel.children[1].children[1]
+            Assert.is_true(title.style.horizontally_squashable, 'the title should be squashable')
+        end)
+
         Declare.test('the pin floats a docked panel into a window with an X, and docks it again', function(context)
             -- Arrange
             local player = context.player
