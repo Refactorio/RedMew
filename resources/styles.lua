@@ -47,6 +47,8 @@ Public.default_title_bar = {
 Public.panel_width = {
     narrow = 400,
     wide = 470,
+    -- the minimap's, for a panel players float under it (the production HUD)
+    minimap = 256,
 }
 
 Public.default_dragger = {

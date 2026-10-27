@@ -220,6 +220,18 @@ function Gui.add_pusher(parent, direction)
     return pusher
 end
 
+--- Adds a toolbar to a panel's or window's content: a row its buttons go in, pushed to the right,
+--- above the rest of the content. For buttons that don't fit the header beside the title, such as
+--- the production HUD's, which keeps the minimap's width.
+---@param parent LuaGuiElement
+---@return LuaGuiElement toolbar the row to add the buttons to
+function Gui.add_toolbar(parent)
+    local toolbar = parent.add { type = 'flow', direction = 'horizontal' }
+    Gui.set_style(toolbar, { vertical_align = 'center', bottom_margin = 4 })
+    Gui.add_pusher(toolbar)
+    return toolbar
+end
+
 Gui.add_dragger = function(parent, target)
     local dragger = parent.add { type = 'empty-widget', style = 'draggable_space_header' }
     Gui.set_style(dragger, Styles.default_dragger.style)
@@ -530,7 +542,7 @@ end
 --- header adds them in add_header_buttons(header), which puts them before the pin. Find it again
 --- with Gui.get_panel.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|nil, add_header_buttons: fun(header: LuaGuiElement)? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)? }
 ---@return LuaGuiElement frame
 ---@return LuaGuiElement content the padded inner frame to add the panel's elements to
 function Gui.add_panel(player, spec)
@@ -552,6 +564,10 @@ function Gui.add_panel(player, spec)
     frame.tags = { redmew_panel = true, redmew_floating_panel = floating or nil, toggle_name = spec.toggle_name }
     if spec.width then
         Gui.set_style(frame, { width = Styles.panel_width[spec.width] })
+    else
+        -- the header's pusher would stretch the panel across the column under the top buttons,
+        -- as wide as the top bar: a panel without a width is as wide as its contents
+        Gui.set_style(frame, { horizontally_stretchable = false })
     end
 
     local header = frame.add { type = 'flow', direction = 'horizontal', style = 'frame_header_flow' }

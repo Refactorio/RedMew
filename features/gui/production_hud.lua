@@ -79,6 +79,8 @@ end
 -- == GUI =====================================================================
 
 local main_frame_name = Gui.uid_name()
+--- The HUD panel's name, for tests.
+Public._main_frame_name = main_frame_name
 local main_button_name = Gui.uid_name()
 local action_scroll_precision_index = Gui.uid_name()
 local action_add_item = Gui.uid_name()
@@ -171,32 +173,35 @@ Public.get_main_frame = function(player)
         name = main_frame_name,
         caption = { 'production_hud.frame_title' },
         toggle_name = main_button_name,
-        add_header_buttons = function(header)
-            --- Display time
-            local button = header.add {
-                type = 'sprite-button',
-                name = action_scroll_precision_index,
-                caption = to_time[settings.precision_index],
-                style = 'frame_button',
-            }
-            data.action_scroll_precision_index = button
-            Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
-            Gui.set_data(button, data)
-
-            --- Add new
-            button = header.add {
-                type = 'choose-elem-button',
-                name = action_add_item,
-                style = 'frame_button',
-                tooltip = { 'production_hud.new_item_tooltip' },
-                elem_type = 'signal',
-                signal = { type = 'virtual', name = 'shape-cross' },
-            }
-            Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
-            Gui.set_data(button, data)
-        end,
+        width = 'minimap',
     })
-    Gui.set_style(frame, { minimal_width = 256 })
+
+    -- the time span and the add button get a row of their own: in the header, beside the title,
+    -- the pin and a floating panel's X, they don't fit the minimap's width
+    local toolbar = Gui.add_toolbar(content)
+
+    --- Display time
+    local button = toolbar.add {
+        type = 'sprite-button',
+        name = action_scroll_precision_index,
+        caption = to_time[settings.precision_index],
+        style = 'frame_button',
+    }
+    data.action_scroll_precision_index = button
+    Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
+    Gui.set_data(button, data)
+
+    --- Add new
+    button = toolbar.add {
+        type = 'choose-elem-button',
+        name = action_add_item,
+        style = 'frame_button',
+        tooltip = { 'production_hud.new_item_tooltip' },
+        elem_type = 'signal',
+        signal = { type = 'virtual', name = 'shape-cross' },
+    }
+    Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
+    Gui.set_data(button, data)
 
     local tbl = content.add { type = 'table', column_count = 2, draw_horizontal_lines = true }
     data.table = tbl
@@ -329,3 +334,5 @@ Event.on_configuration_changed(function()
 end)
 
 -- ============================================================================
+
+return Public
