@@ -1,6 +1,7 @@
 -- Tests for features.server, discovered in every scenario (control.lua always loads it).
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
+local EventFactory = require 'utils.test.event_factory'
 local Server = require 'features.server'
 
 Declare.module({ 'features', 'server' }, function()
@@ -17,8 +18,9 @@ Declare.module({ 'features', 'server' }, function()
             Server.set_time(nil)
             storage.redmew_version = nil
 
-            -- Act
-            Server._set_scenario_version()
+            -- Act: every module's handler runs, as with ServerCommands.server_started() (Danger Ores
+            -- and Crash Site create their map poll)
+            EventFactory.raise({ name = Server.events.on_server_started, tick = game.tick })
 
             -- Assert
             Assert.is_nil(storage.redmew_version, 'scenario version')

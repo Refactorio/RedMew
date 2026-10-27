@@ -718,9 +718,6 @@ end
 
 Event.add(Public.events.on_server_started, set_scenario_version)
 
---- The on_server_started handler that sets the scenario version, exposed for tests.
-Public._set_scenario_version = set_scenario_version
-
 --- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
 --  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
 Event.add(defines.events.on_player_joined_game, function(event)
