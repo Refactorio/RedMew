@@ -7,6 +7,8 @@ local ProductionHud = require 'features.gui.production_hud'
 
 -- Factorio's minimap, top right, is this wide: a floating HUD dragged under it lines up with it.
 local MINIMAP_WIDTH = 256
+-- what the header leaves the title beside the time span, the add button, the pin and the X
+local TITLE_WIDTH = 64
 
 Declare.module({ 'features', 'gui', 'production hud' }, function()
     -- uses a player's GUI
@@ -35,16 +37,6 @@ Declare.module({ 'features', 'gui', 'production hud' }, function()
         return Gui.get_panel(player, name)
     end
 
-    local function count_header_buttons(panel)
-        local count = 0
-        for _, child in pairs(panel.children[1].children) do
-            if child.type == 'sprite-button' or child.type == 'choose-elem-button' or child.type == 'drop-down' then
-                count = count + 1
-            end
-        end
-        return count
-    end
-
     for _, floating in pairs({ false, true }) do
         local where = floating and 'floating' or 'docked'
 
@@ -57,12 +49,22 @@ Declare.module({ 'features', 'gui', 'production hud' }, function()
             Assert.equal(MINIMAP_WIDTH, panel.style.maximal_width, 'maximal width')
         end)
 
-        Declare.test('the HUD keeps its own buttons out of the header, so it fits that width, ' .. where, function(context)
+        Declare.test('the HUD caps its title, so a longer translation keeps its buttons inside that width, ' .. where, function(context)
             -- Act
             local panel = open(context, floating)
 
-            -- Assert: only the pin, and a floating panel's X
-            Assert.equal(floating and 2 or 1, count_header_buttons(panel), 'buttons in the header')
+            -- Assert
+            local title = panel.children[1].children[1]
+            local width = title.style.maximal_width
+            Assert.is_true(width ~= nil and width <= TITLE_WIDTH, 'the title should be at most ' .. TITLE_WIDTH .. ' wide, it can be ' .. tostring(width))
+        end)
+
+        Declare.test('the HUD shows its numbers on a dark inner frame, ' .. where, function(context)
+            -- Act
+            local panel = open(context, floating)
+
+            -- Assert
+            Assert.equal('inside_deep_frame', panel.children[2].style.name, 'inner frame')
         end)
     end
 end)

@@ -131,6 +131,8 @@ function Public.get_main_frame(player)
     name = main_frame_name,
     caption = {'player_shortcuts.frame_title'},
     toggle_name = main_button_name,
+    -- floating, it's dragged by a strip down its side, as the bar was, rather than growing wider
+    side_dragger = true,
     add_header_buttons = function(header)
       header.add {
         type = 'sprite-button',

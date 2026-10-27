@@ -7,12 +7,14 @@ local EventFactory = require 'utils.test.event_factory'
 -- A side panel of the tests' own, with a toggle the way a top button's handler toggles one.
 local TEST_PANEL = 'gui_tests_panel'
 local TEST_TOGGLE = 'gui_tests_panel_toggle'
+-- what the toggle opens; a test can add options, and puts them back in its teardown
+local test_panel_spec = { name = TEST_PANEL, caption = 'Test panel', toggle_name = TEST_TOGGLE, width = 'narrow' }
 Gui.on_click(TEST_TOGGLE, function(event)
     local panel = Gui.get_panel(event.player, TEST_PANEL)
     if panel then
         panel.destroy()
     else
-        Gui.add_panel(event.player, { name = TEST_PANEL, caption = 'Test panel', toggle_name = TEST_TOGGLE, width = 'narrow' })
+        Gui.add_panel(event.player, test_panel_spec)
     end
 end)
 
@@ -143,7 +145,7 @@ Declare.module({'utils', 'Gui'}, function()
                     panel.destroy()
                 end
             end)
-            return Gui.add_panel(player, { name = TEST_PANEL, caption = 'Test panel', toggle_name = TEST_TOGGLE, width = 'narrow' })
+            return Gui.add_panel(player, test_panel_spec)
         end
 
         local function pin_name(panel)
@@ -208,6 +210,32 @@ Declare.module({'utils', 'Gui'}, function()
             Assert.equal(40, panel.location.x)
             Assert.equal(50, panel.location.y)
             Assert.is_true(not panel.auto_center, 'the panel should not move back to the middle')
+        end)
+
+        Declare.test('a floating panel with side_dragger is dragged by a strip down its side, not its header', function(context)
+            -- Arrange
+            local player = context.player
+            test_panel_spec.side_dragger = true
+            context:add_teardown(function()
+                test_panel_spec.side_dragger = nil
+            end)
+            local panel = open_docked(context)
+
+            -- Act
+            Helper.click(header_button(panel, pin_name(panel)))
+
+            -- Assert
+            panel = Gui.get_panel(player, TEST_PANEL)
+            local strip = panel.children[#panel.children]
+            Assert.equal('empty-widget', strip.type, 'the last element should be the strip')
+            Assert.equal(panel, strip.drag_target, 'the strip should drag the panel')
+            local header = panel.children[1].children[1]
+            local has_x = false
+            for _, child in pairs(header.children) do
+                Assert.is_true(child.type ~= 'empty-widget' or child.drag_target == nil, 'the header should have no space to drag by')
+                has_x = has_x or child.name == TEST_TOGGLE
+            end
+            Assert.is_true(has_x, 'the header should still have the X')
         end)
 
         Declare.test('the X closes a floating panel', function(context)

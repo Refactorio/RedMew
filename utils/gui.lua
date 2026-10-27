@@ -220,18 +220,6 @@ function Gui.add_pusher(parent, direction)
     return pusher
 end
 
---- Adds a toolbar to a panel's or window's content: a row its buttons go in, pushed to the right,
---- above the rest of the content. For buttons that don't fit the header beside the title, such as
---- the production HUD's, which keeps the minimap's width.
----@param parent LuaGuiElement
----@return LuaGuiElement toolbar the row to add the buttons to
-function Gui.add_toolbar(parent)
-    local toolbar = parent.add { type = 'flow', direction = 'horizontal' }
-    Gui.set_style(toolbar, { vertical_align = 'center', bottom_margin = 4 })
-    Gui.add_pusher(toolbar)
-    return toolbar
-end
-
 Gui.add_dragger = function(parent, target)
     local dragger = parent.add { type = 'empty-widget', style = 'draggable_space_header' }
     Gui.set_style(dragger, Styles.default_dragger.style)
@@ -541,17 +529,24 @@ end
 --- panel when it is closed and close it when it is open. A panel with buttons of its own in the
 --- header adds them in add_header_buttons(header), which puts them before the pin. Find it again
 --- with Gui.get_panel.
+--- title_width caps the title's width, so a longer translation can't push the header's buttons out
+--- of a panel with a fixed width. deep puts the content in a dark inner frame, which numbers read
+--- better on. With side_dragger, a floating panel is dragged by a strip down its right side rather
+--- than by a space in its header, so the header keeps its width.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, title_width: number?, deep: boolean?, side_dragger: boolean? }
 ---@return LuaGuiElement frame
 ---@return LuaGuiElement content the padded inner frame to add the panel's elements to
 function Gui.add_panel(player, spec)
     local name = spec.name
     local floating = is_panel_floating(player, name)
 
+    -- with a side dragger, the header and content go in a column beside the strip
+    local side_dragger = floating and spec.side_dragger
+
     local frame
     if floating then
-        frame = player.gui.screen.add { type = 'frame', name = name, direction = 'vertical' }
+        frame = player.gui.screen.add { type = 'frame', name = name, direction = side_dragger and 'horizontal' or 'vertical' }
         local location = saved_panel_location(player, name)
         if location then
             frame.location = location
@@ -570,12 +565,22 @@ function Gui.add_panel(player, spec)
         Gui.set_style(frame, { horizontally_stretchable = false })
     end
 
-    local header = frame.add { type = 'flow', direction = 'horizontal', style = 'frame_header_flow' }
+    local body = frame
+    if side_dragger then
+        body = frame.add { type = 'flow', direction = 'vertical' }
+    end
+
+    local header = body.add { type = 'flow', direction = 'horizontal', style = 'frame_header_flow' }
     Gui.set_style(header, Styles.default_title_bar.style)
 
     local title = header.add { type = 'label', caption = spec.caption, style = 'frame_title' }
+    if spec.title_width then
+        Gui.set_style(title, { maximal_width = spec.title_width })
+    end
     if floating then
         title.drag_target = frame
+    end
+    if floating and not side_dragger then
         local dragger = Gui.add_dragger(header, frame)
         Gui.set_style(dragger, { height = 24 })
     else
@@ -608,8 +613,14 @@ function Gui.add_panel(player, spec)
         }
     end
 
-    local content = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
+    local content = body.add { type = 'frame', style = spec.deep and 'inside_deep_frame' or 'inside_shallow_frame', direction = 'vertical' }
     Gui.set_style(content, { padding = 8 })
+
+    if side_dragger then
+        local dragger = frame.add { type = 'empty-widget', style = 'draggable_space' }
+        Gui.set_style(dragger, { vertically_stretchable = true, width = 8, margin = 0, left_margin = 8 })
+        dragger.drag_target = frame
+    end
 
     return frame, content
 end
@@ -634,7 +645,10 @@ end
 -- closes it, and opens it again where it now belongs.
 Gui.on_click(panel_pin_button_name, function(event)
     local player = event.player
-    local frame = event.element.parent.parent
+    local frame = event.element.parent
+    while not frame.tags.redmew_panel do
+        frame = frame.parent
+    end
     local name = frame.name
     local toggle_name = frame.tags.toggle_name
     local toggle = toggle_name and click_handlers[toggle_name]
