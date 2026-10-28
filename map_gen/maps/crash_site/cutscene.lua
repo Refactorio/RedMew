@@ -310,13 +310,25 @@ Cutscene.register_cutscene_function('Crashsite_Outpost', waypoints_outpost, Toke
 
 Cutscene.register_replay('Crashsite_Welcome', 120)
 
+-- Player creation leaves the start-up messages and map info to the cutscene's end (see on_init), so
+-- a player who doesn't auto play it gets them straight away instead.
+function CrashsiteCutscene.start_for_new_player(player_index)
+    if Settings.get(player_index, auto_play_cutscene_setting_name) then
+        Cutscene.register_running_cutscene(player_index, 'Crashsite_Welcome', 120)
+        return
+    end
+
+    local player = game.get_player(player_index)
+    if valid(player) then
+        PC.show_start_up(player)
+        player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
+    end
+end
+
 local start_cutscene =
     Token.register(
         function(params)
-            local player_index = params.event.player_index
-            if Settings.get(player_index, auto_play_cutscene_setting_name) then
-                Cutscene.register_running_cutscene(player_index, 'Crashsite_Welcome', 120)
-            end
+            CrashsiteCutscene.start_for_new_player(params.event.player_index)
         end
 )
 
