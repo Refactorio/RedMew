@@ -40,7 +40,6 @@ local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
-local focus_color = { 128, 206, 240 }
 local donator_color = Color.donator
 
 local notify_name = 'notify_poke'
@@ -124,11 +123,10 @@ local function do_poke_spam_protection(player)
     end
 end
 
--- A heading lines up with its column's cells: names and ranks are left-aligned so a list of them
--- reads level, time and distance right-aligned so their units line up, everything else is centred.
+-- A heading (a caption_label) lines up with its column's cells: names and ranks are left-aligned
+-- so a list of them reads level, time and distance right-aligned so their units line up,
+-- everything else is centred.
 local function apply_heading_style(style, horizontal_align)
-    style.font_color = focus_color
-    style.font = 'default-semibold'
     style.horizontal_align = horizontal_align or 'center'
 end
 
@@ -145,7 +143,7 @@ local column_builders = {
             return a < b
         end,
         draw_heading = function(parent)
-            local label = parent.add { type = 'label', name = sprite_heading_name, caption = ' ' }
+            local label = parent.add { type = 'label', name = sprite_heading_name, style = 'caption_label', caption = ' ' }
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 32
@@ -174,7 +172,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.name_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = player_name_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = player_name_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style, 'left')
             label_style.width = 150
@@ -208,7 +206,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.time_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = time_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = time_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style, 'right')
             label_style.width = 70
@@ -245,7 +243,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.rank_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = rank_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = rank_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style, 'left')
             label_style.width = rank_column_width
@@ -288,7 +286,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.distance_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = distance_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = distance_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style, 'right')
             label_style.width = 80
@@ -329,6 +327,7 @@ local column_builders = {
             local label = parent.add {
                 type = 'label',
                 name = coin_heading_name,
+                style = 'caption_label',
                 caption = caption,
                 tooltip = { 'player_list.coins_tooltip' },
             }
@@ -359,7 +358,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.kills_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = kills_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = kills_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 70
@@ -388,7 +387,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = { 'player_list.deaths_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = deaths_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = deaths_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 70
@@ -439,7 +438,7 @@ local column_builders = {
         end,
         draw_heading = function(parent, sort_symbol, data)
             local caption = { 'player_list.poke_caption', sort_symbol }
-            local label = parent.add { type = 'label', name = poke_name_heading_name, caption = caption }
+            local label = parent.add { type = 'label', name = poke_name_heading_name, style = 'caption_label', caption = caption }
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 60
@@ -455,14 +454,9 @@ local column_builders = {
             parent_style.width = 64
             parent_style.horizontal_align = 'center'
 
-            local label = parent.add { type = 'button', name = poke_cell_name, caption = cell_data.poke_count, style = 'crafting_queue_slot' }
-            Gui.set_style(label, {
-                horizontal_align = 'center',
-                minimal_width = 32,
-                height = 24,
-                font = 'default-bold',
-                padding = 0,
-            })
+            local label = parent.add { type = 'button', name = poke_cell_name, caption = cell_data.poke_count, style = 'tool_button' }
+            -- wider than an icon once the count has a few digits
+            Gui.set_style(label, { maximal_width = 56 })
 
             data.poke_buttons[player.index] = label
 
@@ -482,6 +476,7 @@ local column_builders = {
             local label = parent.add {
                 type = 'label',
                 name = report_heading_name,
+                style = 'caption_label',
                 caption = { 'player_list.report_caption', sort_symbol },
                 tooltip = { 'player_list.report_tooltip' },
             }
@@ -509,16 +504,9 @@ local column_builders = {
                 name = report_cell_name,
                 sprite = 'utility/force_editor_icon',
                 tooltip = tooltip,
-                style = 'slot_button_in_shallow_frame',
+                style = 'tool_button',
                 enabled = not is_self,
             }
-            Gui.set_style(label, {
-                horizontal_align = 'center',
-                minimal_width = 32,
-                height = 24,
-                font = 'default-bold',
-                padding = 0,
-            })
 
             Gui.set_data(label, cell_data)
 

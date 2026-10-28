@@ -241,10 +241,12 @@ local function draw_filters_table(event)
 end
 
 -- Shows the player's brush tile on the brush button, or an empty slot, and lets the clear button
--- clear it only while there is one.
+-- clear it only while there is one. How painting works is in the brush's tooltip, so it doesn't
+-- take more room in the panel than the brush itself.
 local function show_brush(brush, tile_name)
     brush.sprite = tile_name and 'tile/' .. tile_name or nil
-    brush.tooltip = tile_name and { 'paint.brush_tooltip', get_tile_localised_name(tile_name) } or { 'paint.select_brush' }
+    local tooltip = tile_name and { 'paint.brush_tooltip', get_tile_localised_name(tile_name) } or { 'paint.select_brush' }
+    brush.tooltip = { '', tooltip, '\n\n', { 'paint.instructions' } }
 
     local clear_button = Gui.get_data(brush)
     if clear_button and clear_button.valid then
@@ -282,9 +284,6 @@ local function toggle(event)
         Gui.set_data(clear_brush, brush)
         Gui.set_data(brush, clear_brush)
         show_brush(brush, paint_brushes_by_player[event.player_index])
-
-        local label = top_flow.add { type = 'label', caption = { 'paint.instructions' } }
-        Gui.set_style(label, { font = 'default-bold', single_line = false, left_padding = 10, width = 220 })
     end
 end
 

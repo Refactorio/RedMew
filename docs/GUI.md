@@ -54,12 +54,14 @@ own styles rather than setting sizes and colours.
 | --- | --- |
 | A panel, window or dialog | `Gui.add_panel`, `Gui.add_window`, `Gui.add_dialog` and `Gui.add_dialog_buttons` |
 | Icon buttons in a header (pin, add, clear) | `frame_action_button` with a white sprite (`utility/add_white`), the dark one as `hovered_sprite` |
-| Icon buttons in content (edit, delete, move, add, a count) | `tool_button`; `tool_button_red` when it deletes |
+| Icon buttons in content (edit, delete, move, add, a count) | `tool_button`; `tool_button_red` when it deletes or punishes |
 | Showing which one is the player's (their vote, their volunteering) | `toggled = true` on the button, not a font colour |
 | Dialog buttons | `back_button`, `dialog_button`, `confirm_button`, and `red_back_button` or `red_confirm_button` when they delete or punish (the defaults of `Gui.add_dialog_buttons`) |
 | A section in a panel | `inside_shallow_frame` with a `subheader_frame` holding a `subheader_caption_label` and its `tool_button`s |
-| Item, tile and signal slots | `slot_button` in a `filter_slot_table`, in an `inside_deep_frame`; `slot_button_in_shallow_frame` for a single slot in a shallow frame |
-| Text | a label with the default style; `bold_label` for names of fields and for a question |
+| Item, tile and signal slots | `slot_button` in a `filter_slot_table`, in an `inside_deep_frame`; `slot_sized_button` for a single slot on a shallow frame (the paint brush) |
+| Text | a label with the default style; `bold_label` for names of fields, for a question and for a row's number (an experience level) |
+| Column headings | `caption_label`, aligned like the column's cells |
+| A choice from a short list (a time span) | a `drop-down` |
 | Text to read but not edit | a `text-box` with the `notice_textbox` style, `read_only`: players can still select and copy it |
 | Titles | `frame_title`, only through the helpers |
 

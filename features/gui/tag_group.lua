@@ -178,6 +178,10 @@ local function draw_main_frame_content(parent)
         local path = tag_data.path
 
         local row = grid.add { type = 'table', column_count = 4 }
+        -- keep the names level with the buttons
+        for column = 1, 4 do
+            row.style.column_alignments[column] = 'middle-left'
+        end
 
         if can_edit then
             local edit_button =
@@ -186,10 +190,9 @@ local function draw_main_frame_content(parent)
                 name = edit_tag_button_name,
                 sprite = 'utility/rename_icon',
                 tooltip = {'tag_group.edit_group'},
-                style = 'crafting_queue_slot',
+                style = 'tool_button',
             }
             edit_button.visible = can_edit
-            Gui.set_style(edit_button, { padding = 4, size = 32 })
             Gui.set_data(edit_button, tag_name)
         end
 
@@ -199,10 +202,9 @@ local function draw_main_frame_content(parent)
             name = tag_button_name,
             sprite = path,
             tooltip = tag_name,
-            style = 'slot_button_in_shallow_frame',
+            style = 'tool_button',
             number = (size > 0) and size or nil,
         }
-        Gui.set_style(tag_button, { size = 32 })
         Gui.set_data(tag_button, tag_name)
 
         local tag_label = row.add { type = 'label', name = tag_label_name, caption = tag_name, style = 'semibold_caption_label' }
@@ -425,7 +427,7 @@ local function draw_create_tag_frame(event, tag_data)
         type = 'choose-elem-button',
         name = create_tag_choose_icon_name,
         elem_type = spirte_type,
-        style = 'slot_button_in_shallow_frame',
+        style = 'slot_sized_button',
     }
 
     if path then
