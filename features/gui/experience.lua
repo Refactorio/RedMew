@@ -270,8 +270,10 @@ Public.get_main_frame = function(player)
     local canvas
     frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = 'Experience', toggle_name = main_button_name, width = 'narrow' })
 
-    local sp = canvas.add { type = 'scroll-pane', vertical_scroll_policy = 'auto-and-reserve-space' }
-    Gui.set_style(sp, { maximal_height = 600 })
+    -- the sections fill the inner frame, with room for a scroll bar only once the rewards need it
+    Gui.set_style(canvas, { padding = 0 })
+    local sp = canvas.add { type = 'scroll-pane', style = 'naked_scroll_pane', vertical_scroll_policy = 'auto' }
+    Gui.set_style(sp, { maximal_height = 600, padding = 8, horizontally_stretchable = true })
     do -- Level
         local content = sp.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
         content.add { type = 'label', style = 'tooltip_heading_label_category', caption = '★ XP' }
