@@ -651,6 +651,7 @@ local function draw_main_frame(player)
         caption = { 'player_list.poke_notify_caption' },
         tooltip = { 'player_list.poke_notify_tooltip' },
     }
+    Gui.set_style(notify_checkbox, { top_margin = 4 })
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {

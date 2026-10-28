@@ -275,6 +275,8 @@ local function draw_main_frame(player)
         caption = {'tag_group.notify_caption'},
         tooltip = {'tag_group.notify_tooltip'}
     }
+    -- as far from the list as from the frame's bottom edge
+    Gui.set_style(notify_checkbox, { top_margin = 4 })
 
     Gui.set_data(main_frame, { notify_checkbox = notify_checkbox, content = scroll_pane })
 end
