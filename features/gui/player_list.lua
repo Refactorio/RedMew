@@ -97,9 +97,6 @@ local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
 
-local jail_popup_name = Gui.uid_name()
-local jail_cancel_button_name = Gui.uid_name()
-local jail_confirm_button_name = Gui.uid_name()
 
 local function lighten_color(color)
     color.r = color.r * 0.6 + 0.4
@@ -481,14 +478,12 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, sort_symbol, data)
-            -- For admins the column jails instead of reporting
-            local is_admin = data.player.admin
+        draw_heading = function(parent, sort_symbol)
             local label = parent.add {
                 type = 'label',
                 name = report_heading_name,
-                caption = { is_admin and 'player_list.jail_caption' or 'player_list.report_caption', sort_symbol },
-                tooltip = { is_admin and 'player_list.jail_tooltip' or 'player_list.report_tooltip' },
+                caption = { 'player_list.report_caption', sort_symbol },
+                tooltip = { 'player_list.report_tooltip' },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -501,14 +496,10 @@ local column_builders = {
             parent_style.width = 65
             parent_style.horizontal_align = 'center'
 
-            local viewer = data.player
-            local is_admin = viewer.admin
-            local is_self = cell_data == viewer
+            local is_self = cell_data == data.player
             local tooltip
             if is_self then
-                tooltip = { is_admin and 'player_list.jail_self_tooltip' or 'player_list.report_self_tooltip' }
-            elseif is_admin then
-                tooltip = { 'player_list.jail_button_tooltip', cell_data.name }
+                tooltip = { 'player_list.report_self_tooltip' }
             else
                 tooltip = { 'player_list.report_button_tooltip', cell_data.name }
             end
@@ -516,7 +507,7 @@ local column_builders = {
             local label = parent.add {
                 type = 'sprite-button',
                 name = report_cell_name,
-                sprite = is_admin and 'utility/not_available' or 'utility/force_editor_icon',
+                sprite = 'utility/force_editor_icon',
                 tooltip = tooltip,
                 style = 'slot_button_in_shallow_frame',
                 enabled = not is_self,
@@ -536,7 +527,9 @@ local column_builders = {
     },
 }
 
-local function get_default_player_settings()
+-- Admins jail from the admin panel, which also reaches players who have left, so their list has no
+-- report column and stays compact.
+local function get_columns(player)
     local columns = {
         sprite_heading_name,
         player_name_heading_name,
@@ -546,15 +539,20 @@ local function get_default_player_settings()
         kills_heading_name,
         deaths_heading_name,
         poke_name_heading_name,
-        report_heading_name,
     }
 
     if storage.config.player_list.show_coin_column then
         table.insert(columns, 6, coin_heading_name)
     end
+    if not player.admin then
+        columns[#columns + 1] = report_heading_name
+    end
 
+    return columns
+end
+
+local function get_default_player_settings()
     return {
-        columns = columns,
         sort = -3,
     }
 end
@@ -665,6 +663,11 @@ local function draw_main_frame(player)
     }
 
     local settings = player_settings[player_index] or get_default_player_settings()
+    -- the columns follow the player's rank as it is now, the last one sorted by goes if it went
+    settings.columns = get_columns(player)
+    if abs(settings.sort) > #settings.columns then
+        settings.sort = get_default_player_settings().sort
+    end
     local data = {
         player = player,
         frame = frame,
@@ -845,36 +848,6 @@ Gui.on_click(poke_cell_name, function(event)
     end
 end)
 
-local function close_jail_popup(player)
-    local popup = player.gui.screen[jail_popup_name]
-    if popup and popup.valid then
-        Gui.destroy(popup)
-    end
-end
-
-local function draw_jail_popup(player, target)
-    close_jail_popup(player)
-
-    local popup = Gui.add_window(player, {
-        name = jail_popup_name,
-        caption = { 'player_list.jail_confirm_title', target.name },
-        close_button_name = jail_cancel_button_name,
-    })
-
-    local message = popup.add { type = 'label', caption = { 'player_list.jail_confirm_message', target.name } }
-    Gui.set_style(message, { single_line = false, maximal_width = 400 })
-
-    local button_flow = popup.add { type = 'flow', direction = 'horizontal', style = 'dialog_buttons_horizontal_flow' }
-    button_flow.add { type = 'button', name = jail_cancel_button_name, caption = { 'player_list.jail_cancel_button' }, style = 'back_button' }
-    local spacer = button_flow.add { type = 'empty-widget' }
-    Gui.set_style(spacer, { horizontally_stretchable = true })
-    local confirm_button = button_flow.add { type = 'button', name = jail_confirm_button_name, caption = { 'player_list.jail_confirm_button' }, style = 'red_confirm_button' }
-
-    Gui.set_data(confirm_button, target.index)
-
-    player.opened = popup
-end
-
 Gui.on_click(report_cell_name, function(event)
     local reporting_player = event.player
     local reported_player = Gui.get_data(event.element)
@@ -882,32 +855,7 @@ Gui.on_click(report_cell_name, function(event)
         return
     end
 
-    if reporting_player.admin then
-        draw_jail_popup(reporting_player, reported_player)
-    else
-        Report.spawn_reporting_popup(reporting_player, reported_player)
-    end
-end)
-
-Gui.on_click(jail_cancel_button_name, function(event)
-    close_jail_popup(event.player)
-end)
-
-Gui.on_custom_close(jail_popup_name, function(event)
-    Gui.destroy(event.element)
-end)
-
-Gui.on_click(jail_confirm_button_name, function(event)
-    local player = event.player
-    local target = game.get_player(Gui.get_data(event.element))
-
-    close_jail_popup(player)
-
-    if not player.admin or not target or not target.valid then
-        return
-    end
-
-    Report.jail(target, player)
+    Report.spawn_reporting_popup(reporting_player, reported_player)
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
