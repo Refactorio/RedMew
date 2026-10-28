@@ -176,7 +176,6 @@ function Public.get_main_frame(player)
       tooltip = s.tooltip,
       tags = { action = shortcut_action_name, name = button_name },
     }
-    Gui.set_style(button, { font_color = { 165, 165, 165 } })
     if player_data[button_name] == nil then
       player_data[button_name] = true
     end

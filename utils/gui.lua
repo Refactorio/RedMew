@@ -805,8 +805,6 @@ function Gui.make_close_button(parent, name)
         style = 'back_button'
     }
 
-    Styles.default_close(button.style)
-
     return button
 end
 
