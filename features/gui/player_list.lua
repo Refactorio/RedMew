@@ -47,6 +47,8 @@ local notify_name = 'notify_poke'
 Settings.register(notify_name, Settings.types.boolean, true, 'player_list.poke_notify_caption_short')
 
 local rank_column_width = 100
+-- right-aligned time and distance keep this far from the column after them
+local units_gap = 12
 
 local inv_sprite_time_step = 1 / sprite_time_step
 local donator_label_caption = { '', '(', { 'ranks.donator_abbreviation' }, ')' }
@@ -126,7 +128,7 @@ local function do_poke_spam_protection(player)
 end
 
 -- A heading lines up with its column's cells: names and ranks are left-aligned so a list of them
--- reads level, everything else is centred.
+-- reads level, time and distance right-aligned so their units line up, everything else is centred.
 local function apply_heading_style(style, horizontal_align)
     style.font_color = focus_color
     style.font = 'default-semibold'
@@ -211,8 +213,9 @@ local column_builders = {
             local caption = { 'player_list.time_caption', sort_symbol }
             local label = parent.add { type = 'label', name = time_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'right')
             label_style.width = 70
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -221,8 +224,9 @@ local column_builders = {
 
             local label = parent.add { type = 'label', name = time_cell_name, caption = text }
             local label_style = label.style
-            label_style.horizontal_align = 'center'
+            label_style.horizontal_align = 'right'
             label_style.width = 70
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -289,8 +293,9 @@ local column_builders = {
             local caption = { 'player_list.distance_caption', sort_symbol }
             local label = parent.add { type = 'label', name = distance_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'right')
             label_style.width = 80
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -299,8 +304,9 @@ local column_builders = {
 
             local label = parent.add { type = 'label', name = distance_cell_name, caption = text }
             local label_style = label.style
-            label_style.horizontal_align = 'center'
+            label_style.horizontal_align = 'right'
             label_style.width = 80
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -636,22 +642,27 @@ local function draw_main_frame(player)
     local player_index = player.index
     -- the title, with the player count, is set by redraw_title below
     local frame, inner = Gui.add_panel(player, { name = main_frame_name, caption = '', toggle_name = main_button_name })
-    Gui.set_style(inner, { right_padding = 0 })
+    -- the table is in the inner frame's padding, with the checkbox in a footer under it
+    Gui.set_style(inner, { padding = 0 })
+    local list = inner.add { type = 'flow', direction = 'vertical' }
+    Gui.set_style(list, { padding = 8, right_padding = 0 })
 
-    local heading_table_flow = inner.add { type = 'flow' }
+    local heading_table_flow = list.add { type = 'flow' }
 
-    local cell_table_scroll_pane = inner.add { type = 'scroll-pane' }
+    local cell_table_scroll_pane = list.add { type = 'scroll-pane' }
     Gui.set_style(cell_table_scroll_pane, { maximal_height = 400 })
 
+    local footer = inner.add { type = 'frame', style = 'subfooter_frame' }
+    Gui.set_style(footer, { horizontally_stretchable = true })
+
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = inner.add {
+    local notify_checkbox = footer.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
         caption = { 'player_list.poke_notify_caption' },
         tooltip = { 'player_list.poke_notify_tooltip' },
     }
-    Gui.set_style(notify_checkbox, { top_margin = 4 })
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
