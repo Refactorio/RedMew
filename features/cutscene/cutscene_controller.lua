@@ -230,6 +230,12 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     }
     local running_cutscene = running_cutscenes[player_index]
 
+    -- the cutscene's notes and arrows are drawn in the world, under any GUI, so the panels docked on
+    -- the left go while it plays
+    local left_flow = Gui.get_left_flow(player)
+    running_cutscene.left_flow_was_visible = left_flow.visible
+    left_flow.visible = false
+
     if player.controller_type == defines.controllers.cutscene then
         debug_print('' .. player.name .. ' was already in another cutscene not controlled by this module. It has been stopped')
         player.exit_cutscene()
@@ -399,6 +405,9 @@ local reconnect_character =
                 params.skip_btn_flag = true
                 player.ticks_to_respawn = 3600
                 player.print('[color=red][font=compi]Oops - You Died! Please go to a safe location and restart the cutscene[/font][/color]')
+            end
+            if running_cutscene.left_flow_was_visible ~= false then
+                Gui.get_left_flow(player).visible = true
             end
             if func then
                 Token.get(func)(player_index, params.skip_btn_flag)

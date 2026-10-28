@@ -28,9 +28,12 @@ end
 
 local function calculate_percentages(settings, player_resolution)
     local original_resolution = settings.original_resolution
+    -- a high density display (Retina) draws the world that many times larger, so it shows as many
+    -- tiles as a display of its resolution divided by the density
+    local density = player_resolution.density or 1
     return {
-        height = player_resolution.height / original_resolution.height,
-        width = player_resolution.width / original_resolution.width,
+        height = player_resolution.height / density / original_resolution.height,
+        width = player_resolution.width / density / original_resolution.width,
         tile = (settings.original_zoom * 32) / (settings.player_zoom * 32)
     }
 end
@@ -73,7 +76,9 @@ local function fit_to_screen_edges(settings, player_resolution, coordinates)
     if not coordinates.fitted then
         local tile = settings.original_zoom * 32
         local player_tile = settings.player_zoom * 32
+        -- the GUI is drawn display_scale times larger, the world display_density_scale times
         local display_scale = player_resolution.scale or 1
+        player_tile = player_tile * (player_resolution.density or 1)
 
         local player_height = (player_resolution.height / player_tile) * 0.5
         local player_width = (player_resolution.width / player_tile) * 0.5
@@ -109,12 +114,13 @@ local function create_background_params(params)
     return background_params
 end
 
-local function text_background(settings, offset, player, percentages, size, number_text, params)
-    local margin = 0.01 / params.scale
+-- A bar across the screen behind the line of text at `offset`, as far above it as below. Text
+-- drawn in the world is always one line (a line break in it isn't drawn), so one line is all it fits.
+local function text_background(settings, offset, player, percentages, size, params)
     local left_top = fit_to_screen(percentages, {x = -40, y = 0})
     local right_bottom = fit_to_screen(percentages, {x = 40, y = 0})
-    left_top.y = -size * margin * 0.875
-    right_bottom.y = size * (1.5 + (margin * 1.125)) * number_text
+    left_top.y = size * 0.5 - size * 0.85
+    right_bottom.y = size * 0.5 + size * 0.85
     local background_params = create_background_params(params)
     return Public.draw_rectangle(settings, offset, left_top, right_bottom, player, background_params)
 end
@@ -123,6 +129,7 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
     local list = {}
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
+    player_resolution.density = player.display_density_scale
     local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
@@ -138,8 +145,12 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
     end
     local size = text_height_in_tiles(scale, settings.player_zoom)
 
+    -- on a background the text is centred in the bar
+    local vertical_alignment
     if draw_background == true then
-        insert(list, text_background(settings, offset, player, percentages, size, 1, params, fit_to_edge))
+        insert(list, text_background(settings, offset, player, percentages, size, params))
+        vertical_alignment = 'middle'
+        offset = {x = offset.x, y = offset.y + size * 0.5}
     end
 
     local target = {x = player.physical_position.x + offset.x, y = player.physical_position.y + offset.y}
@@ -195,7 +206,8 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
         draw_on_ground = dog,
         only_in_alt_mode = oiam,
         orientation = orientation,
-        font = font
+        font = font,
+        vertical_alignment = vertical_alignment
     }
 
     debug_print(rendering_params)
@@ -208,6 +220,7 @@ function Public.draw_multi_line_text(settings, offset, texts, player, params, dr
     local list = {}
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
+    player_resolution.density = player.display_density_scale
     local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
@@ -237,6 +250,7 @@ end
 function Public.draw_rectangle(settings, offset, left_top, right_bottom, player, params, fit_to_edge)
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
+    player_resolution.density = player.display_density_scale
     local percentages = calculate_percentages(settings, player_resolution)
     if fit_to_edge then
         offset = fit_to_screen_edges(settings, player_resolution, offset)
@@ -313,6 +327,7 @@ end
 function Public.draw_arrow(settings, offset, player, params, fit_to_edge)
     local player_resolution = player.display_resolution
     player_resolution.scale = player.display_scale
+    player_resolution.density = player.display_density_scale
     local percentages = calculate_percentages(settings, player_resolution)
     if fit_to_edge then
         offset = fit_to_screen_edges(settings, player_resolution, offset)
