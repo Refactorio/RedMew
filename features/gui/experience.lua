@@ -268,11 +268,12 @@ Public.get_main_frame = function(player)
 
     local data = {}
     local canvas
-    frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = 'Experience', toggle_name = main_button_name, width = 'narrow' })
+    frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = 'Experience', toggle_name = main_button_name })
 
     -- the sections fill the inner frame, with room for a scroll bar only once the rewards need it
     Gui.set_style(canvas, { padding = 0 })
-    local sp = canvas.add { type = 'scroll-pane', style = 'naked_scroll_pane', vertical_scroll_policy = 'auto' }
+    -- never scrolling sideways, it's as wide as its sections, as the panel is
+    local sp = canvas.add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto' }
     Gui.set_style(sp, { maximal_height = 600, padding = 8, horizontally_stretchable = true })
     do -- Level
         local content = sp.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
@@ -286,13 +287,12 @@ Public.get_main_frame = function(player)
         local toggled = gui_toggled[player.index].bonuses
         local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_bonuses or off_bonuses, name = bonuses_button_name, tooltip = 'Hide/Show bonuses' }
         local deep = sp.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
-        Gui.set_style(deep, { padding = 0 })
-        -- the whole frame, so a hidden section leaves no empty frame behind
-        deep.visible = toggled
-        Gui.set_data(label, { list = deep })
+        Gui.set_style(deep, { padding = 0, minimal_height = 4 })
 
         local content = deep.add { type = 'flow', direction = 'vertical' }
         Gui.set_style(content, { padding = 8 })
+        content.visible = toggled
+        Gui.set_data(label, { list = content })
 
         local buffs = config.buffs
         content.add { type = 'label', style = 'tooltip_heading_label_category', caption = '✔ Bonuses' }
@@ -314,14 +314,14 @@ Public.get_main_frame = function(player)
         local toggled = gui_toggled[player.index].rewards
         local label = sp.add { type = 'label', style = 'bold_label', caption = toggled and on_rewards or off_rewards, name = rewards_list_button_name, tooltip = 'Hide/Show rewards' }
         local deep = sp.add { type = 'frame', style = 'deep_frame_in_shallow_frame_for_description', direction = 'vertical' }
-        Gui.set_style(deep, { padding = 0 })
-        deep.visible = toggled
-        Gui.set_data(label, { list = deep })
+        Gui.set_style(deep, { padding = 0, minimal_height = 4 })
 
         local last = {}
         local list = deep
             .add { type = 'scroll-pane', vertical_scroll_policy = 'dont-show-but-allow-scrolling' }
             .add { type = 'table', style = 'table_with_selection', column_count = 2 }
+        list.visible = toggled
+        Gui.set_data(label, { list = list })
         for _, item in pairs(config.unlockables) do
             if item.level ~= last.level then
                 local row = list.add { type = 'flow', direction = 'horizontal' }
