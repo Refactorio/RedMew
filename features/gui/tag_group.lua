@@ -255,28 +255,34 @@ local function draw_main_frame(player)
             end
         end
     })
+    -- the list always needs a scroll bar, so the panel stays short and covers less of the screen
+    Gui.set_style(main_frame, { maximal_height = 320 })
 
+    -- the list fills the inner frame, with the checkbox in a footer under it
+    Gui.set_style(inner_frame, { padding = 0 })
     local scroll_pane =
         inner_frame.add {
         type = 'scroll-pane',
         name = main_frame_content_name,
+        style = 'naked_scroll_pane',
         vertical_scroll_policy = 'auto-and-reserve-space'
     }
-    Gui.set_style(scroll_pane, { horizontally_stretchable = true, maximal_height = 400 })
+    Gui.set_style(scroll_pane, { horizontally_stretchable = true, padding = 8 })
 
     draw_main_frame_content(scroll_pane)
 
+    local footer = inner_frame.add { type = 'frame', style = 'subfooter_frame' }
+    Gui.set_style(footer, { horizontally_stretchable = true })
+
     local state = Settings.get(player.index, notify_name)
     local notify_checkbox =
-        inner_frame.add {
+        footer.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
         caption = {'tag_group.notify_caption'},
         tooltip = {'tag_group.notify_tooltip'}
     }
-    -- as far from the list as from the frame's bottom edge
-    Gui.set_style(notify_checkbox, { top_margin = 4 })
 
     Gui.set_data(main_frame, { notify_checkbox = notify_checkbox, content = scroll_pane })
 end
