@@ -51,6 +51,6 @@ Declare.module({'map_gen', 'diggy', 'cutscene'}, function()
         -- Assert
         Assert.equal(1, #shown_to, 'times the start-up messages and map info were shown')
         Assert.equal(fake_player, shown_to[1], 'player shown the start-up messages and map info')
-        Assert.equal('diggy.replay_cutscene', messages[1] and messages[1][1], 'the /replay hint')
+        Assert.equal('cutscene_controller.replay_hint', messages[1] and messages[1][1], 'the /replay hint')
     end)
 end)

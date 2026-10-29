@@ -288,7 +288,7 @@ local function terminate_function_redmew(player_index,skip_btn_flag)
             return
         end
         PC.show_start_up(player)
-        player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
+        player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
         return
     end
     Task.set_timeout_in_ticks(1, start_cutscene_outpost, player_index)
@@ -302,7 +302,7 @@ local function terminate_function_outpost(player_index)
     local pos = game.surfaces.redmew.find_non_colliding_position('character', {0, 0}, 0, 1)
     player.teleport(pos, 'redmew')
     PC.show_start_up(player)
-    player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
+    player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
 end
 
 Cutscene.register_cutscene_function('Crashsite_Welcome', waypoints_redmew, Token.register(cutscene_function_redmew), Token.register(terminate_function_redmew))
@@ -321,7 +321,7 @@ function CrashsiteCutscene.start_for_new_player(player_index)
     local player = game.get_player(player_index)
     if valid(player) then
         PC.show_start_up(player)
-        player.print({'crashsite.replay_cutscene', '/replay'}, {color = Color.yellow})
+        player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
     end
 end
 

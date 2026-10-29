@@ -301,7 +301,7 @@ local waypoints = {
 local function terminate_function(player_index)
     local player = game.get_player(player_index)
     PC.show_start_up(player)
-    player.print({'diggy.replay_cutscene', '/replay'}, {color = Color.yellow})
+    player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
 end
 
 Cutscene.register_cutscene_function('Diggy_Welcome', waypoints, Token.register(cutscene_function), Token.register(terminate_function))
@@ -318,7 +318,7 @@ function DiggyCutscene.start_for_new_player(player_index)
     local player = game.get_player(player_index)
     if valid(player) then
         PC.show_start_up(player)
-        player.print({'diggy.replay_cutscene', '/replay'}, {color = Color.yellow})
+        player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
     end
 end
 
