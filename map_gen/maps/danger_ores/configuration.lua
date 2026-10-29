@@ -33,7 +33,7 @@ return {
     }
   },
   cutscene = {
-    enabled = false,
+    enabled = true,
   },
   container_dump = {
     enabled = true,

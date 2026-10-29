@@ -1,14 +1,14 @@
 -- Danger Ores' intro cutscene, played to each new player (unless they turned off auto play) and
 -- again with /replay. It has three parts:
 --
--- 1. Welcome, on the map itself: a title card, then spawn.
+-- 1. Welcome, on the map itself: a title card with the map's name and twist, then spawn.
 -- 2. The rule, on a small staged surface: what may be built on ore, what may not, and cleared
 --    ground with a factory on it. The buildings on the ore are the map's own allowed ones: each
 --    is placed on ore and kept only if the building restriction allows it, so the scene can't show
 --    something the map refuses.
--- 3. Back on the map, the camera pulls back over the ore around spawn, whatever the preset's
---    layout, and it ends on a card with the map's name, its twist and the goal. The wide view
---    comes last because the map is still being generated around spawn early in a game.
+-- 3. Back on the map, the camera looks over the ore away from spawn, whatever the preset's
+--    layout, and it ends on a card with the goal. The ore comes last because the map is still
+--    being generated around spawn early in a game.
 --
 -- Player creation leaves the start-up messages and map info to the end of the cutscene.
 local Event = require 'utils.event'
@@ -128,7 +128,8 @@ local products = {
 local data = {
     -- where to put a player back after the rule scene, by player index
     return_to = {},
-    -- what the final card says: the map's name and twist, and how many satellites win it
+    -- what the cards say: the map's name and twist, how many satellites win it, and whether
+    -- there's a poll for the next map
     card = {},
 }
 
@@ -148,6 +149,51 @@ function Public.split_display_name(display_name)
         return display_name, nil
     end
     return name, twist
+end
+
+local function capitalize(text)
+    return text:sub(1, 1):upper() .. text:sub(2)
+end
+
+--- The title card's lines under 'Danger Ores': the map's name, its twist and who made it.
+---@param card table {name, twist}
+function Public.welcome_lines(card)
+    local lines = {{'danger_ores.cutscene_welcome', card.name or 'Danger Ores'}}
+    if card.twist then
+        -- the poll's twists start in lower case, as they follow the name in brackets there
+        lines[#lines + 1] = capitalize(card.twist)
+    end
+    lines[#lines + 1] = '---------------------'
+    lines[#lines + 1] = {'danger_ores.cutscene_redmew', 'Redmew'}
+    lines[#lines + 1] = {'danger_ores.cutscene_discord', 'redmew.com/discord'}
+    return lines
+end
+
+--- The last card: its title and the lines under it. The goal is there only when the map is won by
+--- launching satellites (some presets have their own goal), and the poll only when there is one.
+---@param card table {win_satellite_count, poll}
+function Public.goal_card(card)
+    local lines = {}
+    local title
+    if card.win_satellite_count then
+        title = {'danger_ores.cutscene_goal_title'}
+        lines[#lines + 1] = {'danger_ores.cutscene_goal', card.win_satellite_count}
+        lines[#lines + 1] = {'danger_ores.cutscene_biters'}
+        lines[#lines + 1] = '---------------------'
+    else
+        title = {'danger_ores.cutscene_good_luck'}
+    end
+    if card.poll then
+        lines[#lines + 1] = {'danger_ores.cutscene_poll'}
+    end
+    if card.win_satellite_count then
+        lines[#lines + 1] = {'danger_ores.cutscene_good_luck'}
+    end
+    return title, lines
+end
+
+function Public.get_card()
+    return data.card
 end
 
 local function main_ore(main_ores)
@@ -293,6 +339,9 @@ local function create_stage(main_ores)
     end
 end
 
+Public.products = products
+Public.main_ore = main_ore
+
 -- Text sizes and positions are set for this screen and zoom, and scaled to the player's.
 local original_resolution = {height = 1440, width = 2560}
 local original_zoom = 1
@@ -329,12 +378,7 @@ local function welcome_function(player_index, waypoint_index, params)
     if waypoint_index == -1 then
         blackout(player, params)
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, 'Danger Ores', player, {scale = 10, time_to_live = ttw, color = Color.red}, false, false))
-        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -2}, {
-            {'danger_ores.cutscene_welcome', 'Danger Ores'},
-            '---------------------',
-            {'danger_ores.cutscene_redmew', 'Redmew'},
-            {'danger_ores.cutscene_discord', 'redmew.com/discord'},
-        }, player, {scale = 5, time_to_live = ttw}, false))
+        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -3}, Public.welcome_lines(data.card), player, {scale = 4.5, time_to_live = ttw}, false))
     elseif waypoint_index == 0 then
         caption(player, params, {'danger_ores.cutscene_spawn'})
     end
@@ -395,19 +439,9 @@ local function map_function(player_index, waypoint_index, params)
     if waypoint_index == -1 then
         caption(player, params, {'danger_ores.cutscene_buried'})
     elseif waypoint_index == 0 then
-        local card = data.card
+        local title, lines = Public.goal_card(data.card)
         blackout(player, params)
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, card.name or 'Danger Ores', player, {scale = 8, time_to_live = ttw, color = Color.red}, false, false))
-        local lines = {}
-        if card.twist then
-            -- the poll's twists start in lower case, as they follow the name in brackets there
-            lines[#lines + 1] = card.twist:sub(1, 1):upper() .. card.twist:sub(2)
-            lines[#lines + 1] = '---------------------'
-        end
-        if card.win_satellite_count then
-            lines[#lines + 1] = {'danger_ores.cutscene_goal', card.win_satellite_count}
-        end
-        lines[#lines + 1] = {'danger_ores.cutscene_poll'}
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, title, player, {scale = 8, time_to_live = ttw, color = Color.red}, false, false))
         register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -3}, lines, player, {scale = 4, time_to_live = ttw}, false))
     end
 end
@@ -507,7 +541,7 @@ local start_for_new_player =
 
 --- Turns the cutscene on: new players see it, and /replay plays it again.
 ---@param config table the Danger Ores configuration
----@param card table {name, twist}: the map's name and twist for the final card
+---@param card table {name, twist}: the map's name and twist for the title card
 function Public.register(config, card)
     Settings.register(Public.auto_play_setting_name, Settings.types.boolean, true, Public.auto_play_setting_name)
     Cutscene.set_auto_play_cutscene_setting_name(Public.auto_play_setting_name)
@@ -515,10 +549,11 @@ function Public.register(config, card)
 
     local main_ores = config.map_config.main_ores
     local win_satellite_count = config.rocket_launched.enabled and config.rocket_launched.win_satellite_count or nil
+    local poll = config.map_poll.enabled
 
     Event.on_init(function()
         storage.config.player_create.cutscene = true
-        data.card = {name = card.name, twist = card.twist, win_satellite_count = win_satellite_count}
+        data.card = {name = card.name, twist = card.twist, win_satellite_count = win_satellite_count, poll = poll}
         create_stage(main_ores)
     end)
 

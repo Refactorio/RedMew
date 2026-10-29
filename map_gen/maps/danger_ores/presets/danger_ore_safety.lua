@@ -31,6 +31,8 @@ ScenarioInfo.set_map_extra_info([[
 DOC.scenario_name = 'danger-ore-safety'
 DOC.allowed_entities.enabled = false
 DOC.container_dump.enabled = false
+-- the cutscene teaches the opposite rule, building off ore
+DOC.cutscene.enabled = false
 DOC.disable_mining_productivity.enabled = false
 DOC.map_gen_settings.settings = SafetyOresConfig.map_gen_settings
 DOC.prevent_quality_mining.enabled = false
