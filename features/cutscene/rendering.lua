@@ -29,7 +29,8 @@ end
 local function calculate_percentages(settings, player_resolution)
     local original_resolution = settings.original_resolution
     -- a high density display (Retina) draws the world that many times larger, so it shows as many
-    -- tiles as a display of its resolution divided by the density
+    -- tiles as a display of its resolution divided by the density. Text isn't drawn larger, see
+    -- draw_text.
     local density = player_resolution.density or 1
     return {
         height = player_resolution.height / density / original_resolution.height,
@@ -200,7 +201,10 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
         time_to_live = ttl,
         alignment = alignment,
         players = players,
-        scale = scale,
+        -- a high density display draws text at its scale in its own pixels, which are that many
+        -- times smaller, where it draws the world that many times larger: drawn as many times larger,
+        -- the text fills as much of the screen as on any other display
+        scale = scale * (player_resolution.density or 1),
         forces = forces,
         visible = visible,
         draw_on_ground = dog,
@@ -242,7 +246,7 @@ function Public.draw_multi_line_text(settings, offset, texts, player, params, dr
 
     for i = 1, #texts do
         insert(list, Public.draw_text(settings, offset, texts[i], player, params, draw_background, fit_to_edge)[1])
-        offset.y = offset.y + (size * 1.5)
+        offset.y = offset.y + (size * 2)
     end
     return list
 end

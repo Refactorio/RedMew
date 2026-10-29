@@ -122,13 +122,13 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
         draw_text_auto_replacing(tick, settings, {x = 2.5, y = 3}, {'', '', '', {'crashsite.cutscene1_case0_line6'}}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 4)
     end
     cases[1] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case1_line1'}, {'crashsite.cutscene1_case1_line2'}, {'crashsite.cutscene1_case1_line3'}}, player, {scale = 3.5}, true, false, 400 * 3)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case1_line1'}, {'crashsite.cutscene1_case1_line2'}, {'crashsite.cutscene1_case1_line3'}}, player, {scale = 2.5}, true, false, 400 * 3)
     end
     cases[2] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case2_line1'}}, player, {scale = 3.5}, true, false, 300)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case2_line1'}}, player, {scale = 2.5}, true, false, 300)
     end
     cases[3] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case3_line1'}}, player, {scale = 4}, true, false, 400)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case3_line1'}}, player, {scale = 3}, true, false, 400)
     end
     local case = cases[waypoint_index]
     if case then
@@ -191,25 +191,25 @@ local function cutscene_function_outpost(player_index, waypoint_index, params)
 
     cases[-1] = function()
         play_sound(tick, player, 'utility/scenario_message')
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case_line1'}, {'crashsite.cutscene2_case_line2'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 375 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case_line1'}, {'crashsite.cutscene2_case_line2'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 375 * 2)
     end
     cases[0] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case0_line1'}, {'crashsite.cutscene2_case0_line2'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 375 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case0_line1'}, {'crashsite.cutscene2_case0_line2'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 375 * 2)
     end
     cases[1] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case1_line1'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 500)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case1_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 500)
     end
     cases[2] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case2_line1'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 600)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case2_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 600)
     end
     cases[3] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case3_line1'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 500)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case3_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 500)
     end
     cases[4] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case4_line1'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 600)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case4_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 600)
     end
     cases[5] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case5_line1'}, {'crashsite.cutscene2_case5_line2'}}, player, {scale = 3.5, surface = "cutscene"}, true, false, 400 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case5_line1'}, {'crashsite.cutscene2_case5_line2'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 400 * 2)
     end
     local case = cases[waypoint_index]
     if case then
