@@ -95,7 +95,7 @@ Public.register = function(danger_ores_config)
     container_dump(_C.container_dump)
   end
   if _C.cutscene.enabled then
-    -- the final card names the map as the next-map poll does, '<Name> (<twist>)'
+    -- the title card names the map as the next-map poll does, '<Name> (<twist>)'
     local name, twist = ScenarioInfo.get_map_name(), nil
     if _C.map_poll.enabled then
       for _, map in pairs(require 'map_gen.maps.danger_ores.modules.map_poll'.get_maps()) do
