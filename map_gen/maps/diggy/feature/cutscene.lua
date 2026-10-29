@@ -301,19 +301,31 @@ local waypoints = {
 local function terminate_function(player_index)
     local player = game.get_player(player_index)
     PC.show_start_up(player)
-    player.print({'diggy.replay_cutscene', '/replay'}, {color = Color.yellow})
+    player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
 end
 
 Cutscene.register_cutscene_function('Diggy_Welcome', waypoints, Token.register(cutscene_function), Token.register(terminate_function))
 Cutscene.register_replay('Diggy_Welcome', 120)
 
+-- Player creation leaves the start-up messages and map info to the cutscene's end (see register),
+-- so a player who doesn't auto play it gets them straight away instead.
+function DiggyCutscene.start_for_new_player(player_index)
+    if Settings.get(player_index, auto_play_cutscene_setting_name) then
+        Cutscene.register_running_cutscene(player_index, 'Diggy_Welcome', 120)
+        return
+    end
+
+    local player = game.get_player(player_index)
+    if valid(player) then
+        PC.show_start_up(player)
+        player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
+    end
+end
+
 local start_cutscene =
     Token.register(
     function(params)
-        local player_index = params.event.player_index
-        if Settings.get(player_index, auto_play_cutscene_setting_name) then
-            Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
-        end
+        DiggyCutscene.start_for_new_player(params.event.player_index)
     end
 )
 
