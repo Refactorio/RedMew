@@ -352,7 +352,7 @@ end
 -- A caption along the bottom of the screen for the whole waypoint.
 local function caption(player, params, text, surface)
     local tick, zoom = params.tick, params.zoom
-    register_rendering(player.index, tick, draw_text(text_settings(zoom), {x = 0, y = 17}, text, player, {scale = 3.5, time_to_live = params.time_to_wait, surface = surface}, true, false))
+    register_rendering(player.index, tick, draw_text(text_settings(zoom), {x = 0, y = 18}, text, player, {scale = 2.5, time_to_live = params.time_to_wait, surface = surface}, true, false))
 end
 
 local function blackout(player, params, surface)
@@ -377,7 +377,7 @@ local function welcome_function(player_index, waypoint_index, params)
     if waypoint_index == -1 then
         blackout(player, params)
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, 'Danger Ores', player, {scale = 10, time_to_live = ttw, color = Color.red}, false, false))
-        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -3}, Public.welcome_lines(data.card), player, {scale = 4.5, time_to_live = ttw}, false))
+        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -5}, Public.welcome_lines(data.card), player, {scale = 4.5, time_to_live = ttw}, false))
     elseif waypoint_index == 0 then
         caption(player, params, {'danger_ores.cutscene_spawn'})
     end
@@ -442,7 +442,7 @@ local function map_function(player_index, waypoint_index, params)
         local title, lines = Public.goal_card(data.card)
         blackout(player, params)
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, title, player, {scale = 8, time_to_live = ttw, color = Color.red}, false, false))
-        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -3}, lines, player, {scale = 4, time_to_live = ttw}, false))
+        register_rendering(player_index, tick, draw_multi_line(settings, {x = 0, y = -5}, lines, player, {scale = 4, time_to_live = ttw}, false))
     end
 end
 
