@@ -2,13 +2,12 @@
 -- again with /replay. It has three parts:
 --
 -- 1. Welcome, on the map itself: a title card with the map's name and twist, then spawn.
--- 2. The rule, on a small staged surface: what may be built on ore, what may not, and cleared
---    ground with a factory on it. The buildings on the ore are the map's own allowed ones: each
---    is placed on ore and kept only if the building restriction allows it, so the scene can't show
---    something the map refuses.
--- 3. Back on the map, the camera looks over the ore away from spawn, whatever the preset's
---    layout, and it ends on a card with the goal. The ore comes last because the map is still
---    being generated around spawn early in a game.
+-- 2. The rule, on a small staged surface: the ore field, what may be built on ore, what may not,
+--    and cleared ground with a factory on it. The buildings on the ore are the map's own allowed
+--    ones: each is placed on ore and kept only if the building restriction allows it, so the
+--    scene can't show something the map refuses. The ore is shown here rather than on the map:
+--    near spawn the map's ore is thin, and drawn so small it looks like bare ground.
+-- 3. Back on the map, a card with the goal.
 --
 -- Player creation leaves the start-up messages and map info to the end of the cutscene.
 local Event = require 'utils.event'
@@ -386,7 +385,7 @@ end
 
 local welcome_waypoints = {
     {position = {x = 0, y = 0}, transition_time = 60, time_to_wait = 420, zoom = 0.5}, -- title card
-    -- far enough out to see the ore around it
+    -- far enough out to see where spawn ends and the ore begins
     {position = {x = 0, y = 0}, transition_time = 180, time_to_wait = 420, zoom = 0.35}, -- spawn
 }
 
@@ -403,10 +402,12 @@ local function rule_function(player_index, waypoint_index, params)
     end
 
     if waypoint_index == -1 then
-        caption(player, params, {'danger_ores.cutscene_rule'}, surface)
+        caption(player, params, {'danger_ores.cutscene_buried'}, surface)
     elseif waypoint_index == 0 then
-        caption(player, params, {'danger_ores.cutscene_allowed'}, surface)
+        caption(player, params, {'danger_ores.cutscene_rule'}, surface)
     elseif waypoint_index == 1 then
+        caption(player, params, {'danger_ores.cutscene_allowed'}, surface)
+    elseif waypoint_index == 2 then
         local x, y = refused.position[1], refused.position[2]
         local function draw(object)
             register_rendering(player_index, tick, object)
@@ -415,13 +416,14 @@ local function rule_function(player_index, waypoint_index, params)
         draw(rendering.draw_line {from = {x - 1.6, y - 1.6}, to = {x + 1.6, y + 1.6}, color = Color.red, width = 8, surface = surface, players = {player}, time_to_live = ttw})
         draw(rendering.draw_line {from = {x - 1.6, y + 1.6}, to = {x + 1.6, y - 1.6}, color = Color.red, width = 8, surface = surface, players = {player}, time_to_live = ttw})
         caption(player, params, {'danger_ores.cutscene_refused'}, surface)
-    elseif waypoint_index == 2 then
+    elseif waypoint_index == 3 then
         caption(player, params, {'danger_ores.cutscene_cleared'}, surface)
     end
 end
 
 local rule_waypoints = {
-    {position = {x = -6, y = 0}, transition_time = 60, time_to_wait = 420, zoom = 0.7}, -- the ore field
+    {position = {x = -6, y = 0}, transition_time = 60, time_to_wait = 360, zoom = 0.7}, -- the ore field
+    {position = {x = -6, y = 0}, transition_time = 30, time_to_wait = 420, zoom = 0.7}, -- the rule
     {position = {x = -17, y = -1}, transition_time = 120, time_to_wait = 480, zoom = 1.4}, -- what may stay on ore
     {position = {x = 4, y = -2}, transition_time = 120, time_to_wait = 420, zoom = 1.6}, -- what may not
     {position = {x = 30, y = 3}, transition_time = 150, time_to_wait = 480, zoom = 1.2}, -- cleared ground
@@ -437,8 +439,6 @@ local function map_function(player_index, waypoint_index, params)
     play_sound(tick, player, 'utility/list_box_click', 1)
 
     if waypoint_index == -1 then
-        caption(player, params, {'danger_ores.cutscene_buried'})
-    elseif waypoint_index == 0 then
         local title, lines = Public.goal_card(data.card)
         blackout(player, params)
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -12}, title, player, {scale = 8, time_to_live = ttw, color = Color.red}, false, false))
@@ -447,10 +447,7 @@ local function map_function(player_index, waypoint_index, params)
 end
 
 local map_waypoints = {
-    -- out where the ore is richer than at spawn's edge; any further out than 0.35 and the game
-    -- shows the map view, which has only what the force has charted
-    {position = {x = 0, y = -140}, transition_time = 60, time_to_wait = 480, zoom = 0.5}, -- the ore
-    {position = {x = 0, y = 0}, transition_time = 60, time_to_wait = 600, zoom = 0.5}, -- the map and its goal
+    {position = {x = 0, y = 0}, transition_time = 60, time_to_wait = 600, zoom = 0.5}, -- the goal
 }
 
 local function show_start_up(player)
