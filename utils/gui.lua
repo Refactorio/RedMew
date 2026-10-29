@@ -623,6 +623,15 @@ function Gui.add_panel(player, spec)
     return frame, content
 end
 
+--- Changes the title in a side panel's header (see Gui.add_panel).
+---@param frame LuaGuiElement
+---@param caption LocalisedString
+function Gui.set_panel_caption(frame, caption)
+    -- with a side dragger, the header is in a column beside the strip
+    local body = frame.direction == 'horizontal' and frame.children[1] or frame
+    body.children[1].children[1].caption = caption
+end
+
 --- The side panel named `name` (see Gui.add_panel), docked or floating, or nil if it isn't open.
 ---@param player LuaPlayer
 ---@param name string

@@ -247,6 +247,30 @@ Declare.module({'utils', 'Gui'}, function()
             Assert.is_true(has_x, 'the header should still have the X')
         end)
 
+        Declare.test('a panel\'s title can be changed, docked and floating with a side strip', function(context)
+            -- Arrange
+            local player = context.player
+            test_panel_spec.side_dragger = true
+            context:add_teardown(function()
+                test_panel_spec.side_dragger = nil
+            end)
+            local panel = open_docked(context)
+
+            -- Act
+            Gui.set_panel_caption(panel, 'Docked title')
+
+            -- Assert
+            Assert.equal('Docked title', panel.children[1].children[1].caption)
+
+            -- Act: floating, the header is in a column beside the strip
+            Helper.click(header_button(panel, pin_name(panel)))
+            panel = Gui.get_panel(player, TEST_PANEL)
+            Gui.set_panel_caption(panel, 'Floating title')
+
+            -- Assert
+            Assert.equal('Floating title', panel.children[1].children[1].children[1].caption)
+        end)
+
         Declare.test('the X closes a floating panel', function(context)
             -- Arrange
             local player = context.player

@@ -47,6 +47,8 @@ local notify_name = 'notify_poke'
 Settings.register(notify_name, Settings.types.boolean, true, 'player_list.poke_notify_caption_short')
 
 local rank_column_width = 100
+-- right-aligned time and distance keep this far from the column after them
+local units_gap = 12
 
 local inv_sprite_time_step = 1 / sprite_time_step
 local donator_label_caption = { '', '(', { 'ranks.donator_abbreviation' }, ')' }
@@ -95,9 +97,6 @@ local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
 
-local jail_popup_name = Gui.uid_name()
-local jail_cancel_button_name = Gui.uid_name()
-local jail_confirm_button_name = Gui.uid_name()
 
 local function lighten_color(color)
     color.r = color.r * 0.6 + 0.4
@@ -125,10 +124,12 @@ local function do_poke_spam_protection(player)
     end
 end
 
-local function apply_heading_style(style)
+-- A heading lines up with its column's cells: names and ranks are left-aligned so a list of them
+-- reads level, time and distance right-aligned so their units line up, everything else is centred.
+local function apply_heading_style(style, horizontal_align)
     style.font_color = focus_color
     style.font = 'default-semibold'
-    style.horizontal_align = 'center'
+    style.horizontal_align = horizontal_align or 'center'
 end
 
 local column_builders = {
@@ -175,7 +176,7 @@ local column_builders = {
             local caption = { 'player_list.name_caption', sort_symbol }
             local label = parent.add { type = 'label', name = player_name_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'left')
             label_style.width = 150
 
             return label
@@ -209,8 +210,9 @@ local column_builders = {
             local caption = { 'player_list.time_caption', sort_symbol }
             local label = parent.add { type = 'label', name = time_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'right')
             label_style.width = 70
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -219,8 +221,9 @@ local column_builders = {
 
             local label = parent.add { type = 'label', name = time_cell_name, caption = text }
             local label_style = label.style
-            label_style.horizontal_align = 'left'
+            label_style.horizontal_align = 'right'
             label_style.width = 70
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -244,7 +247,7 @@ local column_builders = {
             local caption = { 'player_list.rank_caption', sort_symbol }
             local label = parent.add { type = 'label', name = rank_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'left')
             label_style.width = rank_column_width
 
             return label
@@ -287,8 +290,9 @@ local column_builders = {
             local caption = { 'player_list.distance_caption', sort_symbol }
             local label = parent.add { type = 'label', name = distance_heading_name, caption = caption }
             local label_style = label.style
-            apply_heading_style(label_style)
+            apply_heading_style(label_style, 'right')
             label_style.width = 80
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -297,8 +301,9 @@ local column_builders = {
 
             local label = parent.add { type = 'label', name = distance_cell_name, caption = text }
             local label_style = label.style
-            label_style.horizontal_align = 'center'
+            label_style.horizontal_align = 'right'
             label_style.width = 80
+            label_style.right_padding = units_gap
 
             return label
         end,
@@ -473,14 +478,12 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, sort_symbol, data)
-            -- For admins the column jails instead of reporting
-            local is_admin = data.player.admin
+        draw_heading = function(parent, sort_symbol)
             local label = parent.add {
                 type = 'label',
                 name = report_heading_name,
-                caption = { is_admin and 'player_list.jail_caption' or 'player_list.report_caption', sort_symbol },
-                tooltip = { is_admin and 'player_list.jail_tooltip' or 'player_list.report_tooltip' },
+                caption = { 'player_list.report_caption', sort_symbol },
+                tooltip = { 'player_list.report_tooltip' },
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -493,14 +496,10 @@ local column_builders = {
             parent_style.width = 65
             parent_style.horizontal_align = 'center'
 
-            local viewer = data.player
-            local is_admin = viewer.admin
-            local is_self = cell_data == viewer
+            local is_self = cell_data == data.player
             local tooltip
             if is_self then
-                tooltip = { is_admin and 'player_list.jail_self_tooltip' or 'player_list.report_self_tooltip' }
-            elseif is_admin then
-                tooltip = { 'player_list.jail_button_tooltip', cell_data.name }
+                tooltip = { 'player_list.report_self_tooltip' }
             else
                 tooltip = { 'player_list.report_button_tooltip', cell_data.name }
             end
@@ -508,7 +507,7 @@ local column_builders = {
             local label = parent.add {
                 type = 'sprite-button',
                 name = report_cell_name,
-                sprite = is_admin and 'utility/not_available' or 'utility/force_editor_icon',
+                sprite = 'utility/force_editor_icon',
                 tooltip = tooltip,
                 style = 'slot_button_in_shallow_frame',
                 enabled = not is_self,
@@ -528,7 +527,9 @@ local column_builders = {
     },
 }
 
-local function get_default_player_settings()
+-- Admins jail from the admin panel, which also reaches players who have left, so their list has no
+-- report column and stays compact.
+local function get_columns(player)
     local columns = {
         sprite_heading_name,
         player_name_heading_name,
@@ -538,15 +539,20 @@ local function get_default_player_settings()
         kills_heading_name,
         deaths_heading_name,
         poke_name_heading_name,
-        report_heading_name,
     }
 
     if storage.config.player_list.show_coin_column then
         table.insert(columns, 6, coin_heading_name)
     end
+    if not player.admin then
+        columns[#columns + 1] = report_heading_name
+    end
 
+    return columns
+end
+
+local function get_default_player_settings()
     return {
-        columns = columns,
         sort = -3,
     }
 end
@@ -557,7 +563,7 @@ local function redraw_title(data)
     local online_count = #game.connected_players
     local total_count = get_for_global(player_count_name)
 
-    frame.caption = { 'player_list.title', online_count, total_count }
+    Gui.set_panel_caption(frame, { 'player_list.title', online_count, total_count })
 end
 
 local function redraw_headings(data)
@@ -630,25 +636,25 @@ local function redraw_cells(data)
     end
 end
 
-local function draw_main_frame(left, player)
+local function draw_main_frame(player)
     local player_index = player.index
-    local frame = left.add {
-        type = 'frame',
-        name = main_frame_name,
-        direction = 'vertical',
-        style = 'non_draggable_frame',
-    }
+    -- the title, with the player count, is set by redraw_title below
+    local frame, inner = Gui.add_panel(player, { name = main_frame_name, caption = '', toggle_name = main_button_name })
+    -- the table is in the inner frame's padding, with the checkbox in a footer under it
+    Gui.set_style(inner, { padding = 0 })
+    local list = inner.add { type = 'flow', direction = 'vertical' }
+    Gui.set_style(list, { padding = 8, right_padding = 0 })
 
-    local inner = frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
-    Gui.set_style(inner, { padding = 8, right_padding = 0 })
+    local heading_table_flow = list.add { type = 'flow' }
 
-    local heading_table_flow = inner.add { type = 'flow' }
-
-    local cell_table_scroll_pane = inner.add { type = 'scroll-pane' }
+    local cell_table_scroll_pane = list.add { type = 'scroll-pane' }
     Gui.set_style(cell_table_scroll_pane, { maximal_height = 400 })
 
+    local footer = inner.add { type = 'frame', style = 'subfooter_frame' }
+    Gui.set_style(footer, { horizontally_stretchable = true })
+
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = frame.add {
+    local notify_checkbox = footer.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
@@ -656,9 +662,12 @@ local function draw_main_frame(left, player)
         tooltip = { 'player_list.poke_notify_tooltip' },
     }
 
-    Gui.make_close_button(frame, main_button_name)
-
     local settings = player_settings[player_index] or get_default_player_settings()
+    -- the columns follow the player's rank as it is now, the last one sorted by goes if it went
+    settings.columns = get_columns(player)
+    if abs(settings.sort) > #settings.columns then
+        settings.sort = get_default_player_settings().sort
+    end
     local data = {
         player = player,
         frame = frame,
@@ -684,21 +693,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = Gui.get_left_flow(player)
-    local main_frame = left[main_frame_name]
+    local main_frame = Gui.get_panel(player, main_frame_name)
 
     if main_frame then
         remove_main_frame(main_frame, player)
         local main_button = Gui.get_top_element(player, main_button_name)
         main_button.toggled = false
     else
-        draw_main_frame(left, player)
+        draw_main_frame(player)
     end
 end
 
 local function tick()
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -731,7 +739,7 @@ end
 
 local function update_player_list()
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -813,7 +821,7 @@ Gui.on_click(poke_cell_name, function(event)
     local message = { 'player_list.poke_message', player.name, poke_player.name, poke_str }
 
     for _, p in ipairs(game.connected_players) do
-        local frame = Gui.get_left_element(p, main_frame_name)
+        local frame = Gui.get_panel(p, main_frame_name)
         if frame and frame.valid then
             local frame_data = Gui.get_data(frame)
             local poke_bottons = frame_data.poke_buttons
@@ -840,36 +848,6 @@ Gui.on_click(poke_cell_name, function(event)
     end
 end)
 
-local function close_jail_popup(player)
-    local popup = player.gui.screen[jail_popup_name]
-    if popup and popup.valid then
-        Gui.destroy(popup)
-    end
-end
-
-local function draw_jail_popup(player, target)
-    close_jail_popup(player)
-
-    local popup = Gui.add_window(player, {
-        name = jail_popup_name,
-        caption = { 'player_list.jail_confirm_title', target.name },
-        close_button_name = jail_cancel_button_name,
-    })
-
-    local message = popup.add { type = 'label', caption = { 'player_list.jail_confirm_message', target.name } }
-    Gui.set_style(message, { single_line = false, maximal_width = 400 })
-
-    local button_flow = popup.add { type = 'flow', direction = 'horizontal', style = 'dialog_buttons_horizontal_flow' }
-    button_flow.add { type = 'button', name = jail_cancel_button_name, caption = { 'player_list.jail_cancel_button' }, style = 'back_button' }
-    local spacer = button_flow.add { type = 'empty-widget' }
-    Gui.set_style(spacer, { horizontally_stretchable = true })
-    local confirm_button = button_flow.add { type = 'button', name = jail_confirm_button_name, caption = { 'player_list.jail_confirm_button' }, style = 'red_confirm_button' }
-
-    Gui.set_data(confirm_button, target.index)
-
-    player.opened = popup
-end
-
 Gui.on_click(report_cell_name, function(event)
     local reporting_player = event.player
     local reported_player = Gui.get_data(event.element)
@@ -877,32 +855,7 @@ Gui.on_click(report_cell_name, function(event)
         return
     end
 
-    if reporting_player.admin then
-        draw_jail_popup(reporting_player, reported_player)
-    else
-        Report.spawn_reporting_popup(reporting_player, reported_player)
-    end
-end)
-
-Gui.on_click(jail_cancel_button_name, function(event)
-    close_jail_popup(event.player)
-end)
-
-Gui.on_custom_close(jail_popup_name, function(event)
-    Gui.destroy(event.element)
-end)
-
-Gui.on_click(jail_confirm_button_name, function(event)
-    local player = event.player
-    local target = game.get_player(Gui.get_data(event.element))
-
-    close_jail_popup(player)
-
-    if not player.admin or not target or not target.valid then
-        return
-    end
-
-    Report.jail(target, player)
+    Report.spawn_reporting_popup(reporting_player, reported_player)
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
@@ -928,7 +881,7 @@ Event.add(Settings.events.on_setting_set, function(event)
 
     no_notify_players[player_index] = no_notify
 
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if not frame then
         return
     end

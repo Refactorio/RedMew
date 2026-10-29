@@ -229,7 +229,7 @@ local bonuses_button_name = Gui.uid_name()
 local rewards_list_button_name = Gui.uid_name()
 
 Public.update_main_frame = function(player)
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if not frame or not frame.valid then
         return
     end
@@ -261,30 +261,20 @@ Public.update_main_frame = function(player)
 end
 
 Public.get_main_frame = function(player)
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     if frame and frame.valid then
         return Public.update_main_frame(player)
     end
 
     local data = {}
-    frame = Gui.add_left_element(player, { name = main_frame_name, type = 'frame', direction = 'vertical' })
-    Gui.set_style(frame, { maximal_width = 332 })
+    local canvas
+    frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = 'Experience', toggle_name = main_button_name })
 
-    local canvas = frame
-        .add { type = 'flow', direction = 'vertical', style = 'vertical_flow' }
-        .add { type = 'frame', direction = 'vertical', style = 'inside_shallow_frame_packed' }
-
-    do -- Title
-        local subheader = canvas.add { type = 'frame', style = 'subheader_frame' }
-        Gui.set_style(subheader, { horizontally_stretchable = true })
-
-        local flow = subheader.add { type = 'flow', direction = 'horizontal' }
-        local label = flow.add({ type = 'label', caption = 'Experience', style = 'frame_title' })
-        Gui.set_style(label, { left_margin = 4 })
-    end
-
-    local sp = canvas.add { type = 'scroll-pane', vertical_scroll_policy = 'auto-and-reserve-space' }
-    Gui.set_style(sp, { padding = 12, maximal_height = 600 })
+    -- the sections fill the inner frame, with room for a scroll bar only once the rewards need it
+    Gui.set_style(canvas, { padding = 0 })
+    -- never scrolling sideways, it's as wide as its sections, as the panel is
+    local sp = canvas.add { type = 'scroll-pane', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'auto' }
+    Gui.set_style(sp, { maximal_height = 600, padding = 8, horizontally_stretchable = true })
     do -- Level
         local content = sp.add { type = 'frame', direction = 'vertical', style = 'deep_frame_in_shallow_frame_for_description' }
         content.add { type = 'label', style = 'tooltip_heading_label_category', caption = '★ XP' }
@@ -362,7 +352,7 @@ Public.get_main_frame = function(player)
 end
 
 Public.toggle_main_button = function(player)
-    local frame = Gui.get_left_element(player, main_frame_name)
+    local frame = Gui.get_panel(player, main_frame_name)
     local button = Gui.get_top_element(player, main_button_name)
     if frame then
         button.toggled = false
