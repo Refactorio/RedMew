@@ -157,7 +157,7 @@ Declare.module({'utils', 'Gui'}, function()
             end
         end
 
-        Declare.test('a panel opens docked on the side with its title and a pin, and no X', function(context)
+        Declare.test('a panel opens docked on the side with its title, a pin and an X', function(context)
             -- Act
             local panel, content = open_docked(context)
 
@@ -165,7 +165,7 @@ Declare.module({'utils', 'Gui'}, function()
             Assert.equal(Gui.get_left_flow(context.player), panel.parent, 'the panel should be docked on the side')
             Assert.equal('Test panel', panel.children[1].children[1].caption)
             Assert.is_true(pin_name(panel) ~= nil, 'the panel should have a pin')
-            Assert.is_true(header_button(panel, TEST_TOGGLE) == nil, 'a docked panel closes from its top button, not an X')
+            Assert.is_true(header_button(panel, TEST_TOGGLE) ~= nil, 'a docked panel should have an X')
             Assert.equal(panel, content.parent, 'the content should be inside the panel')
             Assert.equal(panel, Gui.get_panel(context.player, TEST_PANEL))
         end)
@@ -269,6 +269,56 @@ Declare.module({'utils', 'Gui'}, function()
 
             -- Assert
             Assert.equal('Floating title', panel.children[1].children[1].children[1].caption)
+        end)
+
+        Declare.test('the X closes a docked panel', function(context)
+            -- Arrange
+            local player = context.player
+            local panel = open_docked(context)
+
+            -- Act
+            Helper.click(header_button(panel, TEST_TOGGLE))
+
+            -- Assert
+            Assert.is_true(Gui.get_panel(player, TEST_PANEL) == nil, 'the panel should have closed')
+        end)
+
+        Declare.test('a panel with a footer has it along the bottom of its inner frame', function(context)
+            -- Arrange
+            test_panel_spec.footer = true
+            context:add_teardown(function()
+                test_panel_spec.footer = nil
+            end)
+
+            -- Act
+            local panel, content, footer = open_docked(context)
+
+            -- Assert
+            Assert.is_true(footer ~= nil, 'the panel should have a footer')
+            Assert.equal('subfooter_frame', footer.style.name)
+            local inner = footer.parent
+            Assert.equal(panel, inner.parent, 'the footer should be in the panel\'s inner frame')
+            Assert.equal(content, inner.children[1], 'the content should be above the footer, in the same inner frame')
+            Assert.equal(footer, inner.children[#inner.children], 'the footer should be last')
+        end)
+
+        Declare.test('a panel of sections with a footer has it under the sections', function(context)
+            -- Arrange
+            test_panel_spec.footer = true
+            test_panel_spec.sections = true
+            context:add_teardown(function()
+                test_panel_spec.footer = nil
+                test_panel_spec.sections = nil
+            end)
+
+            -- Act
+            local panel, content, footer = open_docked(context)
+
+            -- Assert
+            Assert.is_true(footer ~= nil, 'the panel should have a footer')
+            Assert.equal('subfooter_frame', footer.style.name)
+            Assert.equal(panel, content.parent, 'the sections should be in the panel')
+            Assert.equal(footer.parent, panel.children[#panel.children], 'the footer should be under the sections')
         end)
 
         Declare.test('the X closes a floating panel', function(context)

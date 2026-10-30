@@ -349,7 +349,7 @@ local function draw_main_frame(player)
     local edit_announcements_button_tooltip = enabled and { 'announcement.edit_tooltip' } or { 'announcement.regular_required' }
     local add_task_button_tooltip = enabled and { 'task.create_tooltip' } or { 'task.regular_required' }
 
-    local frame, canvas = Gui.add_panel(player, { name = main_frame_name, caption = { 'tasklist.frame_title' }, toggle_name = main_button_name, width = 'wide', sections = true })
+    local frame, canvas, footer = Gui.add_panel(player, { name = main_frame_name, caption = { 'tasklist.frame_title' }, toggle_name = main_button_name, width = 'wide', sections = true, footer = true })
     Gui.set_data(frame, data)
 
     do -- Announcements
@@ -412,7 +412,7 @@ local function draw_main_frame(player)
     end
 
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = canvas.add {
+    local notify_checkbox = footer.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
@@ -579,9 +579,6 @@ local function draw_create_task_frame(player, previous_task)
 
     local bottom_flow = frame.add { type = 'flow' }
 
-    local close_button = Gui.make_close_button(bottom_flow, create_task_close_button_name)
-    Gui.set_data(close_button, frame)
-
     local clear_button = bottom_flow.add { type = 'button', name = create_task_clear_button_name, caption = 'Clear' }
     Gui.set_data(clear_button, textbox)
 
@@ -699,7 +696,7 @@ Gui.on_click(announcements_edit_button_name, function(event)
 
     local title_close_button
     frame, title_close_button = Gui.add_window(player, { name = edit_announcements_frame_name, caption = 'Edit announcements', close_button_name = edit_close_button_name })
-    -- at least as wide as the panel, wider if its four buttons need it
+    -- at least as wide as the panel, wider if its buttons need it
     Gui.set_style(frame, { minimal_width = 470 })
     Gui.set_data(title_close_button, frame)
 
@@ -720,13 +717,11 @@ Gui.on_click(announcements_edit_button_name, function(event)
 
     local bottom_flow = frame.add { type = 'flow' }
 
-    local close_button = Gui.make_close_button(bottom_flow, edit_close_button_name)
     local clear_button = bottom_flow.add { type = 'button', name = edit_clear_button_name, caption = 'Clear' }
     local reset_button = bottom_flow.add { type = 'button', name = edit_reset_button_name, caption = 'Reset' }
     bottom_flow.add({ type = 'flow' }).style.horizontally_stretchable = true
     local confirm_button = bottom_flow.add { type = 'button', name = edit_confirm_button_name, caption = 'Confirm', style = 'confirm_button' }
 
-    Gui.set_data(close_button, frame)
     Gui.set_data(clear_button, textbox)
     Gui.set_data(reset_button, textbox)
     Gui.set_data(confirm_button, frame)

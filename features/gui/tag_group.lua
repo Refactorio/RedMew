@@ -447,12 +447,7 @@ local function draw_create_tag_frame(event, tag_data)
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
-
-    local close_button = Gui.make_close_button(left_flow, close_create_tag_name)
-    Gui.set_data(close_button, frame)
+    Gui.add_pusher(bottom_flow)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'

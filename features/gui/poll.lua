@@ -122,7 +122,7 @@ local function get_active_and_remaning_time(poll)
         return false, 'Poll finished.'
     else
         local include_seconds = ticks < ticks_in_hour
-        return true, 'End time: ' .. Core.format_time(ticks, include_seconds)
+        return true, 'End time: ' .. Core.format_time_short(ticks, include_seconds)
     end
 end
 
@@ -337,11 +337,11 @@ local function update_poll_viewer(data)
 end
 
 local function draw_main_frame(player)
-    local frame, inner = Gui.add_panel(player, {
+    local frame, inner, footer = Gui.add_panel(player, {
         name = main_frame_name,
         caption = 'Polls',
         toggle_name = main_button_name,
-        width = 'wide',
+        footer = true,
         add_header_buttons = function(header)
             local is_regular = Rank.equal_or_greater_than(player.name, Ranks.regular)
             header.add {
@@ -370,7 +370,8 @@ local function draw_main_frame(player)
     Gui.set_style(poll_index_label, { left_padding = 8 })
 
     local spacer = poll_viewer_top_flow.add { type = 'flow' }
-    Gui.set_style(spacer, { horizontally_stretchable = true})
+    -- the panel is as wide as its contents, so keep the end time clear of the poll number
+    Gui.set_style(spacer, { horizontally_stretchable = true, minimal_width = 16 })
 
     local remaining_time_label = poll_viewer_top_flow.add { type = 'label' }
 
@@ -396,7 +397,7 @@ local function draw_main_frame(player)
     update_poll_viewer(data)
 
     local state = Settings.get(player.index, notify_name)
-    local notify_checkbox = inner.add {
+    local notify_checkbox = footer.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         state = state,
@@ -626,14 +627,6 @@ local function draw_create_poll_frame(player, previous_data)
 
     local left_flow = bottom_flow.add { type = 'flow' }
     Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
-
-    local close_button = left_flow.add {
-        type = 'button',
-        name = create_poll_close_name,
-        caption = { 'common.close_button' },
-        style = 'back_button',
-    }
-    Gui.set_data(close_button, frame)
 
     local clear_button = left_flow.add { type = 'button', name = create_poll_clear_name, caption = 'Clear' }
     Gui.set_data(clear_button, data)

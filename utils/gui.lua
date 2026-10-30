@@ -524,20 +524,23 @@ end
 
 --- Adds a side panel: docked in the left column under the top buttons, or, once the player has
 --- floated it with the pin in its header, a window they can drag anywhere (see Gui.add_window).
---- A docked panel closes from its top button, so only a floating one has an X; the X and the pin
---- both go through the click handler of toggle_name, the panel's top button, which must open the
---- panel when it is closed and close it when it is open. A panel with buttons of its own in the
+--- Docked or floating, it has an X, which the top button also toggles; the X and the pin both go
+--- through the click handler of toggle_name, the panel's top button, which must open the panel
+--- when it is closed and close it when it is open. A panel with buttons of its own in the
 --- header adds them in add_header_buttons(header), which puts them before the pin. A panel made of
 --- sections, each an inner frame with its own subheader, passes sections = true and gets a flow to
---- add them to instead of the padded inner frame. Find it again with Gui.get_panel.
+--- add them to instead of the padded inner frame. With footer = true it also gets a footer along
+--- the bottom of its inner frame (with sections, under them), for a setting such as its
+--- notifications. Find it again with Gui.get_panel.
 --- The title gives way to the header's buttons rather than push them out of a fixed-width panel
 --- when a translation is longer. deep puts the content in a dark inner frame, which numbers read
 --- better on. With side_dragger, a floating panel is dragged by a strip down its right side rather
 --- than by a space in its header, so the header keeps its width.
 ---@param player LuaPlayer
----@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, sections: boolean?, deep: boolean?, side_dragger: boolean? }
+---@param spec { name: string, caption: LocalisedString, toggle_name: string, width: 'narrow'|'wide'|'minimap'|nil, add_header_buttons: fun(header: LuaGuiElement)?, sections: boolean?, footer: boolean?, deep: boolean?, side_dragger: boolean? }
 ---@return LuaGuiElement frame
 ---@return LuaGuiElement content the padded inner frame (or with sections, the flow) to add the panel's elements to
+---@return LuaGuiElement? footer with footer, the footer to add to
 function Gui.add_panel(player, spec)
     local name = spec.name
     local floating = is_panel_floating(player, name)
@@ -601,24 +604,38 @@ function Gui.add_panel(player, spec)
         tooltip = { floating and 'gui_util.panel_dock_tooltip' or 'gui_util.panel_float_tooltip' }
     }
 
-    if floating then
-        header.add {
-            type = 'sprite-button',
-            name = spec.toggle_name,
-            sprite = 'utility/close',
-            clicked_sprite = 'utility/close_black',
-            style = 'close_button',
-            tooltip = { 'gui.close-instruction' }
-        }
-    end
+    header.add {
+        type = 'sprite-button',
+        name = spec.toggle_name,
+        sprite = 'utility/close',
+        clicked_sprite = 'utility/close_black',
+        style = 'close_button',
+        tooltip = { 'gui.close-instruction' }
+    }
 
-    local content
+    local content, footer
     if spec.sections then
         content = body.add { type = 'flow', direction = 'vertical' }
         Gui.set_style(content, { vertical_spacing = 8 })
+        if spec.footer then
+            local footer_frame = body.add { type = 'frame', style = 'inside_shallow_frame' }
+            Gui.set_style(footer_frame, { padding = 0, top_margin = 8 })
+            footer = footer_frame.add { type = 'frame', style = 'subfooter_frame' }
+        end
     else
         content = body.add { type = 'frame', style = spec.deep and 'inside_deep_frame' or 'inside_shallow_frame', direction = 'vertical' }
         Gui.set_style(content, { padding = 8 })
+        if spec.footer then
+            -- the footer runs to the inner frame's edges, so the padding goes on a flow above it
+            local inner = content
+            Gui.set_style(inner, { padding = 0 })
+            content = inner.add { type = 'flow', direction = 'vertical' }
+            Gui.set_style(content, { padding = 8 })
+            footer = inner.add { type = 'frame', style = 'subfooter_frame' }
+        end
+    end
+    if footer then
+        Gui.set_style(footer, { horizontally_stretchable = true })
     end
 
     if side_dragger then
@@ -627,7 +644,7 @@ function Gui.add_panel(player, spec)
         dragger.drag_target = frame
     end
 
-    return frame, content
+    return frame, content, footer
 end
 
 --- Changes the title in a side panel's header (see Gui.add_panel).
