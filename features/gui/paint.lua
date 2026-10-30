@@ -239,12 +239,13 @@ local function draw_filters_table(event)
     Gui.set_data(frame, event.element)
 end
 
--- Shows the player's brush tile on the brush button, or an empty slot. How painting works, and
--- that a right click clears the brush, is in its tooltip, so the panel is only the brush.
+-- Shows the player's brush tile in the brush's slot and names it beside it, or an empty slot
+-- asking for one. Its tooltip says a right click clears it.
 local function show_brush(brush, tile_name)
     brush.sprite = tile_name and 'tile/' .. tile_name or nil
-    local tooltip = tile_name and { 'paint.brush_tooltip', get_tile_localised_name(tile_name) } or { 'paint.select_brush' }
-    brush.tooltip = { '', tooltip, '\n\n', { 'paint.instructions' } }
+    local caption = tile_name and get_tile_localised_name(tile_name) or { 'paint.select_brush' }
+    brush.tooltip = tile_name and { 'paint.brush_tooltip', caption } or caption
+    Gui.get_data(brush).caption = caption
 end
 
 local function toggle(event)
@@ -258,12 +259,21 @@ local function toggle(event)
     else
         local _, inner_frame = Gui.add_panel(player, { name = main_frame_name, caption = { 'paint.frame_name' }, toggle_name = main_button_name })
 
-        local brush = inner_frame.add {
+        local row = inner_frame.add { type = 'flow', direction = 'horizontal' }
+        Gui.set_style(row, { vertical_align = 'center', horizontal_spacing = 8 })
+
+        local brush = row.add {
             type = 'sprite-button',
-            style = 'slot_sized_button',
+            style = 'slot_button_in_shallow_frame',
             name = filter_button_name,
         }
+        local label = row.add { type = 'label' }
+        Gui.set_data(brush, label)
         show_brush(brush, paint_brushes_by_player[event.player_index])
+
+        -- a wrapping label needs a width of its own
+        local instructions = inner_frame.add { type = 'label', caption = { 'paint.instructions' } }
+        Gui.set_style(instructions, { single_line = false, width = 260, top_margin = 4 })
     end
 end
 
