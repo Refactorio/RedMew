@@ -18,9 +18,10 @@ end
 -- screen showed them at settings.original_zoom. Each function returns what it drew, for
 -- cutscene_controller.register_rendering.
 --
--- At zoom level 1 a tile is 32x32 pixels; tile size is 32 * zoom level. A high density display
--- (Retina, display_density_scale 2) draws the world that many times larger, so it shows as many
--- tiles as a display of its resolution divided by the density.
+-- At zoom level 1 a tile is 32x32 pixels on screen; tile size is 32 * zoom level. (2.0's sprites
+-- are 64 pixels a tile, drawn at half scale: that is their resolution, not the screen's.) A high
+-- density display (Retina, display_density_scale 2) draws the world that many times larger, so it
+-- shows as many tiles as a display of its resolution divided by the density.
 
 ---@class CutsceneRenderSettings
 ---@field original_resolution { width: number, height: number } the screen the cutscene was laid out on
@@ -61,7 +62,7 @@ end
 ---@return CutsceneScreenFit
 local function calculate_percentages(settings, player_resolution)
     local original_resolution = settings.original_resolution
-    local density = player_resolution.density or 1
+    local density = player_resolution.density
     return {
         height = player_resolution.height / density / original_resolution.height,
         width = player_resolution.width / density / original_resolution.width,
@@ -121,8 +122,8 @@ local function fit_to_screen_edges(settings, player_resolution, coordinates)
     if not coordinates.fitted then
         local tile = settings.original_zoom * 32
         local player_tile = settings.player_zoom * 32
-        local display_scale = player_resolution.scale or 1
-        player_tile = player_tile * (player_resolution.density or 1)
+        local display_scale = player_resolution.scale
+        player_tile = player_tile * player_resolution.density
 
         local player_height = (player_resolution.height / player_tile) * 0.5
         local player_width = (player_resolution.width / player_tile) * 0.5
@@ -254,7 +255,7 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
         time_to_live = ttl,
         alignment = alignment,
         players = players,
-        scale = scale * (player_resolution.density or 1),
+        scale = scale * player_resolution.density,
         forces = forces,
         visible = visible,
         draw_on_ground = dog,
