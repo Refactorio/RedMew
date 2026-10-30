@@ -8,6 +8,18 @@ local Gui = require 'utils.gui'
 local Settings = require 'utils.redmew_settings'
 local Styles = require 'resources.styles'
 
+-- Plays a cutscene: the player's camera follows a list of waypoints while the scenario draws notes
+-- and arrows in the world (features/cutscene/rendering.lua), with buttons along the top to skip it
+-- or step through it. A map uses it like this:
+--   1. at load, register_cutscene_function(identifier, waypoints, func, terminate_func), with func a
+--      Token that draws what a waypoint shows: func(player_index, waypoint_index, params), params
+--      holding the waypoint's position, zoom, time_to_wait, transition_time and tick;
+--   2. register_replay(identifier, final_transition_time) for /replay to play it again;
+--   3. register_running_cutscene(player_index, identifier, final_transition_time) to play it;
+--   4. register_rendering(player_index, tick, render) for everything drawn, so it goes when the
+--      waypoint ends, the player skips, or the cutscene ends.
+-- terminate_func(player_index, skip_btn_flag) runs as the player gets their character back.
+
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local debug_print = Debug.print
 
@@ -16,6 +28,15 @@ local backward_btn_name = Gui.uid_name()
 local forward_btn_name = Gui.uid_name()
 local auto_play_cutscene_checkbox_name = Gui.uid_name()
 local flow_name = Gui.uid_name()
+
+-- the buttons along the top while a cutscene plays
+local button_style = {
+    minimal_height = 36,
+    maximal_height = 36,
+    minimal_width = 100,
+    font = 'default-large-bold',
+    font_color = { r = 255, g = 215, b = 0 }
+}
 
 local Public = {}
 local handler
@@ -176,6 +197,11 @@ local function assert_type(expected_type, given, variable_reference_message, all
     end
 end
 
+--- Registers a cutscene to play later with register_running_cutscene.
+---@param identifier string
+---@param waypoints CutsceneWaypoint[] the camera's path, as for LuaPlayer.set_controller
+---@param func number a Token: func(player_index, waypoint_index, params) draws what a waypoint shows
+---@param terminate_func number? a Token: terminate_func(player_index, skip_btn_flag) runs as it ends
 function Public.register_cutscene_function(identifier, waypoints, func, terminate_func)
     assert_type('string', identifier, 'identifier of function cutscene_controller.register_cutscene_function')
     assert_type('table', waypoints, 'waypoints of function cutscene_controller.register_cutscene_function')
@@ -185,6 +211,11 @@ function Public.register_cutscene_function(identifier, waypoints, func, terminat
     cutscene_functions[identifier] = {func = func, waypoints = waypoints, update = false, terminate_func = terminate_func}
 end
 
+--- Plays the cutscene registered as identifier to a player who has a character. The panels docked on
+--- the left are hidden while it plays: what it draws is in the world, under any GUI.
+---@param player_index number
+---@param identifier string
+---@param final_transition_time number ticks back to the character after the last waypoint
 function Public.register_running_cutscene(player_index, identifier, final_transition_time)
     if _NO_CUTSCENE then
         return
@@ -217,6 +248,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         return
     end
 
+    local left_flow = Gui.get_left_flow(player)
     running_cutscenes[player_index] = {
         func = cutscene_function.func,
         waypoints = waypoints,
@@ -226,14 +258,10 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         terminate_func = cutscene_function.terminate_func,
         rendering = {},
         current_index = 0,
-        start_tick = 0
+        start_tick = 0,
+        left_flow_was_visible = left_flow.visible
     }
     local running_cutscene = running_cutscenes[player_index]
-
-    -- the cutscene's notes and arrows are drawn in the world, under any GUI, so the panels docked on
-    -- the left go while it plays
-    local left_flow = Gui.get_left_flow(player)
-    running_cutscene.left_flow_was_visible = left_flow.visible
     left_flow.visible = false
 
     if player.controller_type == defines.controllers.cutscene then
@@ -255,25 +283,14 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     running_cutscene.btn = flow
 
     local btn = flow.add {type = 'sprite-button', name = skip_btn_name, caption = 'Skip cutscene', style = Styles.default_top_element.name }
-    btn.style.minimal_height = 36
-    btn.style.maximal_height = 36
-    btn.style.minimal_width = 150
-    btn.style.font = 'default-large-bold'
-    btn.style.font_color = {r = 255, g = 215, b = 0}
+    Gui.set_style(btn, button_style)
+    Gui.set_style(btn, { minimal_width = 150 })
 
     local back_btn = flow.add {type = 'sprite-button', name = backward_btn_name, caption = 'Go back', style = Styles.default_top_element.name }
-    back_btn.style.minimal_height = 36
-    back_btn.style.maximal_height = 36
-    back_btn.style.minimal_width = 100
-    back_btn.style.font = 'default-large-bold'
-    back_btn.style.font_color = {r = 255, g = 215, b = 0}
+    Gui.set_style(back_btn, button_style)
 
     local forward_btn = flow.add {type = 'sprite-button', name = forward_btn_name, caption = 'Go forward', style = Styles.default_top_element.name }
-    forward_btn.style.minimal_height = 36
-    forward_btn.style.maximal_height = 36
-    forward_btn.style.minimal_width = 100
-    forward_btn.style.font = 'default-large-bold'
-    forward_btn.style.font_color = {r = 255, g = 215, b = 0}
+    Gui.set_style(forward_btn, button_style)
 
     if auto_play_cutscene_setting_name then
         local auto_play_cutscene_checkbox = flow.add
@@ -284,8 +301,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
             state = Settings.get(player_index, auto_play_cutscene_setting_name)
         }
 
-        auto_play_cutscene_checkbox.style.top_margin = 8
-        auto_play_cutscene_checkbox.style.left_margin = 3
+        Gui.set_style(auto_play_cutscene_checkbox, { top_margin = 8, left_margin = 3 })
 
         running_cutscene.auto_play_cutscene_checkbox = auto_play_cutscene_checkbox
     end
@@ -442,6 +458,11 @@ function Public.terminate_cutscene(player_index, ticks, skip_btn_flag)
     )
 end
 
+--- Keeps what a waypoint drew, to destroy it when the waypoint ends; drawn after the waypoint ended,
+--- it is destroyed at once.
+---@param player_index number
+---@param tick number the tick the waypoint's func was given in its params
+---@param render LuaRenderObject|LuaRenderObject[]
 function Public.register_rendering(player_index, tick, render)
     if type(render) ~= 'table' then
         render = {render}
@@ -459,6 +480,9 @@ function Public.register_rendering(player_index, tick, render)
     end
 end
 
+--- Makes /replay play the cutscene registered as identifier.
+---@param identifier string
+---@param final_transition_time number
 function Public.register_replay(identifier, final_transition_time)
     replay.identifier = identifier
     replay.final_transition_time = final_transition_time
