@@ -32,6 +32,9 @@ return {
       remove_resource_patches = true,
     }
   },
+  cutscene = {
+    enabled = true,
+  },
   container_dump = {
     enabled = true,
     entity_name = 'coal'

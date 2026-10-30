@@ -49,6 +49,7 @@ Config.redmew_surface.use_default = true
 local allowed_entities       = require 'map_gen.maps.danger_ores.modules.allowed_entities'.register
 local concrete_on_landfill   = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 local container_dump         = require 'map_gen.maps.danger_ores.modules.container_dump'.register
+local cutscene               = require 'map_gen.maps.danger_ores.modules.cutscene'
 local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
 local mining_productivity    = require 'map_gen.maps.danger_ores.modules.mining_productivity'.register
 local maze                   = require 'map_gen.maps.danger_ores.modules.maze'
@@ -92,6 +93,18 @@ Public.register = function(danger_ores_config)
   end
   if _C.container_dump.enabled then
     container_dump(_C.container_dump)
+  end
+  if _C.cutscene.enabled then
+    -- the title card names the map as the next-map poll does, '<Name> (<twist>)'
+    local name, twist = ScenarioInfo.get_map_name(), nil
+    if _C.map_poll.enabled then
+      for _, map in pairs(require 'map_gen.maps.danger_ores.modules.map_poll'.get_maps()) do
+        if map.name == _C.scenario_name then
+          name, twist = cutscene.split_display_name(map.display_name)
+        end
+      end
+    end
+    cutscene.register(_C, { name = name, twist = twist })
   end
   if _C.disable_mining_productivity.enabled then
     mining_productivity(_C.disable_mining_productivity)
