@@ -534,7 +534,7 @@ local pages = {
             end
 
             if config.tag_group.enabled then
-                softmod_sprite(grid, 'utility/bookmark')
+                softmod_sprite(grid, 'utility/custom_tag_in_map_view')
                 local tag = grid.add {type = 'label', caption = {'info.softmods_tags_label'}, style = 'heading_2_label'}
                 tag.style.font = 'var'
                 local tag_label = grid.add {type = 'label', caption = {'info.softmods_tags_text'}}
@@ -550,7 +550,7 @@ local pages = {
             end
 
             if config.player_shortcuts.enabled then
-                softmod_sprite(grid, 'item/selector-combinator')
+                softmod_sprite(grid, 'utility/hand')
                 local poll = grid.add {type = 'label', caption = {'info.softmods_shortcuts_label'}, style = 'heading_2_label'}
                 poll.style.font = 'var'
                 local poll_label = grid.add {type = 'label', caption = {'info.softmods_shortcuts_text'}}
