@@ -113,7 +113,7 @@ end
 
 local function draw_main_frame(player)
     local settings = Settings.get_setting_metadata()
-    -- the X closes it like Cancel does, through the top button's handler
+    -- the X closes it through the top button's handler
     local settings_frame = Gui.add_window(player, {
         name = main_frame_name,
         caption = { 'redmew_settings_gui.frame_title' },
@@ -179,11 +179,9 @@ local function draw_main_frame(player)
         }
     end
 
-    local buttons = Gui.add_dialog_buttons(
-        settings_frame,
-        { { name = main_button_name, caption = { 'redmew_settings_gui.button_cancel' } } },
-        { { name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' } } }
-    )
+    local buttons = Gui.add_dialog_buttons(settings_frame, nil, {
+        { name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' } }
+    })
 
     Gui.set_data(buttons[save_changes_button_name], data)
     Gui.set_data(settings_frame, data)

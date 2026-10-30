@@ -26,6 +26,8 @@ own styles rather than setting sizes and colours.
     floating panel is dragged by a strip down its right side rather than its header, so it
     doesn't grow wider (Shortcuts, the HUD).
   - A panel made of sections, each with its own subheader (tasks), passes `sections = true`.
+  - A setting the panel needs, such as notifications, goes in a footer along the bottom:
+    `footer = true` returns one (a `subfooter_frame`) as `Gui.add_panel`'s third value.
     One whose elements bring their own frame, like the shortcuts' slot bar, passes
     `frameless = true`. A list that fills the inner frame (tags) sets the frame's padding to 0,
     uses a `naked_scroll_pane`, and puts anything under it in a `subfooter_frame`.
@@ -40,13 +42,12 @@ own styles rather than setting sizes and colours.
 
 ## Closing
 
-- A docked panel closes from its top button, so it has no close button of its own; a floating
-  one gets an X. Both the X and the pin go through the top button's click handler.
-- A window closes with the X in its title bar. When it has a Close or Cancel button too, give
-  the X the same name and the same `Gui.set_data`, so one handler serves both.
-- A window gets a row of buttons only when it has an action besides closing: a Close button
-  alone repeats the X. In the row, Close (or Cancel) goes first on the left, the confirming
-  button last on the right, and the rest in between (Clear on the left, Delete on the right).
+- Every panel and window has its own X, docked or floating, and no Close or Cancel button: the X
+  closes it. A panel's top button still toggles it; its X and pin go through the top button's
+  click handler.
+- A window gets a row of buttons only when it has an action besides closing. In the row, the
+  likes of Clear and Reset go on the left, the confirming button last on the right, and the
+  likes of Delete just before it.
 
 ## One element for each job
 
@@ -56,7 +57,7 @@ own styles rather than setting sizes and colours.
 | Icon buttons in a header (pin, add, clear) | `frame_action_button` with a white sprite (`utility/add_white`), the dark one as `hovered_sprite` |
 | Icon buttons in content (edit, delete, move, add, a count) | `tool_button`; `tool_button_red` when it deletes or punishes |
 | Showing which one is the player's (their vote, their volunteering) | `toggled = true` on the button, not a font colour |
-| Dialog buttons | `back_button`, `dialog_button`, `confirm_button`, and `red_back_button` or `red_confirm_button` when they delete or punish (the defaults of `Gui.add_dialog_buttons`) |
+| Dialog buttons | `dialog_button` and `confirm_button` (the defaults of `Gui.add_dialog_buttons`), and `red_back_button` or `red_confirm_button` when they delete or punish |
 | A section in a panel | `inside_shallow_frame` with a `subheader_frame` holding a `subheader_caption_label` and its `tool_button`s |
 | Item, tile and signal slots | `slot_button` in a `filter_slot_table`, in an `inside_deep_frame`; `slot_sized_button` for a single slot on a shallow frame (the paint brush) |
 | Text | a label with the default style; `bold_label` for names of fields, for a question and for a row's number (an experience level) |
@@ -67,6 +68,8 @@ own styles rather than setting sizes and colours.
 
 ## Things that are easy to get wrong
 
+- Set styles with `Gui.set_style(element, { ... })`, one table, not property by property
+  (`element.style.width = ...`); a style several elements share is a table at the top of the file.
 - Find elements by name, or keep them in the window's `Gui.set_data`; not by position
   (`element.parent.parent`, `frame.children[1]`), which breaks as soon as the layout changes.
 - A label that wraps (`single_line = false`) in a table needs a definite width; left to stretch,
