@@ -97,7 +97,7 @@ function Public.on_player_created(player)
   local b = Gui.add_top_element(player, {
     type = 'sprite-button',
     name = main_button_name,
-    sprite = 'item/selector-combinator',
+    sprite = 'utility/hand',
     tooltip = {'player_shortcuts.info_tooltip'},
   })
   b.style.padding = 2
