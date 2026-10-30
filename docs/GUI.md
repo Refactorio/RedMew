@@ -45,6 +45,8 @@ own styles rather than setting sizes and colours.
 - Every panel and window has its own X, docked or floating, and no Close or Cancel button: the X
   closes it. A panel's top button still toggles it; its X and pin go through the top button's
   click handler.
+- The one exception is the info window: the first window a new player sees keeps a Close button
+  under its tabs that they can't miss, as well as its X.
 - A window gets a row of buttons only when it has an action besides closing. In the row, the
   likes of Clear and Reset go on the left, the confirming button last on the right, and the
   likes of Delete just before it.
