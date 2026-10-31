@@ -138,6 +138,9 @@ local confirm_create_tag_name = Gui.uid_name()
 local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
+-- the top button shows the player's tag, or this when they have none
+local default_sprite = 'utility/custom_tag_in_map_view'
+
 local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
@@ -148,7 +151,7 @@ local function player_created(event)
         {
             name = main_button_name,
             type = 'sprite-button',
-            sprite = 'utility/bookmark',
+            sprite = default_sprite,
             tooltip = {'tag_group.tooltip'},
             auto_toggle = true,
         }
@@ -178,6 +181,10 @@ local function draw_main_frame_content(parent)
         local path = tag_data.path
 
         local row = grid.add { type = 'table', column_count = 4 }
+        -- keep the names level with the buttons
+        for column = 1, 4 do
+            row.style.column_alignments[column] = 'middle-left'
+        end
 
         if can_edit then
             local edit_button =
@@ -186,10 +193,9 @@ local function draw_main_frame_content(parent)
                 name = edit_tag_button_name,
                 sprite = 'utility/rename_icon',
                 tooltip = {'tag_group.edit_group'},
-                style = 'crafting_queue_slot',
+                style = 'tool_button',
             }
             edit_button.visible = can_edit
-            Gui.set_style(edit_button, { padding = 4, size = 32 })
             Gui.set_data(edit_button, tag_name)
         end
 
@@ -199,10 +205,9 @@ local function draw_main_frame_content(parent)
             name = tag_button_name,
             sprite = path,
             tooltip = tag_name,
-            style = 'slot_button_in_shallow_frame',
+            style = 'tool_button',
             number = (size > 0) and size or nil,
         }
-        Gui.set_style(tag_button, { size = 32 })
         Gui.set_data(tag_button, tag_name)
 
         local tag_label = row.add { type = 'label', name = tag_label_name, caption = tag_name, style = 'semibold_caption_label' }
@@ -307,7 +312,7 @@ local function redraw_main_button(player, path)
     local main_button = Gui.get_top_element(player, main_button_name)
 
     if (path == '') or (path == nil) or (not helpers.is_valid_sprite_path(path)) then
-        main_button.sprite = 'utility/bookmark'
+        main_button.sprite = default_sprite
     else
         main_button.sprite = path
     end
@@ -378,10 +383,9 @@ local function draw_create_tag_frame(event, tag_data)
         frame.destroy()
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = create_tag_frame_name, caption = frame_caption, close_button_name = close_create_tag_name})
+    local inner, title_close_button
+    frame, inner, title_close_button = Gui.add_dialog(player, {name = create_tag_frame_name, caption = frame_caption, close_button_name = close_create_tag_name})
     Gui.set_data(title_close_button, frame)
-    local inner = frame.add { type = 'frame', style = 'inside_shallow_frame_with_padding', direction = 'vertical', name = 'inner' }
 
     if tag_data then
         local text = LocaleBuilder.new({'common.created_by', tag_data.created_by or '<Server>'})
@@ -426,7 +430,7 @@ local function draw_create_tag_frame(event, tag_data)
         type = 'choose-elem-button',
         name = create_tag_choose_icon_name,
         elem_type = spirte_type,
-        style = 'slot_button_in_shallow_frame',
+        style = 'slot_sized_button',
     }
 
     if path then
@@ -445,22 +449,16 @@ local function draw_create_tag_frame(event, tag_data)
     leave_message_field.style.minimal_width = 353
     Gui.set_data(leave_message_field, frame)
 
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    Gui.add_pusher(bottom_flow)
-
-    local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align = 'right'
-
+    local right = {}
     if tag_data then
-        local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = {'common.delete'}, style = 'red_back_button'}
-        Gui.set_style(delete_button, { height = 28, font = 'default-semibold' })
-        Gui.set_data(delete_button, frame)
+        right[#right + 1] = {name = delete_tag_name, caption = {'common.delete'}, style = 'red_back_button'}
     end
+    right[#right + 1] = {name = confirm_create_tag_name, caption = confirm_caption, tooltip = ''}
 
-    local confirm_button = right_flow.add {type = 'button', name = confirm_create_tag_name, caption = confirm_caption, style = 'confirm_button', tooltip = ''}
-    Gui.set_style(confirm_button, { height = 28, font = 'default-semibold' })
-    Gui.set_data(confirm_button, frame)
+    local buttons = Gui.add_dialog_buttons(frame, nil, right)
+    for _, button in pairs(buttons) do
+        Gui.set_data(button, frame)
+    end
 
     local data = {
         focus = focus,

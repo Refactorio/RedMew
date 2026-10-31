@@ -60,10 +60,13 @@ local function toggle_main_frame(event)
             state = Autofill.get_enabled(player_index),
         }
 
-        local ammo_count_flow = inner.add { type = 'flow', direction = 'horizontal' }
-        local ammo_count_label = ammo_count_flow.add { type = 'label', caption = { 'autofill.ammo_count' } }
-        Gui.set_style(ammo_count_label, { minimal_width = 140 })
-        local ammo_count_textfield = ammo_count_flow.add {
+        -- spaced rows: the slots' border is drawn outside them, over whatever sits right above
+        local rows = inner.add { type = 'table', column_count = 2 }
+        Gui.set_style(rows, { vertical_spacing = 8, horizontal_spacing = 12 })
+        rows.style.column_alignments[1] = 'middle-left'
+
+        local ammo_count_label = rows.add { type = 'label', caption = { 'autofill.ammo_count' } }
+        local ammo_count_textfield = rows.add {
             type = 'textfield',
             name = ammo_count_name,
             text = tostring(Autofill.get_ammo_count(player_index)),
@@ -72,12 +75,10 @@ local function toggle_main_frame(event)
             allow_negative = false,
         }
 
-        local enabled_ammos_flow = inner.add { type = 'flow', direction = 'horizontal' }
-        local enabled_ammos_label = enabled_ammos_flow.add { type = 'label', caption = { 'autofill.enabled_ammos' } }
-        Gui.set_style(enabled_ammos_label, { minimal_width = 140 })
+        rows.add { type = 'label', caption = { 'autofill.enabled_ammos' } }
 
         -- no scroll bars: they would cover the slots, and there are only a few ammo types
-        local slots = enabled_ammos_flow.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'never' }
+        local slots = rows.add { type = 'scroll-pane', style = 'deep_slots_scroll_pane', horizontal_scroll_policy = 'never', vertical_scroll_policy = 'never' }
         local grid = slots.add { type = 'table', column_count = 5, style = 'filter_slot_table' }
 
         for name, enabled in pairs(Autofill.get_player_ammos(player_index)) do

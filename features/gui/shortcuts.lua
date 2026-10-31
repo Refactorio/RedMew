@@ -97,7 +97,7 @@ function Public.on_player_created(player)
   local b = Gui.add_top_element(player, {
     type = 'sprite-button',
     name = main_button_name,
-    sprite = 'utility/hand_black',
+    sprite = 'utility/hand',
     tooltip = {'player_shortcuts.info_tooltip'},
   })
   b.style.padding = 2
@@ -133,6 +133,7 @@ function Public.get_main_frame(player)
     toggle_name = main_button_name,
     -- floating, it's dragged by a strip down its side, as the bar was, rather than growing wider
     side_dragger = true,
+    frameless = true,
     add_header_buttons = function(header)
       header.add {
         type = 'sprite-button',
@@ -157,7 +158,9 @@ function Public.get_main_frame(player)
   end
   settings_pane.visible = false
 
-  local table = content.add {
+  -- the buttons sit on slots like the game's own shortcut bar
+  local bar = content.add { type = 'frame', style = 'shortcut_bar_inner_panel' }
+  local table = bar.add {
     type = 'table',
     column_count = table_size(enabled_shortcuts()),
     style = 'filter_slot_table',
@@ -173,7 +176,6 @@ function Public.get_main_frame(player)
       tooltip = s.tooltip,
       tags = { action = shortcut_action_name, name = button_name },
     }
-    Gui.set_style(button, { font_color = { 165, 165, 165 } })
     if player_data[button_name] == nil then
       player_data[button_name] = true
     end

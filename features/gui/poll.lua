@@ -8,7 +8,6 @@ local table = require 'utils.table'
 local Core = require 'utils.core'
 local Server = require 'features.server'
 local Command = require 'utils.command'
-local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 local Settings = require 'utils.redmew_settings'
 
@@ -22,9 +21,6 @@ local ticks_in_hour = 60 * 60 * 60
 local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
-
-local normal_color = Color.white
-local focus_color = Color.orange
 
 local notify_name = 'notify_poll'
 Settings.register(notify_name, Settings.types.boolean, true, 'poll.notify_caption_short')
@@ -74,36 +70,6 @@ local create_poll_clear_name = Gui.uid_name()
 local create_poll_edit_name = Gui.uid_name()
 local create_poll_confirm_name = Gui.uid_name()
 local create_poll_delete_name = Gui.uid_name()
-
-local STYLES = {
-    x26 = {
-        size = 26,
-    },
-    default_button = {
-        font = 'default-semibold',
-        height = 26,
-        minimal_width = 26,
-        top_padding = 0,
-        bottom_padding = 0,
-        left_padding = 2,
-        right_padding = 2,
-        font_color = { 0, 0, 0 },
-    },
-    direction_button = {
-        width = 24,
-        height = 24,
-        top_padding = 0,
-        bottom_padding = 0,
-        left_padding = 0,
-        right_padding = 0,
-        font = 'default-listbox',
-    },
-    vote_button = {
-        height = 24,
-        width = 26,
-        padding = 0,
-    }
-}
 
 local function poll_id()
     local count = polls_counter[1] + 1
@@ -257,18 +223,16 @@ local function redraw_poll_viewer_content(data)
 
     local edit_rank = poll.edit_rank or Ranks.regular
     if Rank.equal_or_greater_than(player.name, edit_rank) then
-        local edit_button = question_flow.add {
+        question_flow.add {
             type = 'sprite-button',
             name = poll_view_edit_name,
             sprite = 'utility/rename_icon',
             tooltip = 'Edit poll',
-            style = 'green_button',
+            style = 'tool_button',
         }
-        Gui.set_style(edit_button, STYLES.x26)
-        Gui.set_style(edit_button, { padding = 2 })
     end
 
-    local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'control_input_shortcut_label' }
+    local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'bold_label' }
     Gui.set_style(question_label, { single_line = false })
 
     local grid = poll_viewer_content.add { type = 'table', column_count = 2 }
@@ -277,27 +241,19 @@ local function redraw_poll_viewer_content(data)
     local vote_buttons = {}
     for i, a in pairs(answers) do
         local vote_button_flow = grid.add { type = 'flow' }
+        -- the player's own answer is the lit one
         local vote_button = vote_button_flow.add {
             type = 'button',
             name = poll_view_vote_name,
             caption = a.voted_count,
             enabled = poll_enabled,
-            style = 'frame_button',
+            style = 'tool_button',
+            toggled = answer == a,
         }
 
         local tooltip = tooltips[a]
         if tooltip ~= '' then
             vote_button.tooltip = tooltip
-        end
-
-        local vote_button_style = vote_button.style
-        Gui.set_style(vote_button, STYLES.vote_button)
-        if answer == a then
-            vote_button_style.font_color = focus_color
-            vote_button_style.disabled_font_color = focus_color
-        else
-            vote_button_style.font_color = normal_color
-            vote_button_style.disabled_font_color = normal_color
         end
 
         Gui.set_data(vote_button, { answer = a, data = data })
@@ -360,11 +316,8 @@ local function draw_main_frame(player)
     local poll_viewer_top_flow = inner.add { type = 'table', column_count = 5 }
     Gui.set_style(poll_viewer_top_flow, { horizontal_spacing = 0 })
 
-    local back_button = poll_viewer_top_flow.add { type = 'button', name = poll_view_back_name, caption = '◀' }
-    Gui.set_style(back_button, STYLES.direction_button)
-
-    local forward_button = poll_viewer_top_flow.add { type = 'button', name = poll_view_forward_name, caption = '▶' }
-    Gui.set_style(forward_button, STYLES.direction_button)
+    local back_button = poll_viewer_top_flow.add { type = 'sprite-button', name = poll_view_back_name, sprite = 'utility/left_arrow', style = 'tool_button', tooltip = 'Previous poll' }
+    local forward_button = poll_viewer_top_flow.add { type = 'sprite-button', name = poll_view_forward_name, sprite = 'utility/right_arrow', style = 'tool_button', tooltip = 'Next poll' }
 
     local poll_index_label = poll_viewer_top_flow.add { type = 'label' }
     Gui.set_style(poll_index_label, { left_padding = 8 })
@@ -508,8 +461,10 @@ local function redraw_create_poll_content(data)
     grid.add { type = 'flow' }
     local question_label = grid.add({ type = 'flow' }).add { type = 'label', name = create_poll_label_name, caption = 'Question:' }
 
-    local question_textfield = grid.add({ type = 'flow' }).add { type = 'textfield', name = create_poll_question_name, text = data.question }
-    Gui.set_style(question_textfield, { width = 215 })
+    local question_flow = grid.add { type = 'flow' }
+    Gui.set_style(question_flow, { horizontally_stretchable = true })
+    local question_textfield = question_flow.add { type = 'textfield', name = create_poll_question_name, text = data.question }
+    Gui.set_style(question_textfield, { minimal_width = 215, maximal_width = 1e6, horizontally_stretchable = true })
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -527,9 +482,9 @@ local function redraw_create_poll_content(data)
                 tooltip = 'Delete answer field',
                 style = 'tool_button_red',
             }
-            Gui.set_style(delete_button, STYLES.x26)
         else
-            Gui.set_style(delete_flow, STYLES.x26)
+            -- keeps the first answer lined up with the ones that can be deleted
+            Gui.set_style(delete_flow, { width = 28 })
         end
 
         local label_flow = grid.add { type = 'flow' }
@@ -540,9 +495,10 @@ local function redraw_create_poll_content(data)
         }
 
         local textfield_flow = grid.add { type = 'flow' }
+        Gui.set_style(textfield_flow, { horizontally_stretchable = true })
 
         local textfield = textfield_flow.add { type = 'textfield', name = create_poll_answer_name, text = answer.text }
-        Gui.set_style(textfield, { width = 215 })
+        Gui.set_style(textfield, { minimal_width = 215, maximal_width = 1e6, horizontally_stretchable = true })
         Gui.set_data(textfield, { answers = answers, count = count })
 
         if delete_button then
@@ -591,13 +547,14 @@ local function draw_create_poll_frame(player, previous_data)
     end
 
     -- as wide as the dialog buttons along the bottom need
-    local frame, title_close_button = Gui.add_window(player, { name = create_poll_frame_name, caption = title_text, close_button_name = create_poll_close_name })
+    local frame, content, title_close_button = Gui.add_dialog(player, { name = create_poll_frame_name, caption = title_text, close_button_name = create_poll_close_name })
     Gui.set_data(title_close_button, frame)
 
-    local scroll_pane = frame.add { type = 'scroll-pane', vertical_scroll_policy = 'always', style = 'notice_scroll_pane', horizontal_scroll_policy = 'never' }
-    Gui.set_style(scroll_pane, { maximal_height = 250, minimal_width = 360, horizontally_stretchable = true, padding = 4 })
+    local scroll_pane = content.add { type = 'scroll-pane', vertical_scroll_policy = 'auto', style = 'naked_scroll_pane', horizontal_scroll_policy = 'never' }
+    Gui.set_style(scroll_pane, { maximal_height = 250, minimal_width = 360, horizontally_stretchable = true })
 
     local grid = scroll_pane.add { type = 'table', column_count = 3 }
+    Gui.set_style(grid, { horizontally_stretchable = true })
 
     local data = {
         frame = frame,
@@ -617,30 +574,26 @@ local function draw_create_poll_frame(player, previous_data)
         type = 'sprite-button',
         name = create_poll_add_answer_name,
         sprite = 'utility/add',
-        style = 'green_button',
+        style = 'tool_button',
         tooltip = 'Add answer',
     }
-    Gui.set_style(add_answer_button, STYLES.default_button)
     Gui.set_data(add_answer_button, data)
 
-    local bottom_flow = frame.add { type = 'flow', direction = 'horizontal' }
-
-    local left_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(left_flow, { horizontal_align = 'left', horizontally_stretchable = true })
-
-    local clear_button = left_flow.add { type = 'button', name = create_poll_clear_name, caption = 'Clear' }
-    Gui.set_data(clear_button, data)
-
-    local right_flow = bottom_flow.add { type = 'flow' }
-    Gui.set_style(right_flow, { horizontal_align = 'right' })
-
+    local right = {}
     if edit_mode then
-        local delete_button = right_flow.add { type = 'button', name = create_poll_delete_name, caption = { 'common.delete' }, style = 'red_back_button' }
-        Gui.set_data(delete_button, data)
+        right[#right + 1] = { name = create_poll_delete_name, caption = { 'common.delete' }, style = 'red_back_button' }
     end
+    right[#right + 1] = { name = confirm_name, caption = confirm_text }
 
-    local confirm_button = right_flow.add { type = 'button', name = confirm_name, caption = confirm_text, style = 'confirm_button' }
-    Gui.set_data(confirm_button, data)
+    local buttons = Gui.add_dialog_buttons(frame, {
+        { name = create_poll_clear_name, caption = 'Clear' },
+    }, right)
+
+    Gui.set_data(buttons[create_poll_clear_name], data)
+    if edit_mode then
+        Gui.set_data(buttons[create_poll_delete_name], data)
+    end
+    Gui.set_data(buttons[confirm_name], data)
 end
 
 local function show_new_poll(poll_data)
@@ -787,9 +740,7 @@ local function vote(event)
                     vote_button.tooltip = previous_vote_button_tooltip
 
                     if p.index == player_index then
-                        local vote_button_style = vote_button.style
-                        vote_button_style.font_color = normal_color
-                        vote_button_style.disabled_font_color = normal_color
+                        vote_button.toggled = false
                     end
                 end
 
@@ -798,9 +749,7 @@ local function vote(event)
                 vote_button.tooltip = vote_button_tooltip
 
                 if p.index == player_index then
-                    local vote_button_style = vote_button.style
-                    vote_button_style.font_color = focus_color
-                    vote_button_style.disabled_font_color = focus_color
+                    vote_button.toggled = true
                 end
             end
         end
