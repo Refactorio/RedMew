@@ -378,10 +378,9 @@ local function draw_create_tag_frame(event, tag_data)
         frame.destroy()
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = create_tag_frame_name, caption = frame_caption, close_button_name = close_create_tag_name})
+    local inner, title_close_button
+    frame, inner, title_close_button = Gui.add_dialog(player, {name = create_tag_frame_name, caption = frame_caption, close_button_name = close_create_tag_name})
     Gui.set_data(title_close_button, frame)
-    local inner = frame.add { type = 'frame', style = 'inside_shallow_frame_with_padding', direction = 'vertical', name = 'inner' }
 
     if tag_data then
         local text = LocaleBuilder.new({'common.created_by', tag_data.created_by or '<Server>'})
@@ -445,22 +444,16 @@ local function draw_create_tag_frame(event, tag_data)
     leave_message_field.style.minimal_width = 353
     Gui.set_data(leave_message_field, frame)
 
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    Gui.add_pusher(bottom_flow)
-
-    local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align = 'right'
-
+    local right = {}
     if tag_data then
-        local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = {'common.delete'}, style = 'red_back_button'}
-        Gui.set_style(delete_button, { height = 28, font = 'default-semibold' })
-        Gui.set_data(delete_button, frame)
+        right[#right + 1] = {name = delete_tag_name, caption = {'common.delete'}, style = 'red_back_button'}
     end
+    right[#right + 1] = {name = confirm_create_tag_name, caption = confirm_caption, tooltip = ''}
 
-    local confirm_button = right_flow.add {type = 'button', name = confirm_create_tag_name, caption = confirm_caption, style = 'confirm_button', tooltip = ''}
-    Gui.set_style(confirm_button, { height = 28, font = 'default-semibold' })
-    Gui.set_data(confirm_button, frame)
+    local buttons = Gui.add_dialog_buttons(frame, nil, right)
+    for _, button in pairs(buttons) do
+        Gui.set_data(button, frame)
+    end
 
     local data = {
         focus = focus,

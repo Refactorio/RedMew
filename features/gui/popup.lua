@@ -41,39 +41,22 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
         end
     end
 
-    local frame, title_close_button = Gui.add_window(player, {name = name, caption = title_text, close_button_name = close_name})
+    local frame, content, title_close_button = Gui.add_dialog(player, {name = name, caption = title_text, close_button_name = close_name})
     Gui.set_data(title_close_button, frame)
-    frame.style.minimal_width = 300
+    Gui.set_style(frame, {minimal_width = 300})
 
-    local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    content_flow.style.top_padding = 16
-    content_flow.style.bottom_padding = 16
-    content_flow.style.left_padding = 24
-    content_flow.style.right_padding = 24
-    content_flow.style.horizontally_stretchable = false
+    local content_flow = content.add {type = 'flow', direction = 'horizontal'}
+    Gui.set_style(content_flow, {vertical_align = 'center', horizontal_spacing = 16})
 
-    local sprite_flow = content_flow.add {type = 'flow'}
-    sprite_flow.style.vertical_align = 'center'
-    sprite_flow.style.vertically_stretchable = false
+    content_flow.add {type = 'sprite', sprite = sprite_path}
 
-    sprite_flow.add {type = 'sprite', sprite = sprite_path}
+    local label = content_flow.add {type = 'label', caption = message}
+    Gui.set_style(label, {single_line = false, font = 'default-large-bold'})
 
-    local label_flow = content_flow.add {type = 'flow'}
-    label_flow.style.horizontal_align  = 'left'
-    label_flow.style.top_padding = 10
-    label_flow.style.left_padding = 24
-
-    label_flow.style.horizontally_stretchable = false
-    local label = label_flow.add {type = 'label', caption = message}
-    label.style.single_line = false
-    label.style.font = 'default-large-bold'
-
-    local ok_button_flow = frame.add {type = 'flow'}
-    ok_button_flow.style.horizontally_stretchable = true
-    ok_button_flow.style.horizontal_align  = 'center'
-
-    local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = {'popup.confirm_btn'}}
-    Gui.set_data(ok_button, frame)
+    local buttons = Gui.add_dialog_buttons(frame, nil, {
+        {name = close_name, caption = {'popup.confirm_btn'}},
+    })
+    Gui.set_data(buttons[close_name], frame)
 end
 
 Gui.on_click(

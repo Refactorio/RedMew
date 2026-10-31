@@ -30,11 +30,11 @@ local function draw_rich_text(event)
         return
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = rich_text_frame, caption = frame_caption, close_button_name = close_rich_text})
+    local content, title_close_button
+    frame, content, title_close_button = Gui.add_dialog(player, {name = rich_text_frame, caption = frame_caption, close_button_name = close_rich_text})
     Gui.set_data(title_close_button, frame)
 
-    local main_table = frame.add {type = 'table', column_count = 1}
+    local main_table = content.add {type = 'table', column_count = 1}
 
     main_table.add {type = 'label', caption = 'Image'}
     local icons_flow = main_table.add {type = 'flow', direction = 'horizontal'}
@@ -85,15 +85,6 @@ local function draw_rich_text(event)
     string_box.style.width = 352
 
     Gui.set_data(string_box, frame)
-
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
-
-    local close_button = Gui.make_close_button(left_flow, close_rich_text)
-    Gui.set_data(close_button, frame)
 
     local data = {
         focus = focus,
