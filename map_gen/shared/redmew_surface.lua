@@ -16,7 +16,7 @@
     unit_group, steering, path_finder, and something called max_failed_behavior_count (shrug)
     lastly, difficulty_settings
 
-    difficulty_settings: contains only recipe_difficulty, technology_difficulty (not used in vanilla), and technology_price_multiplier
+    difficulty_settings: contains only technology_price_multiplier and spoil_time_modifier
 
     In the 16.51 version of factorio's Map Generator page difficulty_settings make up the "Recipes/Technology" section of the
     "Advanced settings" tab. map_settings make up the rest of that tab.
