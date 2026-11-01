@@ -343,6 +343,13 @@ Gui.on_checked_state_changed = handler_factory(defines.events.on_gui_checked_sta
 local click_handlers
 Gui.on_click, click_handlers = handler_factory(defines.events.on_gui_click)
 
+--- Runs the on_click handler registered for the element's name, as if the player had clicked it.
+---@param element LuaGuiElement
+---@param player LuaPlayer
+function Gui.raise_click(element, player)
+    custom_raise(click_handlers, element, player)
+end
+
 -- Register a handler for the on_gui_closed event for a custom LuaGuiElements with element_name.
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.

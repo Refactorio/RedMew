@@ -42,6 +42,8 @@ local Public = {
   }
 }
 
+Public._main_frame_name = main_frame_name
+
 function Public.get_pages()
   return pages
 end
@@ -134,6 +136,15 @@ function Public.get_main_frame(player)
   end
 
   Gui.set_data(frame, data)
+
+  -- open on the first page the player can see, rather than on an empty canvas
+  for _, button in pairs(data.left.children) do
+    if button.visible then
+      button.toggled = true
+      Gui.raise_click(button, player)
+      break
+    end
+  end
 end
 
 function Public.get_main_frame_location(player, offset)
