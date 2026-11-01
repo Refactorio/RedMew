@@ -452,7 +452,7 @@ local map_waypoints = {
 
 local function show_start_up(player)
     PC.show_start_up(player)
-    player.print({'danger_ores.replay_cutscene', '/replay'}, {color = Color.yellow})
+    player.print({'cutscene_controller.replay_hint', '/replay'}, {color = Color.yellow})
 end
 
 local start_rule =
