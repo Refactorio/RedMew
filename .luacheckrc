@@ -773,7 +773,7 @@ stds.stdlib_data = {
 } --))
 
 --(( FACTORIO DEFINES ))--
--- Every define in Factorio 2.1.24, from the runtime API (https://lua-api.factorio.com/latest/runtime-api.json)
+-- Every define in Factorio 2.1.24, from its runtime API: https://lua-api.factorio.com/2.1.24/runtime-api.json
 stds.factorio_defines = {
     read_globals = {
         defines = {
