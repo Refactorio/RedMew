@@ -15,6 +15,11 @@ local tau = 2 * math.pi
 
 local STEPS = 2048
 
+-- The Randomizer loads this module too, but only some seeds pick it: these run on its own map
+if DOC.randomizer.enabled then
+    return
+end
+
 Declare.module(
     {'map_gen', 'danger ores', 'citadel'},
     function()

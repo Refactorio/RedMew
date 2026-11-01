@@ -49,53 +49,70 @@ local function empty_builder()
     return b.empty_shape
 end
 
-return function(config)
+--- Builds the map's shape from `config`, laying out the main ores with `random_gen`.
+local function build(config, random_gen)
     local ore_builder = config.ore_builder or default_ore_builder
     local spawn_builder = config.spawn_builder or default_spawn_builder
     local tile_builder = config.tile_builder or default_tile_builder
-    local map
-    Global.register_init({}, function(tbl)
-        tbl.seed = RS.get_surface().map_gen_settings.seed
-        tbl.random = game.create_random_generator(tbl.seed)
-    end, function(tbl)
-        local spawn_shape = spawn_builder(config)
-        local water_shape = (config.water or empty_builder)(config)
-        local tile_shape = tile_builder(config)
-        local trees_shape = (config.trees or no_op)(config)
-        local enemy_shape = (config.enemy or no_op)(config)
-        local fish_spawn_rate = config.fish_spawn_rate
-        local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
-        local post_map_func = config.post_map_func
 
-        local ore_builder_config = {
-            start_ore_shape = config.start_ore_shape or b.circle(68),
-            resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape,
-            no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape,
-            dense_patches = (config.dense_patches or no_op)(config) or no_op,
-        }
+    local spawn_shape = spawn_builder(config)
+    local water_shape = (config.water or empty_builder)(config)
+    local tile_shape = tile_builder(config)
+    local trees_shape = (config.trees or no_op)(config)
+    local enemy_shape = (config.enemy or no_op)(config)
+    local fish_spawn_rate = config.fish_spawn_rate
+    local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
+    local post_map_func = config.post_map_func
 
-        local random_gen = tbl.random
-        random_gen.re_seed(tbl.seed)
-        map = main_ores_builder(tile_shape, ore_builder(ore_builder_config), spawn_shape, water_shape, random_gen)
+    local ore_builder_config = {
+        start_ore_shape = config.start_ore_shape or b.circle(68),
+        resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape,
+        no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape,
+        dense_patches = (config.dense_patches or no_op)(config) or no_op,
+    }
 
-        if enemy_shape then
-            map = b.apply_entity(map, enemy_shape)
-        end
+    local map = main_ores_builder(tile_shape, ore_builder(ore_builder_config), spawn_shape, water_shape, random_gen)
 
-        if trees_shape then
-            map = b.apply_entity(map, trees_shape)
-        end
-
-        if post_map_func then
-            map = post_map_func(map)
-        end
-
-        if fish_spawn_rate then
-            map = b.fish(map, fish_spawn_rate)
-        end
-    end)
-
-    return function(x, y, world)
-        return map(x, y, world)
+    if enemy_shape then
+        map = b.apply_entity(map, enemy_shape)
     end
+
+    if trees_shape then
+        map = b.apply_entity(map, trees_shape)
+    end
+
+    if post_map_func then
+        map = post_map_func(map, config)
+    end
+
+    if fish_spawn_rate then
+        map = b.fish(map, fish_spawn_rate)
+    end
+
+    return map
 end
+
+local Public = {build = build}
+
+--- Registers the map: its shape is built from `config` on init and on every load, from a random
+-- generator seeded with the map seed, so the same map comes back without saving it.
+-- @return the map's shape
+setmetatable(Public, {
+    __call = function(_, config)
+        local map
+        Global.register_init({}, function(tbl)
+            tbl.seed = RS.get_surface().map_gen_settings.seed
+            tbl.random = game.create_random_generator(tbl.seed)
+        end, function(tbl)
+            local random_gen = tbl.random
+            random_gen.re_seed(tbl.seed)
+            map = build(config, random_gen)
+        end)
+
+        return function(x, y, world)
+            return map(x, y, world)
+        end
+    end
+})
+
+return Public

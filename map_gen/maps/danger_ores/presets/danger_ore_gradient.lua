@@ -1,4 +1,5 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local Layouts = require 'map_gen.maps.danger_ores.modules.layouts'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
@@ -9,7 +10,6 @@ ScenarioInfo.add_map_extra_info([[
 ]])
 
 DOC.scenario_name = 'danger-ore-gradient'
-DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_gradient'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_gradient_ores'
+Layouts.apply(DOC.map_config, require 'map_gen.maps.danger_ores.layouts.gradient')
 
 return Scenario.register(DOC)

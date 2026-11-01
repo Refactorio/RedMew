@@ -63,6 +63,11 @@ local Public = {}
 Public.register = function(danger_ores_config)
   local _C = danger_ores_config
 
+  -- first, so everything below reads the map config the seed picks
+  if _C.randomizer.enabled then
+    require 'map_gen.maps.danger_ores.modules.randomizer'.register(_C)
+  end
+
   -- coins are only spent at the market, so without one the score is always 0
   if not Config.market.enabled then
     table.remove_element(Config.score.global_to_show, 'coins-spent')

@@ -1,5 +1,6 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local Config = require 'config'
+local Layouts = require 'map_gen.maps.danger_ores.modules.layouts'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
@@ -25,7 +26,6 @@ Config.player_create.starting_items = {
 }
 
 DOC.scenario_name = 'danger-ore-for-the-swarm'
-DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_honeycomb'
-DOC.map_config.main_ores = require 'map_gen.maps.danger_ores.config.vanilla_gradient_ores'
+Layouts.apply(DOC.map_config, require 'map_gen.maps.danger_ores.layouts.honeycomb')
 
 return Scenario.register(DOC)

@@ -21,7 +21,9 @@ takes. This adds how the code behaves and what is easy to break.
 What makes one map differ from another is usually one of:
 - **The main ore layout:** a `main_ores_builder` from `modules/main_ores_<layout>.lua`. The pure
   geometry of the newer layouts lives in `modules/<layout>_layout.lua`, with no Factorio API in
-  it, so it can be tested on its own.
+  it, so it can be tested on its own. The settings that make a layout (builder, ore mix, spawn...)
+  live in `layouts/<layout>.lua`, which its preset applies with `modules/layouts.lua` and the
+  Randomizer picks from; a new layout the Randomizer should offer goes there too.
 - **The ore mix:** `map_config.main_ores`, from `config/`. New mixes are built with the fluent API
   in `config/main_ores_factory.lua` (`Factory.default():add_ore('stone')`, `:change_tiles`,
   `:richness`, `:scale_richness`...) rather than a new config file.
@@ -50,6 +52,11 @@ Turned on from `configuration.lua` (all on by default unless noted):
   message on Discord, which names maps by their poll display name.
 - `map_poll`: the next-map poll.
 - `maze` and `radioactivity`: off by default.
+- `randomizer`: off by default. Picks an ore layout from `layouts/`, the water and an overlay by
+  the map seed, through a map config that reads like the preset's except for what the pick
+  changes. The pick needs the map's surface, so nothing may read those settings while the
+  scenario loads. Tests of a water or overlay module that check the real map skip the
+  Randomizer, where only some seeds pick it.
 
 ## Rules that are easy to break
 

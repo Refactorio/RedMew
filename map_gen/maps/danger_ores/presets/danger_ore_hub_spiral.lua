@@ -1,7 +1,7 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local Layouts = require 'map_gen.maps.danger_ores.modules.layouts'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
-local sqrt = math.sqrt
 
 ScenarioInfo.set_map_name('Danger Ores - Hub Spiral')
 ScenarioInfo.add_map_extra_info([[
@@ -10,10 +10,6 @@ ScenarioInfo.add_map_extra_info([[
 ]])
 
 DOC.scenario_name = 'danger-ore-hub-spiral'
-DOC.map_config.main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
-DOC.map_config.water_scale = function(x, y)
-  local d = sqrt(x * x + y * y)
-  return 1 / (24 + (0.1 * d))
-end
+Layouts.apply(DOC.map_config, require 'map_gen.maps.danger_ores.layouts.hub_spiral')
 
 return Scenario.register(DOC)
