@@ -371,16 +371,13 @@ local function draw_main_frame(player)
             enabled = enabled,
         }
 
-        -- read-only text that still lets players select and copy it, links and all
         local announcements_textbox = inner.add {
             type = 'text-box',
             text = announcements.text,
-            style = 'notice_textbox',
         }
         announcements_textbox.read_only = true
         announcements_textbox.word_wrap = true
-        -- a text box doesn't grow to fit its text, so it needs a height of its own
-        Gui.set_style(announcements_textbox, { horizontally_stretchable = true, maximal_width = 1e6, minimal_height = 100, maximal_height = 200, padding = 8 })
+        Gui.set_style(announcements_textbox, STYLES.textbox)
 
         data.announcements_textbox = announcements_textbox
     end
