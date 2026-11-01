@@ -89,7 +89,12 @@ local STYLES = {
         height = 24,
         width = 26,
         padding = 0,
-    }
+    },
+    wrapping_label = {
+        single_line = false,
+        horizontally_stretchable = true,
+        maximal_width = 10000,
+    },
 }
 
 local function poll_id()
@@ -240,7 +245,9 @@ local function redraw_poll_viewer_content(data)
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
 
+    -- the labels wrap at the panel's width rather than at a label's own
     local question_flow = poll_viewer_content.add { type = 'table', column_count = 2 }
+    Gui.set_style(question_flow, { horizontally_stretchable = true })
 
     local edit_rank = poll.edit_rank or Ranks.regular
     if Rank.equal_or_greater_than(player.name, edit_rank) then
@@ -256,9 +263,10 @@ local function redraw_poll_viewer_content(data)
     end
 
     local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'control_input_shortcut_label' }
-    Gui.set_style(question_label, { single_line = false })
+    Gui.set_style(question_label, STYLES.wrapping_label)
 
     local grid = poll_viewer_content.add { type = 'table', column_count = 2 }
+    Gui.set_style(grid, { horizontally_stretchable = true })
 
     local answer = voters[player.index]
     local vote_buttons = {}
@@ -284,7 +292,7 @@ local function redraw_poll_viewer_content(data)
         vote_buttons[i] = vote_button
 
         local label = grid.add { type = 'label', caption = a.text }
-        Gui.set_style(label, { single_line = false })
+        Gui.set_style(label, STYLES.wrapping_label)
     end
 
     data.vote_buttons = vote_buttons
@@ -321,6 +329,7 @@ local function draw_main_frame(player)
         name = main_frame_name,
         caption = 'Polls',
         toggle_name = main_button_name,
+        width = 'wide',
         footer = true,
         add_header_buttons = function(header)
             local is_regular = Rank.equal_or_greater_than(player.name, Ranks.regular)
@@ -347,13 +356,13 @@ local function draw_main_frame(player)
     Gui.set_style(poll_index_label, { left_padding = 8 })
 
     local spacer = poll_viewer_top_flow.add { type = 'flow' }
-    -- the panel is as wide as its contents, so keep the end time clear of the poll number
+    -- keep the end time clear of the poll number
     Gui.set_style(spacer, { horizontally_stretchable = true, minimal_width = 16 })
 
     local remaining_time_label = poll_viewer_top_flow.add { type = 'label' }
 
     local poll_viewer_content = inner.add { type = 'scroll-pane', style = 'naked_scroll_pane' }
-    Gui.set_style(poll_viewer_content, { maximal_height = 250, horizontally_stretchable = true })
+    Gui.set_style(poll_viewer_content, { maximal_height = 400, horizontally_stretchable = true })
 
     local poll_index = player_poll_index[player.index] or #polls
 
