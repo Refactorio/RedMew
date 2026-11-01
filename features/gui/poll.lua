@@ -71,6 +71,27 @@ local create_poll_edit_name = Gui.uid_name()
 local create_poll_confirm_name = Gui.uid_name()
 local create_poll_delete_name = Gui.uid_name()
 
+local STYLES = {
+    x26 = {
+        size = 26,
+    },
+    default_button = {
+        font = 'default-semibold',
+        height = 26,
+        minimal_width = 26,
+        top_padding = 0,
+        bottom_padding = 0,
+        left_padding = 2,
+        right_padding = 2,
+        font_color = { 0, 0, 0 },
+    },
+    vote_button = {
+        height = 24,
+        width = 26,
+        padding = 0,
+    }
+}
+
 local function poll_id()
     local count = polls_counter[1] + 1
     polls_counter[1] = count
@@ -223,16 +244,18 @@ local function redraw_poll_viewer_content(data)
 
     local edit_rank = poll.edit_rank or Ranks.regular
     if Rank.equal_or_greater_than(player.name, edit_rank) then
-        question_flow.add {
+        local edit_button = question_flow.add {
             type = 'sprite-button',
             name = poll_view_edit_name,
             sprite = 'utility/rename_icon',
             tooltip = 'Edit poll',
-            style = 'tool_button',
+            style = 'green_button',
         }
+        Gui.set_style(edit_button, STYLES.x26)
+        Gui.set_style(edit_button, { padding = 2 })
     end
 
-    local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'bold_label' }
+    local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'control_input_shortcut_label' }
     Gui.set_style(question_label, { single_line = false })
 
     local grid = poll_viewer_content.add { type = 'table', column_count = 2 }
@@ -247,9 +270,10 @@ local function redraw_poll_viewer_content(data)
             name = poll_view_vote_name,
             caption = a.voted_count,
             enabled = poll_enabled,
-            style = 'tool_button',
+            style = 'frame_button',
             toggled = answer == a,
         }
+        Gui.set_style(vote_button, STYLES.vote_button)
 
         local tooltip = tooltips[a]
         if tooltip ~= '' then
@@ -482,9 +506,9 @@ local function redraw_create_poll_content(data)
                 tooltip = 'Delete answer field',
                 style = 'tool_button_red',
             }
+            Gui.set_style(delete_button, STYLES.x26)
         else
-            -- keeps the first answer lined up with the ones that can be deleted
-            Gui.set_style(delete_flow, { width = 28 })
+            Gui.set_style(delete_flow, STYLES.x26)
         end
 
         local label_flow = grid.add { type = 'flow' }
@@ -574,9 +598,10 @@ local function draw_create_poll_frame(player, previous_data)
         type = 'sprite-button',
         name = create_poll_add_answer_name,
         sprite = 'utility/add',
-        style = 'tool_button',
+        style = 'green_button',
         tooltip = 'Add answer',
     }
+    Gui.set_style(add_answer_button, STYLES.default_button)
     Gui.set_data(add_answer_button, data)
 
     local right = {}

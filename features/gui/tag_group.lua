@@ -193,9 +193,10 @@ local function draw_main_frame_content(parent)
                 name = edit_tag_button_name,
                 sprite = 'utility/rename_icon',
                 tooltip = {'tag_group.edit_group'},
-                style = 'tool_button',
+                style = 'crafting_queue_slot',
             }
             edit_button.visible = can_edit
+            Gui.set_style(edit_button, { padding = 4, size = 32 })
             Gui.set_data(edit_button, tag_name)
         end
 
@@ -205,9 +206,10 @@ local function draw_main_frame_content(parent)
             name = tag_button_name,
             sprite = path,
             tooltip = tag_name,
-            style = 'tool_button',
+            style = 'slot_button_in_shallow_frame',
             number = (size > 0) and size or nil,
         }
+        Gui.set_style(tag_button, { size = 32 })
         Gui.set_data(tag_button, tag_name)
 
         local tag_label = row.add { type = 'label', name = tag_label_name, caption = tag_name, style = 'semibold_caption_label' }
@@ -430,7 +432,7 @@ local function draw_create_tag_frame(event, tag_data)
         type = 'choose-elem-button',
         name = create_tag_choose_icon_name,
         elem_type = spirte_type,
-        style = 'slot_sized_button',
+        style = 'slot_button_in_shallow_frame',
     }
 
     if path then

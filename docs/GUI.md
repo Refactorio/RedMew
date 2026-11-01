@@ -57,15 +57,18 @@ own styles rather than setting sizes and colours.
 | --- | --- |
 | A panel, window or dialog | `Gui.add_panel`, `Gui.add_window`, `Gui.add_dialog` and `Gui.add_dialog_buttons` |
 | Icon buttons in a header (pin, add, clear) | `frame_action_button` with a white sprite (`utility/add_white`), the dark one as `hovered_sprite` |
-| Icon buttons in content (edit, delete, move, add, a count) | `tool_button`; `tool_button_red` when it deletes or punishes |
+| Icon buttons in a subheader (edit, add) | `tool_button` |
+| Buttons straight on an inner frame (a vote, a poke, a tag) | not `tool_button`: the slot styles (`slot_button_in_shallow_frame`, `crafting_queue_slot`) or `frame_button`; `tool_button_red` when it deletes |
+| The button players look for first (editing a poll or a task) | `green_button`, so it stands out |
 | Showing which one is the player's (their vote, their volunteering) | `toggled = true` on the button, not a font colour |
 | Dialog buttons | `dialog_button` and `confirm_button` (the defaults of `Gui.add_dialog_buttons`), and `red_back_button` or `red_confirm_button` when they delete or punish |
 | A section in a panel | `inside_shallow_frame` with a `subheader_frame` holding a `subheader_caption_label` and its `tool_button`s |
-| Item, tile and signal slots | `slot_button` in a `filter_slot_table`, in an `inside_deep_frame`; `slot_sized_button` for a single slot on a shallow frame (the paint brush) |
-| Text | a label with the default style; `bold_label` for names of fields, for a question and for a row's number (an experience level) |
+| Item, tile and signal slots | `slot_button` in a `filter_slot_table`, in an `inside_deep_frame`; `slot_button_in_shallow_frame` for a single slot on a shallow frame (the paint brush, Rich Text's picker) |
+| Text | a label with the default style; `bold_label` for names of fields and for a row's number (an experience level) |
+| What players should see first (a poll's question, the announcements) | its own style, which stands out from the rest of the panel |
 | Column headings | `caption_label`, aligned like the column's cells |
-| A choice from a short list (a time span) | a `drop-down` |
-| Text to read but not edit | a `text-box` with the `notice_textbox` style, `read_only`: players can still select and copy it |
+| Numbers with a sign (production and consumption) | coloured by the sign, green and red, so they read at a glance |
+| A setting in a panel's header that players cycle through (the HUD's time span) | a `frame_button` showing its value; the header's other buttons are dark too |
 | Titles | `frame_title`, only through the helpers |
 
 ## Things that are easy to get wrong

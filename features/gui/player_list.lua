@@ -454,9 +454,14 @@ local column_builders = {
             parent_style.width = 64
             parent_style.horizontal_align = 'center'
 
-            local label = parent.add { type = 'button', name = poke_cell_name, caption = cell_data.poke_count, style = 'tool_button' }
-            -- wider than an icon once the count has a few digits
-            Gui.set_style(label, { maximal_width = 56 })
+            local label = parent.add { type = 'button', name = poke_cell_name, caption = cell_data.poke_count, style = 'crafting_queue_slot' }
+            Gui.set_style(label, {
+                horizontal_align = 'center',
+                minimal_width = 32,
+                height = 24,
+                font = 'default-bold',
+                padding = 0,
+            })
 
             data.poke_buttons[player.index] = label
 
@@ -504,9 +509,16 @@ local column_builders = {
                 name = report_cell_name,
                 sprite = 'utility/force_editor_icon',
                 tooltip = tooltip,
-                style = 'tool_button',
+                style = 'slot_button_in_shallow_frame',
                 enabled = not is_self,
             }
+            Gui.set_style(label, {
+                horizontal_align = 'center',
+                minimal_width = 32,
+                height = 24,
+                font = 'default-bold',
+                padding = 0,
+            })
 
             Gui.set_data(label, cell_data)
 

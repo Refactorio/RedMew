@@ -79,6 +79,21 @@ local create_task_clear_button_name = Gui.uid_name()
 local create_task_confirm_button_name = Gui.uid_name()
 local create_task_edit_button_name = Gui.uid_name()
 
+local STYLES = {
+    default_button = {
+        width = 26,
+        height = 26,
+        padding = 2,
+    },
+    textbox = {
+        maximal_width = 1e6,
+        maximal_height = 1e6,
+        minimal_width = 450,
+        minimal_height = 100,
+        horizontally_stretchable = true,
+    },
+}
+
 local function get_task_id()
     local count = tasks_counter[1] + 1
     tasks_counter[1] = count
@@ -253,6 +268,7 @@ local function redraw_tasks(data, enabled)
             style = 'tool_button_red',
         }
         delete_button.enabled = enabled
+        Gui.set_style(delete_button, STYLES.default_button)
         Gui.set_data(delete_button, task_index)
 
         local edit_button = buttons_flow.add {
@@ -260,9 +276,10 @@ local function redraw_tasks(data, enabled)
             name = edit_task_button_name,
             sprite = 'utility/rename_icon',
             tooltip = edit_button_tooltip,
-            style = 'tool_button',
+            style = 'green_button',
         }
         edit_button.enabled = enabled
+        Gui.set_style(edit_button, STYLES.default_button)
         Gui.set_data(edit_button, task)
 
         local up_button = buttons_flow.add {
@@ -273,6 +290,7 @@ local function redraw_tasks(data, enabled)
             style = 'tool_button',
         }
         up_button.enabled = enabled and task_index ~= 1
+        Gui.set_style(up_button, STYLES.default_button)
         Gui.set_data(up_button, task_index)
 
         local down_button = buttons_flow.add {
@@ -283,6 +301,7 @@ local function redraw_tasks(data, enabled)
             style = 'tool_button',
         }
         down_button.enabled = enabled and task_index ~= task_count
+        Gui.set_style(down_button, STYLES.default_button)
         Gui.set_data(down_button, task_index)
 
         local volunteer_button = buttons_flow.add {
@@ -290,6 +309,7 @@ local function redraw_tasks(data, enabled)
             name = volunteer_task_button_name,
             style = 'tool_button',
         }
+        Gui.set_style(volunteer_button, STYLES.default_button)
         Gui.set_data(volunteer_button, task)
         update_volunteer_button(volunteer_button, task)
 
@@ -677,7 +697,7 @@ Gui.on_click(announcements_edit_button_name, function(event)
         text = announcements.edit_text,
     }
     textbox.word_wrap = true
-    Gui.set_style(textbox, { minimal_width = 450, minimal_height = 100, maximal_width = 1e6, maximal_height = 1e6, horizontally_stretchable = true })
+    Gui.set_style(textbox, STYLES.textbox)
     data.textbox = textbox
 
     local buttons = Gui.add_dialog_buttons(frame, {

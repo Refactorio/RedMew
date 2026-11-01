@@ -82,7 +82,7 @@ local main_frame_name = Gui.uid_name()
 --- The HUD panel's name, for tests.
 Public._main_frame_name = main_frame_name
 local main_button_name = Gui.uid_name()
-local precision_dropdown_name = Gui.uid_name()
+local action_scroll_precision_index = Gui.uid_name()
 local add_toggle_name = Gui.uid_name()
 local add_item_name = Gui.uid_name()
 local add_fluid_name = Gui.uid_name()
@@ -115,8 +115,8 @@ local function init_hud(parent, items)
 
         -- production over consumption, as the game's own statistics call them
         for _, info in pairs({
-            { name = 'plus', tooltip = { 'gui-production.production' } },
-            { name = 'minus', tooltip = { 'gui-production.consumption' } },
+            { name = 'plus', font_color = { 150, 255, 150 }, tooltip = { 'gui-production.production' } },
+            { name = 'minus', font_color = { 255, 150, 150 }, tooltip = { 'gui-production.consumption' } },
         }) do
             local l = vert.add {
                 type = 'label',
@@ -124,7 +124,7 @@ local function init_hud(parent, items)
                 caption = '---',
                 tooltip = info.tooltip,
             }
-            Gui.set_style(l, { minimal_width = 52, horizontal_align = 'right' })
+            Gui.set_style(l, { font_color = info.font_color, minimal_width = 52, horizontal_align = 'right' })
         end
     end
 end
@@ -183,22 +183,19 @@ Public.get_main_frame = function(player)
         -- green and red numbers read better on dark
         deep = true,
         add_header_buttons = function(header)
-            --- Time span, its indexes counted from 0
-            local time_spans = {}
-            for index = 0, table_size(to_time) - 1 do
-                time_spans[index + 1] = to_time[index]
-            end
-            local time_span = header.add {
-                type = 'drop-down',
-                name = precision_dropdown_name,
-                items = time_spans,
-                selected_index = settings.precision_index + 1,
+            --- Display time
+            local button = header.add {
+                type = 'sprite-button',
+                name = action_scroll_precision_index,
+                caption = to_time[settings.precision_index],
+                style = 'frame_button',
             }
-            -- as narrow as "10m" and its arrow allow, to leave the title its room
-            Gui.set_style(time_span, { width = 64 })
+            data.action_scroll_precision_index = button
+            Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
+            Gui.set_data(button, data)
 
             --- Add new: shows the item and fluid pickers
-            local button = header.add {
+            button = header.add {
                 type = 'sprite-button',
                 name = add_toggle_name,
                 sprite = 'utility/add_white',
@@ -218,7 +215,7 @@ Public.get_main_frame = function(player)
     add_row.add {
         type = 'choose-elem-button',
         name = add_item_name,
-        style = 'slot_sized_button',
+        style = 'slot_button',
         elem_type = 'item',
         elem_filters = { { filter = 'hidden', invert = true }, { filter = 'is-parameter', invert = true, mode = 'and' } },
         tooltip = { 'gui-production.items' },
@@ -226,7 +223,7 @@ Public.get_main_frame = function(player)
     add_row.add {
         type = 'choose-elem-button',
         name = add_fluid_name,
-        style = 'slot_sized_button',
+        style = 'slot_button',
         elem_type = 'fluid',
         elem_filters = { { filter = 'hidden', invert = true } },
         tooltip = { 'gui-production.fluids' },
@@ -274,8 +271,13 @@ end
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 Gui.on_click(main_button_name, Public.toggle)
 
-Gui.on_selection_state_changed(precision_dropdown_name, function(event)
-    player_settings[event.player_index].precision_index = event.element.selected_index - 1
+Gui.on_click(action_scroll_precision_index, function(event)
+    local settings = player_settings[event.player_index]
+    settings.precision_index = (settings.precision_index + 1) % table_size(defines.flow_precision_index)
+
+    local data = Gui.get_data(event.element)
+    data.action_scroll_precision_index.caption = to_time[settings.precision_index]
+
     Public.update_main_frame(event.player)
 end)
 
