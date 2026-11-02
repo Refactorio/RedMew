@@ -51,6 +51,14 @@ function Public.get_canvas(player)
   return Gui.get_data(Public.get_main_frame(player)).right
 end
 
+-- The column under the top buttons ends this far, in GUI pixels, above the bottom of the screen,
+-- less the top buttons and the panel's own header and frames.
+local docked_page_margin = 480
+
+local function docked_page_height(player)
+  return math.max(300, math.floor(player.display_resolution.height / player.display_scale) - docked_page_margin)
+end
+
 function Public.get_main_frame(player)
   local frame = Gui.get_panel(player, main_frame_name)
   if frame then
@@ -92,9 +100,15 @@ function Public.get_main_frame(player)
   end
 
   do -- right
-    local right = main_flow
-    .add { type = 'frame', name = 'right', style = 'inside_shallow_frame_with_padding' }
-    .add { type = 'flow', name = 'flow', direction = 'vertical' }
+    local page_frame = main_flow.add { type = 'frame', name = 'right', style = 'inside_shallow_frame_with_padding' }
+    local parent = page_frame
+    if frame.parent ~= player.gui.screen then
+      -- docked, a tall page scrolls inside the panel, which ends above the bottom of the column
+      -- under the top buttons: past it, the game cuts the column off with a scroll bar of its own
+      parent = page_frame.add { type = 'scroll-pane', style = 'naked_scroll_pane' }
+      Gui.set_style(parent, { maximal_height = docked_page_height(player) })
+    end
+    local right = parent.add { type = 'flow', name = 'flow', direction = 'vertical' }
     Gui.set_style(right, {
       minimal_width = 300,
       minimal_height = 300,
