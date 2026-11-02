@@ -10,6 +10,7 @@ local Server = require 'features.server'
 local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
 local Settings = require 'utils.redmew_settings'
+local Styles = require 'resources.styles'
 
 local insert = table.insert
 
@@ -90,10 +91,11 @@ local STYLES = {
         width = 26,
         padding = 0,
     },
+    -- as wide as the wide panel leaves beside a vote button, with room for the scroll bar: a
+    -- label that stretches instead gets its height as if it wrapped narrower, leaving a gap
     wrapping_label = {
         single_line = false,
-        horizontally_stretchable = true,
-        maximal_width = 10000,
+        width = Styles.panel_width.wide - 90,
     },
 }
 
