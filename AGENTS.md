@@ -87,7 +87,7 @@ works in general, look in that repository.
 luacheck .
 ```
 
-Warnings are treated as errors, so the run must end with `0 warnings / 0 errors`. RedMew globals (`Debug`, `ServerCommands`, ...) are pre-declared in `.luacheckrc`.
+Warnings are treated as errors, so the run must end with `0 warnings / 0 errors`. RedMew globals (`Debug`, `ServerCommands`, ...) are pre-declared in `.luacheckrc`. Its Factorio API globals and `defines` are generated from the game's runtime API; `docs/LUACHECK.md` says how to update them.
 
 ## Style
 
