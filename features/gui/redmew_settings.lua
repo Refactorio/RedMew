@@ -121,15 +121,14 @@ end
 
 local function draw_main_frame(player)
     local settings = Settings.get_setting_metadata()
-    local main_frame, inner, footer = Gui.add_panel(player, {
+    local main_frame, inner = Gui.add_panel(player, {
         name = main_frame_name,
         caption = { 'redmew_settings_gui.frame_title' },
         toggle_name = main_button_name,
         width = 'wide',
-        footer = true,
     })
 
-    -- the subheader and the list fill the inner frame, with Save in the footer under them
+    -- the subheader and the list fill the inner frame
     Gui.set_style(inner, { padding = 0 })
 
     local header = inner.add { type = 'frame', style = 'subheader_frame' }
@@ -186,8 +185,17 @@ local function draw_main_frame(player)
         }
     end
 
-    Gui.add_pusher(footer)
-    local save_button = footer.add {
+    -- Save in a row under the inner frame, like Factorio's own dialogs: a floating panel can be
+    -- dragged by the space beside it, as by its header
+    local buttons = main_frame.add { type = 'flow', direction = 'horizontal', style = 'dialog_buttons_horizontal_flow' }
+    if main_frame.parent == player.gui.screen then
+        local filler = buttons.add { type = 'empty-widget', style = 'draggable_space' }
+        Gui.set_style(filler, { horizontally_stretchable = true, height = 32 })
+        filler.drag_target = main_frame
+    else
+        Gui.add_pusher(buttons)
+    end
+    local save_button = buttons.add {
         type = 'button',
         name = save_changes_button_name,
         caption = { 'redmew_settings_gui.button_save_changes' },
