@@ -8,9 +8,9 @@ local table = require 'utils.table'
 local Core = require 'utils.core'
 local Server = require 'features.server'
 local Command = require 'utils.command'
-local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 local Settings = require 'utils.redmew_settings'
+local Styles = require 'resources.styles'
 
 local insert = table.insert
 
@@ -22,9 +22,6 @@ local ticks_in_hour = 60 * 60 * 60
 local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
-
-local normal_color = Color.white
-local focus_color = Color.orange
 
 local notify_name = 'notify_poll'
 Settings.register(notify_name, Settings.types.boolean, true, 'poll.notify_caption_short')
@@ -89,20 +86,17 @@ local STYLES = {
         right_padding = 2,
         font_color = { 0, 0, 0 },
     },
-    direction_button = {
-        width = 24,
-        height = 24,
-        top_padding = 0,
-        bottom_padding = 0,
-        left_padding = 0,
-        right_padding = 0,
-        font = 'default-listbox',
-    },
     vote_button = {
         height = 24,
         width = 26,
         padding = 0,
-    }
+    },
+    -- as wide as the wide panel leaves beside a vote button, with room for the scroll bar: a
+    -- label that stretches instead gets its height as if it wrapped narrower, leaving a gap
+    wrapping_label = {
+        single_line = false,
+        width = Styles.panel_width.wide - 90,
+    },
 }
 
 local function poll_id()
@@ -253,7 +247,9 @@ local function redraw_poll_viewer_content(data)
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
 
+    -- the labels wrap at the panel's width rather than at a label's own
     local question_flow = poll_viewer_content.add { type = 'table', column_count = 2 }
+    Gui.set_style(question_flow, { horizontally_stretchable = true })
 
     local edit_rank = poll.edit_rank or Ranks.regular
     if Rank.equal_or_greater_than(player.name, edit_rank) then
@@ -269,42 +265,36 @@ local function redraw_poll_viewer_content(data)
     end
 
     local question_label = question_flow.add { type = 'label', caption = poll.question, style = 'control_input_shortcut_label' }
-    Gui.set_style(question_label, { single_line = false })
+    Gui.set_style(question_label, STYLES.wrapping_label)
 
     local grid = poll_viewer_content.add { type = 'table', column_count = 2 }
+    Gui.set_style(grid, { horizontally_stretchable = true })
 
     local answer = voters[player.index]
     local vote_buttons = {}
     for i, a in pairs(answers) do
         local vote_button_flow = grid.add { type = 'flow' }
+        -- the player's own answer is the lit one
         local vote_button = vote_button_flow.add {
             type = 'button',
             name = poll_view_vote_name,
             caption = a.voted_count,
             enabled = poll_enabled,
             style = 'frame_button',
+            toggled = answer == a,
         }
+        Gui.set_style(vote_button, STYLES.vote_button)
 
         local tooltip = tooltips[a]
         if tooltip ~= '' then
             vote_button.tooltip = tooltip
         end
 
-        local vote_button_style = vote_button.style
-        Gui.set_style(vote_button, STYLES.vote_button)
-        if answer == a then
-            vote_button_style.font_color = focus_color
-            vote_button_style.disabled_font_color = focus_color
-        else
-            vote_button_style.font_color = normal_color
-            vote_button_style.disabled_font_color = normal_color
-        end
-
         Gui.set_data(vote_button, { answer = a, data = data })
         vote_buttons[i] = vote_button
 
         local label = grid.add { type = 'label', caption = a.text }
-        Gui.set_style(label, { single_line = false })
+        Gui.set_style(label, STYLES.wrapping_label)
     end
 
     data.vote_buttons = vote_buttons
@@ -341,6 +331,7 @@ local function draw_main_frame(player)
         name = main_frame_name,
         caption = 'Polls',
         toggle_name = main_button_name,
+        width = 'wide',
         footer = true,
         add_header_buttons = function(header)
             local is_regular = Rank.equal_or_greater_than(player.name, Ranks.regular)
@@ -360,23 +351,20 @@ local function draw_main_frame(player)
     local poll_viewer_top_flow = inner.add { type = 'table', column_count = 5 }
     Gui.set_style(poll_viewer_top_flow, { horizontal_spacing = 0 })
 
-    local back_button = poll_viewer_top_flow.add { type = 'button', name = poll_view_back_name, caption = '◀' }
-    Gui.set_style(back_button, STYLES.direction_button)
-
-    local forward_button = poll_viewer_top_flow.add { type = 'button', name = poll_view_forward_name, caption = '▶' }
-    Gui.set_style(forward_button, STYLES.direction_button)
+    local back_button = poll_viewer_top_flow.add { type = 'sprite-button', name = poll_view_back_name, sprite = 'utility/left_arrow', style = 'tool_button', tooltip = 'Previous poll' }
+    local forward_button = poll_viewer_top_flow.add { type = 'sprite-button', name = poll_view_forward_name, sprite = 'utility/right_arrow', style = 'tool_button', tooltip = 'Next poll' }
 
     local poll_index_label = poll_viewer_top_flow.add { type = 'label' }
     Gui.set_style(poll_index_label, { left_padding = 8 })
 
     local spacer = poll_viewer_top_flow.add { type = 'flow' }
-    -- the panel is as wide as its contents, so keep the end time clear of the poll number
+    -- keep the end time clear of the poll number
     Gui.set_style(spacer, { horizontally_stretchable = true, minimal_width = 16 })
 
     local remaining_time_label = poll_viewer_top_flow.add { type = 'label' }
 
     local poll_viewer_content = inner.add { type = 'scroll-pane', style = 'naked_scroll_pane' }
-    Gui.set_style(poll_viewer_content, { maximal_height = 250, horizontally_stretchable = true })
+    Gui.set_style(poll_viewer_content, { maximal_height = 400, horizontally_stretchable = true })
 
     local poll_index = player_poll_index[player.index] or #polls
 
@@ -788,9 +776,7 @@ local function vote(event)
                     vote_button.tooltip = previous_vote_button_tooltip
 
                     if p.index == player_index then
-                        local vote_button_style = vote_button.style
-                        vote_button_style.font_color = normal_color
-                        vote_button_style.disabled_font_color = normal_color
+                        vote_button.toggled = false
                     end
                 end
 
@@ -799,9 +785,7 @@ local function vote(event)
                 vote_button.tooltip = vote_button_tooltip
 
                 if p.index == player_index then
-                    local vote_button_style = vote_button.style
-                    vote_button_style.font_color = focus_color
-                    vote_button_style.disabled_font_color = focus_color
+                    vote_button.toggled = true
                 end
             end
         end

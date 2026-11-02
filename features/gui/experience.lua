@@ -327,8 +327,7 @@ Public.get_main_frame = function(player)
                 local row = list.add { type = 'flow', direction = 'horizontal' }
                 Gui.set_style(row, { vertical_align = 'center' })
 
-                local level = row.add { type = 'sprite-button', caption = item.level, style = 'transparent_slot', ignored_by_interaction = true }
-                Gui.set_style(level, { size = 24, font_color = { 255, 255, 255 } })
+                row.add { type = 'label', caption = item.level, style = 'bold_label' }
 
                 Gui.add_pusher(row)
                 last.row = row

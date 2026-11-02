@@ -83,7 +83,9 @@ local main_frame_name = Gui.uid_name()
 Public._main_frame_name = main_frame_name
 local main_button_name = Gui.uid_name()
 local action_scroll_precision_index = Gui.uid_name()
-local action_add_item = Gui.uid_name()
+local add_toggle_name = Gui.uid_name()
+local add_item_name = Gui.uid_name()
+local add_fluid_name = Gui.uid_name()
 local action_remove_item = Gui.uid_name()
 
 ---@param parent LuaGuiElement
@@ -111,14 +113,16 @@ local function init_hud(parent, items)
         local vert = flow.add { type = 'flow', direction = 'vertical', name = 'stats' }
         Gui.set_style(vert, { vertical_align = 'center', vertical_spacing = 0, horizontal_align = 'right' })
 
+        -- production over consumption, as the game's own statistics call them
         for _, info in pairs({
-            { name = 'plus', font_color = { 150, 255, 150 }, caption = '---' },
-            { name = 'minus', font_color = { 255, 150, 150 }, caption = '---' },
+            { name = 'plus', font_color = { 150, 255, 150 }, tooltip = { 'gui-production.production' } },
+            { name = 'minus', font_color = { 255, 150, 150 }, tooltip = { 'gui-production.consumption' } },
         }) do
             local l = vert.add {
                 type = 'label',
                 name = info.name,
-                caption = info.caption,
+                caption = '---',
+                tooltip = info.tooltip,
             }
             Gui.set_style(l, { font_color = info.font_color, minimal_width = 52, horizontal_align = 'right' })
         end
@@ -190,19 +194,41 @@ Public.get_main_frame = function(player)
             Gui.set_style(button, { height = 24, width = 48, font_color = { 255, 255, 255 } })
             Gui.set_data(button, data)
 
-            --- Add new
+            --- Add new: shows the item and fluid pickers
             button = header.add {
-                type = 'choose-elem-button',
-                name = action_add_item,
-                style = 'frame_button',
+                type = 'sprite-button',
+                name = add_toggle_name,
+                sprite = 'utility/add_white',
+                hovered_sprite = 'utility/add',
+                clicked_sprite = 'utility/add',
+                style = 'frame_action_button',
                 tooltip = { 'production_hud.new_item_tooltip' },
-                elem_type = 'signal',
-                signal = { type = 'virtual', name = 'shape-cross' },
             }
-            Gui.set_style(button, { size = 24, font_color = { 255, 255, 255 } })
             Gui.set_data(button, data)
         end,
     })
+
+    -- an item picker and a fluid picker rather than one for signals, which can't be narrowed down
+    -- to what the HUD can track
+    local add_row = content.add { type = 'flow', direction = 'horizontal' }
+    add_row.visible = false
+    add_row.add {
+        type = 'choose-elem-button',
+        name = add_item_name,
+        style = 'slot_button',
+        elem_type = 'item',
+        elem_filters = { { filter = 'hidden', invert = true }, { filter = 'is-parameter', invert = true, mode = 'and' } },
+        tooltip = { 'gui-production.items' },
+    }
+    add_row.add {
+        type = 'choose-elem-button',
+        name = add_fluid_name,
+        style = 'slot_button',
+        elem_type = 'fluid',
+        elem_filters = { { filter = 'hidden', invert = true } },
+        tooltip = { 'gui-production.fluids' },
+    }
+    data.add_row = add_row
 
     local tbl = content.add { type = 'table', column_count = 2, draw_horizontal_lines = true }
     data.table = tbl
@@ -255,15 +281,21 @@ Gui.on_click(action_scroll_precision_index, function(event)
     Public.update_main_frame(event.player)
 end)
 
-Gui.on_elem_changed(action_add_item, function(event)
+Gui.on_click(add_toggle_name, function(event)
+    local add_row = Gui.get_data(event.element).add_row
+    add_row.visible = not add_row.visible
+    event.element.toggled = add_row.visible
+end)
+
+local function add_tracked(event)
     local player = event.player
     local element = event.element
     local items = player_settings[player.index].items
-    local item = element.elem_value and element.elem_value.name
-    element.elem_value = { name = 'shape-cross', type = 'virtual' }
+    local item = element.elem_value
+    element.elem_value = nil
 
+    -- cleared with a right click
     if not item then
-        player.print({ 'production_hud.err_invalid_item' }, { sound_path = 'utility/cannot_build' })
         return
     end
 
@@ -285,7 +317,9 @@ Gui.on_elem_changed(action_add_item, function(event)
     table.insert(items, item)
     player.play_sound{ path = 'utility/armor_insert' }
     Public.update_main_frame(player)
-end)
+end
+Gui.on_elem_changed(add_item_name, add_tracked)
+Gui.on_elem_changed(add_fluid_name, add_tracked)
 
 Gui.on_click(action_remove_item, function(event)
     if event.button ~= defines.mouse_button_type.right then

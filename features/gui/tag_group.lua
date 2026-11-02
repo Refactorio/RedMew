@@ -138,6 +138,9 @@ local confirm_create_tag_name = Gui.uid_name()
 local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
+-- the top button shows the player's tag, or this when they have none
+local default_sprite = 'utility/custom_tag_in_map_view'
+
 local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
@@ -148,7 +151,7 @@ local function player_created(event)
         {
             name = main_button_name,
             type = 'sprite-button',
-            sprite = 'utility/bookmark',
+            sprite = default_sprite,
             tooltip = {'tag_group.tooltip'},
             auto_toggle = true,
         }
@@ -178,6 +181,10 @@ local function draw_main_frame_content(parent)
         local path = tag_data.path
 
         local row = grid.add { type = 'table', column_count = 4 }
+        -- keep the names level with the buttons
+        for column = 1, 4 do
+            row.style.column_alignments[column] = 'middle-left'
+        end
 
         if can_edit then
             local edit_button =
@@ -307,7 +314,7 @@ local function redraw_main_button(player, path)
     local main_button = Gui.get_top_element(player, main_button_name)
 
     if (path == '') or (path == nil) or (not helpers.is_valid_sprite_path(path)) then
-        main_button.sprite = 'utility/bookmark'
+        main_button.sprite = default_sprite
     else
         main_button.sprite = path
     end
