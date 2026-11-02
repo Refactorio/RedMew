@@ -3,6 +3,7 @@
 local Declare = require 'utils.test.declare'
 local Assert = require 'utils.test.assert'
 local AdminPanel = require 'features.gui.admin_panel.core'
+local Gui = require 'utils.gui'
 
 Declare.module({ 'features', 'gui', 'admin panel' }, function()
     -- uses a player's GUI
@@ -13,11 +14,11 @@ Declare.module({ 'features', 'gui', 'admin panel' }, function()
     Declare.test('the panel opens on its first page', function(context)
         -- Arrange
         local player = context.player
-        if player.gui.screen[name] then
+        if Gui.get_panel(player, name) then
             AdminPanel.toggle_main_button(player)
         end
         context:add_teardown(function()
-            if player.gui.screen[name] then
+            if Gui.get_panel(player, name) then
                 AdminPanel.toggle_main_button(player)
             end
         end)
@@ -28,7 +29,7 @@ Declare.module({ 'features', 'gui', 'admin panel' }, function()
         -- Assert
         local toggled = {}
         local first
-        for i, button in pairs(player.gui.screen[name].flow.left.children[1].children[1].children) do
+        for i, button in pairs(Gui.get_panel(player, name).children[2].flow.left.children[1].children[1].children) do
             if button.toggled then
                 toggled[#toggled + 1] = i
             end

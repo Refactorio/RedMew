@@ -7,7 +7,6 @@ local Ranks = require 'resources.ranks'
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
-local close_button_name = Gui.uid_name()
 
 local pages = {
   --[[
@@ -53,52 +52,22 @@ function Public.get_canvas(player)
 end
 
 function Public.get_main_frame(player)
-  local frame = player.gui.screen[main_frame_name]
-  if frame and frame.valid then
+  local frame = Gui.get_panel(player, main_frame_name)
+  if frame then
     return frame
   end
 
-  frame = player.gui.screen.add {
-    type = 'frame',
+  local content
+  frame, content = Gui.add_panel(player, {
     name = main_frame_name,
-    direction = 'vertical',
-    style = 'frame',
-  }
-  frame.auto_center = true
-  player.opened = frame
-  Gui.set_style(frame, {
-    horizontally_stretchable = true,
-    vertically_stretchable = true,
-    natural_width = 400,
-    natural_height = 400,
-    top_padding = 8,
-    bottom_padding = 8,
+    caption = 'Admin panel',
+    toggle_name = main_button_name,
+    frameless = true,
   })
 
   local data = {}
 
-  do -- title
-    local flow = frame.add { type = 'flow', direction = 'horizontal' }
-    Gui.set_style(flow, { horizontal_spacing = 8, vertical_align = 'center', bottom_padding = 4 })
-
-    local label = flow.add { type = 'label', caption = 'Admin panel', style = 'frame_title' }
-    label.drag_target = frame
-
-    local dragger = flow.add { type = 'empty-widget', style = 'draggable_space_header' }
-    dragger.drag_target = frame
-    Gui.set_style(dragger, { height = 24, horizontally_stretchable = true })
-
-    flow.add {
-      type = 'sprite-button',
-      name = close_button_name,
-      sprite = 'utility/close',
-      clicked_sprite = 'utility/close_black',
-      style = 'close_button',
-      tooltip = {'gui.close-instruction'}
-    }
-  end
-
-  local main_flow = frame.add { type = 'flow', name = 'flow', direction = 'horizontal' }
+  local main_flow = content.add { type = 'flow', name = 'flow', direction = 'horizontal' }
   Gui.set_style(main_flow, { horizontal_spacing = 12 })
 
   do -- left
@@ -147,12 +116,13 @@ function Public.get_main_frame(player)
   end
 end
 
+--- Where to open a window beside the panel, or nil when the panel is docked.
 function Public.get_main_frame_location(player, offset)
   if not offset then
     offset = { x = 500, y = -100 }
   end
-  local frame = player.gui.screen[main_frame_name]
-  if frame and frame.valid then
+  local frame = Gui.get_panel(player, main_frame_name)
+  if frame and frame.parent == player.gui.screen then
     return {
       x = frame.location.x + 500 + offset.x,
       y = frame.location.y + offset.y
@@ -176,11 +146,14 @@ function Public.update_top_button(player)
 end
 
 function Public.toggle_main_button(player)
-  local main_frame = player.gui.screen[main_frame_name]
+  local main_frame = Gui.get_panel(player, main_frame_name)
   local button = Gui.get_top_element(player, main_button_name)
   if main_frame then
     button.toggled = false
     Gui.destroy(main_frame)
+    script.raise_event(Public.events.on_admin_gui_closed, {
+      player = player,
+    })
   else
     button.toggled = true
     Public.get_main_frame(player)
@@ -188,8 +161,8 @@ function Public.toggle_main_button(player)
 end
 
 function Public.close_all_pages(player)
-  local frame = player.gui.screen[main_frame_name]
-  if not (frame and frame.valid) then
+  local frame = Gui.get_panel(player, main_frame_name)
+  if not frame then
     return
   end
 
@@ -219,27 +192,16 @@ Event.add(defines.events.on_player_joined_game, function(event)
     return
   end
   Public.update_top_button(player)
-  local frame = player.gui.screen[main_frame_name]
-  if (frame and frame.valid and not player.admin) then
+  local frame = Gui.get_panel(player, main_frame_name)
+  if (frame and not player.admin) then
     Gui.destroy(frame)
     Gui.get_top_element(player, main_button_name).toggled = false
   end
 end)
 
-Gui.on_custom_close(main_frame_name, function(event)
-  Public.toggle_main_button(event.player)
-  script.raise_event(Public.events.on_admin_gui_closed, {
-    player = event.player,
-  })
-end)
-
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Gui.on_click(main_button_name, function(event)
-  Public.toggle_main_button(event.player)
-end)
-
-Gui.on_click(close_button_name, function(event)
   Public.toggle_main_button(event.player)
 end)
 
