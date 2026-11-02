@@ -123,9 +123,11 @@ function Public.get_main_frame_location(player, offset)
   end
   local frame = Gui.get_panel(player, main_frame_name)
   if frame and frame.parent == player.gui.screen then
+    -- the location is in pixels, the offsets in GUI pixels
+    local scale = player.display_scale
     return {
-      x = frame.location.x + 500 + offset.x,
-      y = frame.location.y + offset.y
+      x = frame.location.x + (500 + offset.x) * scale,
+      y = frame.location.y + offset.y * scale
     }
   end
   return nil

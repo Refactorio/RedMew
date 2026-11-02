@@ -209,9 +209,13 @@ local wiki = {
                 pages = {
                     { name = 'General actions', pages = {}, contents = {{ 'redmew_wiki.player_general_actions' }} },
                     { name = 'Players management', pages = {}, contents = {{ 'redmew_wiki.player_management' }} },
-                    { name = 'Players kick & ban', pages = {}, contents = {{ 'redmew_wiki.player_kick_and_ban' }} },
                 },
                 contents = {{ 'redmew_wiki.player_manager' }}
+            },
+            {
+                name = '[img=utility/danger_icon] Kick & ban',
+                pages = {},
+                contents = {{ 'redmew_wiki.player_kick_and_ban' }}
             },
             {
                 name = '[img=utility/surface_editor_icon] Map manager',
