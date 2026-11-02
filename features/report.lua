@@ -111,12 +111,13 @@ Module.show_reports = function(player)
         Gui.destroy(report_frame)
     end
 
-    report_frame = Gui.add_window(player, {name = report_frame_name, caption = 'User reports', close_button_name = report_close_button_name})
-    report_frame.style.maximal_width = 700
+    local content
+    report_frame, content = Gui.add_dialog(player, {name = report_frame_name, caption = 'User reports', close_button_name = report_close_button_name})
+    Gui.set_style(report_frame, {maximal_width = 700})
     player.opened = report_frame
 
     if #reports > 1 then
-        local scroll_pane = report_frame.add {
+        local scroll_pane = content.add {
             type = 'scroll-pane',
             horizontal_scroll_policy = 'auto-and-reserve-space',
             vertical_scroll_policy = 'never'
@@ -131,13 +132,13 @@ Module.show_reports = function(player)
             }
         end
     end
-    local report_body = report_frame.add {
+    local report_body = content.add {
         type = 'scroll-pane',
         name = report_body_name,
         horizontal_scroll_policy = 'never',
         vertical_scroll_policy = 'never'
     }
-    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
+    Gui.set_data(report_frame, {body = report_body})
 
     draw_report(report_body, #reports)
 end
@@ -555,7 +556,7 @@ Gui.on_click(report_tab_button_name, function(event)
     local report_frame = event.player.gui.screen[report_frame_name]
     local report_uid_str = string.sub(event.element.parent.caption, 10)
     local report_uid = tonumber(report_uid_str)
-    draw_report(report_frame[report_body_name], report_uid)
+    draw_report(Gui.get_data(report_frame).body, report_uid)
 end)
 
 local reporting_popup_name = Gui.uid_name()
@@ -568,23 +569,23 @@ Module.spawn_reporting_popup = function(player, reported_player)
     if reporting_popup and reporting_popup.valid then
         Gui.destroy(reporting_popup)
     end
-    -- the X shares the Cancel button's handler, which finds the window two levels up from either
-    reporting_popup = Gui.add_window(player, {
+    local content
+    reporting_popup, content = Gui.add_dialog(player, {
         name = reporting_popup_name,
         caption = 'Report player ' .. reported_player.name,
         close_button_name = reporting_cancel_button_name
     })
-    Gui.set_data(reporting_popup, {reported_player_index = reported_player.index})
 
-    reporting_popup.style.maximal_width = 500
     player.opened = reporting_popup
-    reporting_popup.add {type = 'label', caption = 'Report message:'}
-    local input = reporting_popup.add {type = 'text-box', name = reporting_input_name}
-    input.style.width = 400
-    input.style.height = 85
-    local button_flow = reporting_popup.add {type = 'flow'}
-    button_flow.add {type = 'button', name = reporting_submit_button_name, caption = 'Submit'}
-    button_flow.add {type = 'button', name = reporting_cancel_button_name, caption = 'Cancel'}
+    content.add {type = 'label', caption = 'Report message:'}
+    local input = content.add {type = 'text-box', name = reporting_input_name}
+    Gui.set_style(input, {width = 400, height = 85})
+
+    Gui.set_data(reporting_popup, {reported_player_index = reported_player.index, input = input})
+
+    Gui.add_dialog_buttons(reporting_popup, nil, {
+        {name = reporting_submit_button_name, caption = 'Submit'},
+    })
 end
 
 Gui.on_custom_close(reporting_popup_name, function(event)
@@ -592,14 +593,13 @@ Gui.on_custom_close(reporting_popup_name, function(event)
 end)
 
 Gui.on_click(reporting_cancel_button_name, function(event)
-    local frame = event.element.parent.parent
-    Gui.destroy(frame)
+    Gui.destroy(event.player.gui.screen[reporting_popup_name])
 end)
 
 Gui.on_click(reporting_submit_button_name, function(event)
-    local frame = event.element.parent.parent
-    local msg = frame[reporting_input_name].text
+    local frame = event.player.gui.screen[reporting_popup_name]
     local data = Gui.get_data(frame)
+    local msg = data.input.text
     local reported_player_index = data['reported_player_index']
     local print = event.player.print
 

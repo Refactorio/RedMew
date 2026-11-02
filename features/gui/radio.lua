@@ -87,11 +87,11 @@ local function draw_radio(event)
         return
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = radio_frame, caption = frame_caption, close_button_name = close_radio})
+    local content, title_close_button
+    frame, content, title_close_button = Gui.add_dialog(player, {name = radio_frame, caption = frame_caption, close_button_name = close_radio})
     Gui.set_data(title_close_button, frame)
     local scroll_pane =
-        frame.add {
+        content.add {
         type = 'scroll-pane',
         vertical_scroll_policy = 'auto-and-reserve-space',
         horizontal_scroll_policy = 'never'
@@ -113,7 +113,7 @@ local function draw_radio(event)
     end
 
     local information_pane =
-        frame.add {
+        content.add {
         type = 'scroll-pane',
         vertical_scroll_policy = 'auto-and-reserve-space',
         horizontal_scroll_policy = 'never'
@@ -140,15 +140,6 @@ local function draw_radio(event)
     information.style.vertically_stretchable = true
     information.style.minimal_height = 200
     information.style.minimal_width = 400
-
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
-
-    local close_button = Gui.make_close_button(left_flow, close_radio)
-    Gui.set_data(close_button, frame)
 
     player.opened = frame
 end

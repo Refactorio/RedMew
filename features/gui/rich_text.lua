@@ -30,29 +30,24 @@ local function draw_rich_text(event)
         return
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = rich_text_frame, caption = frame_caption, close_button_name = close_rich_text})
+    local content, title_close_button
+    frame, content, title_close_button = Gui.add_dialog(player, {name = rich_text_frame, caption = frame_caption, close_button_name = close_rich_text})
     Gui.set_data(title_close_button, frame)
 
-    local main_table = frame.add {type = 'table', column_count = 1}
+    local main_flow = content.add {type = 'flow', direction = 'vertical'}
 
-    main_table.add {type = 'label', caption = 'Image'}
-    local icons_flow = main_table.add {type = 'flow', direction = 'horizontal'}
-    local selection_flow = icons_flow.add {type = 'flow'}
-    selection_flow.style.top_margin = 7
+    main_flow.add {type = 'label', caption = 'Image'}
+    local choices_table = main_flow.add {type = 'table', column_count = 4}
+    Gui.set_style(choices_table, {horizontal_spacing = 16, vertical_spacing = 8})
+    for i = 1, 4 do
+        choices_table.style.column_alignments[i] = 'middle-left'
+    end
 
     local focus
-    local count = 0
     for _, value in ipairs(choices) do
-        count = count + 1
-        if count > 6 then
-            count = 0
-            icons_flow = main_table.add {type = 'flow', direction = 'horizontal'}
-            selection_flow = icons_flow.add {type = 'flow'}
-            selection_flow.style.top_margin = 7
-        end
+        -- Each in a flow of its own, as siblings can't share the radio buttons' name.
         local radio =
-            selection_flow.add({type = 'flow'}).add {
+            choices_table.add({type = 'flow'}).add {
             type = 'radiobutton',
             name = rich_text_image_type,
             caption = value,
@@ -66,40 +61,28 @@ local function draw_rich_text(event)
         Gui.set_data(radio, frame)
     end
 
+    -- The picker takes the 12th place, after the 11 choices. Its type can't change, so a new one
+    -- replaces it in this flow when another choice is picked.
+    local choose_flow = choices_table.add {type = 'flow'}
     local choose =
-        icons_flow.add {
+        choose_flow.add {
         type = 'choose-elem-button',
         name = rich_text_choose_image,
-        elem_type = sprite_type
+        elem_type = sprite_type,
+        style = 'slot_button_in_shallow_frame'
     }
 
     Gui.set_data(choose, frame)
 
-    local string_flow = main_table.add {type = 'flow', direction = 'horizontal'}
-    string_flow.style.width = 352
-    string_flow.style.horizontally_stretchable = true
-    local string_box = string_flow.add {type = 'text-box', text = 'Pick an image'}
+    local string_box = main_flow.add {type = 'text-box', text = 'Pick an image'}
     string_box.read_only = true
-    string_box.style.horizontally_stretchable = true
     string_box.word_wrap = false
-    string_box.style.width = 352
-
-    Gui.set_data(string_box, frame)
-
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
-
-    local close_button = Gui.make_close_button(left_flow, close_rich_text)
-    Gui.set_data(close_button, frame)
+    Gui.set_style(string_box, {horizontally_stretchable = true, maximal_width = 10000})
 
     local data = {
         focus = focus,
         choose = choose,
-        icons_flow = icons_flow,
-        string_flow = string_flow,
+        choose_flow = choose_flow,
         string_box = string_box
     }
     Gui.set_data(frame, data)
@@ -123,10 +106,11 @@ Gui.on_click(
         choose.destroy()
 
         choose =
-            frame_data.icons_flow.add {
+            frame_data.choose_flow.add {
             type = 'choose-elem-button',
             name = rich_text_choose_image,
-            elem_type = radio.caption
+            elem_type = radio.caption,
+            style = 'slot_button_in_shallow_frame'
         }
         Gui.set_data(choose, frame)
 
@@ -182,16 +166,7 @@ Gui.on_elem_changed(
             text = '[img=' .. path .. '] | ' .. path
         end
 
-        local string_box = frame_data.string_box
-        Gui.remove_data_recursively(string_box)
-        string_box.destroy()
-
-        string_box = frame_data.string_flow.add {type = 'text-box', text = text}
-        string_box.read_only = true
-        string_box.word_wrap = false
-        string_box.style.width = 352
-
-        frame_data.string_box = string_box
+        frame_data.string_box.text = text
     end
 )
 

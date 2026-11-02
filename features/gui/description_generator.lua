@@ -135,11 +135,11 @@ local function draw_gui(event)
         return
     end
 
-    local title_close_button
-    frame, title_close_button = Gui.add_window(player, {name = gui_frame, caption = frame_caption, close_button_name = close_gui})
+    local content, title_close_button
+    frame, content, title_close_button = Gui.add_dialog(player, {name = gui_frame, caption = frame_caption, close_button_name = close_gui})
     Gui.set_data(title_close_button, frame)
 
-    local main_table = frame.add {type = 'table', column_count = 1}
+    local main_table = content.add {type = 'table', column_count = 1}
 
     main_table.add {type = 'label', caption = 'Server Name (50 characters limit including prefix)'}
     local server_name = main_table.add {type = 'text-box', text = server_prefix .. string.sub(map_name, 1, 49 - #server_prefix)}
@@ -206,15 +206,6 @@ local function draw_gui(event)
     generated_server_tags.style.width = 410
     --generated_server_tags.scroll_to_left()
     Gui.set_data(generated_server_tags, frame)
-
-    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
-
-    left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = true
-
-    local close_button = Gui.make_close_button(left_flow, close_gui)
-    Gui.set_data(close_button, frame)
 
     local data = {
         server_tags = server_tags,
