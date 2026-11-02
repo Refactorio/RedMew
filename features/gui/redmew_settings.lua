@@ -3,6 +3,7 @@ local ColorPicker = require 'features.gui.color_picker'
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Settings = require 'utils.redmew_settings'
+local Styles = require 'resources.styles'
 local Toast = require 'features.gui.toast'
 local pairs = pairs
 local floor = math.floor
@@ -31,17 +32,24 @@ local function player_created(event)
     })
 end
 
+local function close(player)
+    local main_frame = Gui.get_panel(player, main_frame_name)
+    if main_frame then
+        Gui.destroy(main_frame)
+    end
+    local main_button = Gui.get_top_element(player, main_button_name)
+    if main_button then
+        main_button.toggled = false
+    end
+end
+
 local function player_joined(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    local main_frame = player.gui.screen[main_frame_name]
-
-    if main_frame and main_frame.valid then
-        Gui.destroy(main_frame)
-    end
+    close(player)
 end
 
 ---0-255 copy of a color the game gives from 0 to 1, like player.color
@@ -113,31 +121,30 @@ end
 
 local function draw_main_frame(player)
     local settings = Settings.get_setting_metadata()
-    -- the X closes it through the top button's handler
-    local settings_frame = Gui.add_window(player, {
+    local main_frame, inner, footer = Gui.add_panel(player, {
         name = main_frame_name,
         caption = { 'redmew_settings_gui.frame_title' },
-        close_button_name = main_button_name,
+        toggle_name = main_button_name,
+        width = 'wide',
+        footer = true,
     })
-    Gui.set_style(settings_frame, { width = 500 })
 
-    local inner = settings_frame.add { type = 'frame', style = 'inside_shallow_frame', direction = 'vertical' }
+    -- the subheader and the list fill the inner frame, with Save in the footer under them
+    Gui.set_style(inner, { padding = 0 })
 
-    local header = inner
-        .add { type = 'frame', style = 'subheader_frame' }
-        .add { type = 'flow', direction = 'horizontal' }
-    Gui.set_style(header.parent, { height = 56, natural_height = 56, padding = 5 })
-    Gui.set_style(header, { horizontally_stretchable = true })
+    local header = inner.add { type = 'frame', style = 'subheader_frame' }
+    Gui.set_style(header, { horizontally_stretchable = true, maximal_height = 200, padding = 5 })
 
     local info_text = header.add { type = 'label', caption = { 'redmew_settings_gui.setting_info' } }
     Gui.set_style(info_text, {
         single_line = false,
         padding = 5,
-        width = 370,
+        width = Styles.panel_width.wide - 50,
     })
 
-    local scroll_pane = inner.add { type = 'scroll-pane' }
+    local scroll_pane = inner.add { type = 'scroll-pane', style = 'naked_scroll_pane' }
     Gui.set_style(scroll_pane, {
+        horizontally_stretchable = true,
         vertically_squashable = true,
         maximal_height = 800,
         padding = 8,
@@ -179,28 +186,25 @@ local function draw_main_frame(player)
         }
     end
 
-    local buttons = Gui.add_dialog_buttons(settings_frame, nil, {
-        { name = save_changes_button_name, caption = { 'redmew_settings_gui.button_save_changes' } }
-    })
+    Gui.add_pusher(footer)
+    local save_button = footer.add {
+        type = 'button',
+        name = save_changes_button_name,
+        caption = { 'redmew_settings_gui.button_save_changes' },
+        style = 'confirm_button_without_tooltip',
+    }
 
-    Gui.set_data(buttons[save_changes_button_name], data)
-    Gui.set_data(settings_frame, data)
-
-    player.opened = settings_frame
+    Gui.set_data(save_button, data)
+    Gui.set_data(main_frame, data)
 end
 
 local function toggle(event)
     local player = event.player
-    local screen = player.gui.screen
-    local main_frame = screen[main_frame_name]
-    local main_button = Gui.get_top_element(player, main_button_name)
-
-    if main_frame then
-        main_button.toggled = false
-        Gui.destroy(main_frame)
+    if Gui.get_panel(player, main_frame_name) then
+        close(player)
     else
         draw_main_frame(player)
-        main_button.toggled = true
+        Gui.get_top_element(player, main_button_name).toggled = true
     end
 end
 
@@ -244,15 +248,7 @@ local function save_changes(event)
     end
 
     Toast.toast_player(player, 5, { 'redmew_settings_gui.save_success_toast_message' })
-
-    local main_frame = player.gui.screen[main_frame_name]
-
-    if main_frame then
-        Gui.destroy(main_frame)
-    end
-
-    local main_button = Gui.get_top_element(player, main_button_name)
-    main_button.toggled = false
+    close(player)
 end
 
 local function setting_set(event)
@@ -265,8 +261,8 @@ local function setting_set(event)
         return
     end
 
-    local main_frame = player.gui.screen[main_frame_name]
-    if not main_frame or not main_frame.valid then
+    local main_frame = Gui.get_panel(player, main_frame_name)
+    if not main_frame then
         return
     end
 
@@ -297,8 +293,6 @@ local function setting_set(event)
     end
     element_data.previous_value = Settings.toScalar(setting_name, event.old_value)
 end
-
-Gui.on_custom_close(main_frame_name, toggle)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 

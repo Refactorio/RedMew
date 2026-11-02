@@ -9,10 +9,10 @@ own styles rather than setting sizes and colours.
 - **Top buttons** open everything else: `Gui.add_top_element` puts one in the row of buttons at
   the top left (mod-gui).
 - **Side panels** are what a top button opens and leaves open while the player plays: polls,
-  tasks, the player list, autofill. `Gui.add_panel` docks one in the column under the top
-  buttons, with its title and a pin in a header. The pin floats the panel into a window the player
-  can drag anywhere, and docks it back; each player's choice is remembered, and a floating panel
-  reopens where the player last left it. Find a panel with `Gui.get_panel`, wherever it is, and
+  tasks, the player list, autofill, the settings. `Gui.add_panel` docks one in the column under
+  the top buttons, with its title and a pin in a header. The pin floats the panel into a window the
+  player can drag anywhere, and docks it back; each player's choice is remembered, and a floating
+  panel reopens where the player last left it. Find a panel with `Gui.get_panel`, wherever it is, and
   change its title with `Gui.set_panel_caption`.
   - Width: `width = 'narrow'` (400) or `'wide'` (470), from `Styles.panel_width`. The production
     HUD's is `'minimap'` (256), the minimap's, so players can float it under the minimap as one.
