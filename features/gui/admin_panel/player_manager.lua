@@ -6,7 +6,6 @@ local Gui = require 'utils.gui'
 local Table = require 'utils.table'
 
 local main_button_name = Gui.uid_name()
-local kick_ban_button_name = Gui.uid_name()
 local selection_switch_name = Gui.uid_name()
 local selection_dropdown_name = Gui.uid_name()
 
@@ -57,15 +56,6 @@ pages[#pages +1] = {
   sprite = 'entity/character',
   tooltip = '[font=default-bold]Player manager[/font]',
   name = main_button_name,
-  auto_toggle = true,
-  tags = { admin_only = false },
-}
--- a page of its own, so that each page opens whole when the panel is docked
-pages[#pages +1] = {
-  type = 'sprite-button',
-  sprite = 'utility/danger_icon',
-  tooltip = '[font=default-bold]Kick & ban[/font]',
-  name = kick_ban_button_name,
   auto_toggle = true,
   tags = { admin_only = false },
 }
@@ -199,8 +189,10 @@ local function make_player_dropdown(parent, player_list)
   return selection_flow
 end
 
---- The player list and whether a player is picked, for drawing either page.
-local function prepare_page(player)
+local function draw_gui(player)
+  local canvas = AdminPanel.get_canvas(player)
+  Gui.clear(canvas)
+
   this.player_selection[player.index] = this.player_selection[player.index] or { index = 1 }
   this.selection_switch[player.index] = this.selection_switch[player.index] or 'none'
   this.player_ban_items[player.index] = this.player_ban_items[player.index] or {}
@@ -208,13 +200,6 @@ local function prepare_page(player)
   local player_list = update_selection(player.index)
   -- The first entry is the "select player" placeholder, not a player
   local has_target = this.player_selection[player.index].index > 1
-  return player_list, has_target
-end
-
-local function draw_player_manager(player)
-  local canvas = AdminPanel.get_canvas(player)
-  Gui.clear(canvas)
-  local player_list, has_target = prepare_page(player)
 
   local row_1 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'General actions' }
   local table_1 = row_1.add { type = 'table', column_count = 3 }
@@ -235,12 +220,6 @@ local function draw_player_manager(player)
     end
   end
   make_player_dropdown(row_2, player_list)
-end
-
-local function draw_kick_ban(player)
-  local canvas = AdminPanel.get_canvas(player)
-  Gui.clear(canvas)
-  local player_list, has_target = prepare_page(player)
 
   local row_3 = canvas.add { type = 'frame', style = 'bordered_frame', direction = 'vertical', caption = 'Players kick & ban' }
   local table_3 = row_3.add { type = 'table', column_count = 2 }
@@ -266,32 +245,17 @@ local function draw_kick_ban(player)
   AdminPanel.admin_only(ban_button)
 end
 
---- Redraws whichever of the two pages is open.
-local function draw_gui(player)
-  local kick_ban_button = Gui.get_data(AdminPanel.get_main_frame(player)).left[kick_ban_button_name]
-  if kick_ban_button and kick_ban_button.toggled then
-    draw_kick_ban(player)
+Gui.on_click(main_button_name, function(event)
+  local player = event.player
+  local element = event.element
+  if element.toggled then
+    AdminPanel.close_all_pages(player)
+    event.element.toggled = true
+    draw_gui(player)
   else
-    draw_player_manager(player)
+    Gui.clear(AdminPanel.get_canvas(player))
   end
-end
-
-local function on_page_button(draw)
-  return function(event)
-    local player = event.player
-    local element = event.element
-    if element.toggled then
-      AdminPanel.close_all_pages(player)
-      element.toggled = true
-      draw(player)
-    else
-      Gui.clear(AdminPanel.get_canvas(player))
-    end
-  end
-end
-
-Gui.on_click(main_button_name, on_page_button(draw_player_manager))
-Gui.on_click(kick_ban_button_name, on_page_button(draw_kick_ban))
+end)
 
 Gui.on_switch_state_changed(selection_switch_name, function(event)
   local player = event.player
