@@ -198,4 +198,7 @@ return [[
       - [DO:SA] Fixed startup crash from invalid decorative name 'fulgoran-gravewort'
       - [DO:SA] Fixed startup crash from dangling unlock-recipe effects left by removed ore-recycling recipes
       - [DO:Scrap] Fixed danger-ores package dependency: replaced obsolete 'quality' mod with 'recycler'
+
+  2026-11-01:
+      - [DO:Randomizer] Added DO/Randomizer preset
 ]]

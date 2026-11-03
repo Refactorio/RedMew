@@ -21,6 +21,11 @@ local function has_tiles(surface, half, names)
     return true
 end
 
+-- The Randomizer loads this module too, but only some seeds pick it: these run on its own map
+if DOC.randomizer.enabled then
+    return
+end
+
 Declare.module(
     {'map_gen', 'danger ores', 'archipelago'},
     function()

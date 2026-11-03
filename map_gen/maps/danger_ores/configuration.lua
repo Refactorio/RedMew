@@ -67,6 +67,9 @@ return {
   radioactivity = {
     enabled = false,
   },
+  randomizer = {
+    enabled = false, -- the ore layout, water and overlay are picked by the map seed
+  },
   rocket_launched = {
     enabled = true,
     win_satellite_count = 1000,

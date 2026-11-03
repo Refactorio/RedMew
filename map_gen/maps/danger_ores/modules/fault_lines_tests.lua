@@ -18,6 +18,11 @@ local default_tiers = {
 local SPAWN_CLEAR = 56
 local WINDOW = 64
 
+-- The Randomizer loads this module too, but only some seeds pick it: these run on its own map
+if DOC.randomizer.enabled then
+    return
+end
+
 Declare.module(
     {'map_gen', 'danger ores', 'fault lines'},
     function()

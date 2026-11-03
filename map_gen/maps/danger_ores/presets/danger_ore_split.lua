@@ -1,4 +1,5 @@
 local DOC = require 'map_gen.maps.danger_ores.configuration'
+local Layouts = require 'map_gen.maps.danger_ores.modules.layouts'
 local Scenario = require 'map_gen.maps.danger_ores.scenario'
 local ScenarioInfo = require 'features.gui.info'
 
@@ -9,7 +10,6 @@ ScenarioInfo.add_map_extra_info([[
 ]])
 
 DOC.scenario_name = 'danger-ore-split'
-DOC.map_config.main_ores_rotate = 0
-DOC.map_config.main_ores_split_count = 4
+Layouts.apply(DOC.map_config, require 'map_gen.maps.danger_ores.layouts.split')
 
 return Scenario.register(DOC)
