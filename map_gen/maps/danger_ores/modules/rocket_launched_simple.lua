@@ -4,7 +4,13 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 
-return function(config)
+local Public = {}
+
+-- what the map info and the cutscene tell players: not every rocket launch module kills the
+-- biters (rocket_launched.lua sends waves of them instead)
+Public.kills_biters_on_first_launch = true
+
+function Public.register(config)
     ShareGlobals.data.biters_disabled = false
     ShareGlobals.data.map_won = false
 
@@ -93,3 +99,5 @@ return function(config)
 
     Event.add(defines.events.on_rocket_launched, rocket_launched)
 end
+
+return Public

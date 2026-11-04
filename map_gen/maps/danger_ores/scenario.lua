@@ -49,6 +49,7 @@ Config.redmew_surface.use_default = true
 local allowed_entities       = require 'map_gen.maps.danger_ores.modules.allowed_entities'.register
 local concrete_on_landfill   = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 local container_dump         = require 'map_gen.maps.danger_ores.modules.container_dump'.register
+local cutscene               = require 'map_gen.maps.danger_ores.modules.cutscene'
 local map_builder            = require 'map_gen.maps.danger_ores.modules.map'
 local mining_productivity    = require 'map_gen.maps.danger_ores.modules.mining_productivity'.register
 local maze                   = require 'map_gen.maps.danger_ores.modules.maze'
@@ -98,6 +99,19 @@ Public.register = function(danger_ores_config)
   if _C.container_dump.enabled then
     container_dump(_C.container_dump)
   end
+  if _C.cutscene.enabled then
+    -- the title card names the map as the next-map poll does, '<Name> (<twist>)'
+    local name, twist = ScenarioInfo.get_map_name(), nil
+    if _C.map_poll.enabled then
+      for _, map in pairs(require 'map_gen.maps.danger_ores.modules.map_poll'.get_maps()) do
+        if map.name == _C.scenario_name then
+          name, twist = cutscene.split_display_name(map.display_name)
+        end
+      end
+    end
+    local kills_biters = _C.rocket_launched.enabled and rocket_launched.kills_biters_on_first_launch
+    cutscene.register(_C, { name = name, twist = twist, kills_biters = kills_biters })
+  end
   if _C.disable_mining_productivity.enabled then
     mining_productivity(_C.disable_mining_productivity)
   end
@@ -123,11 +137,12 @@ Public.register = function(danger_ores_config)
     restart_command({ scenario_name = _C.scenario_name })
   end
   if _C.rocket_launched.enabled then
-    rocket_launched(_C.rocket_launched)
+    rocket_launched.register(_C.rocket_launched)
     local win_satellite_count = _C.rocket_launched.win_satellite_count
     ScenarioInfo.set_map_description(table.concat {
       (ScenarioInfo.get_map_description():gsub('%s+$', '')),
-      '\n\n  Launching the first satellite kills all the biters.',
+      '\n',
+      rocket_launched.kills_biters_on_first_launch and '\n  Launching the first satellite kills all the biters.' or '',
       '\n  Launch ', win_satellite_count, ' satellites to win the map.',
     })
     -- show progress toward the win in the score bar
