@@ -544,14 +544,14 @@ function Public.register(config, card)
     Cutscene.set_auto_play_cutscene_setting_name(Public.auto_play_setting_name)
     Cutscene.register_replay(welcome_name, 120)
 
-    local main_ores = config.map_config.main_ores
     local win_satellite_count = config.rocket_launched.enabled and config.rocket_launched.win_satellite_count or nil
     local poll = config.map_poll.enabled
 
     Event.on_init(function()
         storage.config.player_create.cutscene = true
         data.card = {name = card.name, twist = card.twist, win_satellite_count = win_satellite_count, poll = poll}
-        create_stage(main_ores)
+        -- read on init: the Randomizer picks its ores once the map's surface exists
+        create_stage(config.map_config.main_ores)
     end)
 
     Event.add(defines.events.on_player_created, function(event)
