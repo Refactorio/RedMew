@@ -90,6 +90,8 @@ local STYLES = {
         height = 24,
         width = 26,
         padding = 0,
+        -- frame_button's text is black, for the light buttons it lights up as; on its dark face, white
+        font_color = { 1, 1, 1 },
     },
     -- as wide as the wide panel leaves beside a vote button, with room for the scroll bar: a
     -- label that stretches instead gets its height as if it wrapped narrower, leaving a gap
