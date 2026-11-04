@@ -29,6 +29,9 @@ Global.register(
 )
 
 local function notify_players(message)
+    -- marked as the tag groups', as players write the join and leave messages, and one with a
+    -- map ping would pass for the server's
+    message = {'', {'tag_group.message_prefix'}, ' ', message}
     local players = game.connected_players
     for i = 1, #players do
         local p = players[i]
