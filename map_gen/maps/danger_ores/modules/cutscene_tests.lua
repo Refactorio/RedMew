@@ -14,6 +14,7 @@ local DOC = require 'map_gen.maps.danger_ores.configuration'
 local AllowedEntities = require 'map_gen.maps.danger_ores.modules.allowed_entities'
 local MapPoll = require 'map_gen.maps.danger_ores.modules.map_poll'
 local Cutscene = require 'map_gen.maps.danger_ores.modules.cutscene'
+local RocketLaunched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 
 -- far past any real player, so the setting it changes is nobody's
 local player_index = 10000
@@ -64,6 +65,16 @@ Declare.module({'map_gen', 'danger ores', 'cutscene'}, function()
         Assert.is_true(not has_line(other_lines, 'danger_ores.cutscene_poll'), 'the poll line is shown on a map without a poll')
     end)
 
+    Declare.test('the last card says the first satellite kills the biters only when it does', function()
+        -- Act
+        local _, killing_lines = Cutscene.goal_card({win_satellite_count = 1000, kills_biters = true})
+        local _, other_lines = Cutscene.goal_card({win_satellite_count = 1000, kills_biters = false})
+
+        -- Assert
+        Assert.is_true(has_line(killing_lines, 'danger_ores.cutscene_biters'), 'the biters line is missing when the first launch kills them')
+        Assert.is_true(not has_line(other_lines, 'danger_ores.cutscene_biters'), 'the biters line is shown when the first launch does not kill them')
+    end)
+
     -- the rest needs the cutscene on this map: its card, its stage and its setting
     if DOC.cutscene.enabled then
         Declare.test('the cards name this map as the next-map poll does, with its goal', function()
@@ -75,6 +86,7 @@ Declare.module({'map_gen', 'danger ores', 'cutscene'}, function()
                 end
             end
             local expected_count = DOC.rocket_launched.enabled and DOC.rocket_launched.win_satellite_count or nil
+            local expected_kills_biters = DOC.rocket_launched.enabled and RocketLaunched.kills_biters_on_first_launch
 
             -- Act: the scenario filled the card when the map started
             local card = Cutscene.get_card()
@@ -84,6 +96,7 @@ Declare.module({'map_gen', 'danger ores', 'cutscene'}, function()
                 Assert.equal(expected_name, card.name, 'map name on the title card')
             end
             Assert.equal(expected_count, card.win_satellite_count, 'satellites to win on the last card')
+            Assert.equal(expected_kills_biters, card.kills_biters, 'whether the last card says the first satellite kills the biters')
         end)
 
         Declare.test('the rule scene leaves off the ore what the map refuses there', function(context)

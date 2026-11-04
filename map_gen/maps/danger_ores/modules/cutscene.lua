@@ -169,15 +169,18 @@ function Public.welcome_lines(card)
 end
 
 --- The last card: its title and the lines under it. The goal is there only when the map is won by
---- launching satellites (some presets have their own goal), and the poll only when there is one.
----@param card table {win_satellite_count, poll}
+--- launching satellites (some presets have their own goal), the biters line only when the first
+--- launch kills them, and the poll only when there is one.
+---@param card table {win_satellite_count, kills_biters, poll}
 function Public.goal_card(card)
     local lines = {}
     local title
     if card.win_satellite_count then
         title = {'danger_ores.cutscene_goal_title'}
         lines[#lines + 1] = {'danger_ores.cutscene_goal', card.win_satellite_count}
-        lines[#lines + 1] = {'danger_ores.cutscene_biters'}
+        if card.kills_biters then
+            lines[#lines + 1] = {'danger_ores.cutscene_biters'}
+        end
         lines[#lines + 1] = '---------------------'
     else
         title = {'danger_ores.cutscene_good_luck'}
@@ -538,7 +541,8 @@ local start_for_new_player =
 
 --- Turns the cutscene on: new players see it, and /replay plays it again.
 ---@param config table the Danger Ores configuration
----@param card table {name, twist}: the map's name and twist for the title card
+---@param card table {name, twist, kills_biters}: the map's name and twist for the title card, and
+--- whether the first satellite launched kills all the biters
 function Public.register(config, card)
     Settings.register(Public.auto_play_setting_name, Settings.types.boolean, true, Public.auto_play_setting_name)
     Cutscene.set_auto_play_cutscene_setting_name(Public.auto_play_setting_name)
@@ -549,7 +553,7 @@ function Public.register(config, card)
 
     Event.on_init(function()
         storage.config.player_create.cutscene = true
-        data.card = {name = card.name, twist = card.twist, win_satellite_count = win_satellite_count, poll = poll}
+        data.card = {name = card.name, twist = card.twist, win_satellite_count = win_satellite_count, kills_biters = card.kills_biters, poll = poll}
         -- read on init: the Randomizer picks its ores once the map's surface exists
         create_stage(config.map_config.main_ores)
     end)

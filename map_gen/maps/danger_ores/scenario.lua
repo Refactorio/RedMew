@@ -109,7 +109,8 @@ Public.register = function(danger_ores_config)
         end
       end
     end
-    cutscene.register(_C, { name = name, twist = twist })
+    local kills_biters = _C.rocket_launched.enabled and rocket_launched.kills_biters_on_first_launch
+    cutscene.register(_C, { name = name, twist = twist, kills_biters = kills_biters })
   end
   if _C.disable_mining_productivity.enabled then
     mining_productivity(_C.disable_mining_productivity)
@@ -136,11 +137,12 @@ Public.register = function(danger_ores_config)
     restart_command({ scenario_name = _C.scenario_name })
   end
   if _C.rocket_launched.enabled then
-    rocket_launched(_C.rocket_launched)
+    rocket_launched.register(_C.rocket_launched)
     local win_satellite_count = _C.rocket_launched.win_satellite_count
     ScenarioInfo.set_map_description(table.concat {
       (ScenarioInfo.get_map_description():gsub('%s+$', '')),
-      '\n\n  Launching the first satellite kills all the biters.',
+      '\n',
+      rocket_launched.kills_biters_on_first_launch and '\n  Launching the first satellite kills all the biters.' or '',
       '\n  Launch ', win_satellite_count, ' satellites to win the map.',
     })
     -- show progress toward the win in the score bar
