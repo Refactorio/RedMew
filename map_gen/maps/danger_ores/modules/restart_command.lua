@@ -61,10 +61,10 @@ return function(config)
         {'Most items crafted', 'entities_crafted'},
         {'Most entities built', 'entities_built'},
         {'Most time played', 'time_played', Core.format_time},
-        {'Furthest walked', 'distance_walked'},
-        {'Most talkative', 'console_chats'},
-        {'Biggest demolisher', 'entities_removed'},
-        {'Most landfill placed', 'landfill_placed'},
+        {'Furthest walked', 'distance_walked', RestartMessage.format_distance},
+        {'Most talkative', 'console_chats', RestartMessage.format_unit('messages')},
+        {'Biggest demolisher', 'entities_removed', RestartMessage.format_unit('entities removed')},
+        {'Most landfill placed', 'landfill_placed', RestartMessage.format_unit('tiles')},
         {'Most deaths', 'player_deaths'},
         {'Most kills overall', 'total_kills'},
         {'Most biters/spitters killed', 'units_killed'},
@@ -158,7 +158,7 @@ return function(config)
         add_line(RestartMessage.statistic('Entities built', RestartMessage.format_count(statistics.entities_built)))
         add_line(RestartMessage.statistic('Ore hand mined', RestartMessage.format_count(statistics.resources_hand_mined)))
         if statistics.landfill_placed > 0 then
-            add_line(RestartMessage.statistic('Landfill placed', RestartMessage.format_count(statistics.landfill_placed)))
+            add_line(RestartMessage.statistic('Landfill placed', RestartMessage.format_count(statistics.landfill_placed)) .. ' tiles')
         end
         add_line('- Players: **' .. statistics.total_players .. '** in total, **' .. statistics.peak_players .. '** online at most')
         add_line(RestartMessage.statistic('Enemies killed', RestartMessage.format_count(statistics.biters_killed)))

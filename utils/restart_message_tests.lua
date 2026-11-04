@@ -13,6 +13,27 @@ Declare.module({'utils', 'RestartMessage'}, function()
         Assert.equal('1,725', RestartMessage.format_count(1725.9))
     end)
 
+    Declare.test('format_unit counts in the unit', function()
+        -- Arrange
+        local format = RestartMessage.format_unit('messages')
+
+        -- Act
+        local text = format(1234.5)
+
+        -- Assert
+        Assert.equal('1,234 messages', text)
+    end)
+
+    Declare.test('format_distance gives tiles in kilometres', function()
+        -- Act
+        local far = RestartMessage.format_distance(84887)
+        local near = RestartMessage.format_distance(420)
+
+        -- Assert
+        Assert.equal('84.9 km', far)
+        Assert.equal('0.4 km', near)
+    end)
+
     Declare.test('statistic bolds the value', function()
         Assert.equal('- Players: **27**', RestartMessage.statistic('Players', 27))
     end)
