@@ -157,17 +157,15 @@ function Public.control(config)
         {'Most worms killed', 'worms_killed'},
         {'Most deaths', 'player_deaths'},
         {'Most time played', 'time_played', Core.format_time},
-        {'Furthest walked', 'distance_walked'},
+        {'Furthest walked', 'distance_walked', RestartMessage.format_distance},
         {'Most coins earned', 'coins_earned'},
         {'Biggest spender', 'coins_spent'},
         {'Most outposts captured', 'outposts_captured'},
         {'Highest military rank', 'military_level', function(level)
             return ranks_by_level[level] .. ', level ' .. level
         end},
-        {'Seafood lover', 'fish_eaten', function(value)
-            return RestartMessage.format_count(value) .. ' fish eaten'
-        end},
-        {'Most talkative', 'console_chats'}
+        {'Seafood lover', 'fish_eaten', RestartMessage.format_unit('fish eaten')},
+        {'Most talkative', 'console_chats', RestartMessage.format_unit('messages')}
     }
 
     local function restart_callback()

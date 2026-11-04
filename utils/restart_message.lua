@@ -13,6 +13,18 @@ function Public.format_count(value)
     return format_number(math.floor(value), false)
 end
 
+--- Returns a format that counts in `unit`: format_unit('messages') formats 135 as '135 messages'.
+function Public.format_unit(unit)
+    return function(value)
+        return Public.format_count(value) .. ' ' .. unit
+    end
+end
+
+--- Formats a distance in tiles, which are a metre each, in kilometres: 84887 as '84.9 km'.
+function Public.format_distance(tiles)
+    return string.format('%.1f km', tiles / 1000)
+end
+
 --- Returns '- label: **value**'.
 function Public.statistic(label, value)
     return '- ' .. label .. ': **' .. value .. '**'
