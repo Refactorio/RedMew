@@ -41,6 +41,11 @@ local button_style = {
 local Public = {}
 local handler
 
+-- How far out a cutscene's camera stays in the game view. In multiplayer the game otherwise switches
+-- to map view once about 200 tiles fit across the window (zoom 0.43 on a large screen), and what the
+-- cutscene draws in the world isn't drawn on the map. It has to be further out than any waypoint.
+Public.furthest_game_view_zoom = 0.1
+
 local auto_play_cutscene_setting_name
 
 local cutscene_functions = {}
@@ -269,6 +274,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         player.exit_cutscene()
     end
     player.set_controller {type = defines.controllers.ghost}
+    player.set_zoom_limits(defines.controllers.cutscene, {furthest_game_view = {zoom = Public.furthest_game_view_zoom}})
 
     final_transition_time = final_transition_time >= 0 and final_transition_time or 60
     running_cutscene.final_transition_time = final_transition_time
