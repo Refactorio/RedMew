@@ -106,10 +106,15 @@ local function create_closable_frame(player, page)
     end
 
     frame = player.gui.screen.add { type = 'frame', name = page.name, direction = 'vertical', style = 'frame' }
-    frame.location = AdminPanel.get_main_frame_location(player, {
+    local location = AdminPanel.get_main_frame_location(player, {
         x = get_page_position(page.index) *  64,
         y = get_page_position(page.index) * -32
     })
+    if location then
+        frame.location = location
+    else
+        frame.auto_center = true
+    end
     Gui.set_style(frame, {
         horizontally_stretchable = true,
         vertically_stretchable = true,
