@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Utils = require 'utils.core'
 local market_items = require 'resources.market_items'
 local Global = require 'utils.global'
 local DonatorPerks = require 'resources.donator_perks'
@@ -35,7 +36,7 @@ local function save_player(player)
         return
     end
 
-    player.teleport(pos, player.physical_surface)
+    Utils.teleport_player(player, pos, player.physical_surface)
 end
 
 local function on_pre_death(event)

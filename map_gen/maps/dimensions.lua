@@ -2,6 +2,7 @@
 
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
+local Utils = require 'utils.core'
 local wrech_items_module = require 'map_gen.shared.wreck_items'
 
 local resource_types = {'copper-ore', 'iron-ore', 'coal', 'stone', 'uranium-ore', 'crude-oil'}
@@ -77,7 +78,7 @@ local function teleport_nearby_players(portal)
     for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - storage.portal_radius, portal.position.y - storage.portal_radius}, {portal.position.x + storage.portal_radius, portal.position.y + storage.portal_radius}}, name = 'character', type = 'character'}) do
         local player = player_character.player
         if not storage.last_tp[player.name] or storage.last_tp[player.name] + storage.teleport_cooldown * 60 < game.tick then
-            player.teleport(portal.target, portal.target_surface)
+            Utils.teleport_player(player, portal.target, portal.target_surface)
             storage.last_tp[player.name] = game.tick
             player.print('Wooosh! You are now in the ' .. portal.target_surface.name .. ' dimension.')
         end

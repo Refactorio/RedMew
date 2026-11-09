@@ -3,6 +3,7 @@
 
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
+local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local config = require 'config'.train_station_teleport
 
@@ -79,9 +80,8 @@ Gui.on_click(teleport_button_name, function(event)
   end
 
   local position = entity.surface.find_non_colliding_position('character', entity.position, this.radius, 0.2)
-  if position then
+  if position and Utils.teleport_player(player, position, entity.surface) then
     player.print({ 'train_station_teleport.success_destination', entity.backer_name })
-    player.teleport(position, entity.surface)
   else
     player.print({ 'train_station_teleport.err_no_valid_position' })
   end

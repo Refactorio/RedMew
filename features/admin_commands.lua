@@ -359,7 +359,7 @@ local function invoke(args, player)
         Game.player_print({'admin_commands.invoke_fail_no_location'}, player)
         return
     end
-    target.teleport({pos.x, pos.y}, player.physical_surface)
+    Utils.teleport_player(target, pos, player.physical_surface)
     game.print({'admin_commands.invoke_announce', target.name})
 end
 
@@ -385,7 +385,7 @@ local function teleport_player(args, player)
         Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
     end
-    player.teleport(pos, surface)
+    Utils.teleport_player(player, pos, surface)
     game.print({'admin_commands.tp_player_announce', target_name})
     Game.player_print({'admin_commands.tp_player_success', target_name}, Color.success, player)
 end
@@ -402,7 +402,7 @@ local function teleport_location(_, player)
         Game.player_print({'admin_commands.tp_fail_no_location'}, Color.fail, player)
         return
     end
-    player.teleport(pos, surface)
+    Utils.teleport_player(player, pos, surface)
     Game.player_print({'admin_commands.tp_end_success'}, Color.success, player)
 end
 
@@ -417,7 +417,7 @@ local function built_entity(event)
             return
         end
 
-        game.get_player(index).teleport(entity.position, entity.surface)
+        Utils.teleport_player(game.get_player(index), entity.position, entity.surface)
         entity.destroy()
     end
 end

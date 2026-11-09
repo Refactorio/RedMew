@@ -336,6 +336,24 @@ function Module.validate_player(player_ident)
     return player, player.name, player.index
 end
 
+--- Teleports a player's character, or the player when they have none (god, spectator, dead).
+-- Since 2.1, LuaPlayer.teleport in remote view (the map, or an entity opened from it) moves only
+-- the camera. Teleporting the character moves it in remote view too, across surfaces as well, and
+-- leaves the player's view as it is.
+-- @param player <LuaPlayer>
+-- @param position <MapPosition>
+-- @param surface <SurfaceIdentification|nil> defaults to the player's physical surface
+-- @param raise_teleported <boolean|nil> raise script_raised_teleported
+-- @return <boolean> whether the player was teleported
+function Module.teleport_player(player, position, surface, raise_teleported)
+    surface = surface or player.physical_surface
+    local character = player.character
+    if character then
+        return character.teleport(position, surface, raise_teleported)
+    end
+    return player.teleport(position, surface, raise_teleported)
+end
+
 local non_breaking_space = '​' -- This is \u200B an invisible space charcater.
 local sensitive_characters_map = {
     ['\\'] = '\\\\',

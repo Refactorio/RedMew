@@ -1,5 +1,6 @@
 local Config = storage.config
 local Public = require 'map_gen.maps.frontier.shared.core'
+local Utils = require 'utils.core'
 
 local Lobby = {}
 
@@ -25,7 +26,7 @@ function Lobby.teleport_to(player)
 
   local surface = Lobby.get_surface()
   local position = surface.find_non_colliding_position('character', {0, 0}, 0, 0.2)
-  player.teleport(position, surface, true)
+  Utils.teleport_player(player, position, surface, true)
 end
 
 function Lobby.teleport_from(player, destination)
@@ -36,7 +37,7 @@ function Lobby.teleport_from(player, destination)
   end
   local surface = Public.surface()
   local position = surface.find_non_colliding_position('character', destination or {0, 0}, 0, 0.2)
-  player.teleport(position, surface, true)
+  Utils.teleport_player(player, position, surface, true)
 end
 
 function Lobby.teleport_all_to()

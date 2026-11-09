@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
+local Utils = require 'utils.core'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 local Global = require 'utils.global'
@@ -404,9 +405,9 @@ local function teleport(_, player)
     local force = player.force
     if allow_teleport(force, position) then
         if math.abs(position.x) < 388.5 then
-            player.teleport(get_teleport_location(force, true), player.physical_surface)
+            Utils.teleport_player(player, get_teleport_location(force, true))
         else
-            player.teleport(get_teleport_location(force, false), player.physical_surface)
+            Utils.teleport_player(player, get_teleport_location(force, false))
         end
     else
         player.print('[color=yellow]Could not warp, you are too far from rocket silo![/color]')
@@ -526,7 +527,7 @@ function Public.join_usa(_, player)
         player.force = force_USA
         player.print('[color=green]You have joined United Factory Workers![/color]')
         restore_character(player)
-        player.teleport(get_teleport_location(force_USA, true), RS.get_surface())
+        Utils.teleport_player(player, get_teleport_location(force_USA, true), RS.get_surface())
         check_ready_to_start()
         remote.call('space-race-lobby', 'update_gui')
         return true
@@ -569,7 +570,7 @@ function Public.join_ussr(_, player)
         player.force = force_USSR
         player.print('[color=green]You have joined Union of Factory Employees![/color]')
         restore_character(player)
-        player.teleport(get_teleport_location(force_USSR, true), RS.get_surface())
+        Utils.teleport_player(player, get_teleport_location(force_USSR, true), RS.get_surface())
         check_ready_to_start()
         remote.call('space-race-lobby', 'update_gui')
         return true
