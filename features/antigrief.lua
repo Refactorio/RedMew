@@ -218,11 +218,12 @@ Module.undo =
 end
 
 Module.antigrief_surface_tp = function()
-    if game.player then
-        if game.player.surface == storage.ag_surface then
-            game.player.teleport(game.player.position, RS.get_surface())
+    local player = game.player
+    if player then
+        if player.physical_surface == storage.ag_surface then
+            Utils.teleport_player(player, player.physical_position, RS.get_surface())
         else
-            game.player.teleport(game.player.position, storage.ag_surface)
+            Utils.teleport_player(player, player.physical_position, storage.ag_surface)
         end
     end
 end

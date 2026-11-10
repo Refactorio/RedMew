@@ -6,6 +6,7 @@ local snake_game = require 'features.snake.game'
 local config = require 'map_gen.maps.space_race.config'
 local Gui = require 'utils.gui'
 local RS = require 'map_gen.shared.redmew_surface'
+local Utils = require 'utils.core'
 
 --Guis
 local join_gui = require 'map_gen.maps.space_race.gui.join_gui'
@@ -127,12 +128,12 @@ local function on_snake_player_died(event)
     local player = event.player
     game.permissions.get_group('lobby').add_player(player)
     Public.show_gui({player_index = player.index})
-    player.teleport({0, 0}, game.get_surface('snake'))
+    Utils.teleport_player(player, {0, 0}, game.get_surface('snake'))
 end
 
 local function to_lobby(player_index)
     local player = game.get_player(player_index)
-    player.teleport({0, 0}, game.get_surface('snake'))
+    Utils.teleport_player(player, {0, 0}, game.get_surface('snake'))
     game.permissions.get_group('lobby').add_player(player)
 
     local character = player.character

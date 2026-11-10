@@ -181,4 +181,76 @@ Declare.module({
             end)
         end
     end)
+
+    Declare.module('teleport_player', function()
+        -- uses a player's character and remote view
+        Declare.tags('skip-headless')
+
+        Declare.test('moves the character in remote view and leaves the view where it is', function(context)
+            -- Arrange: looking at the map somewhere else, as when a station is opened from the map
+            local player = context.player
+            local character = player.character
+            local start = character.position
+            local destination = {x = math.floor(start.x) + 30.5, y = math.floor(start.y) + 0.5}
+            local view = {x = math.floor(start.x) + 80.5, y = math.floor(start.y) + 80.5}
+            player.set_controller {type = defines.controllers.remote, position = view}
+            context:add_teardown(function()
+                player.exit_remote_view()
+                character.teleport(start)
+            end)
+
+            -- Act
+            local teleported = Core.teleport_player(player, destination)
+
+            -- Assert
+            local where = serpent.line(character.position)
+            Assert.is_true(teleported, 'teleport_player should say it teleported the player')
+            Assert.equal(destination.x, character.position.x, 'the character should be at the destination, not ' .. where)
+            Assert.equal(destination.y, character.position.y, 'the character should be at the destination, not ' .. where)
+            Assert.equal(defines.controllers.remote, player.controller_type, 'the player should still be in remote view')
+            Assert.equal(view.x, player.position.x, 'the view should not have moved')
+        end)
+
+        Declare.test('moves the character to another surface in remote view', function(context)
+            -- Arrange: looking at the map, as a Frontier player may be when a round ends
+            local player = context.player
+            local character = player.character
+            local start, start_surface = character.position, character.surface
+            local other = game.create_surface('teleport_player_test')
+            player.set_controller {type = defines.controllers.remote, position = {start.x + 80, start.y + 80}}
+            context:add_teardown(function()
+                player.exit_remote_view()
+                character.teleport(start, start_surface)
+                game.delete_surface(other)
+            end)
+
+            -- Act
+            local teleported = Core.teleport_player(player, {0, 0}, other)
+
+            -- Assert
+            Assert.is_true(teleported, 'teleport_player should say it teleported the player')
+            Assert.equal(other.name, character.surface.name, 'the character should be on the other surface')
+        end)
+
+        Declare.test('teleports a player who has no character', function(context)
+            -- Arrange: a player without a character, as in god mode
+            local player = context.player
+            local character = player.character
+            local start = character.position
+            local destination = {x = math.floor(start.x) + 30.5, y = math.floor(start.y) + 0.5}
+            player.set_controller {type = defines.controllers.god}
+            context:add_teardown(function()
+                player.set_controller {type = defines.controllers.character, character = character}
+            end)
+
+            -- Act
+            local teleported = Core.teleport_player(player, destination)
+
+            -- Assert
+            local where = serpent.line(player.position)
+            Assert.is_true(teleported, 'teleport_player should say it teleported the player')
+            Assert.equal(destination.x, player.position.x, 'the player should be at the destination, not ' .. where)
+            Assert.equal(destination.y, player.position.y, 'the player should be at the destination, not ' .. where)
+        end)
+    end)
 end)

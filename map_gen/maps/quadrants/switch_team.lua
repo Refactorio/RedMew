@@ -4,6 +4,7 @@ local abs = math.abs
 local Color = require 'resources.color_presets'
 local Popup = require 'features.gui.popup'
 local RS = require 'map_gen.shared.redmew_surface'
+local Utils = require 'utils.core'
 local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
 local Global = require 'utils.global'
 
@@ -78,7 +79,7 @@ local function teleport(event, quadrant)
             RS.get_surface().find_non_colliding_position('character', spawn_locations['quadrant_' .. quadrant], 5, 1)
 
         player.driving = false
-        player.teleport(pos, RS.get_surface())
+        Utils.teleport_player(player, pos, RS.get_surface())
         player.force = game.forces['quadrant' .. quadrant]
         Popup.player(
             player,

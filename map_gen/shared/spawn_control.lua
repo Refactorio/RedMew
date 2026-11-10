@@ -60,7 +60,7 @@ local function player_joined_game(event)
     local spawn = storage.spawns[spawn_name]
     storage.player_spawns[index] = spawn_name
     local player = game.get_player(index)
-    player.teleport(spawn, player.physical_surface)
+    Utils.teleport_player(player, spawn)
 
     local count = spawn.count
     spawn.count = count + 1
@@ -107,7 +107,7 @@ local function tp_spawn(player_name, spawn_name)
         return
     end
 
-    player.teleport(spawn)
+    Utils.teleport_player(player, spawn)
 end
 
 local function change_spawn(player_name, spawn_name)
