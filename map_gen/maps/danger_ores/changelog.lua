@@ -204,4 +204,7 @@ return [[
 
   2026-11-04:
       - [DO] Added an intro cutscene for new players: the map, the build-on-ore rule and the goal (/replay plays it again)
+
+  2026-11-11:
+      - [DO:Mosaic] Added DO/Mosaic preset
 ]]
