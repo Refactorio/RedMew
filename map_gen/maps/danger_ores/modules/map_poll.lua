@@ -75,6 +75,7 @@ local maps = {
     { name = 'danger-ore-krastorio2', display_name = 'Krastorio2 (landfill)', mod_pack = mod_packs.danger_ore_krastorio2, tags = {tags.overhaul} },
     { name = 'danger-ore-landfill', display_name = 'Landfill (all tiles)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-lazy-one', display_name = 'Lazy One (no handcraft)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
+    { name = 'danger-ore-mosaic', display_name = 'Mosaic (a mural of space and industry)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-normal-science', display_name = 'Normal science (+ biters)', mod_pack = mod_packs.danger_ore_normal, tags = {tags.regular} },
     { name = 'danger-ore-omnimatter', display_name = 'Omnimatter (1 ore)', mod_pack = mod_packs.danger_ore_omnimatter, tags = {tags.overhaul} },
     { name = 'danger-ore-omnimatter-cages', display_name = 'Omnimatter Cages (1 ore + frames)', mod_pack = mod_packs.danger_ore_omnimatter, tags = {tags.overhaul} },
