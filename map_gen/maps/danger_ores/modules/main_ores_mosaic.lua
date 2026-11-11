@@ -30,6 +30,9 @@ return function(config)
         end
         for _, s in ipairs(layout.settings.spawn_symbols) do
             used[#used + 1] = s[2]
+            for _, name in ipairs(s[7] or {}) do
+                used[#used + 1] = name
+            end
         end
         for _, name in ipairs(layout.settings.medallion_inks) do
             used[#used + 1] = name

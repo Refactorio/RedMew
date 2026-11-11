@@ -8,7 +8,7 @@
 -- background (sunburst rays, stripes, orbits, a web of rays and rings, or split fields) in three
 -- inks between lines, and a big symbol on it (a rocket, sputnik, atom, gear, wheat, factory,
 -- pylon...), outlined, sometimes on a great disc, with stars round it. Spawn sits in a round
--- medallion: a great iron star on a copper core, ringed by a sunburst. Which inks a panel uses follows its distance from spawn: mostly
+-- medallion: a great faceted star of iron and copper on an iron core, ringed by a sunburst. Which inks a panel uses follows its distance from spawn: mostly
 -- iron close in, more copper further out.
 local Shapes = require 'map_gen.maps.danger_ores.modules.art_shapes'
 local Figures = require 'map_gen.maps.danger_ores.modules.mosaic_figures'
@@ -63,17 +63,19 @@ Public.defaults = {
     disc_chance = 0.45,
     stars = {0, 3},
     -- The round medallion spawn sits in. It fits the land terraforming opens at the start (a
-    -- square 384 tiles across): a great iron star round spawn, solid iron all round for its
-    -- first 100 tiles (spawn's own 64 have no ore), on a copper core showing between its points,
-    -- then a ring of rays.
+    -- square 384 tiles across): a great faceted star round spawn, iron and copper by turns all
+    -- round for its first 100 tiles (spawn's own 64 have no ore), on an iron core showing
+    -- between its points, then a ring of rays.
     medallion = 380,
     medallion_core = 240,
-    medallion_core_ink = 'copper-ore',
+    medallion_core_ink = 'iron-ore',
     medallion_inks = {'iron-ore', 'copper-ore'},
     medallion_rays = 24,
-    -- symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt}
+    -- symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt, facets}; a faceted
+    -- star has each point split down the middle in two inks, so iron and copper take turns
+    -- right round spawn's edge
     spawn_symbols = {
-        {'star', 'iron-ore', 0, 0, 40, 0}
+        {'star', 'iron-ore', 0, 0, 40, 0, {'iron-ore', 'copper-ore', points = 5}}
     }
 }
 
@@ -102,6 +104,16 @@ local function draw_palette(inks, blend, next01)
 end
 Public.draw_palette = draw_palette
 
+-- The facet of a faceted piece at (x, y): its points split down the middle, turn about. A
+-- point of a star at 0 radians points up (-pi/2) and each facet spans pi / points.
+local function facet_ink(piece, x, y)
+    local facets = piece.facets
+    local a = atan2(y - piece.y, x - piece.x) - piece.tilt + pi / 2
+    local i = floor(a / (pi / facets.points)) % (2 * facets.points)
+    return facets[i % 2 + 1]
+end
+Public.facet_ink = facet_ink
+
 -- What the pieces (top last) put on (x, y): a piece's ink, the line ink for line work and
 -- outlines, or nil.
 local function draw_pieces(pieces, x, y, outline, line_ink)
@@ -112,7 +124,7 @@ local function draw_pieces(pieces, x, y, outline, line_ink)
         if dx * dx + dy * dy <= reach * reach then
             local role = covers(piece, x, y)
             if role == 'paint' then
-                return piece.ink
+                return piece.facets and facet_ink(piece, x, y) or piece.ink
             elseif role then
                 return line_ink
             elseif paint_distance(piece, x, y) < outline then
@@ -336,7 +348,9 @@ function Public.new(opts)
     local medallion = settings.medallion
     local spawn_pieces = {}
     for i, s in ipairs(settings.spawn_symbols) do
-        spawn_pieces[i] = make_symbol(s[1], s[2], 10 + i, s[3], s[4], s[5], s[6], 1)
+        local piece = make_symbol(s[1], s[2], 10 + i, s[3], s[4], s[5], s[6], 1)
+        piece.tilt, piece.facets = s[6], s[7]
+        spawn_pieces[i] = piece
     end
     local m_inks, m_rays = settings.medallion_inks, settings.medallion_rays
     local core, core_ink = settings.medallion_core, settings.medallion_core_ink

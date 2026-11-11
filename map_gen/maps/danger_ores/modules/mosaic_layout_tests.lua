@@ -166,25 +166,31 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
         Assert.is_true(coal / total < 0.2, coal .. ' of ' .. total .. ' inks are coal')
     end)
 
-    Declare.test('spawn sits on an iron star, inside a coal ring', function()
+    Declare.test('iron and copper take turns right round the edge of spawn', function()
         -- Arrange
         local layout = new_layout(5)
         local settings = layout.settings
-        local iron, total = 0, 0
+        local counts, total, runs = {}, 0, 0
 
         -- Act: just outside spawn's ore-free 64 tiles, all round
+        local last
         for k = 0, 359 do
-            local a = k / 360 * 2 * math.pi
-            for r = 66, 96, 5 do
-                total = total + 1
-                if layout.ore_at(floor(r * math.cos(a)), floor(r * math.sin(a))) == 'iron-ore' then
-                    iron = iron + 1
-                end
+            local a = (k + 0.5) / 360 * 2 * math.pi
+            local ore = layout.ore_at(floor(70 * math.cos(a)), floor(70 * math.sin(a)))
+            counts[ore] = (counts[ore] or 0) + 1
+            total = total + 1
+            if ore ~= last then
+                runs = runs + 1
+                last = ore
             end
         end
 
-        -- Assert
-        Assert.equal(total, iron, 'iron round spawn')
+        -- Assert: only iron and copper, half each, in the star's ten facets
+        local iron, copper = counts['iron-ore'] or 0, counts['copper-ore'] or 0
+        local text = ('%d iron, %d copper of %d, %d runs'):format(iron, copper, total, runs)
+        Assert.equal(total, iron + copper, text)
+        Assert.is_true(math.abs(iron - copper) <= total * 0.1, text)
+        Assert.is_true(runs >= 10 and runs <= 11, text)
         local m = settings.medallion
         for k = 0, 35 do
             local a = k / 36 * 2 * math.pi

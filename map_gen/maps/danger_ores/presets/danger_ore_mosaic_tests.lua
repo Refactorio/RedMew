@@ -47,25 +47,33 @@ Declare.module({'map_gen', 'mosaic'}, function()
         end
     end)
 
-    Declare.test('there is iron to mine right outside spawn, all round', function()
+    Declare.test('there is iron and copper to mine right outside spawn, all round', function()
         -- Arrange: spawn's ore-free circle is 64 tiles across the radius
         local map = build(DOC.map_config, 1)
-        local iron, total = 0, 0
+        local counts, total = {}, 0
 
-        -- Act
-        for k = 0, 179 do
-            local a = k / 180 * 2 * math.pi
-            for r = 66, 90, 6 do
-                local tile = map(math.floor(r * math.cos(a)), math.floor(r * math.sin(a)), {})
-                total = total + 1
-                if tile.entities[1].name == 'iron-ore' then
-                    iron = iron + 1
+        -- Act: in every eighth of the way round, both
+        local both = 0
+        for eighth = 0, 7 do
+            local seen = {}
+            for k = 0, 44 do
+                local a = (eighth + k / 45) / 8 * 2 * math.pi
+                for r = 66, 90, 6 do
+                    local name = map(math.floor(r * math.cos(a)), math.floor(r * math.sin(a)), {}).entities[1].name
+                    counts[name] = (counts[name] or 0) + 1
+                    total = total + 1
+                    seen[name] = true
                 end
+            end
+            if seen['iron-ore'] and seen['copper-ore'] then
+                both = both + 1
             end
         end
 
         -- Assert
-        Assert.equal(total, iron, 'iron right outside spawn')
+        local text = ('%d iron, %d copper of %d'):format(counts['iron-ore'] or 0, counts['copper-ore'] or 0, total)
+        Assert.equal(total, (counts['iron-ore'] or 0) + (counts['copper-ore'] or 0), 'only iron and copper: ' .. text)
+        Assert.equal(8, both, 'iron and copper in every eighth: ' .. text)
     end)
 
     Declare.test('an ink that is not a main ore is refused', function()
