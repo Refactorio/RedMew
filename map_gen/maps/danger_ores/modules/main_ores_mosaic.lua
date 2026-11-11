@@ -24,7 +24,7 @@ return function(config)
         end
         local layout = Layout.new(options)
 
-        local used = {layout.settings.line_ink}
+        local used = {layout.settings.line_ink, layout.settings.medallion_core_ink}
         for _, ink in ipairs(layout.settings.inks) do
             used[#used + 1] = ink[1]
         end

@@ -166,16 +166,16 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
         Assert.is_true(coal / total < 0.2, coal .. ' of ' .. total .. ' inks are coal')
     end)
 
-    Declare.test('spawn sits on an iron core inside a coal ring', function()
+    Declare.test('spawn sits on an iron star, inside a coal ring', function()
         -- Arrange
         local layout = new_layout(5)
         local settings = layout.settings
         local iron, total = 0, 0
 
-        -- Act: round the core, between the star and the core's edge
+        -- Act: just outside spawn's ore-free 64 tiles, all round
         for k = 0, 359 do
             local a = k / 360 * 2 * math.pi
-            for r = 120, settings.medallion_core - 20, 10 do
+            for r = 66, 96, 5 do
                 total = total + 1
                 if layout.ore_at(floor(r * math.cos(a)), floor(r * math.sin(a))) == 'iron-ore' then
                     iron = iron + 1
@@ -184,7 +184,7 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
         end
 
         -- Assert
-        Assert.is_true(iron > total / 2, iron .. ' of ' .. total .. ' iron round spawn')
+        Assert.equal(total, iron, 'iron round spawn')
         local m = settings.medallion
         for k = 0, 35 do
             local a = k / 36 * 2 * math.pi

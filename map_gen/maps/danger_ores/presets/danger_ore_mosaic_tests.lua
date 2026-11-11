@@ -7,7 +7,6 @@ local b = require 'map_gen.shared.builders'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local MainOresMosaic = require 'map_gen.maps.danger_ores.modules.main_ores_mosaic'
 
-local SPAWN_REACH = 700 -- tiles from spawn within which every ore must lie
 
 local function tile_builder()
     return function()
@@ -26,18 +25,18 @@ local function build(config, seed)
 end
 
 Declare.module({'map_gen', 'mosaic'}, function()
-    Declare.test('every main ore lies close to spawn, on any seed', function()
+    Declare.test('every main ore lies in the land open at the start, on any seed', function()
+        -- the square terraforming opens first
+        local half = DOC.terraforming.start_size / 2
         for seed = 1, 5 do
             -- Arrange
             local map = build(DOC.map_config, seed)
             local found = {}
 
             -- Act
-            for x = -SPAWN_REACH, SPAWN_REACH, 13 do
-                for y = -SPAWN_REACH, SPAWN_REACH, 13 do
-                    if x * x + y * y <= SPAWN_REACH * SPAWN_REACH then
-                        found[map(x, y, {}).entities[1].name] = true
-                    end
+            for x = -half, half - 1, 7 do
+                for y = -half, half - 1, 7 do
+                    found[map(x, y, {}).entities[1].name] = true
                 end
             end
 
@@ -46,6 +45,27 @@ Declare.module({'map_gen', 'mosaic'}, function()
                 Assert.is_true(found[ore.name], 'seed ' .. seed .. ': no ' .. ore.name .. ' near spawn')
             end
         end
+    end)
+
+    Declare.test('there is iron to mine right outside spawn, all round', function()
+        -- Arrange: spawn's ore-free circle is 64 tiles across the radius
+        local map = build(DOC.map_config, 1)
+        local iron, total = 0, 0
+
+        -- Act
+        for k = 0, 179 do
+            local a = k / 180 * 2 * math.pi
+            for r = 66, 90, 6 do
+                local tile = map(math.floor(r * math.cos(a)), math.floor(r * math.sin(a)), {})
+                total = total + 1
+                if tile.entities[1].name == 'iron-ore' then
+                    iron = iron + 1
+                end
+            end
+        end
+
+        -- Assert
+        Assert.equal(total, iron, 'iron right outside spawn')
     end)
 
     Declare.test('an ink that is not a main ore is refused', function()

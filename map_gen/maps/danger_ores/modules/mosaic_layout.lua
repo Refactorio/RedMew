@@ -8,7 +8,7 @@
 -- background (sunburst rays, stripes, orbits, a web of rays and rings, or split fields) in three
 -- inks between lines, and a big symbol on it (a rocket, sputnik, atom, gear, wheat, factory,
 -- pylon...), outlined, sometimes on a great disc, with stars round it. Spawn sits in a round
--- medallion with a sunburst. Which inks a panel uses follows its distance from spawn: mostly
+-- medallion: a great iron star on a copper core, ringed by a sunburst. Which inks a panel uses follows its distance from spawn: mostly
 -- iron close in, more copper further out.
 local Shapes = require 'map_gen.maps.danger_ores.modules.art_shapes'
 local Figures = require 'map_gen.maps.danger_ores.modules.mosaic_figures'
@@ -62,18 +62,18 @@ Public.defaults = {
     symbol_size = 0.62, -- the main symbol's height as a share of the panel's
     disc_chance = 0.45,
     stars = {0, 3},
-    -- the round medallion spawn sits in
-    medallion = 620,
-    medallion_core = 210, -- a solid disc of the first medallion ink round spawn
+    -- The round medallion spawn sits in. It fits the land terraforming opens at the start (a
+    -- square 384 tiles across): a great iron star round spawn, solid iron all round for its
+    -- first 100 tiles (spawn's own 64 have no ore), on a copper core showing between its points,
+    -- then a ring of rays.
+    medallion = 380,
+    medallion_core = 240,
+    medallion_core_ink = 'copper-ore',
     medallion_inks = {'iron-ore', 'copper-ore'},
-    medallion_rays = 24, -- in the outer ring; half as many in the inner one
+    medallion_rays = 24,
     -- symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt}
     spawn_symbols = {
-        {'star', 'copper-ore', 0, 0, 27, 0},
-        {'rocket', 'iron-ore', 270, -290, 26, 0.5},
-        {'atom', 'copper-ore', -300, -260, 23, 0},
-        {'gear', 'iron-ore', -310, 260, 25, 0.2},
-        {'wheat', 'copper-ore', 300, 280, 24, 0.15}
+        {'star', 'iron-ore', 0, 0, 40, 0}
     }
 }
 
@@ -339,22 +339,20 @@ function Public.new(opts)
         spawn_pieces[i] = make_symbol(s[1], s[2], 10 + i, s[3], s[4], s[5], s[6], 1)
     end
     local m_inks, m_rays = settings.medallion_inks, settings.medallion_rays
-    local core = settings.medallion_core
-    local inner = (core + medallion) / 2
+    local core, core_ink = settings.medallion_core, settings.medallion_core_ink
     local function medallion_at(x, y, r)
         local ink = draw_pieces(spawn_pieces, x, y, outline, line_ink)
         if ink then
             return ink
         end
-        -- a solid core, then a sunburst in two rings, the outer with twice the rays
-        if abs(r - core) < line / 2 or abs(r - inner) < line / 2 then
+        -- a solid core, then a sunburst
+        if abs(r - core) < line / 2 then
             return line_ink
         end
         if r < core then
-            return m_inks[1]
+            return core_ink
         end
-        local rays = r > inner and m_rays or m_rays / 2
-        local i, across = ray_at(x, y, 0, 0, rays, r > inner and pi / rays or 0)
+        local i, across = ray_at(x, y, 0, 0, m_rays, 0)
         if across < line / 2 then
             return line_ink
         end
