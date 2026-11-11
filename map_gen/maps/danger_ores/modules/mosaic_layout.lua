@@ -48,7 +48,7 @@ local CYCLE = {1, 2, 1, 3}
 Public.defaults = {
     -- {ore, weight near spawn, weight far out}: a panel's inks are drawn by these weights,
     -- blending from ink_near to ink_far tiles from spawn.
-    inks = {{'iron-ore', 60, 30}, {'copper-ore', 32, 62}, {'coal', 8, 8}},
+    inks = {{'iron-ore', 60, 30}, {'copper-ore', 32, 62}, {'coal', 14, 14}},
     line_ink = 'coal', -- frames, lines and outlines
     ink_near = 300,
     ink_far = 1500,
@@ -69,7 +69,7 @@ Public.defaults = {
     medallion = 380,
     medallion_core = 240,
     medallion_core_ink = 'iron-ore',
-    medallion_inks = {'iron-ore', 'copper-ore'},
+    medallion_inks = {'iron-ore', 'copper-ore', 'iron-ore', 'coal'},
     medallion_rays = 24,
     -- symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt, facets}; a faceted
     -- star has each point split down the middle in two inks, so iron and copper take turns
