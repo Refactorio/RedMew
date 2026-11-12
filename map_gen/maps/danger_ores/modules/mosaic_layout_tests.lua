@@ -245,4 +245,19 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
         Assert.equal('coal', settings.line_ink, 'the line ink')
         Assert.table_equal({'ore-a', 'ore-b'}, settings.medallion_inks, 'the medallion rays')
     end)
+
+    Declare.test('a line ink that is set draws the lines, and is left out of the spawn', function()
+        -- Arrange
+        local inks = Layout.inks_of {{name = 'coal', weight = 1}, {name = 'ore-a', weight = 5}, {name = 'ore-b', weight = 3}}
+
+        -- Act
+        local layout = new_layout(11, {inks = inks, line_ink = 'ore-a'})
+        local settings = layout.settings
+
+        -- Assert
+        Assert.equal('ore-a', settings.line_ink, 'the line ink')
+        Assert.equal('ore-b', settings.medallion_core_ink, 'the medallion core')
+        Assert.table_equal({'ore-b', 'coal'}, settings.medallion_inks, 'the medallion rays')
+        Assert.equal('ore-a', layout.ore_at(settings.medallion, 0), 'the medallion ring')
+    end)
 end)
