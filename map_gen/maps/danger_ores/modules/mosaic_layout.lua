@@ -8,8 +8,9 @@
 -- background (sunburst rays, stripes, orbits, a web of rays and rings, or split fields) in three
 -- inks between lines, and a big symbol on it (a rocket, sputnik, atom, gear, wheat, factory,
 -- pylon...), outlined, sometimes on a great disc, with stars round it. Spawn sits in a round
--- medallion: a great faceted star of iron and copper on an iron core, ringed by a sunburst. Which inks a panel uses follows its distance from spawn: mostly
--- iron close in, more copper further out.
+-- medallion: a great faceted star of the two main inks on a core of the first, ringed by a
+-- sunburst. The inks are whatever ores the map has, by weights that can change with the distance
+-- from spawn (the vanilla map: mostly iron close in, more copper further out).
 local Shapes = require 'map_gen.maps.danger_ores.modules.art_shapes'
 local Figures = require 'map_gen.maps.danger_ores.modules.mosaic_figures'
 
@@ -45,11 +46,14 @@ Public.PATTERNS = PATTERNS
 local CYCLE = {1, 2, 1, 3}
 
 --- Default settings; `Public.new` fills any the caller leaves out from these. Lengths in tiles.
+--- The ores are not here: the caller gives `inks`, {ore, weight near spawn, weight far out} each
+--- (a panel's inks are drawn by these weights, blending from ink_near to ink_far tiles from
+--- spawn), and `Public.new` fills in the line ink and spawn's inks from them, unless given:
+---   line_ink: frames, lines and outlines; coal if it is an ink, else the lightest ink
+---   medallion_core_ink: the heaviest other ink near spawn
+---   medallion_inks: the medallion's rays, all the other inks, heaviest near spawn first
+---   spawn_symbols: see below; a star faceted in the two heaviest other inks
 Public.defaults = {
-    -- {ore, weight near spawn, weight far out}: a panel's inks are drawn by these weights,
-    -- blending from ink_near to ink_far tiles from spawn.
-    inks = {{'iron-ore', 60, 30}, {'copper-ore', 32, 62}, {'coal', 8, 8}},
-    line_ink = 'coal', -- frames, lines and outlines
     ink_near = 300,
     ink_far = 1500,
     row_height = 640,
@@ -63,21 +67,78 @@ Public.defaults = {
     disc_chance = 0.45,
     stars = {0, 3},
     -- The round medallion spawn sits in. It fits the land terraforming opens at the start (a
-    -- square 384 tiles across): a great faceted star round spawn, iron and copper by turns all
-    -- round for its first 100 tiles (spawn's own 64 have no ore), on an iron core showing
-    -- between its points, then a ring of rays.
+    -- square 384 tiles across): a great faceted star round spawn, its two inks by turns all
+    -- round for its first 100 tiles (spawn's own 64 have no ore), on a core showing between its
+    -- points, then a ring of rays.
     medallion = 380,
     medallion_core = 240,
-    medallion_core_ink = 'iron-ore',
-    medallion_inks = {'iron-ore', 'copper-ore'},
-    medallion_rays = 24,
-    -- symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt, facets}; a faceted
-    -- star has each point split down the middle in two inks, so iron and copper take turns
-    -- right round spawn's edge
-    spawn_symbols = {
-        {'star', 'iron-ore', 0, 0, 40, 0, {'iron-ore', 'copper-ore', points = 5}}
-    }
+    medallion_rays = 24
+    -- spawn_symbols: symbols round spawn, listed bottom first: {name, ink, x, y, unit, tilt,
+    -- facets}; a faceted star has each point split down the middle in two inks, so they take
+    -- turns right round spawn's edge
 }
+
+--- The inks for `ores`, {{name = ore, weight = w}...} as in a main_ores config: each ore at its
+--- weight, near spawn and far out alike.
+function Public.inks_of(ores)
+    local inks = {}
+    for i, ore in ipairs(ores) do
+        local weight = ore.weight or 1
+        inks[i] = {ore.name, weight, weight}
+    end
+    return inks
+end
+
+-- Fills in the settings that name ores and were not given, from the inks: see Public.defaults.
+local function fill_ore_settings(settings)
+    local inks = settings.inks
+    if not inks or #inks == 0 then
+        error('Mosaic: no inks, give the layout the ores it is made of')
+    end
+    local line_ink = settings.line_ink
+    if not line_ink then
+        for _, ink in ipairs(inks) do
+            if ink[1] == 'coal' then
+                line_ink = 'coal'
+            end
+        end
+    end
+    if not line_ink then
+        local lightest = inks[1]
+        for _, ink in ipairs(inks) do
+            if ink[2] <= lightest[2] then
+                lightest = ink
+            end
+        end
+        line_ink = lightest[1]
+    end
+    settings.line_ink = line_ink
+
+    -- the other inks, heaviest near spawn first (in the order given, on a tie)
+    local others = {}
+    for i, ink in ipairs(inks) do
+        if ink[1] ~= line_ink then
+            others[#others + 1] = {ink[1], ink[2], i}
+        end
+    end
+    table.sort(others, function(a, b)
+        if a[2] ~= b[2] then
+            return a[2] > b[2]
+        end
+        return a[3] < b[3]
+    end)
+    local names = {}
+    for i, ink in ipairs(others) do
+        names[i] = ink[1]
+    end
+    if #names == 0 then
+        names[1] = line_ink
+    end
+    local first, second = names[1], names[2] or names[1]
+    settings.medallion_core_ink = settings.medallion_core_ink or first
+    settings.medallion_inks = settings.medallion_inks or names
+    settings.spawn_symbols = settings.spawn_symbols or {{'star', first, 0, 0, 40, 0, {first, second, points = 5}}}
+end
 
 local function lerp(range, t)
     return range[1] + (range[2] - range[1]) * t
@@ -203,7 +264,8 @@ local function background(panel, lx, ly, line)
 end
 Public.background = background
 
---- A new layout. `opts` = {random = random(n), any of Public.defaults to override}.
+--- A new layout. `opts` = {random = random(n), inks = see Public.defaults, any of
+--- Public.defaults to override}.
 function Public.new(opts)
     local settings = {}
     for k, v in pairs(Public.defaults) do
@@ -212,6 +274,7 @@ function Public.new(opts)
     for k, v in pairs(opts) do
         settings[k] = v
     end
+    fill_ore_settings(settings)
 
     local seed_hash = settings.random(Shapes.PRIME - 1)
     local hash_stream = Shapes.hash_stream

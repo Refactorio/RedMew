@@ -7,6 +7,12 @@ return {
         main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_mosaic',
         -- Coal is pure, for the lines; iron and copper are the usual mixes, stone mixed in.
         main_ores = Factory.default():change_mix({{'coal', 1}}, 'coal'),
+        main_ores_mosaic = {
+            -- {ore, weight near spawn, weight far out}: mostly iron close in, more copper where
+            -- the rockets get built, and the odd field of coal
+            inks = {{'iron-ore', 60, 30}, {'copper-ore', 32, 62}, {'coal', 8, 8}},
+            line_ink = 'coal' -- frames, lines and outlines
+        },
         main_ores_rotate = Layouts.NONE
     }
 }

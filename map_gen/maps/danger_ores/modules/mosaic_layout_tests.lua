@@ -10,11 +10,15 @@ local Assert = require 'utils.test.assert'
 local Shapes = require 'map_gen.maps.danger_ores.modules.art_shapes'
 local Layout = require 'map_gen.maps.danger_ores.modules.mosaic_layout'
 local Figures = require 'map_gen.maps.danger_ores.modules.mosaic_figures'
+local MosaicMap = require 'map_gen.maps.danger_ores.layouts.mosaic'
 
 local floor = math.floor
 
+-- the vanilla map's inks
+local INKS = MosaicMap.settings.main_ores_mosaic.inks
+
 local function new_layout(seed, overrides)
-    local opts = {random = game.create_random_generator(1000 + seed)}
+    local opts = {random = game.create_random_generator(1000 + seed), inks = INKS}
     for k, v in pairs(overrides or {}) do
         opts[k] = v
     end
@@ -147,7 +151,7 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
 
     Declare.test('neighbouring inks of a panel differ, and coal is a rare one', function()
         -- Arrange
-        local inks = Layout.defaults.inks
+        local inks = INKS
         local next01 = Shapes.hash_stream(12345, 6, 7)
         local coal, total = 0, 0
 
@@ -209,5 +213,51 @@ Declare.module({'map_gen', 'mosaic', 'layout'}, function()
             Assert.is_true(coal > 0.2 and coal < 0.5, text)
             Assert.is_true(copper > iron and iron > 0.12, text)
         end
+    end)
+
+    Declare.test('with no coal, the lightest ink draws the lines and the heaviest two the spawn', function()
+        -- Arrange
+        local inks = Layout.inks_of {
+            {name = 'ore-a', weight = 10},
+            {name = 'ore-b', weight = 15},
+            {name = 'ore-c', weight = 4},
+            {name = 'ore-d', weight = 10}
+        }
+
+        -- Act
+        local settings = new_layout(9, {inks = inks}).settings
+
+        -- Assert
+        Assert.equal('ore-c', settings.line_ink, 'the line ink')
+        Assert.equal('ore-b', settings.medallion_core_ink, 'the medallion core')
+        Assert.table_equal({'ore-b', 'ore-a', 'ore-d'}, settings.medallion_inks, 'the medallion rays')
+        Assert.table_equal({'ore-b', 'ore-a', points = 5}, settings.spawn_symbols[1][7], 'the star facets')
+    end)
+
+    Declare.test('coal draws the lines whatever its weight', function()
+        -- Arrange
+        local inks = Layout.inks_of {{name = 'coal', weight = 20}, {name = 'ore-a', weight = 5}, {name = 'ore-b', weight = 1}}
+
+        -- Act
+        local settings = new_layout(10, {inks = inks}).settings
+
+        -- Assert
+        Assert.equal('coal', settings.line_ink, 'the line ink')
+        Assert.table_equal({'ore-a', 'ore-b'}, settings.medallion_inks, 'the medallion rays')
+    end)
+
+    Declare.test('a line ink that is set draws the lines, and is left out of the spawn', function()
+        -- Arrange
+        local inks = Layout.inks_of {{name = 'coal', weight = 1}, {name = 'ore-a', weight = 5}, {name = 'ore-b', weight = 3}}
+
+        -- Act
+        local layout = new_layout(11, {inks = inks, line_ink = 'ore-a'})
+        local settings = layout.settings
+
+        -- Assert
+        Assert.equal('ore-a', settings.line_ink, 'the line ink')
+        Assert.equal('ore-b', settings.medallion_core_ink, 'the medallion core')
+        Assert.table_equal({'ore-b', 'coal'}, settings.medallion_inks, 'the medallion rays')
+        Assert.equal('ore-a', layout.ore_at(settings.medallion, 0), 'the medallion ring')
     end)
 end)
