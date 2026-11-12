@@ -6,7 +6,7 @@ local Assert = require 'utils.test.assert'
 local b = require 'map_gen.shared.builders'
 local DOC = require 'map_gen.maps.danger_ores.configuration'
 local MainOresMosaic = require 'map_gen.maps.danger_ores.modules.main_ores_mosaic'
-
+local AngelOres = require 'map_gen.maps.danger_ores.compatibility.angel.ores'
 
 local function tile_builder()
     return function()
@@ -89,5 +89,27 @@ Declare.module({'map_gen', 'mosaic'}, function()
         -- Assert
         Assert.is_true(not ok, 'a mosaic with uranium ink was built')
         Assert.is_true(message:find('uranium-ore', 1, true) ~= nil, message)
+    end)
+
+    Declare.test('a mod\'s ore list makes a mosaic of all its ores, coal the lines', function()
+        -- Arrange: Angel's ores, inks taken from their weights
+        local map = build({main_ores = AngelOres}, 1)
+        local counts, total = {}, 0
+
+        -- Act: a spread of panels out to 3000 tiles
+        for x = -3000, 3000, 37 do
+            for y = -3000, 3000, 37 do
+                local name = map(x, y, {}).entities[1].name
+                counts[name] = (counts[name] or 0) + 1
+                total = total + 1
+            end
+        end
+
+        -- Assert
+        for _, ore in ipairs(AngelOres) do
+            local share = (counts[ore.name] or 0) / total
+            Assert.is_true(share > 0.03, ('%s has %.3f of the map'):format(ore.name, share))
+        end
+        Assert.is_true(counts.coal / total > 0.2, ('coal has %.3f of the map'):format(counts.coal / total))
     end)
 end)

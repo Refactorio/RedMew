@@ -1,6 +1,9 @@
 -- Mosaic: a monumental mural of space and industry laid out in ore (see mosaic_layout.lua),
--- which says which main ore each tile gets. `config.main_ores_mosaic` overrides the layout's
--- defaults (the inks and their weights, the line ore, panel sizes...).
+-- which says which main ore each tile gets. The inks are the main ores, any number of them, each
+-- at its `weight` in config.main_ores: coal (or else the lightest ore) draws the lines, and the
+-- two heaviest of the rest spawn's medallion. `config.main_ores_mosaic` overrides the layout's
+-- defaults (inks with weights that change with the distance from spawn, the line ore, panel
+-- sizes...).
 local b = require 'map_gen.shared.builders'
 local Layout = require 'map_gen.maps.danger_ores.modules.mosaic_layout'
 
@@ -18,7 +21,7 @@ return function(config)
             shapes[ore_data.name] = b.apply_entity(land, ore)
         end
 
-        local options = {random = random_gen}
+        local options = {random = random_gen, inks = Layout.inks_of(main_ores)}
         for key, value in pairs(overrides) do
             options[key] = value
         end
